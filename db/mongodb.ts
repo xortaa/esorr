@@ -20,12 +20,14 @@ async function dbConnect() {
     return cached.conn;
   }
   if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        dbName: "esorr",
+        bufferCommands: false,
+      })
+      .then((mongoose) => {
+        return mongoose;
+      });
   }
   try {
     cached.conn = await cached.promise;
