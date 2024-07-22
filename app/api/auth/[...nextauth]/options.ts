@@ -8,8 +8,8 @@ import bcrypt from "bcryptjs";
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -41,7 +41,22 @@ export const options: NextAuthOptions = {
       try {
         await dbConnect();
 
-        const existingUser = await User.findOne({ email: profile.email } || { username: credentials.username });
+        if (credentials) {
+          return true;
+        }
+
+        const existingUser = await User.findOne({ email: profile.email });
+
+        if (existingUser) {
+          return true;
+        }
+
+        const newUser = await User.create({
+          email: profile.email,
+          image: profile.image,
+        });
+
+        await newUser.save();
 
         return true;
       } catch (error) {
