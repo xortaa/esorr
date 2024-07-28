@@ -24,9 +24,9 @@ const OrganizationSchema = new Schema({
   },
   socials: [
     {
-      platform: { type: String },
-      link: { type: String },
-    },
+      type: Schema.Types.ObjectId,
+      ref: "Social"
+    }
   ],
   members: [
     {
