@@ -1,31 +1,31 @@
 import { Schema, model, models } from "mongoose";
 
-const EducationalBackgroundModel = new Schema({
-  attainment: {
-    type: String,
-    required: [true, "attainment is required"],
-  },
-  name: {
-    type: String,
-    required: [true, "name is required"],
-  },
-  location: {
-    type: String,
-    required: [true, "location is required"],
-  },
-  year_of_graduation: {
-    type: String,
-    required: [true, "year_of_graduation is required"],
-  },
-  organizations: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "EducationalBackgroundOrganization",
+const EducationalBackgroundModel = new Schema(
+  {
+    attainment: {
+      type: String,
+      enum: ["Secondary", "College", "Special Training"],
     },
-  ],
-});
+    name: {
+      type: String,
+    },
+    location: {
+      type: String,
+    },
+    year_of_graduation: {
+      type: String,
+    },
+    organizations: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "EducationalBackgroundOrganization",
+      },
+    ],
+  },
+  { collection: "educational_backgrounds" }
+);
 
 const EducationalBackground =
-  models.EducationalBackground || model("EducationalBackgruond", EducationalBackgroundModel);
+  models.EducationalBackground || model("EducationalBackground", EducationalBackgroundModel);
 
 export default EducationalBackground;
