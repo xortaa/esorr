@@ -10,7 +10,7 @@ export type SocialsInput = {
   link: string;
 };
 
-export type Members = {
+export type Member = {
   _id: string;
   __v: number;
   first_name: string;
@@ -29,13 +29,14 @@ export type Members = {
   religion: string;
   citizenship: string;
   gender: string;
-  educational_background: string;
+  educational_background: EducationalBackground[];
   is_new_member: boolean;
   program: string;
   year_level: string;
+  image?: string;
 };
 
-export type MembersInput = {
+export type MemberInput = {
   first_name: string;
   middle_name: string;
   last_name: string;
@@ -52,8 +53,38 @@ export type MembersInput = {
   religion: string;
   citizenship: string;
   gender: string;
-  educational_background: string;
+  educational_background: string[];
   is_new_member: boolean;
   program: string;
   year_level: string;
+};
+
+export type EducationalBackgroundInput = {
+  attainment: "Secondary" | "College" | "Special Training";
+  name: string;
+  location: string;
+  year_of_graduation: string;
+  organizations: string[];
+};
+
+export type EducationalBackground = {
+  _id: string;
+  attainment: "Secondary" | "College" | "Special Training";
+  name: string;
+  location: string;
+  year_of_graduation: string;
+  organizations: EducationalBackgroundOrganization[];
+  __v: number;
+};
+
+export type EducationalBackgroundOrganization = {
+  _id: string;
+  name: string;
+  position: string;
+  __v: number;
+};
+
+export type EducationalBackgroundOrganizationInput = {
+  name: string;
+  position: string;
 };
