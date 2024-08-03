@@ -1,33 +1,33 @@
-import { MembersInput, Members } from "@/types";
+import { Member, MemberInput } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
-import Member from "@/models/member";
+import Members from "@/models/member";
 import dbConnect from "@/db/mongodb";
 
-// @desc get all members
-// @route GET /api/members
-// @access Private
 export const GET = async () => {
   await dbConnect();
   try {
-    const members: Members[] = await Member.find({});
+    const members = await Members.find({}).populate("educational_background");
     return NextResponse.json(members, { status: 200 });
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
   }
 };
 
-// @desc create a member
-// @route POST /api/members
-// @access Private
-// @req body MembersInput
 export const POST = async (req: NextRequest) => {
   await dbConnect();
+
+  let memberInput: MemberInput;
   try {
-    const membersInput: MembersInput = await req.json();
-    const newMember = await Member.create(membersInput);
+    memberInput = await req.json();
+  } catch (error) {
+    console.error("Error parsing request body:", error);
+    return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
+  }
+
+  try {
+    const newMember = await Members.create(memberInput);
     return NextResponse.json(newMember, { status: 201 });
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
   }
 };
-
