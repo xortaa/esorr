@@ -6,7 +6,7 @@ import dbConnect from "@/db/mongodb";
 export const GET = async () => {
   await dbConnect();
   try {
-    const members = await Members.find({}).populate("educational_background");
+    const members: Member[] = await Members.find({}).populate("educational_background");
     return NextResponse.json(members, { status: 200 });
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
