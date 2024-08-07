@@ -1,11 +1,13 @@
-export type Socials = {
+import { StringLiteral } from "typescript";
+
+export type Social = {
   _id: string;
   platform: string;
   link: string;
   __v: number;
 };
 
-export type SocialsInput = {
+export type SocialInput = {
   platform: string;
   link: string;
 };
@@ -87,4 +89,34 @@ export type EducationalBackgroundOrganization = {
 export type EducationalBackgroundOrganizationInput = {
   name: string;
   position: string;
+};
+
+export type Organization = {
+  _id: string;
+  name: string;
+  image: string;
+  affiliation: string;
+  is_univ_wide: boolean;
+  website?: string;
+  email: string;
+  socials?: Socials[];
+  members?: Member[];
+  advisers?: string[];
+  accreditation_code: string;
+  is_active: boolean;
+  __v: number;
+};
+
+export type OrganizationInput = {
+  name: string;
+  image?: string;
+  affiliation: string;
+  is_univ_wide?: boolean;
+  website?: string;
+  email: string;
+  socials?: Socials[];
+  members?: Member[];
+  advisers?: string[];
+  accreditation_code: string;
+  is_active?: boolean;
 };

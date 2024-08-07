@@ -59,6 +59,10 @@ const MemberModel = new Schema({
   },
   image: {
     type: String,
+},
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
   },
 });
 

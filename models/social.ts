@@ -9,6 +9,10 @@ const SocialSchema = new Schema({
     type: String,
     required: [true, "link is required"],
   },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
+  },
 });
 
 const Social = models.Socials || model("Socials", SocialSchema);

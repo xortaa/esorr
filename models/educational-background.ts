@@ -21,6 +21,10 @@ const EducationalBackgroundModel = new Schema(
         ref: "EducationalBackgroundOrganization",
       },
     ],
+    member: {
+      type: Schema.Types.ObjectId,
+      ref: "Member",
+    },
   },
   { collection: "educational_backgrounds" }
 );

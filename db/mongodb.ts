@@ -1,42 +1,34 @@
 import mongoose from "mongoose";
-declare global {
-  var mongoose: any;
-}
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+let isConnected: boolean = false;
 
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
-}
-
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
+const connectToDatabase = async () => {
+  mongoose.set("strictQuery", true);
+  if (isConnected) {
+    console.log("MongoDB is already connected");
+    return;
   }
-  if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        dbName: "esorr",
-        bufferCommands: false,
-      })
-      .then((mongoose) => {
-        return mongoose;
-      });
+
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MongoDB URI is must be set in the environment variables");
   }
+
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    await mongoose.connect(process.env.MONGODB_URI, {
+      dbName: "esorr",
+    });
+    isConnected = true;
+    console.log("MongoDB is connected");
+
+    require("@/models/user");
+    require("@/models/social");
+    require("@/models/organization");
+    require("@/models/member");
+    require("@/models/educational-background");
+    require("@/models/educational-background-organization");
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  return cached.conn;
-}
-
-export default dbConnect;
+export default connectToDatabase;

@@ -13,20 +13,19 @@ const OrganizationSchema = new Schema({
   },
   is_univ_wide: {
     type: Boolean,
-    required: [true, "is_univ_wide is required"],
+    default: false,
   },
   website: {
     type: String,
   },
   email: {
     type: String,
-    required: [true, "email is required"],
   },
   socials: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Social"
-    }
+      ref: "Socials",
+    },
   ],
   members: [
     {

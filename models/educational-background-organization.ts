@@ -1,13 +1,20 @@
 import { Schema, model, models } from "mongoose";
 
-const EduationalBackgroundOrganizationModel = new Schema({
-  name: {
-    type: String,
+const EduationalBackgroundOrganizationModel = new Schema(
+  {
+    name: {
+      type: String,
+    },
+    position: {
+      type: String,
+    },
+    educational_background: {
+      type: Schema.Types.ObjectId,
+      ref: "EducationalBackground",
+    },
   },
-  position: {
-    type: String,
-  },
-});
+  { collection: "educational_backgrounds_organization" }
+);
 
 const EducationalBackgroundOrganization =
   models.EducationalBackgroundOrganization ||
