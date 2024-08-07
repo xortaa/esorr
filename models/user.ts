@@ -4,7 +4,6 @@ const UserSchema = new Schema({
   email: {
     type: String,
     unique: true,
-    required: true,
   },
   password: {
     type: String,
@@ -14,8 +13,33 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
+    enum: ["RSO", "OSA", "SOCC", "AU", "ADVISER"],
     required: true,
     default: "AU",
+  },
+  first_name: {
+    type: String,
+  },
+  middle_name: {
+    type: String,
+  },
+  last_name: {
+    type: String,
+  },
+  contact_number: {
+    type: String,
+  },
+  college: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  second_address: {
+    type: String,
+  },
+  signature: {
+    type: String,
   },
 });
 
