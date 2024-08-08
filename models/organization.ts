@@ -46,6 +46,11 @@ const OrganizationSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  status: {
+    type: String,
+    enum: ["For Revision", "Ready for Printing"],
+    default: "For Revision",
+  },
 });
 
 const Organization = models.Organization || model("Organization", OrganizationSchema);
