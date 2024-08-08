@@ -104,19 +104,21 @@ export type Organization = {
   advisers?: string[];
   accreditation_code: string;
   is_active: boolean;
+  status: "For Revision" | "Ready for Printing";
   __v: number;
 };
 
 export type OrganizationInput = {
   name: string;
-  image?: string;
+  image: string;
   affiliation: string;
-  is_univ_wide?: boolean;
-  website?: string;
+  is_univ_wide: boolean;
+  website: string;
   email: string;
-  socials?: Socials[];
-  members?: Member[];
-  advisers?: string[];
+  socials: Socials[];
+  members: Member[];
+  advisers: string[];
   accreditation_code: string;
-  is_active?: boolean;
+  is_active: boolean;
+  status: "For Revision" | "Ready for Printing";
 };
