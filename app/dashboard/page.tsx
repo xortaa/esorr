@@ -21,7 +21,7 @@ const DashboardPage = () => {
       {!organizations.length ? (
         <LoadingSpinner />
       ) : (
-        <div className="grid 2xl:grid-cols-3 xl:grid-cols-2 sm:grid-cols-1 gap-8">
+        <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4 auto-rows-fr">
           {organizations.map((org) => (
             <OrganizationCard key={org._id} image={org.image} name={org.name} status={org.status} />
           ))}
