@@ -1,5 +1,3 @@
-import { StringLiteral } from "typescript";
-
 export type Social = {
   _id: string;
   platform: string;
@@ -122,3 +120,8 @@ export type OrganizationInput = {
   is_active: boolean;
   status: "For Revision" | "Ready for Printing";
 };
+
+export type UserInput = { 
+  email: string;
+  password: string;
+}

@@ -5,7 +5,7 @@ interface PageContentWrapperProps {
 }
 
 const PageContentWrapper: React.FC<PageContentWrapperProps> = ({ children }) => {
-  return <div className="px-12 min-h-screen min-w-full">{children}</div>;
+  return <div className="px-12 pt-12 min-h-screen min-w-full">{children}</div>;
 };
 
 export default PageContentWrapper;
