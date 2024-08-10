@@ -15,7 +15,7 @@ const OrganizationCard = ({ image, name, status }: OrganizationCardProps) => {
         </div>
         <div className="flex-1 h-full flex flex-col justify-between items-start gap-4">
           <div>
-            <h2 className="text-md font-bold text-black">{name}</h2>
+            <h2 className="text-md font-bold text-neutral">{name}</h2>
             <p className="text-sm text-gray-500">Affiliation</p>
           </div>
           <div className="flex flex-col items-start justify-center gap-1">

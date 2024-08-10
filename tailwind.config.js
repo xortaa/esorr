@@ -10,9 +10,11 @@ module.exports = {
     // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  daisyui: {
+    themes: ["bumblebee"],
+  },
   theme: {
     extend: {},
   },
   plugins: [daisyui],
 };
-

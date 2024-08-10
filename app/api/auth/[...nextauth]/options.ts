@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/db/mongodb";
 import User from "@/models/user";
 import bcrypt from "bcryptjs";
+import { encode, decode } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Profile {
@@ -74,10 +75,11 @@ export const options: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      return baseUrl;
+      return baseUrl + "/dashboard";
     },
   },
   session: { strategy: "jwt" },
+  jwt: { encode, decode },
   pages: { signIn: "/auth/signin" },
   secret: process.env.NEXTAUTH_SECRET,
 };
