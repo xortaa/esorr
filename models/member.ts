@@ -27,7 +27,7 @@ const MemberModel = new Schema({
   },
   other_organizations: [
     {
-      name: { type: Schema.Types.ObjectId, ref: "Organization" },
+      name: { type: String },
       position: { type: String },
       inclusive_date: { type: String },
     },
@@ -59,7 +59,7 @@ const MemberModel = new Schema({
   },
   image: {
     type: String,
-},
+  },
   organization: {
     type: Schema.Types.ObjectId,
     ref: "Organization",
