@@ -2,7 +2,7 @@ import { text } from "stream/consumers";
 
 const Navbar_SOCC = () => {
     return (
-        <div className="navbar bg-neutral">
+        <div className="navbar bg-black">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -19,17 +19,11 @@ const Navbar_SOCC = () => {
                   d="M4 6h16M4 12h8m-8 6h16" />
               </svg>
             </div>
- 
+
           </div>
           <a className="btn btn-ghost text-xl" style={{ color: "#FEC00F" }}>E-SORR</a>
           </div>
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1"  style={{ color: "#FEC00F" }}>
-            <li><a>Organizations</a></li>
-            <li><a>Accreditation</a></li>
-            <li><a>Accounts</a></li>
-          </ul>
-        </div>
+  
         <div className="navbar-end">
         <div className="dropdown dropdown-end">
   <div tabIndex={0} role="button" className="btn m-1 bg-primary">
