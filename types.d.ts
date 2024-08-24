@@ -1,3 +1,4 @@
+import LetteredParagraph from "./models/articles-of-association/lettered-paragraph";
 export type Social = {
   _id: string;
   platform: string;
@@ -121,7 +122,87 @@ export type OrganizationInput = {
   status: "For Revision" | "Ready for Printing";
 };
 
-export type UserInput = { 
+export type UserInput = {
   email: string;
   password: string;
-}
+};
+
+export type AnnexC1 = {
+  _id: string;
+  articles: Article[];
+  organization: Organization;
+  __v: number;
+};
+
+export type AnnexC1Input = {
+  articles: string[];
+  organization: string;
+};
+
+export type Article = {
+  _id: string;
+  order: number;
+  title: string;
+  description: string[];
+  sections: Section[];
+  __v: number;
+};
+
+export type ArticleInput = {
+  order: number;
+  title: string;
+  description: string[];
+  sections: string[];
+};
+
+export type Section = {
+  _id: string;
+  order: number;
+  title: string;
+  paragraph: string;
+  image: string;
+  article: string;
+  subsections: Subsection[];
+  __v: number;
+};
+
+export type SectionInput = {
+  order: number;
+  title: string;
+  paragraph: string;
+  image: string;
+  article: string;
+  subsections: string[];
+};
+
+export type Subsection = {
+  _id: string;
+  number: string;
+  title: string;
+  paragraph: string;
+  section: string;
+  __v: number;
+};
+
+export type SubsectionInput = {
+  number: string;
+  title: string;
+  paragraph: string;
+  section: string;
+};
+
+export type LetteredParagraph = {
+  _id: string;
+  letter: string;
+  paragraph: string;
+  subsection: string;
+  section: string;
+  __v: number;
+};
+
+export type LetteredParagraphInput = {
+  letter: string;
+  paragraph: string;
+  subsection: string;
+  section: string;
+};
