@@ -1,0 +1,97 @@
+"use client";
+
+import { ChevronDown, Bird } from "lucide-react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+const Navbar = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
+
+  if (pathname === "/") {
+    return null;
+  }
+  if (status === "loading") {
+    return null;
+  }
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary">
+      <div className="flex items-center justify-center gap-4">
+        <Link href="/organizations" className="flex items-center justify-center gap-1 text-primary">
+          <Bird />
+          <p className="text-xl font-bold">ESORR</p>
+        </Link>
+        <div className="flex items-center justify-between gap-4 ">
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className="flex items-center justify-center gap-1 ">
+              <p>Admin</p>
+              <ChevronDown size={12} />
+            </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow text-black">
+              <li>
+                <Link href="/admin/accounts">Manage Accounts</Link>
+              </li>
+              <li>
+                <Link href="/admin/organizations">Manage Organizations</Link>
+              </li>
+            </ul>
+          </div>
+          <Link href="/organizations">Organizations</Link>
+          <p>Annexes</p>
+          <p>About</p>
+          <p>FAQ</p>
+        </div>
+      </div>
+      <div className="dropdown dropdown-bottom dropdown-end">
+        <div
+          tabIndex={0}
+          role="button"
+          className="flex items-center justify-center gap-2 text-white py-2 px-4 rounded-full border border-primary hover:bg-primary hover:text-black cursor-pointer"
+        >
+          <div className="avatar">
+            <div className="w-9 rounded-full">
+              <img src={session?.user.image ?? "/assets/user-placeholder.png"} />
+            </div>
+          </div>
+          <p className="text-sm">{session?.user.email}</p>
+          <ChevronDown size={15} />
+        </div>
+        <div tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow text-black">
+          <div className="flex flex-col items-center justify-center gap-1 mb-2">
+            <div className="avatar">
+              <div className="w-16 rounded-full">
+                <img src={session?.user.image ?? "/assets/user-placeholder.png"} />
+              </div>
+            </div>
+            <p className="text-xl">{session?.user.email}</p>
+            <p className="bg-primary rounded-box py-1 px-3 text-white text-xs">{session?.user.role}</p>
+          </div>
+          <div className="flex flex-col items-start justify-center my-2">
+            <Link href={`/profile/${session?.user._id}`} className="p-4 w-full hover:bg-slate-200 rounded-lg">
+              Profile
+            </Link>
+          </div>
+          <button
+            className="btn btn-outline"
+            onClick={() => {
+              signOut({ redirect: false }).then(() => {
+                router.push("/");
+              });
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+export default Navbar;
