@@ -1,14 +1,13 @@
 import LoginForm from "@/components/LoginForm";
 
 const HomePage = () => {
-
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row text-neutral bg-slate-50">
-      <div className="w-full md:w-2/6 flex flex-col justify-center items-center p-5 gap-2 relative">
+      <div className="w-full md:w-3/6 flex flex-col justify-center items-center p-5 gap-2 relative">
         <span className="absolute top-0 h-2 bg-primary w-full" />
         <div className="mt-auto">
           <h1 className="text-3xl font-bold">Sign in to your account</h1>
-          <p className="text-md my-2">Welcome back! Please enter your details.</p>
+          <p className="text-md mt-2 mb-8">Welcome back! Please enter your details.</p>
           <LoginForm />
         </div>
         <div className="flex items-center justify-center flex-wrap gap-2 mt-auto">
@@ -22,7 +21,6 @@ const HomePage = () => {
       </div>
     </div>
   );
-
 };
 
 export default HomePage;
