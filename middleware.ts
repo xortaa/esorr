@@ -8,11 +8,8 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
 
-  if (token && pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
-  if (!token && pathname === "/dashboard") {
+  // block access to the whole website if the user is not authenticated
+  if (!token && pathname !== "/") {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
@@ -20,5 +17,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard"],
+  matcher: ["/", "/dashboard", "/organizations", "/admin/*"],
 };
