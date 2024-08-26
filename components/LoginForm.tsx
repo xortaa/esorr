@@ -25,7 +25,7 @@ const LoginForm = () => {
     if (result?.error) {
       setSignInError(result.error);
     } else {
-      router.push("/dashboard");
+      router.push("/organizations");
     }
   };
 
