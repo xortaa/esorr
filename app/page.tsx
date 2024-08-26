@@ -1,6 +1,7 @@
 import LoginForm from "@/components/LoginForm";
 
 const HomePage = () => {
+
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row text-neutral bg-slate-50">
       <div className="w-full md:w-2/6 flex flex-col justify-center items-center p-5 gap-2 relative">
@@ -21,6 +22,7 @@ const HomePage = () => {
       </div>
     </div>
   );
+
 };
 
 export default HomePage;
