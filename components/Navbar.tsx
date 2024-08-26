@@ -1,6 +1,3 @@
-// Line 59 - Modal
-// Line 73 - Logout Button (To connect)
-
 "use client";
 
 import { useState } from "react";
@@ -23,20 +20,25 @@ const Navbar_AU = () => {
   };
 
   return (
-    // Navbar
     <>
-      <div className="navbar bg-black">
+      {/* Navbar */}
+      <div className="navbar bg-black py-0">
         <div className="navbar-start">
-          <a className="btn btn-ghost text-2xl " style={{ color: "#FEC00F" }}>
+          <a className="btn btn-ghost text-2xl lg:text-xl sm:text-md xl:visible invisible" style={{ color: "#FEC00F" }}>
             E-SORR
           </a>
-          <a className="text invisible  xl:visible" style={{ color: "#FFFFFF" }}>
+          <a className="text xl:visible hidden text-nowrap" style={{ color: "#FFFFFF" }}>
             Electronic Student Organization Recognition Requirements
           </a>
         </div>
+
+        <a className="btn btn-ghost text-2xl sm:text-md xl:hidden visible text-center p-0" style={{ color: "#FEC00F" }}>
+          E-SORR
+        </a>
+
         <div className="navbar-end">
-          <div className="dropdown dropdown-end ">
-            <div tabIndex={0} role="button" className="btn m-1 bg-primary border-0  p-auto invisible sm:visible">
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn m-1 bg-primary border-0 p-auto xl:visible invisible">
               <div className="avatar">
                 <div className="ring-primary ring-offset-base-100 w-8 rounded-full">
                   <img
