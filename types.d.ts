@@ -1,4 +1,3 @@
-import LetteredParagraph from "./models/articles-of-association/lettered-paragraph";
 export type Social = {
   _id: string;
   platform: string;
@@ -125,6 +124,32 @@ export type OrganizationInput = {
 export type UserInput = {
   email: string;
   password: string;
+};
+
+export type UserRegistrationInput = {
+  email: string;
+  password: string;
+  confirm_password: string;
+  role: "RSO" | "SOCC" | "AU";
+};
+
+export type User = {
+  _id: string;
+  email: string;
+  password: string;
+  image: string;
+  role: "RSO" | "OSA" | "SOCC" | "AU" | "ADVISER";
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  contact_number: string;
+  college: string;
+  address: string;
+  second_address: string;
+  signature: string;
+  organization: Organization;
+  affiliation: string;
+  __v: number;
 };
 
 export type AnnexC1 = {
