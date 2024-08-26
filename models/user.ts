@@ -17,6 +17,13 @@ const UserSchema = new Schema({
     required: true,
     default: "AU",
   },
+  affiliation: {
+    type: String,
+  },
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
+  },
   first_name: {
     type: String,
   },
