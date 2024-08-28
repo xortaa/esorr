@@ -1,9 +1,10 @@
 import OrganizationCard from "@/components/OrganizationCard";
 import { Search, Filter, LayoutGrid, Rows3 } from "lucide-react";
+import PageWrapper from "@/components/PageWrapper";
 
 const OrganizationsPage = () => {
   return (
-    <div className="p-5">
+    <PageWrapper>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Organizations</h1>
         <p className="text-slate-500 text-sm">Browse all student organizations</p>
@@ -47,7 +48,7 @@ const OrganizationsPage = () => {
         <OrganizationCard />
         <OrganizationCard />
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 export default OrganizationsPage;
