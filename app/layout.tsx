@@ -1,11 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Source_Serif_4 } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth";
 import Navbar from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const sourceSerif4 = Source_Serif_4({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "E-SORR",
@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <SessionProvider session={session}>
-        <body className={inter.className}>
+        <body className={sourceSerif4.className}>
           <Navbar />
           {children}
         </body>
