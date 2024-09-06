@@ -6,11 +6,7 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-interface NavbarProps {
-  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const Navbar = ({ setSidebarOpen }: NavbarProps) => {
+const NavbarNoSidebar = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -18,16 +14,9 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
     return null;
   }
 
-  function toggleSidebar() {
-    setSidebarOpen((prev) => !prev);
-  }
-
   return (
     <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50">
       <div className="flex items-center justify-center gap-2">
-        <button className="btn btn-ghost hidden lg:flex p-0" onClick={() => toggleSidebar()}>
-          <Menu />
-        </button>
         <label htmlFor="my-drawer-2" className="btn btn-ghost drawer-button lg:hidden p-0">
           <Menu />
         </label>
@@ -66,9 +55,7 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
               <p className="bg-primary rounded-box py-1 px-3 text-white text-xs">{session?.user.role}</p>
             </div>
             <div className="flex flex-col items-start justify-center my-2">
-              <Link href={`/profile/${session?.user._id}`} className="p-4 w-full hover:bg-slate-200 rounded-lg">
-                Profile
-              </Link>
+              <p className="p-4 w-full hover:bg-slate-200 rounded-lg cursor-not-allowed text-slate-500">Profile</p>
             </div>
             <button
               className="btn btn-outline"
@@ -86,4 +73,4 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
     </div>
   );
 };
-export default Navbar;
+export default NavbarNoSidebar;

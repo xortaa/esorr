@@ -6,7 +6,6 @@ import User from "@/models/user";
 import bcrypt from "bcryptjs";
 import { encode, decode } from "next-auth/jwt";
 import { DefaultSession, DefaultUser } from "next-auth";
-import { signOut } from "next-auth/react";
 
 declare module "next-auth" {
   export interface Profile {
@@ -17,6 +16,16 @@ declare module "next-auth" {
       _id: string;
       role: string;
     } & DefaultSession["user"];
+  }
+  export interface Account {
+    role: string;
+    _id: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: string;
   }
 }
 
@@ -70,6 +79,8 @@ export const options: NextAuthOptions = {
             await User.findOneAndUpdate({ email: profile.email }, { image: profile.picture }, { new: true });
             return true;
           }
+          account._id = existingUser._id.toString();
+          account.role = existingUser.role;
           return true;
         }
       } catch (error) {
@@ -77,29 +88,21 @@ export const options: NextAuthOptions = {
         return false;
       }
     },
-    async session({ session }) {
-      try {
-        const existingUser = await User.findOne({ email: session.user.email });
-        if (!existingUser) {
-          await signOut();
-          return null;
-        }
-        if (session.user) {
-          session.user._id = existingUser._id.toString();
-          session.user.role = existingUser.role;
-        }
-        return session;
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        await signOut();
-        return null;
-      }
+    async session({ session, token }) {
+      session.user._id = token._id.toString();
+      session.user.role = token.role;
+      return session;
     },
-    async jwt({ token }) {
+    async jwt({ token, account }) {
+      if (account) {
+        token.role = account.role;
+        token._id = account._id;
+      }
+
       return token;
     },
     async redirect({ url, baseUrl }) {
-      return baseUrl + "/organizations";
+      return baseUrl + "/login-redirect";
     },
   },
   session: { strategy: "jwt" },

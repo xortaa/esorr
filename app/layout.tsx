@@ -1,11 +1,16 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Source_Serif_4 } from "next/font/google";
+import { Poppins } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth";
-import Navbar from "@/components/Navbar";
+import { options } from "@/app/api/auth/[...nextauth]/options";
 
-const sourceSerif4 = Source_Serif_4({ subsets: ["latin"] });
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "E-SORR",
@@ -14,15 +19,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession();
+  const session = await getServerSession(options);
+
   return (
-    <html lang="en">
-      <SessionProvider session={session}>
-        <body className={sourceSerif4.className}>
-          <Navbar />
-          {children}
-        </body>
-      </SessionProvider>
+    <html lang="en" className="h-full">
+      <body className={`${poppins.className} h-full`}>
+        <SessionProvider session={session}>{children}</SessionProvider>
+      </body>
     </html>
   );
 }

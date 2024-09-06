@@ -25,7 +25,10 @@ const LoginForm = () => {
     if (result?.error) {
       setSignInError(result.error);
     } else {
-      router.push("/organizations");
+      // token.role = "OSA" then go to /osa
+      // token.role = "RSO" then go to /rso
+      
+      
     }
   };
 
