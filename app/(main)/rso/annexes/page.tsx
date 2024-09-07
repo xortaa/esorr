@@ -50,14 +50,14 @@ const AnnexesPage = () => {
           annexCode="A-1"
           annexTitle="Officer_s Information Sheet"
           annexStatus="Incomplete"
-          annexEditLink=""
+          annexEditLink="/rso/annexes/annex-a1"
           annexViewLink=""
         />
         <AnnexDashboardAnnexCard
           annexCode="B"
           annexTitle="List of Members"
           annexStatus="Incomplete"
-          annexEditLink=""
+          annexEditLink="/rso/annexes/annex-b"
           annexViewLink=""
         />
         <AnnexDashboardAnnexCard

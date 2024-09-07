@@ -41,12 +41,9 @@ const CreateAccountSidebar = ({ setUsers }: { setUsers: React.Dispatch<React.Set
           Create Account
         </label>
       </div>
-      <div className="drawer-side z-50">
+      <div className="drawer-side z-50 mt-20">
         <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-        <form
-          className="menu bg-white text-base-content min-h-full w-5/6 sm:w-4/6 xl:w-2/6 p-4 border-t-8 border-primary"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="menu bg-white min-h-full w-5/6 sm:w-4/6 xl:w-2/6 p-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <h2 className="text-3xl font-bold">Create an account</h2>
             <p className="text-sm text-slate-500">Enter the details below to create an account for a user</p>

@@ -22,8 +22,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await getServerSession(options);
 
   return (
-    <html lang="en" className="h-full">
-      <body className={`${poppins.className} h-full`}>
+    <html lang="en">
+      <body className={`${poppins.className}`}>
         <SessionProvider session={session}>{children}</SessionProvider>
       </body>
     </html>

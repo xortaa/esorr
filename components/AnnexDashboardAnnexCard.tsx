@@ -1,4 +1,4 @@
-import { Eye, Pencil } from "lucide-react";
+import { Eye, FilePenLine } from "lucide-react";
 import Link from "next/link";
 
 interface AnnexDashboardAnnexCardProps {
@@ -17,7 +17,7 @@ const AnnexDashboardAnnexCard = ({
   annexViewLink,
 }: AnnexDashboardAnnexCardProps) => {
   return (
-    <div className="flex justify-between items-center p-4 hover:shadow-lg cursor-pointer">
+    <div className="flex justify-between items-center p-4">
       <div className="flex items-center justify-center gap-4">
         <span className="text-xl font-bold bg-slate-300 w-10 h-10 flex items-center justify-center rounded-full opacity-40">
           <p>{annexCode}</p>
@@ -30,14 +30,14 @@ const AnnexDashboardAnnexCard = ({
       <div className="flex items-center justify-center gap-2">
         <Link href={annexEditLink}>
           <button className="btn ghost">
-            <Pencil />
+            <FilePenLine />
             Edit
           </button>
         </Link>
         <Link href={annexViewLink}>
           <button className="btn btn-primary">
             <Eye />
-            <p>View</p>
+            <p>Preview PDF</p>
           </button>
         </Link>
       </div>

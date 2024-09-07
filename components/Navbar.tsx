@@ -23,7 +23,7 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
   }
 
   return (
-    <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50">
+    <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50 h-20">
       <div className="flex items-center justify-center gap-2">
         <button className="btn btn-ghost hidden lg:flex p-0" onClick={() => toggleSidebar()}>
           <Menu />
@@ -34,7 +34,7 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
         <Link href="/organizations" className="flex items-center justify-center gap-1">
           <Bird className="text-primary" />
           <p className="lg:text-xl text-md font-bold text-primary">E-SORR</p>
-          <p className="text-sm">Electronic Student Organization Recognition Requirements</p>
+          <p className="text-sm lg:block hidden">Electronic Student Organization Recognition Requirements</p>
         </Link>
       </div>
       {session && (
