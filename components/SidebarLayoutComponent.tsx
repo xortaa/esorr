@@ -3,16 +3,16 @@ import Navbar from "@/components/Navbar";
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { SquareUserRound, Building2, Megaphone, Laptop, CircleHelp, FileText, Users } from "lucide-react";
+import { SquareUserRound, Building2, Megaphone, Laptop, CircleHelp, FileText, Users, Undo2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const SidebarLayoutComponent = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { data: session, status } = useSession();
-  console.log(session);
-
+  const router = useRouter();
   return (
     <div className="relative flex flex-col h-full">
-      <Navbar setSidebarOpen={setSidebarOpen} />
+      <Navbar />
       <div className="flex flex-col z-0 h-full">
         <div className="flex flex-1 h-full">
           <div className={`drawer ${sidebarOpen ? "lg:drawer-open" : "lg:drawer-close"} h-full`}>
@@ -23,6 +23,11 @@ const SidebarLayoutComponent = ({ children }) => {
               <div className="menu bg-base text-base-content h-full w-16 flex-col items-start justify-start">
                 <ul className="w-full">
                   <div className="border-b border-slate-400">
+                    <li className="my-6">
+                      <button className="btn btn-link text-base-content hover:text-primary" onClick={() => router.back()}>
+                        <Undo2 />
+                      </button>
+                    </li>
                     {session?.user.role === "RSO" && (
                       <>
                         <li className="my-6">

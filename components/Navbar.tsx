@@ -6,11 +6,7 @@ import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-interface NavbarProps {
-  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const Navbar = ({ setSidebarOpen }: NavbarProps) => {
+const Navbar = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -18,16 +14,9 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
     return null;
   }
 
-  function toggleSidebar() {
-    setSidebarOpen((prev) => !prev);
-  }
-
   return (
     <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50 h-20">
       <div className="flex items-center justify-center gap-2">
-        <button className="btn btn-ghost hidden lg:flex p-0" onClick={() => toggleSidebar()}>
-          <Menu />
-        </button>
         <label htmlFor="my-drawer-2" className="btn btn-ghost drawer-button lg:hidden p-0">
           <Menu />
         </label>
