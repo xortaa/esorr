@@ -231,3 +231,14 @@ export type LetteredParagraphInput = {
   subsection: string;
   section: string;
 };
+
+type AffiliationInput = {
+  name: string;
+};
+
+type AffiliationResponse = {
+  _id: string;
+  name: string;
+  isArchived: boolean;
+  _v: number;
+};

@@ -24,7 +24,10 @@ const SidebarLayoutComponent = ({ children }) => {
                 <ul className="w-full">
                   <div className="border-b border-slate-400">
                     <li className="my-6">
-                      <button className="btn btn-link text-base-content hover:text-primary" onClick={() => router.back()}>
+                      <button
+                        className="btn btn-link text-base-content hover:text-primary"
+                        onClick={() => router.back()}
+                      >
                         <Undo2 />
                       </button>
                     </li>
@@ -36,7 +39,7 @@ const SidebarLayoutComponent = ({ children }) => {
                           </Link>
                         </li>
                         <li className="my-6">
-                          <Link href="/rso/signatories">
+                          <Link href="/rso/signatory-request">
                             <Users className="text-base-content hover:text-primary" />
                           </Link>
                         </li>

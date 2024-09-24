@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, UserPlus, Bell, CheckCircle, XCircle } from "lucide-react";
+import { Search, Filter, UserPlus, Bell, CheckCircle, XCircle, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 
 type Role = "SOCC" | "AU" | "RSO";
@@ -36,6 +36,7 @@ const AccountsDashboard = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState<"All" | Role>("All");
+  const [newEmail, setNewEmail] = useState<{ email: string }>({ email: "" });
 
   const filteredAccounts = accounts.filter(
     (account) =>
@@ -75,6 +76,8 @@ const AccountsDashboard = () => {
   const handleRejectRequest = (id: string) => {
     setEmailRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
   };
+
+  const handleCreateEmail = () => {};
 
   return (
     <PageWrapper>
@@ -118,10 +121,9 @@ const AccountsDashboard = () => {
             </div>
           </div>
         </div>
-        <button className="btn btn-primary">
-          <UserPlus className="mr-2" />
-          Add Email
-        </button>
+        <div>
+          <CreateMemberSidebar handleCreateEmail={handleCreateEmail} newEmail={newEmail} setNewEmail={setNewEmail} />
+        </div>
       </div>
 
       <div className="mb-12">
@@ -159,10 +161,10 @@ const AccountsDashboard = () => {
                     <span
                       className={`badge ${
                         account.status === "Approved"
-                          ? "badge-success"
+                          ? "badge-primary"
                           : account.status === "Pending"
-                          ? "badge-warning"
-                          : "badge-error"
+                          ? "badge-ghost"
+                          : "badge-neutral"
                       }`}
                     >
                       {account.status}
@@ -170,14 +172,14 @@ const AccountsDashboard = () => {
                   </td>
                   <td>
                     <button
-                      className="btn btn-sm btn-success mr-2"
+                      className="btn btn-sm btn-primary mr-2"
                       onClick={() => handleApproveEmail(account.id)}
                       disabled={account.status === "Approved"}
                     >
                       <CheckCircle className="h-4 w-4" />
                     </button>
                     <button
-                      className="btn btn-sm btn-error"
+                      className="btn btn-sm btn-neutral"
                       onClick={() => handleRejectEmail(account.id)}
                       disabled={account.status === "Rejected"}
                     >
@@ -224,10 +226,10 @@ const AccountsDashboard = () => {
                   </td>
                   <td>{request.requestDate}</td>
                   <td>
-                    <button className="btn btn-sm btn-success mr-2" onClick={() => handleApproveRequest(request.id)}>
+                    <button className="btn btn-sm btn-primary mr-2" onClick={() => handleApproveRequest(request.id)}>
                       <CheckCircle className="h-4 w-4" />
                     </button>
-                    <button className="btn btn-sm btn-error" onClick={() => handleRejectRequest(request.id)}>
+                    <button className="btn btn-sm btn-neutral" onClick={() => handleRejectRequest(request.id)}>
                       <XCircle className="h-4 w-4" />
                     </button>
                   </td>
@@ -238,6 +240,52 @@ const AccountsDashboard = () => {
         </div>
       </div>
     </PageWrapper>
+  );
+};
+
+const CreateMemberSidebar = ({ newEmail, setNewEmail, handleCreateEmail }) => {
+  return (
+    <div className="drawer">
+      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content">
+        <label htmlFor="my-drawer" className="btn btn-primary drawer-button">
+          <UserPlus />
+          Add Member
+        </label>
+      </div>
+      <div className="drawer-side z-50">
+        <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <form
+          onSubmit={handleCreateEmail}
+          className="menu bg-white min-h-full w-5/6 sm:w-4/6 xl:w-1/2 p-4 mt-20 overflow-auto"
+        >
+          <div className="mb-4 relative">
+            <label className="absolute top-0 right-4 btn btn-ghost" htmlFor="my-drawer">
+              <X />
+            </label>
+
+            <h2 className="text-3xl font-bold">Account Details</h2>
+            <p className="text-sm text-slate-500">Enter the details below for the new account</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <div className="w-full">
+              <label className="label mb-1">Email</label>
+              <input
+                name="email"
+                className="input input-bordered w-full uppercase"
+                placeholder="example@.ust.edu.ph"
+                value={newEmail.email}
+                onChange={(e) => setNewEmail({ ...newEmail, email: e.target.value })}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
+              ADD MEMBER
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

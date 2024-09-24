@@ -160,11 +160,37 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
     academicYear: "",
     status: "Incomplete",
     avatarUrl: "https://img.daisyui.com/images/profile/demo/1@94.webp",
+    religion: "",
+    citizenship: "",
+    gender: "",
+    college: "",
+    program: "",
+    educationalBackground: [
+      { level: "Secondary", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+      { level: "College/Major", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+      { level: "Special Training", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+    ],
+    extraCurricularActivities: [
+      { name: "", position: "", inclusiveDates: "" },
+      { name: "", position: "", inclusiveDates: "" },
+    ],
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewOfficer({ ...newOfficer, [name]: value });
+  };
+
+  const handleEducationChange = (index: number, field: string, value: string) => {
+    const updatedEducation = [...newOfficer.educationalBackground];
+    updatedEducation[index] = { ...updatedEducation[index], [field]: value };
+    setNewOfficer({ ...newOfficer, educationalBackground: updatedEducation });
+  };
+
+  const handleExtraCurricularChange = (index: number, field: string, value: string) => {
+    const updatedActivities = [...newOfficer.extraCurricularActivities];
+    updatedActivities[index] = { ...updatedActivities[index], [field]: value };
+    setNewOfficer({ ...newOfficer, extraCurricularActivities: updatedActivities });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -187,6 +213,20 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
       academicYear: "",
       status: "Incomplete",
       avatarUrl: "https://img.daisyui.com/images/profile/demo/1@94.webp",
+      religion: "",
+      citizenship: "",
+      gender: "",
+      college: "",
+      program: "",
+      educationalBackground: [
+        { level: "Secondary", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+        { level: "College/Major", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+        { level: "Special Training", name: "", location: "", yearGraduation: "", organization: "", position: "" },
+      ],
+      extraCurricularActivities: [
+        { name: "", position: "", inclusiveDates: "" },
+        { name: "", position: "", inclusiveDates: "" },
+      ],
     });
   };
 
@@ -212,18 +252,14 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
           className="menu bg-white min-h-full w-5/6 sm:w-4/6 xl:w-1/2 p-4 mt-20 overflow-auto"
         >
           <div className="mb-4 relative">
-            <label
-              className="absolute top-0 right-4 btn btn-ghost"
-              htmlFor="my-drawer"
-              onClick={() => setIsOpen(false)}
-            >
+            <label className="absolute top-0 right-4 btn btn-ghost" htmlFor="my-drawer">
               <X />
             </label>
 
             <h2 className="text-3xl font-bold">Officer Details</h2>
             <p className="text-sm text-slate-500">Enter the details below for the officer</p>
           </div>
-          <div>
+          <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               <div className="w-full">
                 <label className="label mb-1">SURNAME</label>
@@ -261,6 +297,7 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
                   name="religion"
                   className="input input-bordered w-full uppercase"
                   placeholder="CATHOLIC"
+                  value={newOfficer.religion}
                   onChange={handleInputChange}
                 />
               </div>
@@ -270,17 +307,36 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
                   name="citizenship"
                   className="input input-bordered w-full uppercase"
                   placeholder="FILIPINO"
+                  value={newOfficer.citizenship}
                   onChange={handleInputChange}
                 />
               </div>
               <div className="w-full">
                 <label className="label mb-1">GENDER</label>
-                <input
-                  name="gender"
-                  className="input input-bordered w-full uppercase"
-                  placeholder="MALE"
-                  onChange={handleInputChange}
-                />
+                <div className="flex gap-4">
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="radio radio-primary"
+                      value="MALE"
+                      checked={newOfficer.gender === "MALE"}
+                      onChange={handleInputChange}
+                    />
+                    <span className="label-text ml-2">MALE</span>
+                  </label>
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="radio radio-primary"
+                      value="FEMALE"
+                      checked={newOfficer.gender === "FEMALE"}
+                      onChange={handleInputChange}
+                    />
+                    <span className="label-text ml-2">FEMALE</span>
+                  </label>
+                </div>
               </div>
             </div>
             <div>
@@ -310,6 +366,7 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
                   name="college"
                   className="input input-bordered w-full uppercase"
                   placeholder="COLLEGE OF EDUCATION"
+                  value={newOfficer.college}
                   onChange={handleInputChange}
                 />
               </div>
@@ -319,12 +376,98 @@ const CreateOfficerSidebar = ({ officers, setOfficers }) => {
                   name="program"
                   className="input input-bordered w-full uppercase"
                   placeholder="BS FOOD TECHNOLOGY"
+                  value={newOfficer.program}
                   onChange={handleInputChange}
                 />
               </div>
             </div>
-            {/* The rest of the form fields remain unchanged */}
-            {/* ... */}
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
+              {newOfficer.educationalBackground.map((edu, index) => (
+                <div key={index} className="mb-4 p-4 border rounded">
+                  <h4 className="font-semibold mb-2">{edu.level}</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="label mb-1">Name of Institution</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.name}
+                        onChange={(e) => handleEducationChange(index, "name", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Location</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.location}
+                        onChange={(e) => handleEducationChange(index, "location", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Year of Graduation</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.yearGraduation}
+                        onChange={(e) => handleEducationChange(index, "yearGraduation", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Organization/Club/Society</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.organization}
+                        onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Position</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.position}
+                        onChange={(e) => handleEducationChange(index, "position", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
+              {newOfficer.extraCurricularActivities.map((activity, index) => (
+                <div key={index} className="mb-4 p-4 border rounded">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="label mb-1">Name of Organization</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={activity.name}
+                        onChange={(e) => handleExtraCurricularChange(index, "name", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Position</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={activity.position}
+                        onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Inclusive Dates</label>
+                      <input
+                        className="input input-bordered w-full"
+                        placeholder="e.g. 2022-2023"
+                        value={activity.inclusiveDates}
+                        onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
               ADD OFFICER
             </button>
