@@ -12,7 +12,7 @@ interface FormData {
   signature: string | null;
 }
 
-const RSOSignatorySetupPage = () => {
+const SOCCMemberSetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -37,18 +37,18 @@ const RSOSignatorySetupPage = () => {
     <PageWrapper>
       <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
         <div>
-          <h1 className="text-3xl font-bold text-primary">RSO Signatory Setup</h1>
+          <h1 className="text-3xl font-bold text-primary">SOCC Member Setup</h1>
           <p className="text-gray-600">
-            Follow the steps to set up the RSO signatory account before proceeding with ESORR
+            Follow the steps to set up your SOCC member account before proceeding with ESORR
           </p>
         </div>
         <div className="flex flex-col items-start justify-center w-full">
           <SetupStepper step={step} />
           <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
             {step === 1 ? (
-              <RSOSignatorySetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+              <SOCCMemberSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
             ) : (
-              <RSOSignatorySetupStep2 prevStep={prevStep} nextStep={nextStep} formData={formData} />
+              <SOCCMemberSetupStep2 prevStep={prevStep} nextStep={nextStep} formData={formData} />
             )}
           </div>
         </div>
@@ -57,13 +57,13 @@ const RSOSignatorySetupPage = () => {
   );
 };
 
-interface RSOSignatorySetupStep1Props {
+interface SOCCMemberSetupStep1Props {
   nextStep: () => void;
   formData: FormData;
   handleFormChange: (newData: Partial<FormData>) => void;
 }
 
-const RSOSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: RSOSignatorySetupStep1Props) => {
+const SOCCMemberSetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCMemberSetupStep1Props) => {
   const sigCanvasRef = useRef<SignatureCanvas>(null);
 
   const handleClearSignature = () => {
@@ -85,7 +85,7 @@ const RSOSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: RSOSig
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-800">Basic Setup</h2>
-        <p className="text-primary mt-2">Please complete the following steps to set up the RSO signatory account</p>
+        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC member account</p>
       </div>
       <form
         className="space-y-4"
@@ -176,7 +176,7 @@ const RSOSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: RSOSig
   );
 };
 
-const RSOSignatorySetupStep2 = ({
+const SOCCMemberSetupStep2 = ({
   prevStep,
   nextStep,
   formData,
@@ -246,4 +246,4 @@ const SetupStepper = ({ step }: { step: number }) => {
   );
 };
 
-export default RSOSignatorySetupPage;
+export default SOCCMemberSetupPage;
