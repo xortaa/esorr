@@ -1,5 +1,10 @@
-import SidebarLayoutComponent from "@/components/SidebarLayoutComponent";
+import Navbar from "@/components/Navbar";
 
 export default async function Layout({ children }) {
-  return <SidebarLayoutComponent>{children}</SidebarLayoutComponent>;
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 }
