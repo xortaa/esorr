@@ -310,7 +310,7 @@ const OrganizationOperationalAssessmentForm = () => {
           <thead>
             <tr>
               <th className="w-1/4">SEAL OF THOMASIAN EDUCATION</th>
-              <th className="w-1/3">SEAL OF THOMASIAN EDUCATION PERFORMANCE INDICATORS (SEAL-PI)</th>
+              <th className="w-1/3">SEAL OF THOMASIAN EDUCATION <br/> PERFORMANCE INDICATORS (SEAL-PI)</th>
               <th className="w-5/12">TITLE OF EVENTS WITH e-ReSERVe NO. SUPPORTING THE SEAL-PI</th>
             </tr>
           </thead>
