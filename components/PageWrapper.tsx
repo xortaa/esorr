@@ -6,7 +6,7 @@ const PageWrapper = ({ children }) => {
   return (
     <div className="flex">
       <Sidebar />
-      <div className="pt-5 px-20 pb-20 page_wrapper_height container w-11/12">{children}</div>
+      <div className="pt-5 lg:px-20 px-5 pb-20 page_wrapper_height container w-11/12">{children}</div>
     </div>
   );
 };
