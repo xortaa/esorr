@@ -1,6 +1,5 @@
 "use client";
 
-import PageWrapper from "@/components/PageWrapper";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { CornerDownLeft, Check, Search, X } from "lucide-react";
 import axios from "axios";
@@ -60,7 +59,7 @@ const AUSetupPage = () => {
   };
 
   return (
-    <PageWrapper>
+  
       <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold text-primary">Academic Unit Account Setup</h1>
@@ -85,7 +84,7 @@ const AUSetupPage = () => {
           </div>
         </div>
       </div>
-    </PageWrapper>
+  
   );
 };
 

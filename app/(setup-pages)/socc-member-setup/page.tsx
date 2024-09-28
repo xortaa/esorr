@@ -1,6 +1,5 @@
 "use client";
 
-import PageWrapper from "@/components/PageWrapper";
 import { useState, useRef } from "react";
 import { CornerDownLeft, Check } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
@@ -34,26 +33,24 @@ const SOCCMemberSetupPage = () => {
   };
 
   return (
-    <PageWrapper>
-      <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">SOCC Member Setup</h1>
-          <p className="text-gray-600">
-            Follow the steps to set up your SOCC member account before proceeding with ESORR
-          </p>
-        </div>
-        <div className="flex flex-col items-start justify-center w-full">
-          <SetupStepper step={step} />
-          <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
-            {step === 1 ? (
-              <SOCCMemberSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
-            ) : (
-              <SOCCMemberSetupStep2 prevStep={prevStep} nextStep={nextStep} formData={formData} />
-            )}
-          </div>
+    <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-bold text-primary">SOCC Member Setup</h1>
+        <p className="text-gray-600">
+          Follow the steps to set up your SOCC member account before proceeding with ESORR
+        </p>
+      </div>
+      <div className="flex flex-col items-start justify-center w-full">
+        <SetupStepper step={step} />
+        <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
+          {step === 1 ? (
+            <SOCCMemberSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+          ) : (
+            <SOCCMemberSetupStep2 prevStep={prevStep} nextStep={nextStep} formData={formData} />
+          )}
         </div>
       </div>
-    </PageWrapper>
+    </div>
   );
 };
 

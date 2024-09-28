@@ -1,6 +1,5 @@
 "use client";
 
-import PageWrapper from "@/components/PageWrapper";
 import { useState, useEffect, useMemo } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X } from "lucide-react";
 import Image from "next/image";
@@ -36,7 +35,6 @@ const RSOSetupPage = () => {
   };
 
   return (
-    <PageWrapper>
       <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold text-primary">Setup a new organization</h1>
@@ -63,7 +61,6 @@ const RSOSetupPage = () => {
           </div>
         </div>
       </div>
-    </PageWrapper>
   );
 };
 
