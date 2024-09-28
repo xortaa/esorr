@@ -1,56 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
+interface Event {
+  id: string;
+  title: string;
+  eReserveNo: string;
+  categories: string[];
+}
+
+interface Category {
+  id: string;
+  title: string;
+  description?: string;
+}
+
 const OrganizationOperationalAssessmentForm = () => {
   const { annexId } = useParams();
-  const [formData, setFormData] = useState({
-    strategicAreas: {},
-    sealIndicators: {},
-    projectDirections: {},
-  });
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
-    section: "",
-    category: "",
     title: "",
     eReserveNo: "",
+    categories: [] as string[],
   });
 
-  const addEvent = (section, category) => {
-    setNewEvent({ section, category, title: "", eReserveNo: "" });
-  };
-
-  const submitEvent = () => {
-    if (newEvent.title && newEvent.eReserveNo) {
-      setFormData((prev) => ({
-        ...prev,
-        [newEvent.section]: {
-          ...prev[newEvent.section],
-          [newEvent.category]: [
-            ...(prev[newEvent.section][newEvent.category] || []),
-            { id: Date.now(), title: newEvent.title, eReserveNo: newEvent.eReserveNo },
-          ],
-        },
-      }));
-      setNewEvent({ section: "", category: "", title: "", eReserveNo: "" });
-    }
-  };
-
-  const removeEvent = (section, category, eventId) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [category]: (prev[section][category] || []).filter((event) => event.id !== eventId),
-      },
-    }));
-  };
-
-  const strategicAreas = [
+  const strategicAreas: Category[] = [
     {
       id: "V01",
       title: "Thomasian Identity",
@@ -66,7 +45,7 @@ const OrganizationOperationalAssessmentForm = () => {
     {
       id: "V03",
       title: "Teaching and Learning",
-      description: "To be a world-class institution,of higher learning.",
+      description: "To be a world-class institution of higher learning.",
     },
     {
       id: "V04",
@@ -106,7 +85,7 @@ const OrganizationOperationalAssessmentForm = () => {
     },
   ];
 
-  const sealIndicators = [
+  const sealIndicators: { category: string; indicators: string[] }[] = [
     {
       category: "Servant Leader",
       indicators: [
@@ -141,7 +120,7 @@ const OrganizationOperationalAssessmentForm = () => {
     },
   ];
 
-  const projectDirections = [
+  const projectDirections: string[] = [
     "SDG 1 END POVERTY",
     "SDG 2 END HUNGER",
     "SDG 3 WELL-BEING",
@@ -161,6 +140,84 @@ const OrganizationOperationalAssessmentForm = () => {
     "SDG 17 MECHANISMS AND PARTNERSHIPS TO REACH THE GOAL",
   ];
 
+  const allCategories: Category[] = [
+    ...strategicAreas,
+    ...sealIndicators.flatMap((category, index) =>
+      category.indicators.map((indicator, i) => ({
+        id: `SEAL-${index}-${i}`,
+        title: `${category.category} - ${indicator.split(":")[0]}`,
+        description: indicator.split(":")[1].trim(),
+      }))
+    ),
+    ...projectDirections.map((direction, index) => ({
+      id: `PD-${index}`,
+      title: direction,
+    })),
+  ];
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setNewEvent({ title: "", eReserveNo: "", categories: [] });
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(categoryId)
+        ? prev.categories.filter((id) => id !== categoryId)
+        : [...prev.categories, categoryId],
+    }));
+  };
+
+  const submitEvent = () => {
+    if (newEvent.title && newEvent.eReserveNo && newEvent.categories.length > 0) {
+      setEvents((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          title: newEvent.title,
+          eReserveNo: newEvent.eReserveNo,
+          categories: newEvent.categories,
+        },
+      ]);
+      closeModal();
+    }
+  };
+
+  const removeEvent = (eventId: string, category: string) => {
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === eventId ? { ...event, categories: event.categories.filter((cat) => cat !== category) } : event
+      )
+    );
+  };
+
+  const getEventsForCategory = (categoryId: string) => {
+    return events.filter((event) => event.categories.includes(categoryId));
+  };
+
+  const renderEventList = (categoryId: string) => (
+    <>
+      {getEventsForCategory(categoryId).map((event) => (
+        <div key={event.id} className="my-2">
+          <Link
+            href={`/rso/annexes/annex-e/${annexId}/${event.id}`}
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            {event.title} (e-ReSERVe No: {event.eReserveNo})
+          </Link>
+          <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event.id, categoryId)}>
+            <Trash2 size={12} />
+          </button>
+        </div>
+      ))}
+    </>
+  );
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-4 text-center">Organization Operational Assessment Form</h1>
@@ -170,10 +227,19 @@ const OrganizationOperationalAssessmentForm = () => {
         <br />
         (Include event title and e-ReSERVe No. in all segments applicable)
       </p>
-      {newEvent.section && (
+      <button className="btn btn-primary mb-4" onClick={openModal}>
+        <Plus size={16} className="mr-2" /> Add New Event
+      </button>
+
+      {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">Add New Event</h2>
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Event</h2>
+              <button className="btn btn-ghost btn-sm" onClick={closeModal}>
+                <X size={20} />
+              </button>
+            </div>
             <input
               type="text"
               className="input input-bordered w-full mb-2"
@@ -188,20 +254,31 @@ const OrganizationOperationalAssessmentForm = () => {
               onChange={(e) => setNewEvent({ ...newEvent, eReserveNo: e.target.value })}
               placeholder="e-ReSERVe No."
             />
+            <div className="mb-4">
+              <h3 className="font-bold mb-2">Select Categories:</h3>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {allCategories.map((category) => (
+                  <label key={category.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={newEvent.categories.includes(category.id)}
+                      onChange={() => toggleCategory(category.id)}
+                    />
+                    <span>{category.title}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
             <div className="flex justify-end">
-              <button className="btn btn-primary mr-2" onClick={submitEvent}>
+              <button className="btn btn-primary" onClick={submitEvent}>
                 Submit
-              </button>
-              <button
-                className="btn"
-                onClick={() => setNewEvent({ section: "", category: "", title: "", eReserveNo: "" })}
-              >
-                Cancel
               </button>
             </div>
           </div>
         </div>
       )}
+
       {/* Strategic Directional Areas Table */}
       <div className="overflow-x-auto mb-8">
         <table className="table table-zebra w-full">
@@ -220,38 +297,19 @@ const OrganizationOperationalAssessmentForm = () => {
                   <span className="font-bold">{area.title}. </span>
                   {area.description}
                 </td>
-                <td>
-                  {formData.strategicAreas[area.id]?.map((event) => (
-                    <div key={event.id} className="my-2">
-                      <Link
-                        href={`/rso/annexes/annex-e/${annexId}/${event.id}`}
-                        className="text-blue-600 hover:text-blue-800 hover:underline"
-                      >
-                        {event.title} (e-ReSERVe No: {event.eReserveNo})
-                      </Link>
-                      <button
-                        className="btn btn-ghost btn-xs ml-2"
-                        onClick={() => removeEvent("strategicAreas", area.id, event.id)}
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  <button className="btn btn-primary btn-sm my-2" onClick={() => addEvent("strategicAreas", area.id)}>
-                    <Plus size={16} className="mr-2" /> Add Event
-                  </button>
-                </td>
+                <td>{renderEventList(area.id)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
       {/* SEAL of Thomasian Education Table */}
       <div className="overflow-x-auto mb-8">
         <table className="table table-zebra w-full">
           <thead>
             <tr>
-              <th className="w-1/4">THE SEAL OF THOMASIAN EDUCATION</th>
+              <th className="w-1/4">SEAL OF THOMASIAN EDUCATION</th>
               <th className="w-1/3">SEAL OF THOMASIAN EDUCATION PERFORMANCE INDICATORS (SEAL-PI)</th>
               <th className="w-5/12">TITLE OF EVENTS WITH e-ReSERVe NO. SUPPORTING THE SEAL-PI</th>
             </tr>
@@ -266,36 +324,14 @@ const OrganizationOperationalAssessmentForm = () => {
                     </td>
                   )}
                   <td>{indicator}</td>
-                  <td>
-                    {formData.sealIndicators[`${category.category}-${i}`]?.map((event) => (
-                      <div key={event.id} className="my-2">
-                        <Link
-                          href={`/rso/annexes/annex-e/${annexId}/${event.id}`}
-                          className="text-blue-600 hover:text-blue-800 hover:underline"
-                        >
-                          {event.title} (e-ReSERVe No: {event.eReserveNo})
-                        </Link>
-                        <button
-                          className="btn btn-ghost btn-xs ml-2"
-                          onClick={() => removeEvent("sealIndicators", `${category.category}-${i}`, event.id)}
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      className="btn btn-primary btn-sm my-2"
-                      onClick={() => addEvent("sealIndicators", `${category.category}-${i}`)}
-                    >
-                      <Plus size={16} className="mr-2" /> Add Event
-                    </button>
-                  </td>
+                  <td>{renderEventList(`SEAL-${index}-${i}`)}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+
       {/* Project Direction Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
@@ -309,30 +345,7 @@ const OrganizationOperationalAssessmentForm = () => {
             {projectDirections.map((direction, index) => (
               <tr key={index}>
                 <td>{direction}</td>
-                <td>
-                  {formData.projectDirections[direction]?.map((event) => (
-                    <div key={event.id} className="my-2">
-                      <Link
-                        href={`/rso/annexes/annex-e/${annexId}/${event.id}`}
-                        className="text-blue-600 hover:text-blue-800 hover:underline"
-                      >
-                        {event.title} (e-ReSERVe No: {event.eReserveNo})
-                      </Link>
-                      <button
-                        className="btn btn-ghost btn-xs ml-2"
-                        onClick={() => removeEvent("projectDirections", direction, event.id)}
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    className="btn btn-primary btn-sm my-2"
-                    onClick={() => addEvent("projectDirections", direction)}
-                  >
-                    <Plus size={16} className="mr-2" /> Add Event
-                  </button>
-                </td>
+                <td>{renderEventList(`PD-${index}`)}</td>
               </tr>
             ))}
           </tbody>
