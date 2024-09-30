@@ -17,7 +17,7 @@ const HomePage = () => {
             </p>
             <ol className="list-decimal list-inside">
               <li>UST Google Workspace Personal Account</li>
-              <li>Google Authenticator Application</li>
+              <li>Approved E-SORR account</li>
             </ol>
           </div>
           <div className="mt-4 flex flex-col justify-center items-start gap-8">
