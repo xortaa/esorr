@@ -14,6 +14,8 @@ import {
   Layers,
   FileText,
   Building2,
+  Users,
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -40,6 +42,9 @@ interface InflowTransaction {
   category: string;
   date: string;
   amount: number;
+  payingParticipants?: number;
+  totalMembers?: number;
+  merchandiseSales?: number;
 }
 
 const outflowCategories = [
@@ -94,6 +99,9 @@ export default function AnnexE2FinancialLiquidationReport() {
     category: "",
     date: "",
     amount: 0,
+    payingParticipants: 0,
+    totalMembers: 0,
+    merchandiseSales: 0,
   });
 
   useEffect(() => {
@@ -161,7 +169,13 @@ export default function AnnexE2FinancialLiquidationReport() {
 
   const handleInflowTransactionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewInflowTransaction({ ...newInflowTransaction, [name]: name === "amount" ? Number(value) : value });
+    setNewInflowTransaction({
+      ...newInflowTransaction,
+      [name]:
+        name === "amount" || name === "payingParticipants" || name === "totalMembers" || name === "merchandiseSales"
+          ? Number(value)
+          : value,
+    });
   };
 
   const addInflowTransaction = (e: React.FormEvent) => {
@@ -173,6 +187,9 @@ export default function AnnexE2FinancialLiquidationReport() {
       category: "",
       date: "",
       amount: 0,
+      payingParticipants: 0,
+      totalMembers: 0,
+      merchandiseSales: 0,
     });
   };
 
@@ -493,6 +510,57 @@ export default function AnnexE2FinancialLiquidationReport() {
                     required
                   />
                 </div>
+                {newInflowTransaction.category === "Registration Fee" && (
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text flex items-center">
+                        <Users className="mr-2" /> Total Number of Paying Participants
+                      </span>
+                    </label>
+                    <input
+                      type="number"
+                      name="payingParticipants"
+                      value={newInflowTransaction.payingParticipants}
+                      onChange={handleInflowTransactionChange}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  </div>
+                )}
+                {newInflowTransaction.category === "Membership Fee" && (
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text flex items-center">
+                        <Users className="mr-2" /> Total Number of Members
+                      </span>
+                    </label>
+                    <input
+                      type="number"
+                      name="totalMembers"
+                      value={newInflowTransaction.totalMembers}
+                      onChange={handleInflowTransactionChange}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  </div>
+                )}
+                {newInflowTransaction.category === "Merchandise Selling" && (
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text flex items-center">
+                        <ShoppingBag className="mr-2" /> Total Number of Sales
+                      </span>
+                    </label>
+                    <input
+                      type="number"
+                      name="merchandiseSales"
+                      value={newInflowTransaction.merchandiseSales}
+                      onChange={handleInflowTransactionChange}
+                      className="input input-bordered w-full"
+                      required
+                    />
+                  </div>
+                )}
                 <div className="form-control mt-6">
                   <button type="submit" className="btn btn-primary">
                     Add Inflow Transaction
@@ -516,6 +584,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <th>Category</th>
                         <th>Date</th>
                         <th>Amount</th>
+                        <th>Additional Info</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -523,7 +592,14 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <tr key={transaction.id}>
                           <td>{transaction.category}</td>
                           <td>{transaction.date}</td>
-                          <td>₱ {transaction.amount.toFixed(2)}</td>
+                          <td>₱{transaction.amount.toFixed(2)}</td>
+                          <td>
+                            {transaction.category === "Registration Fee" &&
+                              `Paying Participants: ${transaction.payingParticipants}`}
+                            {transaction.category === "Membership Fee" && `Total Members: ${transaction.totalMembers}`}
+                            {transaction.category === "Merchandise Selling" &&
+                              `Total Sales: ${transaction.merchandiseSales}`}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
