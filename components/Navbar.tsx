@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Navbar = () => {
   const router = useRouter();
@@ -21,8 +22,8 @@ const Navbar = () => {
           <Menu />
         </label>
         <Link href="/organizations" className="flex items-center justify-center gap-1">
-          <Bird className="text-primary" />
-          <p className="lg:text-xl text-md font-bold text-primary">E-SORR</p>
+          {/* logo */}
+          <Image src="/assets/logo.png" width={150} height={40} alt="logo" />
           <p className="text-sm lg:block hidden">Electronic Student Organization Recognition Requirements</p>
         </Link>
       </div>
