@@ -149,16 +149,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// Footer component
-const Footer = ({ currentPage, totalPages }) => (
-  <View style={styles.footer}>
-    <Text>All rights reserved by the Office for Student Affairs</Text>
-    <Text>
-      Page {currentPage} of {totalPages}
-    </Text>
-  </View>
-);
-
 // Create Document Component
 const MyDocument = () => {
   return (
@@ -189,7 +179,7 @@ const MyDocument = () => {
           <Text style={styles.subSubHeading}>Section 2</Text>
           <Text style={styles.text}>
             The Petition for Recognition of a student organization must be submitted to the Office for Student Affairs
-            not later than the 21st of June.{" "}
+            not later than the 21st of June.
             <strong> Late and incomplete (unsigned) document submissions will not be accepted. </strong>
           </Text>
 
@@ -438,6 +428,16 @@ const MyDocument = () => {
     </Document>
   );
 };
+
+// Footer component
+const Footer = ({ currentPage, totalPages }) => (
+  <View style={styles.footer}>
+    <Text>All rights reserved by the Office for Student Affairs</Text>
+    <Text>
+      Page {currentPage} of {totalPages}
+    </Text>
+  </View>
+);
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {
