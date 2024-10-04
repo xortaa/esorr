@@ -185,7 +185,7 @@ const MyDocument = () => {
     <Document>
       <Page style={[styles.page, styles.indent]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
             STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
           </Text>
@@ -416,19 +416,17 @@ const MyDocument = () => {
           </View>
         </View>
         {/* Footer with dynamic page numbering */}
-        <Footer currentPage={1} totalPages={1} /> {/* This needs to be adjusted based on total pages */}
+
+        <Footer />
       </Page>
     </Document>
   );
 };
 
 // Footer component
-const Footer = ({ currentPage, totalPages }) => (
-  <View style={styles.footer}>
+const Footer = () => (
+  <View fixed style={styles.footer}>
     <Text>All rights reserved by the Office for Student Affairs</Text>
-    <Text>
-      Page {currentPage} of {totalPages}
-    </Text>
   </View>
 );
 
