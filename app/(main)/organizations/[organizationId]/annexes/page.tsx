@@ -3,6 +3,7 @@ import { useState } from "react";
 import PageWrapper from "@/components/PageWrapper";
 import { Printer, Lock, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type AnnexStatus = "completed" | "in_progress" | "locked";
 
@@ -15,48 +16,53 @@ interface Annex {
 
 const AnnexesPage = () => {
   const [annexes, setAnnexes] = useState<Annex[]>([
-    { code: "01", title: "Rules of Procedure for Recognition", link: "/rso/annexes/annex-01", status: "completed" },
-    { code: "02", title: "Petition for Recognition", link: "/rso/annexes/annex-02", status: "in_progress" },
+    { code: "01", title: "Rules of Procedure for Recognition", link: "annex-01", status: "completed" },
+    { code: "02", title: "Petition for Recognition", link: "annex-02", status: "in_progress" },
     {
       code: "A",
       title: "Student Organizations General Information Report",
-      link: "/rso/annexes/annex-a",
-      status: "locked",
+      link: "annex-a",
+      status: "in_progress",
     },
-    { code: "A-1", title: "Officer's Information Sheet", link: "/rso/annexes/annex-a1", status: "locked" },
-    { code: "B", title: "List of Members", link: "/rso/annexes/annex-b", status: "locked" },
+    { code: "A-1", title: "Officer's Information Sheet", link: "annex-a1", status: "in_progress" },
+    { code: "B", title: "List of Members", link: "annex-b", status: "in_progress" },
     {
       code: "C",
       title: "Certification of the Articles of Association",
-      link: "/rso/annexes/annex-c",
-      status: "locked",
+      link: "annex-c",
+      status: "in_progress",
     },
-    { code: "C-1", title: "Articles of Association", link: "/rso/annexes/annex-c1", status: "locked" },
-    { code: "D", title: "Organizations Logo and Letterhead", link: "/rso/annexes/annex-d", status: "locked" },
-    { code: "E", title: "Organization Operational Assessment Form", link: "/rso/annexes/annex-e", status: "locked" },
+    { code: "C-1", title: "Articles of Association", link: "annex-c1", status: "in_progress" },
+    { code: "D", title: "Organizations Logo and Letterhead", link: "annex-d", status: "in_progress" },
+    {
+      code: "E",
+      title: "Organization Operational Assessment Form",
+      link: "annex-e",
+      status: "in_progress",
+    },
     {
       code: "E-1",
       title: "Financial Report Summary of Receipts and Disbursements",
-      link: "/rso/annexes/annex-e1",
-      status: "locked",
+      link: "annex-e1",
+      status: "in_progress",
     },
-    { code: "E-2", title: "Financial Report Liquidation Report", link: "/rso/annexes/annex-e2", status: "locked" },
-    { code: "F", title: "Activities' Monitoring Form", link: "/rso/annexes/annex-f", status: "locked" },
-    { code: "G", title: "Organization Adviser Nomination Form", link: "/rso/annexes/annex-g", status: "locked" },
-    { code: "H", title: "Commitment to Anti-Hazing Law", link: "/rso/annexes/annex-h", status: "locked" },
+    { code: "E-2", title: "Financial Report Liquidation Report", link: "annex-e2", status: "in_progress" },
+    { code: "F", title: "Activities' Monitoring Form", link: "annex-f", status: "in_progress" },
+    { code: "G", title: "Organization Adviser Nomination Form", link: "annex-g", status: "in_progress" },
+    { code: "H", title: "Commitment to Anti-Hazing Law", link: "annex-h", status: "in_progress" },
     {
       code: "I",
       title: "Commitment to Responsible Use of Social Media",
-      link: "/rso/annexes/annex-i",
-      status: "locked",
+      link: "annex-i",
+      status: "in_progress",
     },
-    { code: "J", title: "Commitment to Active Participation", link: "/rso/annexes/annex-j", status: "locked" },
-    { code: "K", title: "COMMITMENT TO CARE FOR THE ENVIRONMENT", link: "/rso/annexes/annex-k", status: "locked" },
+    { code: "J", title: "Commitment to Active Participation", link: "annex-j", status: "in_progress" },
+    { code: "K", title: "COMMITMENT TO CARE FOR THE ENVIRONMENT", link: "annex-k", status: "in_progress" },
     {
       code: "L",
       title: "COMMITMENT TO SUBMIT THE POST EVENT EVALUATION",
-      link: "/rso/annexes/annex-l",
-      status: "locked",
+      link: "annex-l",
+      status: "in_progress",
     },
   ]);
 
@@ -119,9 +125,11 @@ interface AnnexDashboardAnnexCardProps {
 }
 
 const AnnexDashboardAnnexCard = ({ annex }: AnnexDashboardAnnexCardProps) => {
+  const currentPath = usePathname();
+
   return (
     <Link
-      href={annex.status !== "locked" ? annex.link : "#"}
+      href={annex.status !== "locked" ? `${currentPath}/${annex.link}` : "#"}
       className={`flex justify-between items-center p-4 hover:shadow-md hover:bg-white ${
         annex.status === "locked" ? "opacity-50 cursor-not-allowed" : ""
       }`}

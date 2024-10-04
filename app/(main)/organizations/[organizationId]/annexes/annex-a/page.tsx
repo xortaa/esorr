@@ -2,16 +2,15 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2, Edit, Eye } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
 type AnnexStatus = "Not Submitted" | "For Review" | "Ready For Printing";
 
-export default function AnnexEManager() {
+export default function AnnexHManager() {
   const [annexList, setAnnexList] = useState([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const router = useRouter();
-  const currentPath = usePathname();
 
   const createNewAnnex = () => {
     const currentYear = new Date().getFullYear();
@@ -43,28 +42,22 @@ export default function AnnexEManager() {
     }
   };
 
-  const editAnnex = (id: string) => {
-    router.push(`${currentPath}/${id}`);
-  };
-
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-6">Annex E3 PASOC Forms Annex Manager</h1>
+      <h1 className="text-2xl font-bold mb-6">Annex A Student Organizations General Information Annex Manager</h1>
       <button onClick={createNewAnnex} className="btn btn-primary mb-6">
-        <Plus className="mr-2 h-4 w-4" /> Create New PASOC Forms Annex
+        <Plus className="mr-2 h-4 w-4" />
+        Create Student Organizations General Information Annex
       </button>
       <div className="space-y-4">
         {annexList.map((annex) => (
           <div key={annex.id} className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <div className="flex items-center justify-between">
-                <h2 className="card-title">PASOC Forms Annex for Year {annex.year}</h2>
+                <h2 className="card-title">Student Organizations General Information Annex for Year {annex.year}</h2>
                 <div className="flex items-center space-x-2">
                   <button className="btn btn-ghost btn-sm text-primary">
                     <Eye className="h-4 w-4" />
-                  </button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex.id)}>
-                    <Edit className="h-4 w-4" />
                   </button>
                   <button className="btn btn-ghost btn-sm" onClick={() => removeAnnex(annex.id)}>
                     <Trash2 className="h-4 w-4 text-error" />
@@ -113,7 +106,7 @@ export default function AnnexEManager() {
       </div>
       {annexList.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
-          <p>No PASOC Forms Annex created yet.</p>
+          <p>No Student Organizations General Information Annex created yet.</p>
           <p>Click the button above to create one.</p>
         </div>
       )}

@@ -1,13 +1,19 @@
 import Users from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import connectToDatabase from "@/db/mongodb";
+
+interface UserInput {
+  email: string;
+  role: string;
+  position: string;
+  requestedBy: string;
+}
 
 export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const users = await Users.find({});
+    const users = await Users.find({ isArchived: false });
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -18,13 +24,14 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   await connectToDatabase();
 
-  // const { email, password } = await req.json();
-  const userInput = await req.json();
+  const userInput: UserInput = await req.json();
 
   try {
     const user = await Users.create({
-      ...userInput,
-      password: bcrypt.hashSync(userInput.password, 10),
+      email: userInput.email,
+      role: userInput.role,
+      position: userInput.role === "SOCC" || userInput.role === "RSO" ? "CENTRAL EMAIL" : "",
+      requestedBy: userInput.requestedBy,
     });
 
     if (!user) {

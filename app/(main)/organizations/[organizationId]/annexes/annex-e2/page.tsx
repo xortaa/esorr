@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2, Edit, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
 type AnnexStatus = "Not Submitted" | "For Review" | "Ready For Printing";
@@ -11,6 +11,7 @@ export default function AnnexEManager() {
   const [annexList, setAnnexList] = useState([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const router = useRouter();
+  const currentPath = usePathname();
 
   const createNewAnnex = () => {
     const currentYear = new Date().getFullYear();
@@ -43,8 +44,7 @@ export default function AnnexEManager() {
   };
 
   const editAnnex = (id: string) => {
-    // Navigate to the article creator page with the Annex id
-    router.push(`/rso/annexes/annex-e2/${id}`);
+    router.push(`${currentPath}/${id}`);
   };
 
   return (
