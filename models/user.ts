@@ -3,53 +3,29 @@ import { Schema, model, models } from "mongoose";
 const UserSchema = new Schema({
   email: {
     type: String,
+    required: true,
     unique: true,
   },
-  password: {
+  role: {
+    type: String,
+    required: true,
+  },
+  position: {
     type: String,
   },
   image: {
     type: String,
   },
-  role: {
-    type: String,
-    enum: ["RSO", "OSA", "SOCC", "AU", "ADVISER"],
-    required: true,
-    default: "AU",
-  },
-  affiliation: {
+  requestedBy: {
     type: String,
   },
-  organization: {
-    type: Schema.Types.ObjectId,
-    ref: "Organization",
-  },
-  first_name: {
-    type: String,
-  },
-  middle_name: {
-    type: String,
-  },
-  last_name: {
-    type: String,
-  },
-  contact_number: {
-    type: String,
-  },
-  college: {
-    type: String,
-  },
-  address: {
-    type: String,
-  },
-  second_address: {
-    type: String,
-  },
-  signature: {
-    type: String,
+  isArchived: {
+    type: Boolean,
+    default: false,
   },
 });
 
+UserSchema.index({ isArchived: 1 });
 const User = models.User || model("User", UserSchema);
 
 export default User;

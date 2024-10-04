@@ -26,6 +26,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     role: string;
+    _id: string;
   }
 }
 
@@ -64,15 +65,24 @@ export const options: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account, profile, email }) {
       try {
         await dbConnect();
 
-        if (credentials) {
+        const existingUser = await User.findOne({ email: profile.email, isArchived: false });
+
+        if (!existingUser && profile.email == process.env.OSA_EMAIL) {
+          const newUser = new User({
+            email: profile.email,
+            name: profile.name,
+            image: profile.picture,
+            role: "OSA",
+          });
+          await newUser.save();
+          account._id = newUser._id.toString();
+          account.role = newUser.role;
           return true;
         }
-
-        const existingUser = await User.findOne({ email: profile.email });
 
         if (existingUser) {
           if (!existingUser.image) {
@@ -89,16 +99,20 @@ export const options: NextAuthOptions = {
       }
     },
     async session({ session, token }) {
-      session.user._id = token._id.toString();
+      if (token._id) {
+        session.user._id = token._id.toString();
+      }
       session.user.role = token.role;
       return session;
     },
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       if (account) {
         token.role = account.role;
         token._id = account._id;
+      } else if (user) {
+        token.role = (user as any).role;
+        token._id = (user as any)._id.toString();
       }
-
       return token;
     },
     async redirect({ url, baseUrl }) {

@@ -22,13 +22,13 @@ export async function middleware(req: NextRequest) {
     if (token) {
       console.log("Token Role:", token.role);
       if (token.role === "OSA") {
-        return NextResponse.redirect(new URL("/osa", req.url));
+        return NextResponse.redirect(new URL("/osa/manage-accounts", req.url));
       } else if (token.role === "RSO") {
-        return NextResponse.redirect(new URL("/rso", req.url));
+        return NextResponse.redirect(new URL(`/organizations/${token._id}}/annexes`, req.url));
       } else if (token.role === "SOCC") {
-        return NextResponse.redirect(new URL("/socc", req.url));
+        return NextResponse.redirect(new URL("/organizations", req.url));
       } else if (token.role === "AU") {
-        return NextResponse.redirect(new URL("/admin/accounts", req.url));
+        return NextResponse.redirect(new URL("/organizations", req.url));
       } else {
         return NextResponse.redirect(new URL("/401", req.url));
       }
