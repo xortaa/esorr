@@ -430,6 +430,12 @@ const Footer = () => (
   </View>
 );
 
+const Header = () => (
+  <View fixed style={styles.footer}>
+    <Text>All rights reserved by the Office for Student Affairs</Text>
+  </View>
+);
+
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {
   const doc = <MyDocument />;
