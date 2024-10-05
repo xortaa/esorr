@@ -438,20 +438,20 @@ const MyDocument = () => {
         </View>
         {/* Section 7 with Table */}
         <View style={styles.sectionTableRow}>
-          <Text style={styles.sectionCellHeader}>Section 7.</Text>
+          <Text style={[styles.sectionCellHeader, {}]}>Section 7.</Text>
           <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
             <Text style={styles.sectionCellContent}>
               The name of college-based student organizations shall contain a suffix as provided herein.
             </Text>
             {/* Subsection */}
             <View style={styles.sectionTableRow}>
-              <Text style={styles.subsectionCellHeader}>Example:</Text>
+              <Text style={[styles.subsectionCellHeader, { width: 60 }]}>Example:</Text>
               <Text style={styles.subsectionCellContent}>Legal Management Society (AB).</Text>
             </View>
             <View style={styles.sectionTableRow}>
-              <Text style={styles.subsectionCellHeader}></Text>
+              <Text style={[styles.subsectionCellHeader, { width: 60 }]}></Text>
               <Text style={styles.subsectionCellContent}>
-                University-wide student organizations shall not be followed by any suffix.
+                University-wide student organizations shall not be followed by any suffix.*
               </Text>
             </View>
           </View>

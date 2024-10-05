@@ -6,12 +6,32 @@ import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
   family: "Times-Roman",
-  src: "https://fonts.gstatic.com/s/timesnewroman/times-new-roman.woff2",
+  src: "/fonts/Times-Roman.ttf",
+});
+
+Font.register({
+  family: "Times-Bold",
+  src: "/fonts/Times-Bold.ttf",
 });
 
 Font.register({
   family: "Arial Narrow",
-  src: "", // Replace with your actual Arial Narrow font URL
+  src: "/fonts/arialnarrow.ttf",
+});
+
+Font.register({
+  family: "Arial Narrow Bold",
+  src: "/fonts/arialnarrow_bold.ttf",
+});
+
+Font.register({
+  family: "Arial Narrow Italic",
+  src: "/fonts/arialnarrow_italic.ttf",
+});
+
+Font.register({
+  family: "Arial Narrow Bold Italic",
+  src: "/fonts/arialnarrow_bolditalic.ttf",
 });
 
 // Create styles
