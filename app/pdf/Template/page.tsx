@@ -35,7 +35,6 @@ Font.register({
 });
 
 // Create styles
-// Create styles
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
