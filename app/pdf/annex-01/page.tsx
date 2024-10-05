@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
   },
   header: {
     position: "absolute",
-    top: 20,
-    left: 40,
+    top: 40,
+    left: 10,
     right: 40,
     textAlign: "center",
     marginBottom: 15,
@@ -185,14 +185,18 @@ const MyDocument = () => {
     <Document>
       <Page style={[styles.page, styles.indent]}>
         {/* Header */}
+
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
             STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
           </Text>
 
-          <Text style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}>Page |</Text>
+          <Text
+            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            render={({ pageNumber, totalPages }) => `Page | ${pageNumber} / ${totalPages}`}
+          />
 
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right", paddingRight: 16 }}>
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
             The Rules of Procedure for Recognition of Student Organizations
           </Text>
 
@@ -415,7 +419,6 @@ const MyDocument = () => {
             <Text>Date Signed: ____________________</Text>
           </View>
         </View>
-        {/* Footer with dynamic page numbering */}
 
         <Footer />
       </Page>
@@ -425,12 +428,6 @@ const MyDocument = () => {
 
 // Footer component
 const Footer = () => (
-  <View fixed style={styles.footer}>
-    <Text>All rights reserved by the Office for Student Affairs</Text>
-  </View>
-);
-
-const Header = () => (
   <View fixed style={styles.footer}>
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
