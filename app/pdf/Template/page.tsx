@@ -15,20 +15,20 @@ Font.register({
 });
 
 // Create styles
+// Create styles
 const styles = StyleSheet.create({
   page: {
-    paddingVertical: 80,
-    paddingHorizontal: 80,
+    paddingTop: 40,
+    paddingBottom: 80,
+    paddingRight: 80,
+    paddingLeft: 80,
     fontSize: 11,
-    fontFamily: "Times-Roman",
+    fontFamily: "Arial Narrow",
     overflow: "hidden",
   },
   header: {
-    position: "absolute",
-    top: 40,
-    left: 10,
-    right: 40,
-    textAlign: "center",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     marginBottom: 15,
   },
   footer: {
@@ -44,23 +44,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   heading: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "heavy",
     textAlign: "center",
     marginBottom: 5,
-    textDecoration: "underline",
+    fontFamily: "Times-Bold",
   },
   subheading: {
-    fontSize: 13,
-    fontWeight: "bold",
-    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "heavy",
     marginBottom: 5,
+    textAlign: "left",
+    textDecoration: "underline",
+    fontFamily: "Arial Narrow Bold",
   },
   subSubHeading: {
     fontSize: 12,
     fontWeight: "bold",
     marginTop: 10,
     marginBottom: 5,
+    fontFamily: "Arial Narrow Bold",
   },
   text: {
     fontSize: 11,
@@ -69,14 +72,6 @@ const styles = StyleSheet.create({
   listItem: {
     fontSize: 11,
     marginLeft: 25,
-    marginBottom: 5,
-    lineHeight: 1.5,
-  },
-  indent: {
-    marginLeft: 20,
-  },
-  indent2: {
-    marginLeft: 40,
     marginBottom: 5,
     lineHeight: 1.5,
   },
@@ -91,19 +86,51 @@ const styles = StyleSheet.create({
   sectionTableCol: {
     display: "flex",
     flexDirection: "column",
+    width: "100%",
     marginBottom: 10,
+    textAlign: "justify",
   },
 
   sectionCellHeader: {
     display: "flex",
     fontSize: 11,
     textAlign: "left",
-    width: 200,
+    width: "20%",
+    fontFamily: "Arial Narrow Bold",
   },
   sectionCellContent: {
     display: "flex",
     fontSize: 11,
-    width: 800,
+    width: "80%",
+    textAlign: "justify",
+  },
+
+  subsectionCellHeader: {
+    display: "flex",
+    fontSize: 11,
+    textAlign: "left",
+    width: "15%", // Adjust width to prevent overflow
+    paddingRight: 10, // Add padding for spacing
+    fontFamily: "Arial Narrow Bold",
+  },
+  subsectionCellContent: {
+    display: "flex",
+    fontSize: 11,
+    width: "100%", // Adjust width to prevent overflow
+    textAlign: "justify",
+  },
+  subsubsectionCellHeader: {
+    display: "flex",
+    fontSize: 11,
+    textAlign: "left",
+    width: "25%", // Adjust width to match subsectionCellHeader
+    paddingRight: 10, // Add padding for spacing
+    fontFamily: "Arial Narrow Bold",
+  },
+  subsubsectionCellContent: {
+    display: "flex",
+    fontSize: 11,
+    width: "100%", // Adjust width to match subsectionCellContent
     textAlign: "justify",
   },
 
@@ -130,6 +157,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 10,
     flex: 1,
+    fontFamily: "Arial Narrow Bold",
   },
   tableCell: {
     borderRightWidth: 1,
@@ -141,6 +169,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tableHeaderLastCell: {
+    fontFamily: "Arial Narrow Bold",
     backgroundColor: "#d3d3d3",
     borderBottomWidth: 1,
     borderBottomColor: "#000",
@@ -156,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   signatureSection: {
-    marginTop: 40,
+    marginTop: 10,
     textAlign: "left",
     marginBottom: 40,
   },
@@ -168,8 +197,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   signatureText: {
-    textAlign: "center",
-    marginTop: 5,
+    textAlign: "left",
   },
   signatureDetails: {
     marginTop: 10,
@@ -183,7 +211,7 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={[styles.page, styles.indent]}>
+      <Page style={[styles.page]}>
         {/* Header */}
 
         <View fixed style={styles.header}>
@@ -214,6 +242,10 @@ const Footer = () => (
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );
+
+const Br = () => "\n";
+
+const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {
