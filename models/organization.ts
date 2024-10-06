@@ -8,7 +8,6 @@ const OrganizationSchema = new Schema({
   },
   logo: {
     type: String,
-    required: true,
   },
   socials: [
     {
