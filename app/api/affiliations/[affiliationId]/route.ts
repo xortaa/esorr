@@ -1,6 +1,6 @@
 import Affiliations from "@/models/affiliation";
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import { AffiliationResponse, AffiliationInput } from "@/types";
 
 export const GET = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
@@ -24,9 +24,13 @@ export const PATCH = async (req: NextRequest, { params }: { params: { affiliatio
   const affiliationInput: AffiliationInput = await req.json();
 
   try {
-    const updatedAffiliation: AffiliationResponse = await Affiliations.findByIdAndUpdate(params.affiliationId, affiliationInput, {
-      new: true,
-    });
+    const updatedAffiliation: AffiliationResponse = await Affiliations.findByIdAndUpdate(
+      params.affiliationId,
+      affiliationInput,
+      {
+        new: true,
+      }
+    );
     return NextResponse.json(updatedAffiliation, { status: 200 });
   } catch (error) {
     console.error(error);

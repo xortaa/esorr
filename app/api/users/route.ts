@@ -1,6 +1,6 @@
 import Users from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 
 interface UserInput {
   email: string;

@@ -2,7 +2,7 @@ import EducationalBackgrounds from "@/models/educational-background";
 import { NextRequest, NextResponse } from "next/server";
 import { EducationalBackground, EducationalBackgroundInput } from "@/types";
 import Members from "@/models/member";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string; memberId: string } }) => {
   await connectToDatabase();

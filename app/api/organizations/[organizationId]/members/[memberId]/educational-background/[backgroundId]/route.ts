@@ -2,7 +2,7 @@ import EducationalBackgrounds from "@/models/educational-background";
 import { EducationalBackground, EducationalBackgroundInput } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 import Members from "@/models/member";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 
 interface IParams {
   organizationId: string;

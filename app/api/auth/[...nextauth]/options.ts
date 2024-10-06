@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import dbConnect from "@/db/mongodb";
+import dbConnect from "@/utils/mongodb";
 import User from "@/models/user";
 import bcrypt from "bcryptjs";
 import { encode, decode } from "next-auth/jwt";
