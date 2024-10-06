@@ -3,53 +3,29 @@ import { Schema, model, models } from "mongoose";
 const OrganizationSchema = new Schema({
   name: {
     type: String,
-    required: [true, "name is required"],
+    required: true,
+    unique: true,
   },
-  image: {
+  logo: {
     type: String,
-  },
-  affiliation: {
-    type: String,
-  },
-  is_univ_wide: {
-    type: Boolean,
-    default: false,
-  },
-  website: {
-    type: String,
-  },
-  email: {
-    type: String,
+    required: true,
   },
   socials: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Socials",
+      name: { type: String, required: true },
+      link: { type: String, required: true },
     },
   ],
-  members: [
+  signatories: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Member",
+      ref: "RsoSignatory",
     },
   ],
-  advisers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  accreditation_code: {
-    type: String,
-  },
-  is_active: {
+  isArchived: {
     type: Boolean,
-    default: true,
-  },
-  status: {
-    type: String,
-    enum: ["For Revision", "Ready for Printing"],
-    default: "For Revision",
+    default: false,
+    index: true,
   },
 });
 

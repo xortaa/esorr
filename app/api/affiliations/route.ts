@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import Affiliations from "@/models/affiliation";
 import { AffiliationInput, AffiliationResponse } from "@/types";
 

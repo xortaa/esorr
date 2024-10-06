@@ -8,6 +8,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
+    enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY"],
     required: true,
   },
   position: {
@@ -16,16 +17,19 @@ const UserSchema = new Schema({
   image: {
     type: String,
   },
-  requestedBy: {
-    type: String,
-  },
   isArchived: {
     type: Boolean,
     default: false,
+    index: true,
   },
+  organizations: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Organization",
+    },
+  ],
 });
 
-UserSchema.index({ isArchived: 1 });
 const User = models.User || model("User", UserSchema);
 
 export default User;
