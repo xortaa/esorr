@@ -5,6 +5,7 @@ import { Search, UserPlus, X, Archive } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { AffiliationResponse } from "@/types";
 
 type Role = "SOCC" | "AU" | "RSO" | "RSO-SIGNATORY" | "SOCC-SIGNATORY";
 
@@ -16,12 +17,16 @@ type Account = {
   requestedBy: string;
   isArchived: boolean;
   organization?: string;
+  affiliation?: string;
 };
 
 const AccountsDashboard = () => {
+  const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
+  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [accountSearchTerm, setAccountSearchTerm] = useState("");
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState<"All" | Role>("All");
   const [showArchived, setShowArchived] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
@@ -29,30 +34,18 @@ const AccountsDashboard = () => {
     email: "",
     role: "" as Role | "",
     organization: "",
+    affiliation: "",
   });
-
-  // Mock data for organizations (replace with actual data later)
-  const organizations = [
-    "Faculty of Engineering",
-    "College of Science",
-    "School of Economics",
-    "UST Tiger Scouts",
-    "UST Yellow Jackets",
-    "UST Salinggawi Dance Troupe",
-  ];
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
+    fetchAffiliations();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
     try {
-      let response;
-      if (showArchived) {
-        response = await axios.get("/api/users/get-archived");
-      } else {
-        response = await axios.get("/api/users");
-      }
+      const response = await axios.get(showArchived ? "/api/users/get-archived" : "/api/users");
       if (response.status === 200) {
         setAccounts(response.data);
       }
@@ -61,13 +54,31 @@ const AccountsDashboard = () => {
     }
   };
 
+  const fetchAffiliations = async () => {
+    try {
+      setAffiliationOptionsLoading(true);
+      const { data } = await axios.get("/api/affiliations");
+      setAffiliationOptions(data);
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    } finally {
+      setAffiliationOptionsLoading(false);
+    }
+  };
+
   const filteredAccounts = useMemo(() => {
     return accounts.filter(
       (account) =>
-        account.email.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        account.email.toLowerCase().includes(accountSearchTerm.toLowerCase()) &&
         (filterRole === "All" || account.role === filterRole)
     );
-  }, [accounts, searchTerm, filterRole]);
+  }, [accounts, accountSearchTerm, filterRole]);
+
+  const filteredAffiliations = useMemo(() => {
+    return affiliationOptions.filter((affiliation) =>
+      affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
+    );
+  }, [affiliationOptions, affiliationSearchTerm]);
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +86,8 @@ const AccountsDashboard = () => {
       alert("Please select a role");
       return;
     }
-    if ((newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && !newAccount.organization) {
-      alert("Please select an organization");
+    if ((newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && !newAccount.affiliation) {
+      alert("Please select an affiliation");
       return;
     }
     try {
@@ -86,10 +97,12 @@ const AccountsDashboard = () => {
         position: newAccount.role === "SOCC" || newAccount.role === "RSO" ? "CENTRAL EMAIL" : "",
         requestedBy: session?.user?.email,
         organization: newAccount.organization,
+        affiliation: newAccount.affiliation,
       });
       if (response.status === 201) {
         setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-        setNewAccount({ email: "", role: "", organization: "" });
+        setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
+        setAffiliationSearchTerm(""); // Clear the affiliation search term
         setIsCreatingAccount(false);
       }
     } catch (error) {
@@ -108,6 +121,32 @@ const AccountsDashboard = () => {
     }
   };
 
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAffiliationSearchTerm(e.target.value);
+    setNewAccount({ ...newAccount, affiliation: "" });
+    setIsDropdownOpen(true);
+  };
+
+  const handleAffiliationInputFocus = () => {
+    setIsDropdownOpen(true);
+  };
+
+  const handleInputBlur = () => {
+    setTimeout(() => setIsDropdownOpen(false), 200);
+  };
+
+  const handleSelectAffiliation = (affiliation: AffiliationResponse) => {
+    setNewAccount({ ...newAccount, affiliation: affiliation.name });
+    setAffiliationSearchTerm(affiliation.name);
+    setIsDropdownOpen(false);
+  };
+
+  const handleCancelCreateAccount = () => {
+    setIsCreatingAccount(false);
+    setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
+    setAffiliationSearchTerm(""); // Clear the affiliation search term when canceling
+  };
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-4">Accounts Dashboard</h1>
@@ -116,8 +155,8 @@ const AccountsDashboard = () => {
           type="text"
           placeholder="Search emails..."
           className="input input-bordered w-full max-w-xs"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={accountSearchTerm}
+          onChange={(e) => setAccountSearchTerm(e.target.value)}
         />
         <select
           className="select select-bordered w-full max-w-xs"
@@ -153,6 +192,7 @@ const AccountsDashboard = () => {
               <th>Role</th>
               <th>Position</th>
               <th>Organization</th>
+              <th>Affiliation</th>
               <th>Requested By</th>
               <th>Actions</th>
             </tr>
@@ -164,6 +204,7 @@ const AccountsDashboard = () => {
                 <td>{account.role}</td>
                 <td>{account.position}</td>
                 <td>{account.organization || "-"}</td>
+                <td>{account.affiliation || "-"}</td>
                 <td>{account.requestedBy}</td>
                 <td>
                   {!showArchived && (
@@ -215,26 +256,55 @@ const AccountsDashboard = () => {
               </div>
               {(newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && (
                 <div>
-                  <label className="label">
-                    <span className="label-text">Organization</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={newAccount.organization}
-                    onChange={(e) => setNewAccount({ ...newAccount, organization: e.target.value })}
-                    required
-                  >
-                    <option value="">Select an organization</option>
-                    {organizations.map((org) => (
-                      <option key={org} value={org}>
-                        {org}
-                      </option>
-                    ))}
-                  </select>
+                  <h3 className="text-lg font-semibold mb-2">Affiliation</h3>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="relative w-full">
+                      <div className="flex w-full">
+                        <input
+                          type="text"
+                          className="input input-bordered w-full pr-10"
+                          placeholder="Search for affiliation..."
+                          value={affiliationSearchTerm}
+                          onChange={handleAffiliationInputChange}
+                          onFocus={handleAffiliationInputFocus}
+                          onBlur={handleInputBlur}
+                          disabled={affiliationOptionsLoading}
+                        />
+                        {affiliationSearchTerm && (
+                          <button
+                            type="button"
+                            className="absolute right-10 top-1/2 transform -translate-y-1/2"
+                            onClick={() => {
+                              setAffiliationSearchTerm("");
+                              setNewAccount({ ...newAccount, affiliation: "" });
+                            }}
+                          >
+                            <X className="h-5 w-5 text-gray-400" />
+                          </button>
+                        )}
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <Search className="h-5 w-5 text-gray-400" />
+                        </div>
+                      </div>
+                      {isDropdownOpen && filteredAffiliations.length > 0 && (
+                        <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {filteredAffiliations.map((affiliation) => (
+                            <li
+                              key={affiliation._id}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleSelectAffiliation(affiliation)}
+                            >
+                              {affiliation.name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
               <div className="flex justify-end space-x-2">
-                <button type="button" className="btn" onClick={() => setIsCreatingAccount(false)}>
+                <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">

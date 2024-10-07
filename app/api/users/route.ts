@@ -7,6 +7,7 @@ interface UserInput {
   role: string;
   position: string;
   requestedBy: string;
+  affiliation?: string;
 }
 
 export const GET = async (req: NextRequest) => {
@@ -32,6 +33,7 @@ export const POST = async (req: NextRequest) => {
       role: userInput.role,
       position: userInput.role === "SOCC" || userInput.role === "RSO" ? "CENTRAL EMAIL" : "",
       requestedBy: userInput.requestedBy,
+      affiliation: userInput.affiliation,
     });
 
     if (!user) {

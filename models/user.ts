@@ -28,6 +28,28 @@ const UserSchema = new Schema({
       ref: "Organization",
     },
   ],
+  prefix: {
+    type: String,
+  },
+  suffix: {
+    type: String,
+  },
+  firstName: {
+    type: String,
+  },
+  middleName: {
+    type: String,
+  },
+  lastName: {
+    type: String,
+  },
+  affiliation: {
+    type: String,
+  },
+  isSetup: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const User = models.User || model("User", UserSchema);
