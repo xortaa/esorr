@@ -18,11 +18,6 @@ const SignatoryRequestSchema = new Schema({
     type: String,
     required: true,
   },
-  isApproved: {
-    type: Boolean,
-    default: false,
-    index: true,
-  },
   requestedBy: {
     type: String,
     required: true,

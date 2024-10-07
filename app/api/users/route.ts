@@ -14,7 +14,7 @@ export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const users = await Users.find({ isArchived: false });
+    const users = await Users.find({ isArchived: false, role: { $ne: "OSA" } });
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error(error);

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, UserPlus, X, Archive } from "lucide-react";
+import { Search, UserPlus, X, Archive, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { AffiliationResponse } from "@/types";
+import { Organization } from "@/types";
 
 type Role = "SOCC" | "AU" | "RSO" | "RSO-SIGNATORY" | "SOCC-SIGNATORY";
 
@@ -20,11 +21,22 @@ type Account = {
   affiliation?: string;
 };
 
+type SignatoryRequest = {
+  _id: string;
+  email: string;
+  role: Role;
+  position: string;
+  organization: Organization;
+  isApproved: boolean;
+  isArchived: boolean;
+};
+
 const AccountsDashboard = () => {
   const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [signatoryRequests, setSignatoryRequests] = useState<SignatoryRequest[]>([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState<"All" | Role>("All");
@@ -40,17 +52,29 @@ const AccountsDashboard = () => {
 
   useEffect(() => {
     fetchAccounts();
+    fetchSignatoryRequests();
     fetchAffiliations();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get(showArchived ? "/api/users/get-archived" : "/api/users");
+      const response = await axios.get("/api/users");
       if (response.status === 200) {
         setAccounts(response.data);
       }
     } catch (error) {
       console.error("Error fetching accounts:", error);
+    }
+  };
+
+  const fetchSignatoryRequests = async () => {
+    try {
+      const response = await axios.get(showArchived ? "/api/signatory-request/get-archived" : "/api/signatory-request");
+      if (response.status === 200) {
+        setSignatoryRequests(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching signatory requests:", error);
     }
   };
 
@@ -74,35 +98,42 @@ const AccountsDashboard = () => {
     );
   }, [accounts, accountSearchTerm, filterRole]);
 
+  const filteredSignatoryRequests = useMemo(() => {
+    return signatoryRequests.filter(
+      (request) =>
+        request.email.toLowerCase().includes(accountSearchTerm.toLowerCase()) &&
+        (filterRole === "All" || request.role === filterRole)
+    );
+  }, [signatoryRequests, accountSearchTerm, filterRole]);
+
   const filteredAffiliations = useMemo(() => {
     return affiliationOptions.filter((affiliation) =>
       affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
     );
   }, [affiliationOptions, affiliationSearchTerm]);
 
+  const isCreateButtonDisabled = () => {
+    if (!newAccount.email || !newAccount.role) return true;
+    if ((newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && !newAccount.affiliation) return true;
+    return false;
+  };
+
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAccount.role) {
-      alert("Please select a role");
-      return;
-    }
-    if ((newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && !newAccount.affiliation) {
-      alert("Please select an affiliation");
-      return;
-    }
+    if (isCreateButtonDisabled()) return;
+
     try {
       const response = await axios.post("/api/users", {
         email: newAccount.email,
         role: newAccount.role,
         position: newAccount.role === "SOCC" || newAccount.role === "RSO" ? "CENTRAL EMAIL" : "",
         requestedBy: session?.user?.email,
-        organization: newAccount.organization,
         affiliation: newAccount.affiliation,
       });
       if (response.status === 201) {
         setAccounts((prevAccounts) => [...prevAccounts, response.data]);
         setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
-        setAffiliationSearchTerm(""); // Clear the affiliation search term
+        setAffiliationSearchTerm("");
         setIsCreatingAccount(false);
       }
     } catch (error) {
@@ -118,6 +149,29 @@ const AccountsDashboard = () => {
       }
     } catch (error) {
       console.error("Error archiving account:", error);
+    }
+  };
+
+  const handleApproveSignatoryRequest = async (requestId: string) => {
+    try {
+      const response = await axios.patch(`/api/signatory-request/${requestId}`);
+      if (response.status === 200) {
+        fetchSignatoryRequests();
+        fetchAccounts();
+      }
+    } catch (error) {
+      console.error("Error approving signatory request:", error);
+    }
+  };
+
+  const handleArchiveSignatoryRequest = async (requestId: string) => {
+    try {
+      const response = await axios.delete(`/api/signatory-request/${requestId}`);
+      if (response.status === 200) {
+        setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
+      }
+    } catch (error) {
+      console.error("Error archiving signatory request:", error);
     }
   };
 
@@ -144,7 +198,7 @@ const AccountsDashboard = () => {
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
     setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
-    setAffiliationSearchTerm(""); // Clear the affiliation search term when canceling
+    setAffiliationSearchTerm("");
   };
 
   return (
@@ -175,8 +229,8 @@ const AccountsDashboard = () => {
           value={showArchived ? "archived" : "active"}
           onChange={(e) => setShowArchived(e.target.value === "archived")}
         >
-          <option value="active">Active Accounts</option>
-          <option value="archived">Archived Accounts</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
         </select>
         <button className="btn btn-primary" onClick={() => setIsCreatingAccount(true)}>
           <UserPlus className="mr-2" />
@@ -184,39 +238,87 @@ const AccountsDashboard = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Position</th>
-              <th>Organization</th>
-              <th>Affiliation</th>
-              <th>Requested By</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAccounts.map((account) => (
-              <tr key={account._id}>
-                <td>{account.email}</td>
-                <td>{account.role}</td>
-                <td>{account.position}</td>
-                <td>{account.organization || "-"}</td>
-                <td>{account.affiliation || "-"}</td>
-                <td>{account.requestedBy}</td>
-                <td>
-                  {!showArchived && (
-                    <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
-                      <Archive className="h-4 w-4" />
-                    </button>
-                  )}
-                </td>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Signatory Requests</h2>
+        <div className="overflow-x-auto">
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Position</th>
+                <th>Organization</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredSignatoryRequests.map((request) => (
+                <tr key={request._id}>
+                  <td>{request.email}</td>
+                  <td>{request.role}</td>
+                  <td>{request.position}</td>
+                  <td>{request.organization.name}</td>
+                  <td>
+                    {!showArchived && !request.isApproved && (
+                      <button
+                        className="btn btn-success btn-xs mr-2"
+                        onClick={() => handleApproveSignatoryRequest(request._id)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    )}
+                    {!showArchived && (
+                      <button
+                        className="btn btn-ghost btn-xs"
+                        onClick={() => handleArchiveSignatoryRequest(request._id)}
+                      >
+                        <Archive className="h-4 w-4" />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Accounts</h2>
+        <div className="overflow-x-auto">
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Position</th>
+                <th>Organization</th>
+                <th>Affiliation</th>
+                <th>Requested By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.email}</td>
+                  <td>{account.role}</td>
+                  <td>{account.position}</td>
+                  <td>{account.organization || "-"}</td>
+                  <td>{account.affiliation || "-"}</td>
+                  <td>{account.requestedBy}</td>
+                  <td>
+                    {!showArchived && (
+                      <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
+                        <Archive className="h-4 w-4" />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {isCreatingAccount && (
@@ -307,7 +409,7 @@ const AccountsDashboard = () => {
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary" disabled={isCreateButtonDisabled()}>
                   Create
                 </button>
               </div>

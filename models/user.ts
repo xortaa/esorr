@@ -8,7 +8,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY"],
+    enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY", "RSO"],
     required: true,
   },
   position: {

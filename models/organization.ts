@@ -30,6 +30,11 @@ const OrganizationSchema = new Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["Active", "Incomplete", "Inactive", "For Revision"],
+    default: "Incomplete",
+  },
 });
 
 const Organization = models.Organization || model("Organization", OrganizationSchema);
