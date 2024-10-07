@@ -24,17 +24,34 @@ export async function middleware(req: NextRequest) {
       if (token.role === "OSA") {
         return NextResponse.redirect(new URL("/osa/manage-accounts", req.url));
       } else if (token.role === "RSO") {
-        return NextResponse.redirect(new URL(`/organizations/${token._id}}/annexes`, req.url));
+        if (!token.isSetup) {
+          return NextResponse.redirect(new URL("/rso-setup", req.url));
+        }
+        return NextResponse.redirect(new URL(`/organizations/${token._id}/annexes`, req.url));
       } else if (token.role === "SOCC") {
+        if (!token.isSetup) {
+          return NextResponse.redirect(new URL("/socc-setup", req.url));
+        }
         return NextResponse.redirect(new URL("/organizations", req.url));
       } else if (token.role === "AU") {
+        if (!token.isSetup) {
+          return NextResponse.redirect(new URL("/au-setup", req.url));
+        }
+        return NextResponse.redirect(new URL("/organizations", req.url));
+      } else if (token.role === "RSO-SIGNATORY") {
+        if (!token.isSetup) {
+          return NextResponse.redirect(new URL("/rso-signatory-setup", req.url));
+        }
+        return NextResponse.redirect(new URL("/organizations", req.url));
+      } else if (token.role === "SOCC-SIGNATORY") {
+        if (!token.isSetup) {
+          return NextResponse.redirect(new URL("/socc-signatory-setup", req.url));
+        }
         return NextResponse.redirect(new URL("/organizations", req.url));
       } else {
-        return NextResponse.redirect(new URL("/401", req.url));
+        return NextResponse.redirect(new URL("/", req.url));
       }
     }
-    console.log("No token role, redirecting to default");
-    return NextResponse.redirect(new URL("/401", req.url));
   }
 
   console.log("Next response");

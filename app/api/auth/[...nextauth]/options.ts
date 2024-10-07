@@ -15,11 +15,13 @@ declare module "next-auth" {
     user: {
       _id: string;
       role: string;
+      isSetup: boolean;
     } & DefaultSession["user"];
   }
   export interface Account {
     role: string;
     _id: string;
+    isSetup: boolean;
   }
 }
 
@@ -27,6 +29,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: string;
     _id: string;
+    isSetup: boolean;
   }
 }
 
@@ -43,7 +46,7 @@ export const options: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "Enter email" },
-        password: { label: "Password", type: "enter", placeholder: "Enter password" },
+        password: { label: "Password", type: "password", placeholder: "Enter password" },
       },
       async authorize(credentials): Promise<any> {
         if (!credentials) return null;
@@ -77,20 +80,22 @@ export const options: NextAuthOptions = {
             name: profile.name,
             image: profile.picture,
             role: "OSA",
+            isSetup: false, // Initialize isSetup for new users
           });
           await newUser.save();
           account._id = newUser._id.toString();
           account.role = newUser.role;
+          account.isSetup = newUser.isSetup;
           return true;
         }
 
         if (existingUser) {
           if (!existingUser.image) {
             await User.findOneAndUpdate({ email: profile.email }, { image: profile.picture }, { new: true });
-            return true;
           }
           account._id = existingUser._id.toString();
           account.role = existingUser.role;
+          account.isSetup = existingUser.isSetup;
           return true;
         }
       } catch (error) {
@@ -103,15 +108,18 @@ export const options: NextAuthOptions = {
         session.user._id = token._id.toString();
       }
       session.user.role = token.role;
+      session.user.isSetup = token.isSetup;
       return session;
     },
     async jwt({ token, account, user }) {
       if (account) {
         token.role = account.role;
         token._id = account._id;
+        token.isSetup = account.isSetup;
       } else if (user) {
         token.role = (user as any).role;
         token._id = (user as any)._id.toString();
+        token.isSetup = (user as any).isSetup;
       }
       return token;
     },
