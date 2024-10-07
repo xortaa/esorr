@@ -60,11 +60,6 @@ const SOCCSignatorySetupPage = () => {
     return <div>Loading...</div>;
   }
 
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
-  }
-
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
       <div>

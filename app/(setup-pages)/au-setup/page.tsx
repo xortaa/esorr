@@ -28,12 +28,6 @@ const AUSetupPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
   const nextStep = () => {
     setStep(step + 1);
   };

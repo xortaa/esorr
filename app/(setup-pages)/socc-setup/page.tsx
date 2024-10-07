@@ -1,6 +1,5 @@
 "use client";
 
-import PageWrapper from "@/components/PageWrapper";
 import { useState } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check } from "lucide-react";
 import axios from "axios";
@@ -60,13 +59,7 @@ const SOCCSetupPage = () => {
     return <div>Loading...</div>;
   }
 
-  if (status === "unauthenticated") {
-    router.push("/login"); // Redirect to login page if user is not authenticated
-    return null;
-  }
-
   return (
-    <PageWrapper>
       <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold text-primary">Setup SOCC member accounts</h1>
@@ -106,7 +99,6 @@ const SOCCSetupPage = () => {
           </div>
         </div>
       </div>
-    </PageWrapper>
   );
 };
 
