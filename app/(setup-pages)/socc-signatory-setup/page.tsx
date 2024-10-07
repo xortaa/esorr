@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { CornerDownLeft, Check } from "lucide-react";
-import SignatureCanvas from "react-signature-canvas";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface FormData {
   firstName: string;
   lastName: string;
   middleName: string;
-  signature: string | null;
 }
 
-const SOCCMemberSetupPage = () => {
+const SOCCSignatorySetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     middleName: "",
-    signature: null,
   });
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const nextStep = () => {
     setStep(step + 1);
@@ -32,21 +34,52 @@ const SOCCMemberSetupPage = () => {
     setFormData((prev) => ({ ...prev, ...newData }));
   };
 
+  const handleSubmit = async () => {
+    if (!session?.user?.email) {
+      alert("You must be logged in to complete the setup.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/api/socc-signatory-setup", {
+        ...formData,
+        email: session.user.email,
+      });
+
+      if (response.status === 200) {
+        alert("SOCC Signatory setup completed successfully!");
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error during SOCC Signatory setup:", error);
+      alert("An error occurred during setup. Please try again.");
+    }
+  };
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    router.push("/login");
+    return null;
+  }
+
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold text-primary">SOCC Member Setup</h1>
+        <h1 className="text-3xl font-bold text-primary">SOCC Signatory Setup</h1>
         <p className="text-gray-600">
-          Follow the steps to set up your SOCC member account before proceeding with ESORR
+          Follow the steps to set up your SOCC Signatory account before proceeding with ESORR
         </p>
       </div>
       <div className="flex flex-col items-start justify-center w-full">
         <SetupStepper step={step} />
         <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
           {step === 1 ? (
-            <SOCCMemberSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+            <SOCCSignatorySetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
           ) : (
-            <SOCCMemberSetupStep2 prevStep={prevStep} nextStep={nextStep} formData={formData} />
+            <SOCCSignatorySetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
           )}
         </div>
       </div>
@@ -54,41 +87,35 @@ const SOCCMemberSetupPage = () => {
   );
 };
 
-interface SOCCMemberSetupStep1Props {
+interface SOCCSignatorySetupStep1Props {
   nextStep: () => void;
   formData: FormData;
   handleFormChange: (newData: Partial<FormData>) => void;
 }
 
-const SOCCMemberSetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCMemberSetupStep1Props) => {
-  const sigCanvasRef = useRef<SignatureCanvas>(null);
-
-  const handleClearSignature = () => {
-    sigCanvasRef.current?.clear();
-    handleFormChange({ signature: null });
-  };
-
-  const handleTrimSignature = () => {
-    const trimmedDataUrl = sigCanvasRef.current?.getTrimmedCanvas().toDataURL("image/png");
-    handleFormChange({ signature: trimmedDataUrl || null });
-  };
-
+const SOCCSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCSignatorySetupStep1Props) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     handleFormChange({ [name]: value });
+  };
+
+  const isFormValid = () => {
+    return formData.firstName && formData.lastName;
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-800">Basic Setup</h2>
-        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC member account</p>
+        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC Signatory account</p>
       </div>
       <form
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          nextStep();
+          if (isFormValid()) {
+            nextStep();
+          }
         }}
       >
         <div className="space-y-4">
@@ -138,32 +165,8 @@ const SOCCMemberSetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCMemb
           </div>
         </div>
 
-        <div className="w-full flex flex-col items-center justify-center gap-2">
-          <h3 className="text-lg font-semibold">Signature</h3>
-          <SignatureCanvas
-            ref={sigCanvasRef}
-            penColor="black"
-            canvasProps={{ width: 350, height: 150, className: "sigCanvas border border-primary" }}
-          />
-          <div className="flex items-center justify-start gap-2">
-            <button type="button" className="btn btn-neutral btn-sm" onClick={handleClearSignature}>
-              Clear
-            </button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={handleTrimSignature}>
-              Save
-            </button>
-          </div>
-          {formData.signature && (
-            <img className="mt-4 border border-gray-300" src={formData.signature} alt="Trimmed Signature" />
-          )}
-        </div>
-
         <div className="flex justify-end mt-6">
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={!formData.firstName || !formData.lastName || !formData.signature}
-          >
+          <button className="btn btn-primary" type="submit" disabled={!isFormValid()}>
             Next Step
             <CornerDownLeft className="ml-2 rotate-180" />
           </button>
@@ -173,14 +176,14 @@ const SOCCMemberSetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCMemb
   );
 };
 
-const SOCCMemberSetupStep2 = ({
+const SOCCSignatorySetupStep2 = ({
   prevStep,
-  nextStep,
   formData,
+  handleSubmit,
 }: {
   prevStep: () => void;
-  nextStep: () => void;
   formData: FormData;
+  handleSubmit: () => void;
 }) => {
   return (
     <div className="space-y-8">
@@ -193,21 +196,13 @@ const SOCCMemberSetupStep2 = ({
           {formData.firstName} {formData.middleName} {formData.lastName}
         </p>
       </section>
-      {formData.signature && (
-        <section aria-labelledby="signature">
-          <h3 id="signature" className="text-xl font-semibold mb-2 text-gray-700">
-            Signature
-          </h3>
-          <img src={formData.signature} alt="Your Signature" className="border border-gray-300" />
-        </section>
-      )}
 
       <div className="flex justify-between mt-8">
         <button className="btn btn-outline" onClick={prevStep}>
           <CornerDownLeft className="mr-2" />
           Previous Step
         </button>
-        <button className="btn btn-primary" type="button" onClick={nextStep}>
+        <button className="btn btn-primary" type="button" onClick={handleSubmit}>
           <Check className="mr-2" />
           Confirm Setup
         </button>
@@ -243,4 +238,4 @@ const SetupStepper = ({ step }: { step: number }) => {
   );
 };
 
-export default SOCCMemberSetupPage;
+export default SOCCSignatorySetupPage;
