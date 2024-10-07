@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const NavbarNoSidebar = () => {
   const router = useRouter();
@@ -17,13 +18,9 @@ const NavbarNoSidebar = () => {
   return (
     <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50">
       <div className="flex items-center justify-center gap-2">
-        <label htmlFor="my-drawer-2" className="btn btn-ghost drawer-button lg:hidden p-0">
-          <Menu />
-        </label>
         <Link href="/organizations" className="flex items-center justify-center gap-1">
-          <Bird className="text-primary" />
-          <p className="lg:text-xl text-md font-bold text-primary">E-SORR</p>
-          <p className="text-sm">Electronic Student Organization Recognition Requirements</p>
+          <Image src="/assets/logo.png" width={150} height={40} alt="logo" />
+          <p className="text-sm lg:block hidden">Electronic Student Organization Recognition Requirements</p>
         </Link>
       </div>
       {session && (

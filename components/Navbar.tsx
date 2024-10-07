@@ -18,11 +18,7 @@ const Navbar = () => {
   return (
     <div className="bg-black text-white flex items-center justify-between px-6 py-2 border-b-8 border-primary z-50 h-20">
       <div className="flex items-center justify-center gap-2">
-        <label htmlFor="my-drawer-2" className="btn btn-ghost drawer-button lg:hidden p-0">
-          <Menu />
-        </label>
         <Link href="/organizations" className="flex items-center justify-center gap-1">
-          {/* logo */}
           <Image src="/assets/logo.png" width={150} height={40} alt="logo" />
           <p className="text-sm lg:block hidden">Electronic Student Organization Recognition Requirements</p>
         </Link>
