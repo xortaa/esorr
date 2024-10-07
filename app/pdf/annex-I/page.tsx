@@ -324,127 +324,101 @@ const MyDocument = () => {
                 <Text style={{ fontSize:"11", textAlign: "center"}}>(Annex I:  Commitment to Responsible Use of Social Media)</Text>
         </View>
 
-        <View style={styles.section}>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>1.</Text>
+          <Text style={styles.sectionCellContent}>
+          The outgoing set of officers shall turn over to the incoming officers the administration of the social media 
+          accounts. The outgoing officers shall no longer be administrators/ editors of the social media accounts.
+          </Text>
+        </View>
 
-        <Text style={styles.sectionCellHeader}>1.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                    The outgoing set of officers shall turn over to the incoming officers the administration of the social media 
-                    accounts. The outgoing officers shall no longer be administrators/ editors of the social media accounts.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
-      
-            <Text style={styles.sectionCellHeader}>2.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                    There should only be one official social media account per network (i.e. 1 for Facebook – a page; 1 for 
-                    Twitter; 1 for Instagram), and these must be passed on to the different batches of officers.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>2.</Text>
+          <Text style={styles.sectionCellContent}>
+          There should only be one official social media account per network (i.e. 1 for Facebook – a page; 1 for 
+            Twitter; 1 for Instagram), and these must be passed on to the different batches of officers.
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>3.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                The organization adviser must be made an administrator of the Facebook page and must be given the login 
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>3.</Text>
+          <Text style={styles.sectionCellContent}>
+          The organization adviser must be made an administrator of the Facebook page and must be given the login 
                 credentials to the other social media accounts 
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>4.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                For Twitter and Instagram, there should be a limit to the number of those who have access to the username 
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>4.</Text>
+          <Text style={styles.sectionCellContent}>
+          For Twitter and Instagram, there should be a limit to the number of those who have access to the username 
                     and password to a maximum of four: organization adviser, president, secretary, and public relations officer 
                     (or their equivalent).
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>5.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                Username and logo should be the official name and logo of the student organization; and passwords
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>5.</Text>
+          <Text style={styles.sectionCellContent}>
+          Username and logo should be the official name and logo of the student organization; and passwords
                 should be updated every two months, with a document trail provided.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>6.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                Organization adviser shall monitor the social media accounts/postings of the student organization. Posts 
-                should, as much as possible, be cleared first by the adviser.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>6.</Text>
+          <Text style={styles.sectionCellContent}>
+          Organization adviser shall monitor the social media accounts/postings of the student organization. Posts 
+          should, as much as possible, be cleared first by the adviser.
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>7.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                In unavoidable circumstances, however, the organization adviser retains the right to remove or edit the 
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>7.</Text>
+          <Text style={styles.sectionCellContent}>
+          In unavoidable circumstances, however, the organization adviser retains the right to remove or edit the 
                 post-even if it has already been published-if something is found to be erroneous or irregular.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>8.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                In cases of a deadlock between the officers and the organization adviser, the SWDC/OSA will render the 
-                final decision.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>8.</Text>
+          <Text style={styles.sectionCellContent}>
+          In cases of a deadlock between the officers and the organization adviser, the SWDC/OSA will render the 
+          final decision.
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>9.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                Student organization officers and members must avoid engaging in an online word “war bashers”, critics,
-                and the general public.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>9.</Text>
+          <Text style={styles.sectionCellContent}>
+          Student organization officers and members must avoid engaging in an online word “war bashers”, critics,
+          and the general public.
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>10.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                Student organization officers and the adviser may hide comments that are unrelated to the post (e.g., 
-                    advertisements).
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>10.</Text>
+          <Text style={styles.sectionCellContent}>
+          Student organization officers and the adviser may hide comments that are unrelated to the post (e.g., 
+            advertisements).
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>11.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                In case the organization loses its organization adviser due to a cause duly approved by OSA, the 
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>11.</Text>
+          <Text style={styles.sectionCellContent}>
+          In case the organization loses its organization adviser due to a cause duly approved by OSA, the 
                 organization will cease to post anything until such time that a next organization adviser is appointed.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+          </Text>
+        </View>
 
-            <Text style={styles.sectionCellHeader}>12.</Text>
-          <View style={[styles.sectionTableCol, { paddingLeft: 15 }]}>
-                <Text style={styles.subsectionCellContent}>
-                The rest of the existing student code of conduct on use of social media will apply.
-                    <Br />
-                    <Br />
-                </Text>
-            </View>
+
+        <View style={styles.sectionTableRow}>
+          <Text style={styles.sectionCellHeader}>12.</Text>
+          <Text style={styles.sectionCellContent}>
+          The rest of the existing student code of conduct on use of social media will apply.
+          </Text>
         </View>
 
         <View style={styles.section}>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font } from "@react-pdf/renderer";
 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
@@ -34,7 +34,6 @@ Font.register({
   src: "/fonts/arialnarrow_bolditalic.ttf",
 });
 
-// Create styles
 // Create styles
 const styles = StyleSheet.create({
   page: {
@@ -157,9 +156,7 @@ const styles = StyleSheet.create({
   table: {
     display: "flex",
     width: "auto",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderColor: "#000",
+    borderStyle: "none", // Remove table borders
     marginBottom: 10,
   },
 
@@ -167,58 +164,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 
-  tableCellHeader: {
-    backgroundColor: "#d3d3d3",
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontWeight: "bold",
-    fontSize: 10,
-    flex: 1,
-    fontFamily: "Arial Narrow Bold",
-  },
   tableCell: {
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
     padding: 5,
-    fontSize: 10,
+    fontSize: 11,
     flex: 1,
-  },
-  tableHeaderLastCell: {
-    fontFamily: "Arial Narrow Bold",
-    backgroundColor: "#d3d3d3",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontSize: 10,
-    flex: 1,
-  },
-  tableLastCell: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontSize: 10,
-    flex: 1,
-  },
-  signatureSection: {
-    marginTop: 10,
-    textAlign: "left",
-    marginBottom: 40,
-  },
-  signatureLine: {
-    borderTopWidth: 1,
-    borderTopColor: "#000",
-    marginTop: 10,
-    width: "40%",
-    alignSelf: "center",
+    borderStyle: "none", // Remove cell borders
   },
   signatureText: {
     textAlign: "left",
+    marginBottom: 10,
   },
+  
+  signatureSection: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  signatureLine: {
+    marginTop: 10,
+    width: "100%", // Adjust for full width
+    textAlign: "left",
+  },
+
   signatureDetails: {
     marginTop: 10,
     flexDirection: "row",
@@ -227,13 +195,13 @@ const styles = StyleSheet.create({
   },
 });
 
+
 // Create Document Component
 const MyDocument = () => {
   return (
     <Document>
       <Page style={[styles.page]}>
         {/* Header */}
-
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
             STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
@@ -244,34 +212,65 @@ const MyDocument = () => {
           </Text>
 
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
-          Organization Adviser Nomination Form
+            Organization Adviser Nomination Form
           </Text>
           <Text style={{ fontSize: 8, textAlign: "right" }}>AY 2024-2025</Text>
         </View>
 
         {/* Content */}
         <View style={styles.section}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              textAlign: "center",
+              textDecoration: "underline",
+            }}
+          >
             ORGANIZATION ADVISER NOMINATION FORM
-                {"\n"}
-                {"\n"}
+            {"\n"}
+            {"\n"}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={{ fontSize: "11", textAlign: "left" }}>
+            Petitioner hereby nominates the following as organization adviser
+            for (university–wide student organization):
+            {"\n"}
+            {"\n"}
+            1st Nominee: (Please specify complete name with rank)   {"\n"}
+            Name of Faculty: {"\n"}
+            Faculty/College/Institute/School: {"\n"}{"\n"}
+
+            2nd Nominee: (Please specify complete name with rank)   {"\n"}
+            Name of Faculty: {"\n"}
+            Faculty/College/Institute/School: {"\n"}{"\n"}
+
+            3rd Nominee: (Please specify complete name with rank)   {"\n"}
+            Name of Faculty: {"\n"}
+            Faculty/College/Institute/School: {"\n"}{"\n"}
+
+          </Text>
+
+   
+        </View>
+
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            {/* Column 1 */}
+            <Text style={styles.tableCell}>
+             
             </Text>
-        </View>
-        
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "center"}}>Petitioner hereby nominates the following as organization adviser for (university–wide student organization):
-                {"\n"}
-                {"\n"}
 
-                TABLE HERE
-                </Text>
-        </View>
-
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "right"}}>Signature over Printed name of President  {"\n"}
-                President {"\n"}
-                Name of the Organization with suffix {"\n"} {"\n"}
-                </Text>
+            {/* Column 2 */}
+            <Text style={styles.tableCell}>
+            {"\n"}{"\n"}{"\n"}
+              Signature over Printed name of President {"\n"}
+              President {"\n"}
+              Name of the Organization with suffix{"\n"}{"\n"}
+            </Text>
+          </View>
         </View>
 
         <Footer />
@@ -286,10 +285,6 @@ const Footer = () => (
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );
-
-const Br = () => "\n";
-
-const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {

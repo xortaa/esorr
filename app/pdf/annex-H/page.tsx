@@ -157,9 +157,7 @@ const styles = StyleSheet.create({
   table: {
     display: "flex",
     width: "auto",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderColor: "#000",
+    borderStyle: "none", // Remove table borders
     marginBottom: 10,
   },
 
@@ -167,58 +165,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 
-  tableCellHeader: {
-    backgroundColor: "#d3d3d3",
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontWeight: "bold",
-    fontSize: 10,
-    flex: 1,
-    fontFamily: "Arial Narrow Bold",
-  },
   tableCell: {
-    borderRightWidth: 1,
-    borderRightColor: "#000",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
     padding: 5,
-    fontSize: 10,
+    fontSize: 11,
     flex: 1,
-  },
-  tableHeaderLastCell: {
-    fontFamily: "Arial Narrow Bold",
-    backgroundColor: "#d3d3d3",
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontSize: 10,
-    flex: 1,
-  },
-  tableLastCell: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    padding: 5,
-    fontSize: 10,
-    flex: 1,
-  },
-  signatureSection: {
-    marginTop: 10,
-    textAlign: "left",
-    marginBottom: 40,
-  },
-  signatureLine: {
-    borderTopWidth: 1,
-    borderTopColor: "#000",
-    marginTop: 10,
-    width: "40%",
-    alignSelf: "center",
+    borderStyle: "none", // Remove cell borders
   },
   signatureText: {
     textAlign: "left",
+    marginBottom: 10,
   },
+  
+  signatureSection: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  signatureLine: {
+    marginTop: 10,
+    width: "100%", // Adjust for full width
+    textAlign: "left",
+  },
+
   signatureDetails: {
     marginTop: 10,
     flexDirection: "row",
@@ -226,6 +195,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 });
+
 
 // Create Document Component
 const MyDocument = () => {
@@ -300,38 +270,40 @@ const MyDocument = () => {
                 discuss with my co-officers and members the implementation of rules and regulations as part of its rules of conduct.
                 </Text>
         </View>
-       
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Signed:</Text>
-        </View>
+        
+    {/* 2-Column Table for Signatures */}
+    <View style={styles.table}>
+          <View style={styles.tableRow}>
+            {/* Column 1 */}
+            <Text style={styles.tableCell}>
+              Signed: {"\n"}{"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              President {"\n"}
+              {"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              Secretary {"\n"}
+              {"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              Auditor {"\n"}
+              {"\n"}{"\n"}
+              Attested by: {"\n"}{"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              Organization Adviser
+            </Text>
 
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Print Name and Signature {"\n"}
-                President {"\n"}
-                </Text>
-        </View>
-
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Print Name and Signature {"\n"}
-                Secretary {"\n"}
-                </Text>
-        </View>
-
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Print Name and Signature {"\n"}
-                Auditor {"\n"}
-                </Text>
-        </View>
-
-    {/*OTHER OFFICERS NA NAKA TABLE*/}
-
-    <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Attested by:</Text>
-        </View>
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Print Name and Signature {"\n"}
-                Organization Adviser
-                </Text>
+            {/* Column 2 */}
+            <Text style={styles.tableCell}>
+            {"\n"}{"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              Vice President {"\n"}
+              {"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              Treasurer {"\n"}
+              {"\n"}{"\n"}
+              Print Name and Signature {"\n"}
+              PRO {"\n"}
+            </Text>
+          </View>
         </View>
 
         <Footer />
