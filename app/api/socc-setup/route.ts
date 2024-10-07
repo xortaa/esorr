@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import SignatoryRequest from "@/models/signatory-request";
 import Organization from "@/models/organization";
+import User from "@/models/user";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -29,10 +30,18 @@ export async function POST(req: NextRequest) {
       })
     );
 
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      {
+        isSetup: true,
+      }
+    );
+
     return NextResponse.json(
       {
         signatory: signatoryRequests,
         organization: newOrganization,
+        updatedUser,
       },
       { status: 201 }
     );
