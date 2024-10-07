@@ -21,7 +21,6 @@ const connectToDatabase = async () => {
     console.log("MongoDB is connected");
 
     require("@/models/user");
-    require("@/models/social");
     require("@/models/organization");
     require("@/models/member");
     require("@/models/educational-background");
