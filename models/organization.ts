@@ -26,6 +26,10 @@ const OrganizationSchema = new Schema({
     default: false,
     index: true,
   },
+  affiliation: {
+    type: String,
+    required: true,
+  },
 });
 
 const Organization = models.Organization || model("Organization", OrganizationSchema);

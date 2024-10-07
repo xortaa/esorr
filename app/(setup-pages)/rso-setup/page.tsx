@@ -15,6 +15,7 @@ const RSOSetupPage = () => {
   const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(true);
   const [selectedAffiliation, setSelectedAffiliation] = useState<AffiliationResponse | null>(null);
+  const [isNotUniversityWide, setIsNotUniversityWide] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     logo: null as File | null,
@@ -56,53 +57,65 @@ const RSOSetupPage = () => {
       setError("Organization logo is required.");
       return false;
     }
-    if (formData.socials.some((social) => !social.name || !social.link)) {
-      setError("All social media entries must have both a name and a link.");
-      return false;
-    }
-    if (formData.signatoryRequests.some((request) => !request.email || !request.position)) {
-      setError("All signatory requests must have both an email and a position.");
+    if (isNotUniversityWide && !selectedAffiliation) {
+      setError("Please select an affiliation for non-university-wide organizations.");
       return false;
     }
     return true;
   };
 
-  const handleSubmit = async () => {
-    setError(null);
-    if (!validateForm()) {
-      return;
-    }
+ const handleSubmit = async () => {
+   setError(null);
+   if (!validateForm()) {
+     return;
+   }
 
-    setIsSubmitting(true);
-    try {
-      const submitFormData = new FormData();
-      submitFormData.append("name", formData.name);
-      if (formData.logo) {
-        submitFormData.append("logo", formData.logo);
-      }
-      submitFormData.append("socials", JSON.stringify(formData.socials));
-      submitFormData.append("signatoryRequests", JSON.stringify(formData.signatoryRequests));
+   setIsSubmitting(true);
+   try {
+     const submitFormData = new FormData();
+     submitFormData.append("name", formData.name);
+     if (formData.logo) {
+       submitFormData.append("logo", formData.logo);
+     }
 
-      if (!session?.user?.email) {
-        throw new Error("User email not found. Please ensure you're logged in.");
-      }
-      submitFormData.append("email", session.user.email);
+     // Filter out empty social links
+     const nonEmptySocials = formData.socials.filter((social) => social.name && social.link);
+     submitFormData.append("socials", JSON.stringify(nonEmptySocials));
 
-      const response = await axios.post("/api/rso-setup", submitFormData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+     // Filter out empty signatory requests
+     const nonEmptySignatoryRequests = formData.signatoryRequests.filter(
+       (request) => request.email && request.position
+     );
+     submitFormData.append("signatoryRequests", JSON.stringify(nonEmptySignatoryRequests));
 
-      if (response.status === 201) {
-        alert("Organization created successfully!");
-        router.push("/organizations");
-      }
-    } catch (error) {
-      console.error("Error creating organization:", error);
-      setError("An error occurred while creating the organization. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+     submitFormData.append("isNotUniversityWide", isNotUniversityWide.toString());
+
+     if (isNotUniversityWide && selectedAffiliation) {
+       submitFormData.append("affiliation", selectedAffiliation.name);
+     } else {
+       submitFormData.append("affiliation", "University Wide");
+     }
+
+     if (!session?.user?.email) {
+       throw new Error("User email not found. Please ensure you're logged in.");
+     }
+     submitFormData.append("email", session.user.email);
+
+     const response = await axios.post("/api/rso-setup", submitFormData, {
+       headers: { "Content-Type": "multipart/form-data" },
+     });
+
+     if (response.status === 201) {
+       alert("Organization created successfully!");
+       router.push("/organizations");
+     }
+   } catch (error) {
+     console.error("Error creating organization:", error);
+     setError("An error occurred while creating the organization. Please try again.");
+   } finally {
+     setIsSubmitting(false);
+   }
+ };
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -146,6 +159,8 @@ const RSOSetupPage = () => {
               setSelectedAffiliation={setSelectedAffiliation}
               formData={formData}
               setFormData={setFormData}
+              isNotUniversityWide={isNotUniversityWide}
+              setIsNotUniversityWide={setIsNotUniversityWide}
             />
           ) : step === 2 ? (
             <OrganizationSetupStep2
@@ -160,6 +175,8 @@ const RSOSetupPage = () => {
               formData={formData}
               handleSubmit={handleSubmit}
               isSubmitting={isSubmitting}
+              isNotUniversityWide={isNotUniversityWide}
+              selectedAffiliation={selectedAffiliation}
             />
           )}
         </div>
@@ -176,6 +193,8 @@ interface OrganizationSetupStep1Props {
   setSelectedAffiliation: (affiliation: AffiliationResponse | null) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
+  isNotUniversityWide: boolean;
+  setIsNotUniversityWide: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const OrganizationSetupStep1 = ({
@@ -186,13 +205,19 @@ const OrganizationSetupStep1 = ({
   setSelectedAffiliation,
   formData,
   setFormData,
+  isNotUniversityWide,
+  setIsNotUniversityWide,
 }: OrganizationSetupStep1Props) => {
-  const [isNotUniversityWide, setIsNotUniversityWide] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleToggleChange = () => {
     setIsNotUniversityWide(!isNotUniversityWide);
+    if (isNotUniversityWide) {
+      setSelectedAffiliation(null);
+      setSearchTerm("");
+    }
   };
 
   const filteredAffiliations = useMemo(() => {
@@ -241,8 +266,16 @@ const OrganizationSetupStep1 = ({
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, logo: e.target.files[0] });
+      const file = e.target.files[0];
+      setFormData({ ...formData, logo: file });
+      setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.name.trim() !== "" && formData.logo !== null && (!isNotUniversityWide || selectedAffiliation !== null)
+    );
   };
 
   return (
@@ -260,6 +293,7 @@ const OrganizationSetupStep1 = ({
             className="input input-bordered w-full"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
           />
         </div>
 
@@ -276,60 +310,63 @@ const OrganizationSetupStep1 = ({
             </label>
           </div>
 
-          <div className="flex items-center justify-between w-full">
-            <div className="relative w-5/6">
-              <div className="flex w-full">
-                <input
-                  type="text"
-                  className="input input-bordered w-full pr-10"
-                  placeholder="Search for your affiliation..."
-                  value={searchTerm}
-                  onChange={handleAffiliationInputChange}
-                  onFocus={handleAffiliationInputFocus}
-                  onBlur={handleInputBlur}
-                  disabled={!isNotUniversityWide || affiliationOptionsLoading}
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    className="absolute right-10 top-1/2 transform -translate-y-1/2"
-                    onClick={() => {
-                      setSearchTerm("");
-                      setSelectedAffiliation(null);
-                    }}
-                  >
-                    <X className="h-5 w-5 text-gray-400" />
-                  </button>
-                )}
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-              </div>
-              {isDropdownOpen && filteredAffiliations.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {filteredAffiliations.map((affiliation) => (
-                    <li
-                      key={affiliation._id}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleSelectAffiliation(affiliation)}
+          {isNotUniversityWide && (
+            <div className="flex items-center justify-between w-full">
+              <div className="relative w-5/6">
+                <div className="flex w-full">
+                  <input
+                    type="text"
+                    className="input input-bordered w-full pr-10"
+                    placeholder="Search for your affiliation..."
+                    value={searchTerm}
+                    onChange={handleAffiliationInputChange}
+                    onFocus={handleAffiliationInputFocus}
+                    onBlur={handleInputBlur}
+                    disabled={affiliationOptionsLoading}
+                    required
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      className="absolute right-10 top-1/2 transform -translate-y-1/2"
+                      onClick={() => {
+                        setSearchTerm("");
+                        setSelectedAffiliation(null);
+                      }}
                     >
-                      {affiliation.name}
-                    </li>
-                  ))}
-                </ul>
+                      <X className="h-5 w-5 text-gray-400" />
+                    </button>
+                  )}
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                </div>
+                {isDropdownOpen && filteredAffiliations.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {filteredAffiliations.map((affiliation) => (
+                      <li
+                        key={affiliation._id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleSelectAffiliation(affiliation)}
+                      >
+                        {affiliation.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {affiliationOptionsLoading && (
+                <div className="text-center w-1/6">
+                  <span className="loading loading-dots loading-md"></span>
+                </div>
               )}
             </div>
-            {affiliationOptionsLoading && (
-              <div className="text-center w-1/6">
-                <span className="loading loading-dots loading-md"></span>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Social Media</span>
+            <span className="label-text">Social Media (Optional)</span>
           </label>
           {formData.socials.map((input: any, index: number) => (
             <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
@@ -372,16 +409,21 @@ const OrganizationSetupStep1 = ({
             className="file-input file-input-bordered w-full max-w-xs"
             accept="image/*"
             onChange={handleLogoUpload}
+            required
           />
-          {formData.logo && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">Selected file: {formData.logo.name}</p>
+          {imagePreview && (
+            <div className="mt-4">
+              <div className="avatar">
+                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <Image src={imagePreview} alt="Organization Logo" width={128} height={128} />
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         <div className="flex justify-end mt-6">
-          <button className="btn btn-primary" type="button" onClick={nextStep}>
+          <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
             Next Step
             <CornerDownLeft className="ml-2 rotate-180" />
           </button>
@@ -426,8 +468,8 @@ const OrganizationSetupStep2 = ({
         <h2 className="text-2xl font-bold text-gray-800">Request Signatory Accounts</h2>
         <p className="text-primary mt-2">
           Only executive signatories, whose signatures are required, need to have ESORR accounts. Please wait for an
-          email confirming account approval once your request is submitted. Accounts can be requested even after the
-          setup is complete.
+          email confirming account approval once your request is submitted. Requesting accounts for executive
+          signatories is optional and can also be done after the setup is complete.
         </p>
       </div>
       <form className="space-y-4">
@@ -496,11 +538,15 @@ const OrganizationSetupStep3 = ({
   formData,
   handleSubmit,
   isSubmitting,
+  isNotUniversityWide,
+  selectedAffiliation,
 }: {
   prevStep: () => void;
   formData: any;
   handleSubmit: () => void;
   isSubmitting: boolean;
+  isNotUniversityWide: boolean;
+  selectedAffiliation: AffiliationResponse | null;
 }) => {
   return (
     <div className="space-y-8">
@@ -510,6 +556,13 @@ const OrganizationSetupStep3 = ({
           Organization Name
         </h3>
         <p className="text-lg">{formData.name}</p>
+      </section>
+
+      <section aria-labelledby="org-affiliation">
+        <h3 id="org-affiliation" className="text-xl font-semibold mb-2 text-gray-700">
+          Affiliation
+        </h3>
+        <p className="text-lg">{isNotUniversityWide ? selectedAffiliation?.name : "University Wide"}</p>
       </section>
 
       <section aria-labelledby="org-logo">
