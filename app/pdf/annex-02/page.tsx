@@ -17,6 +17,11 @@ Font.register({
 });
 
 Font.register({
+  family: "Boxed",
+  src: "/fonts/Boxed-2OZGl.ttf",
+});
+
+Font.register({
   family: "Arial Narrow",
   src: "/fonts/arialnarrow.ttf",
 });
@@ -357,7 +362,7 @@ const MyDocument = () => {
                 },
               ]}
             >
-              C-1
+              C
             </Text>
             <Text style={[styles.tableLastCell, { width: "80%", borderBottomWidth: 1 }]}>
               A certification that the Articles of Association (AoA) was ratified by the student-members, issued by the
@@ -365,10 +370,11 @@ const MyDocument = () => {
               (SOCC Director) and attested by the Student Welfare and Development Coordinator (SWDC)
               <Br></Br>
               <Br></Br>
-              {"\u2610"} {"    "}SOCC Director
+              <Text style={{ fontFamily: "Boxed" }}>O</Text> {"    "}SOCC Director
               <Br></Br>
               <Br></Br>
-              {"\u2610"} {"    "}Organization Secretary and President attested by the SWDC
+              <Text style={{ fontFamily: "Boxed" }}>0</Text> {"    "}Organization Secretary and President attested by
+              the SWDC
             </Text>
           </View>
 
