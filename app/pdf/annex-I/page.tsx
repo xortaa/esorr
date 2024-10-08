@@ -115,13 +115,13 @@ const styles = StyleSheet.create({
     display: "flex",
     fontSize: 11,
     textAlign: "left",
-    width: "20%",
-    fontFamily: "Arial Narrow Bold",
+    width: "5%",
+    //fontFamily: "Arial Narrow",
   },
   sectionCellContent: {
     display: "flex",
     fontSize: 11,
-    width: "80%",
+    width: "95%",
     textAlign: "justify",
   },
 
@@ -253,7 +253,8 @@ const MyDocument = () => {
 
         <View style={styles.section}>
             <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
-                 COMMITMENT TO RESPONSIBLE USE OF SOCIAL MEDIA
+                {"\n"}
+                 <EmphasizedText>COMMITMENT TO RESPONSIBLE USE OF SOCIAL MEDIA</EmphasizedText>
                 {"\n"}
                 {"\n"}
             </Text>
@@ -274,7 +275,7 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "center", color:"red", textDecoration: "underline"}}>RE: RESPONSIBLE USE OF SOCIAL MEDIA</Text>
+                <Text style={{ fontSize:"11", textAlign: "center", color:"red", textDecoration: "underline"}}>RE: <EmphasizedText>RESPONSIBLE USE OF SOCIAL MEDIA</EmphasizedText></Text>
         </View>
 
         <View style={styles.section}>
@@ -288,30 +289,30 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                President {"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>President {"\n"}</Text>
+                
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                Secretary {"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Secretary {"\n"}</Text>
+                
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                PRO {"\n"}  {"\n"} {"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>PRO {"\n"}{"\n"}{"\n"}</Text>
+                
         </View>
 
         <View style={styles.section}>
                 <Text style={{ fontSize:"11", textAlign: "justify"}}>Attested by:</Text>
         </View>
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                Organization Adviser
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Organization Adviser {"\n"}</Text>
+                
         </View>
        
         <View style={styles.section}>

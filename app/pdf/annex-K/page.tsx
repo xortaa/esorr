@@ -252,7 +252,7 @@ const MyDocument = () => {
         {/* Content */}
         <View style={styles.section}>
             <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
-            COMMITMENT TO CARE FOR THE ENVIRONMENT
+          <EmphasizedText>COMMITMENT TO CARE FOR THE ENVIRONMENT</EmphasizedText> 
                 {"\n"}
                 {"\n"}
             </Text>
@@ -273,7 +273,7 @@ const MyDocument = () => {
         </View>    
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>We, the officers of NAME OF ORGANIZATION, will take all necessary actions for the preservation of the
+                <Text style={{ fontSize:"11", textAlign: "justify"}}>We, the officers of NAME OF ORGANIZATION, will take all necessary actions for the preservation of the
                 environment. As individuals, we recognize the current situation and the need for action. As officers, it is our utmost
                 responsibility to bring this issue to our constituents and the entire Thomasian community, for everyone to take part in
                 the conversation, as well as, the movement.
@@ -283,12 +283,13 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>We commit to the following:
-                {"\n"} a) ensure the appointment of a Thomasian Green Marshall;
-                {"\n"} b) initiate activities adhering to the Laudato Si of Pope Francis;
-                {"\n"} c) maintain the upkeep of venues before, during, and after the activity;
-                {"\n"} d) be mindful of the resources used before, during, and after activities; and
-                {"\n"} e) practice environmentalism through sustainable actions.
+                <Text style={{ fontSize:"11", textAlign: "left"}}>We commit to the following:</Text>
+                <Text style={{paddingLeft: 15}}>
+                 a)      ensure the appointment of a Thomasian Green Marshall;{"\n"}
+                 b)      initiate activities adhering to the Laudato Si of Pope Francis;{"\n"}
+                 c)      maintain the upkeep of venues before, during, and after the activity;{"\n"}
+                 d)      be mindful of the resources used before, during, and after activities; and{"\n"}
+                 e)      practice environmentalism through sustainable actions.
                 {"\n"}
                 {"\n"}
                 </Text>
@@ -299,30 +300,31 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                Thomasian Green Marshall {"\n"}{"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Thomasian Green Marshall {"\n"}</Text>
+                
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                Secretary {"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Secretary {"\n"}</Text>
+                
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                President {"\n"}
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>President {"\n"}</Text>
+                
         </View>
 
     <View style={styles.section}>
                 <Text style={{ fontSize:"11", textAlign: "justify"}}>{"\n"}Attested by:</Text>
         </View>
+       
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>FIRST NAME M.I. SURNAME {"\n"}
-                Organization Adviser
-                </Text>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Organization Adviser {"\n"}</Text>
+                
         </View>
 
         <Footer />

@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   table: {
     display: "flex",
     width: "auto",
-    borderStyle: "none", // Remove table borders
+    //borderStyle: "none", // Remove table borders
     marginBottom: 10,
   },
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 11,
     flex: 1,
-    borderStyle: "none", // Remove cell borders
+    //borderStyle: "none", // Remove cell borders
   },
   signatureText: {
     textAlign: "left",
@@ -222,7 +222,8 @@ const MyDocument = () => {
         {/* Content */}
         <View style={styles.section}>
             <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
-            COMMITMENT TO ANTI-HAZING LAW
+                {"\n"}
+           <EmphasizedText>COMMITMENT TO ANTI-HAZING LAW</EmphasizedText>
                 {"\n"}
                 {"\n"}
             </Text>
@@ -239,7 +240,7 @@ const MyDocument = () => {
         </View>
         
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "center", color:"red", textDecoration: "underline"}}>RE: ANTI-HAZING STATEMENT</Text>
+                <Text style={{ fontSize:"11", textAlign: "center", color:"red", textDecoration: "underline"}}>RE: <EmphasizedText>ANTI-HAZING STATEMENT</EmphasizedText></Text>
         </View>
 
         <View style={styles.section}>
@@ -277,31 +278,42 @@ const MyDocument = () => {
             {/* Column 1 */}
             <Text style={styles.tableCell}>
               Signed: {"\n"}{"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              President {"\n"}
+
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}President{"\n"}</Text>
               {"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              Secretary {"\n"}
+             
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}Secretary{"\n"}</Text>
               {"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              Auditor {"\n"}
+
+              
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}Audtior{"\n"}</Text>
               {"\n"}{"\n"}
+
               Attested by: {"\n"}{"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              Organization Adviser
+              
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}Organization Adviser{"\n"}</Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={styles.tableCell}>
             {"\n"}{"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              Vice President {"\n"}
+              
+            <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}Vice President{"\n"}</Text>
               {"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              Treasurer {"\n"}
+
+              
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}Treasurer{"\n"}</Text>
               {"\n"}{"\n"}
-              Print Name and Signature {"\n"}
-              PRO {"\n"}
+
+              
+              <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Print Name and Signature </Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>{"\n"}PRO{"\n"}</Text>
             </Text>
           </View>
         </View>
