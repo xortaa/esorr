@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   table: {
     display: "flex",
     width: "auto",
-    borderStyle: "none", // Remove table borders
+    //borderStyle: "none", // Remove table borders
     marginBottom: 10,
   },
 
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 11,
     flex: 1,
-    borderStyle: "none", // Remove cell borders
+    //borderStyle: "none", // Remove cell borders
   },
   signatureText: {
     textAlign: "left",
@@ -234,11 +234,20 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={{ fontSize: "11", textAlign: "left" }}>
-            Petitioner hereby nominates the following as organization adviser
+          
+
+       <Text> Petitioner hereby nominates the following as organization adviser
             for (university–wide student organization):
             {"\n"}
-            {"\n"}
+            {"\n"}</Text>
+        </View>
+
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            {/* Column 1 */}
+            <Text style={styles.tableCell}>
+            <Text style={{ fontSize: "11", textAlign: "left" }}>
+            
             1st Nominee: (Please specify complete name with rank)   {"\n"}
             Name of Faculty: {"\n"}
             Faculty/College/Institute/School: {"\n"}{"\n"}
@@ -251,9 +260,30 @@ const MyDocument = () => {
             Name of Faculty: {"\n"}
             Faculty/College/Institute/School: {"\n"}{"\n"}
 
-          </Text>
+          </Text> 
+            </Text>
 
-   
+            {/* Column 2 */}
+            <Text style={styles.tableCell}>
+            <Text style={{ fontSize: "11", textAlign: "left" }}>
+            Email Address   {"\n"}
+            Contact Nos {"\n"}
+            Landline {"\n"}
+            Mobile{"\n"}{"\n"}
+
+            Email Address   {"\n"}
+            Contact Nos {"\n"}
+            Landline {"\n"}
+            Mobile{"\n"}{"\n"}
+
+            Email Address   {"\n"}
+            Contact Nos {"\n"}
+            Landline {"\n"}
+            Mobile{"\n"}{"\n"}
+
+          </Text>
+            </Text>
+          </View>
         </View>
 
         <View style={styles.table}>
@@ -266,12 +296,21 @@ const MyDocument = () => {
             {/* Column 2 */}
             <Text style={styles.tableCell}>
             {"\n"}{"\n"}{"\n"}
-              Signature over Printed name of President {"\n"}
-              President {"\n"}
-              Name of the Organization with suffix{"\n"}{"\n"}
+            <View style={styles.section}>
+        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Signature over Printed Name of President {"\n"}</Text>
+                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>President {"\n"}
+                  Name of the Organization with Suffix
+                </Text>
+                
+        </View>
             </Text>
           </View>
         </View>
+
+        <Text style={{ fontSize: 9, fontFamily: "Arial Narrow Bold", textAlign: "left" }}>
+          {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}
+        *FOR NEW ORGANIZATION ADVISER NOMINATION, PLEASE ATTACH A COPY OF HIS/HER CURRICULUM VITAE.
+        </Text>
 
         <Footer />
       </Page>
