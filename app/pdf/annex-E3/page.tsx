@@ -556,6 +556,11 @@ const MyDocument = () => {
             </View>
           </View>
         </View>
+        <Text style={{ fontSize: 7, textAlign: "left" }}>
+          In compliance with CHEd Memo #09 s. 2013 Art. X RESEARCH and Art. XI MONITORING AND EVALUATION. Results and
+          outputs shall be disseminated and utilized for the purpose of continuous improvement and measure of OSA’s Key
+          Performance Indicators (KPIs) concerning Student Organizations.
+        </Text>
         <Footer />
       </Page>
     </Document>
