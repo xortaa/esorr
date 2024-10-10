@@ -610,7 +610,7 @@ const MyDocument = () => {
           {/* Signature details (Print name, Date signed) */}
           <View style={styles.signatureDetails}>
             <Text style={{ fontFamily: "Arial Narrow Bold", textDecoration: "underline", paddingTop: 20 }}>
-              Print Name and Signature
+              PRINT NAME AND SIGNATURE
             </Text>
             <Text style={{ paddingTop: 20 }}>Date Signed: ____________________</Text>
           </View>
