@@ -129,7 +129,7 @@ const MyDocument = () => {
         {/* Nomination Table */}
         <View style={styles.section}>
           <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
-            ORGANIZATION ADVISER NOMINATION FORM
+            <EmphasizedText>ORGANIZATION ADVISER NOMINATION FORM</EmphasizedText> 
             {"\n"}{"\n"}
           </Text>
         </View>
@@ -193,6 +193,11 @@ const Footer = () => (
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );
+
+const Br = () => "\n";
+
+const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
+
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {
