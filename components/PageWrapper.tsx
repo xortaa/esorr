@@ -13,6 +13,7 @@ const PageWrapper = ({ children }) => {
 };
 
 const Sidebar = () => {
+  
   const { data: session } = useSession();
   const router = useRouter();
   return (
@@ -43,7 +44,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li className="hover:text-primary my-5">
-          <Link href="/" className="tooltip tooltip-right" data-tip="Manage Signatories">
+          <Link href={`/organizations/${session?.user._id}/signatory-request`} className="tooltip tooltip-right" data-tip="Manage Signatories">
             <Users size={25} />
           </Link>
         </li>
