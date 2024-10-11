@@ -257,7 +257,7 @@ const AccountsDashboard = () => {
                   <td>{request.email}</td>
                   <td>{request.role}</td>
                   <td>{request.position}</td>
-                  <td>{request.organization.name}</td>
+                  <td>{request.organization?.name}</td>
                   <td>
                     {!showArchived && !request.isApproved && (
                       <button
