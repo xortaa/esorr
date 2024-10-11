@@ -3,7 +3,7 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, pdf, Font } from "@react-pdf/renderer";
 
-// Register Times New Roman and Arial Narrow fonts
+// Register fonts
 Font.register({
   family: "Times-Roman",
   src: "/fonts/Times-Roman.ttf",
@@ -77,130 +77,39 @@ const styles = StyleSheet.create({
     textDecoration: "underline",
     fontFamily: "Arial Narrow Bold",
   },
-  subSubHeading: {
-    fontSize: 12,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 5,
-    fontFamily: "Arial Narrow Bold",
-  },
   text: {
     fontSize: 11,
     marginBottom: 5,
   },
-  listItem: {
-    fontSize: 11,
-    marginLeft: 25,
-    marginBottom: 5,
-    lineHeight: 1.5,
-  },
-
-  sectionTableRow: {
-    display: "flex",
-    flexDirection: "row",
-    marginBottom: 10,
-    width: "100%",
-  },
-
-  sectionTableCol: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    marginBottom: 10,
-    textAlign: "justify",
-  },
-
-  sectionCellHeader: {
-    display: "flex",
-    fontSize: 11,
-    textAlign: "left",
-    width: "20%",
-    fontFamily: "Arial Narrow Bold",
-  },
-  sectionCellContent: {
-    display: "flex",
-    fontSize: 11,
-    width: "80%",
-    textAlign: "justify",
-  },
-
-  subsectionCellHeader: {
-    display: "flex",
-    fontSize: 11,
-    textAlign: "left",
-    width: "15%", // Adjust width to prevent overflow
-    paddingRight: 10, // Add padding for spacing
-    fontFamily: "Arial Narrow Bold",
-  },
-  subsectionCellContent: {
-    display: "flex",
-    fontSize: 11,
-    width: "100%", // Adjust width to prevent overflow
-    textAlign: "justify",
-  },
-  subsubsectionCellHeader: {
-    display: "flex",
-    fontSize: 11,
-    textAlign: "left",
-    width: "25%", // Adjust width to match subsectionCellHeader
-    paddingRight: 10, // Add padding for spacing
-    fontFamily: "Arial Narrow Bold",
-  },
-  subsubsectionCellContent: {
-    display: "flex",
-    fontSize: 11,
-    width: "100%", // Adjust width to match subsectionCellContent
-    textAlign: "justify",
-  },
-
   table: {
     display: "flex",
+    flexDirection: "column",
     width: "auto",
-    //borderStyle: "none", // Remove table borders
     marginBottom: 10,
   },
-
   tableRow: {
     flexDirection: "row",
   },
-
   tableCell: {
     padding: 5,
     fontSize: 11,
     flex: 1,
-    //borderStyle: "none", // Remove cell borders
+    borderWidth: 1, // Border for the nominee table
+    borderColor: "#000",
   },
-  signatureText: {
-    textAlign: "left",
-    marginBottom: 10,
-  },
-  
-  signatureSection: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  signatureLine: {
-    marginTop: 10,
-    width: "100%", // Adjust for full width
-    textAlign: "left",
-  },
-
-  signatureDetails: {
-    marginTop: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
+  invisibleBorderCell: {
+    padding: 5,
+    fontSize: 11,
+    flex: 1,
+    borderWidth: 0, // Invisible border for the signature section
   },
 });
-
 
 // Create Document Component
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={[styles.page]}>
+      <Page style={styles.page}>
         {/* Header */}
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
@@ -217,99 +126,59 @@ const MyDocument = () => {
           <Text style={{ fontSize: 8, textAlign: "right" }}>AY 2024-2025</Text>
         </View>
 
-        {/* Content */}
+        {/* Nomination Table */}
         <View style={styles.section}>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: "bold",
-              textAlign: "center",
-              textDecoration: "underline",
-            }}
-          >
+          <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
             ORGANIZATION ADVISER NOMINATION FORM
-            {"\n"}
-            {"\n"}
+            {"\n"}{"\n"}
           </Text>
         </View>
 
         <View style={styles.section}>
-          
-
-       <Text> Petitioner hereby nominates the following as organization adviser
-            for (university–wide student organization):
-            {"\n"}
-            {"\n"}</Text>
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            {/* Column 1 */}
-            <Text style={styles.tableCell}>
-            <Text style={{ fontSize: "11", textAlign: "left" }}>
-            
-            1st Nominee: (Please specify complete name with rank)   {"\n"}
-            Name of Faculty: {"\n"}
-            Faculty/College/Institute/School: {"\n"}{"\n"}
-
-            2nd Nominee: (Please specify complete name with rank)   {"\n"}
-            Name of Faculty: {"\n"}
-            Faculty/College/Institute/School: {"\n"}{"\n"}
-
-            3rd Nominee: (Please specify complete name with rank)   {"\n"}
-            Name of Faculty: {"\n"}
-            Faculty/College/Institute/School: {"\n"}{"\n"}
-
-          </Text> 
-            </Text>
-
-            {/* Column 2 */}
-            <Text style={styles.tableCell}>
-            <Text style={{ fontSize: "11", textAlign: "left" }}>
-            Email Address   {"\n"}
-            Contact Nos {"\n"}
-            Landline {"\n"}
-            Mobile{"\n"}{"\n"}
-
-            Email Address   {"\n"}
-            Contact Nos {"\n"}
-            Landline {"\n"}
-            Mobile{"\n"}{"\n"}
-
-            Email Address   {"\n"}
-            Contact Nos {"\n"}
-            Landline {"\n"}
-            Mobile{"\n"}{"\n"}
-
+          <Text>
+            Petitioner hereby nominates the following as organization adviser for (university-wide student organization):
+            {"\n"}{"\n"}
           </Text>
-            </Text>
-          </View>
         </View>
 
         <View style={styles.table}>
-          <View style={styles.tableRow}>
-            {/* Column 1 */}
-            <Text style={styles.tableCell}>
-             
-            </Text>
-
-            {/* Column 2 */}
-            <Text style={styles.tableCell}>
-            {"\n"}{"\n"}{"\n"}
-            <View style={styles.section}>
-        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>Signature over Printed Name of President {"\n"}</Text>
-                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>President {"\n"}
-                  Name of the Organization with Suffix
-                </Text>
-                
+          {/* Nominees */}
+          {[1, 2, 3].map((num) => (
+            <View style={styles.tableRow} key={num}>
+              <Text style={styles.tableCell}>
+                {num} Nominee: (Please specify complete name with rank) {"\n"}
+                Name of Faculty: {"\n"}
+                Faculty/College/Institute/School: {"\n"}
+              </Text>
+              <Text style={styles.tableCell}>
+                Email address: {"\n"}
+                Contact nos: {"\n"}
+                Landline: {"\n"}
+                Mobile: {"\n"}
+              </Text>
+            </View>
+          ))}
         </View>
+
+        {/* Signature Table */}
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            <Text style={styles.invisibleBorderCell}></Text>
+            <Text style={styles.invisibleBorderCell}>
+              {"\n"}{"\n"}{"\n"}
+              <Text style={{ fontSize: 11, fontFamily: "Arial Narrow Bold", textDecoration: "underline" }}>
+                Signature over Printed Name of President {"\n"}
+              </Text>
+              <Text style={{ fontSize: 11, fontFamily: "Arial Narrow" }}>
+                President {"\n"}
+                Name of the Organization with Suffix
+              </Text>
             </Text>
           </View>
         </View>
 
         <Text style={{ fontSize: 9, fontFamily: "Arial Narrow Bold", textAlign: "left" }}>
-          {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}
-        *FOR NEW ORGANIZATION ADVISER NOMINATION, PLEASE ATTACH A COPY OF HIS/HER CURRICULUM VITAE.
+          {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}*FOR NEW ORGANIZATION ADVISER NOMINATION, PLEASE ATTACH A COPY OF HIS/HER CURRICULUM VITAE.
         </Text>
 
         <Footer />
