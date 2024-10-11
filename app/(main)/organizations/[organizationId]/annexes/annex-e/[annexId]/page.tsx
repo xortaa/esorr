@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
 interface Event {
@@ -20,7 +20,7 @@ interface Category {
 }
 
 const OrganizationOperationalAssessmentForm = () => {
-  const { annexId } = useParams();
+  const currentPath = usePathname();
   const [events, setEvents] = useState<Event[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
@@ -204,10 +204,7 @@ const OrganizationOperationalAssessmentForm = () => {
     <>
       {getEventsForCategory(categoryId).map((event) => (
         <div key={event.id} className="my-2">
-          <Link
-            href={`/rso/annexes/annex-e/${annexId}/${event.id}`}
-            className="text-blue-600 hover:text-blue-800 hover:underline"
-          >
+          <Link href={`${currentPath}/${event.id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
             {event.title} (e-ReSERVe No: {event.eReserveNo})
           </Link>
           <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event.id, categoryId)}>
@@ -310,7 +307,9 @@ const OrganizationOperationalAssessmentForm = () => {
           <thead>
             <tr>
               <th className="w-1/4">SEAL OF THOMASIAN EDUCATION</th>
-              <th className="w-1/3">SEAL OF THOMASIAN EDUCATION <br/> PERFORMANCE INDICATORS (SEAL-PI)</th>
+              <th className="w-1/3">
+                SEAL OF THOMASIAN EDUCATION <br /> PERFORMANCE INDICATORS (SEAL-PI)
+              </th>
               <th className="w-5/12">TITLE OF EVENTS WITH e-ReSERVe NO. SUPPORTING THE SEAL-PI</th>
             </tr>
           </thead>
