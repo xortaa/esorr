@@ -21,6 +21,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { signatory_
         role: signatoryRequest.role,
         organizations: [signatoryRequest.organization],
         position: signatoryRequest.position,
+        isExecutive: signatoryRequest.isExecutive,
       });
     }
 

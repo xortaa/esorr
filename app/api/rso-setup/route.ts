@@ -17,27 +17,60 @@ export async function POST(req: NextRequest) {
     const isNotUniversityWideString = formData.get("isNotUniversityWide") as string;
     const affiliation = formData.get("affiliation") as string;
     const email = formData.get("email") as string;
+    const website = formData.get("website") as string;
+    const category = formData.get("category") as string;
+    const strategicDirectionalAreasString = formData.get("strategicDirectionalAreas") as string;
+    const mission = formData.get("mission") as string;
+    const vision = formData.get("vision") as string;
+    const description = formData.get("description") as string;
+    const objectivesString = formData.get("objectives") as string;
 
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
     if (!logo) return NextResponse.json({ error: "Missing organization logo" }, { status: 400 });
     if (!isNotUniversityWideString)
       return NextResponse.json({ error: "Missing university-wide status" }, { status: 400 });
     if (!email) return NextResponse.json({ error: "Missing user email" }, { status: 400 });
+    if (!website) return NextResponse.json({ error: "Missing organization website" }, { status: 400 });
+    if (!category) return NextResponse.json({ error: "Missing organization category" }, { status: 400 });
+    if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
+    if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
+    if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
 
     let socials = [],
-      signatoryRequests = [];
+      signatoryRequests = [],
+      strategicDirectionalAreas = [],
+      objectives = [];
+
     if (socialsString) {
       try {
         socials = JSON.parse(socialsString);
+        if (!Array.isArray(socials)) {
+          throw new Error("Socials must be an array");
+        }
       } catch (error) {
         return NextResponse.json({ error: "Invalid JSON in socials" }, { status: 400 });
       }
     }
+
     if (signatoryRequestsString) {
       try {
         signatoryRequests = JSON.parse(signatoryRequestsString);
       } catch (error) {
         return NextResponse.json({ error: "Invalid JSON in signatory requests" }, { status: 400 });
+      }
+    }
+    if (strategicDirectionalAreasString) {
+      try {
+        strategicDirectionalAreas = JSON.parse(strategicDirectionalAreasString);
+      } catch (error) {
+        return NextResponse.json({ error: "Invalid JSON in strategic directional areas" }, { status: 400 });
+      }
+    }
+    if (objectivesString) {
+      try {
+        objectives = JSON.parse(objectivesString);
+      } catch (error) {
+        return NextResponse.json({ error: "Invalid JSON in objectives" }, { status: 400 });
       }
     }
 
@@ -56,6 +89,13 @@ export async function POST(req: NextRequest) {
       logo: logoUrl,
       socials,
       affiliation: finalAffiliation,
+      website,
+      category,
+      strategicDirectionalAreas,
+      mission,
+      vision,
+      description,
+      objectives,
     });
 
     if (signatoryRequests.length > 0) {
@@ -65,7 +105,7 @@ export async function POST(req: NextRequest) {
             ...request,
             organization: newOrganization._id,
             requestedBy: email,
-            role: "RSO-SIGNATORY",
+            role: request.isExecutive ? "RSO-EXECUTIVE" : "RSO-SIGNATORY",
           });
         })
       );

@@ -9,16 +9,38 @@ const OrganizationSchema = new Schema({
   logo: {
     type: String,
   },
-  socials: [
-    {
-      name: { type: String, required: true },
-      link: { type: String, required: true },
-    },
-  ],
+  socials: {
+    type: [String],
+    default: [],
+  },
+  website: {
+    type: String,
+  },
+    strategicDirectionalAreas: {
+    type: [String],
+    default: [],
+  },
+  category: {
+    type: String,
+  },
   signatories: [
     {
       type: Schema.Types.ObjectId,
       ref: "RsoSignatory",
+    },
+  ],
+  mission: {
+    type: String,
+  },
+  vision: {
+    type: String,
+  },
+  description: {
+    type: String,
+  },
+  objectives: [
+    {
+      type: String,
     },
   ],
   isArchived: {

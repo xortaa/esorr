@@ -50,6 +50,11 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isExecutive: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 });
 
 const User = models.User || model("User", UserSchema);

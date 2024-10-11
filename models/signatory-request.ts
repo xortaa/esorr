@@ -22,6 +22,11 @@ const SignatoryRequestSchema = new Schema({
     type: String,
     required: true,
   },
+  isExecutive: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
   isArchived: {
     type: Boolean,
     default: false,
