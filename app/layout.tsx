@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
+import NextTopLoader from "nextjs-toploader";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -24,7 +25,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={`${poppins.className}`}>
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <SessionProvider session={session}>
+          <NextTopLoader color="#FEC00F" height={8}/>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

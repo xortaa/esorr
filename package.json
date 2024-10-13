@@ -24,6 +24,7 @@
     "multer": "^1.4.5-lts.1",
     "next": "14.2.5",
     "next-auth": "^4.24.7",
+    "nextjs-toploader": "^3.7.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-google-button": "^0.8.0",
