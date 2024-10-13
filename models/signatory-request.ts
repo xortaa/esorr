@@ -27,10 +27,9 @@ const SignatoryRequestSchema = new Schema({
     default: false,
     index: true,
   },
-  isArchived: {
-    type: Boolean,
-    default: false,
-    index: true,
+  submittedAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

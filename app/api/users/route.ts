@@ -14,7 +14,10 @@ export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const users = await Users.find({ isArchived: false, role: { $ne: "OSA" } });
+    const users = await Users.find({ isArchived: false, role: { $ne: "OSA" } }).populate({
+      path: "positions.organization",
+      select: "name",
+    });
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error(error);

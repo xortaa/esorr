@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, UserPlus, X, Archive, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -10,15 +11,25 @@ import { Organization } from "@/types";
 
 type Role = "SOCC" | "AU" | "RSO" | "RSO-SIGNATORY" | "SOCC-SIGNATORY";
 
+type Position = {
+  organization: {
+    name: string;
+  };
+  position: string;
+  _id: string;
+  isArchived: boolean;
+};
+
 type Account = {
   _id: string;
   email: string;
   role: Role;
-  position: string;
+  positions: Position[];
+  organizations: string[];
   requestedBy: string;
   isArchived: boolean;
-  organization?: string;
-  affiliation?: string;
+  isSetup: boolean;
+  isExecutive: boolean;
 };
 
 type SignatoryRequest = {
@@ -28,10 +39,10 @@ type SignatoryRequest = {
   position: string;
   organization: Organization;
   isApproved: boolean;
-  isArchived: boolean;
+  submittedAt: string;
 };
 
-const AccountsDashboard = () => {
+export default function AccountsDashboard() {
   const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
@@ -46,9 +57,10 @@ const AccountsDashboard = () => {
     email: "",
     role: "" as Role | "",
     organization: "",
-    affiliation: "",
+    position: "",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
 
   useEffect(() => {
     fetchAccounts();
@@ -69,7 +81,7 @@ const AccountsDashboard = () => {
 
   const fetchSignatoryRequests = async () => {
     try {
-      const response = await axios.get(showArchived ? "/api/signatory-request/get-archived" : "/api/signatory-request");
+      const response = await axios.get("/api/signatory-request");
       if (response.status === 200) {
         setSignatoryRequests(response.data);
       }
@@ -113,8 +125,7 @@ const AccountsDashboard = () => {
   }, [affiliationOptions, affiliationSearchTerm]);
 
   const isCreateButtonDisabled = () => {
-    if (!newAccount.email || !newAccount.role) return true;
-    if ((newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && !newAccount.affiliation) return true;
+    if (!newAccount.email || !newAccount.role || !newAccount.organization || !newAccount.position) return true;
     return false;
   };
 
@@ -126,14 +137,12 @@ const AccountsDashboard = () => {
       const response = await axios.post("/api/users", {
         email: newAccount.email,
         role: newAccount.role,
-        position: newAccount.role === "SOCC" || newAccount.role === "RSO" ? "CENTRAL EMAIL" : "",
+        positions: [{ organization: newAccount.organization, position: newAccount.position }],
         requestedBy: session?.user?.email,
-        affiliation: newAccount.affiliation,
       });
       if (response.status === 201) {
         setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-        setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
-        setAffiliationSearchTerm("");
+        setNewAccount({ email: "", role: "", organization: "", position: "" });
         setIsCreatingAccount(false);
       }
     } catch (error) {
@@ -164,20 +173,20 @@ const AccountsDashboard = () => {
     }
   };
 
-  const handleArchiveSignatoryRequest = async (requestId: string) => {
+  const handleDeleteSignatoryRequest = async (requestId: string) => {
     try {
       const response = await axios.delete(`/api/signatory-request/${requestId}`);
       if (response.status === 200) {
         setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
       }
     } catch (error) {
-      console.error("Error archiving signatory request:", error);
+      console.error("Error deleting signatory request:", error);
     }
   };
 
   const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAffiliationSearchTerm(e.target.value);
-    setNewAccount({ ...newAccount, affiliation: "" });
+    setNewAccount({ ...newAccount, organization: "" });
     setIsDropdownOpen(true);
   };
 
@@ -190,145 +199,190 @@ const AccountsDashboard = () => {
   };
 
   const handleSelectAffiliation = (affiliation: AffiliationResponse) => {
-    setNewAccount({ ...newAccount, affiliation: affiliation.name });
+    setNewAccount({ ...newAccount, organization: affiliation.name });
     setAffiliationSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
   };
 
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
-    setNewAccount({ email: "", role: "", organization: "", affiliation: "" });
+    setNewAccount({ email: "", role: "", organization: "", position: "" });
     setAffiliationSearchTerm("");
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString();
   };
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-4">Accounts Dashboard</h1>
-      <div className="mb-4 flex flex-wrap gap-2">
-        <input
-          type="text"
-          placeholder="Search emails..."
-          className="input input-bordered w-full max-w-xs"
-          value={accountSearchTerm}
-          onChange={(e) => setAccountSearchTerm(e.target.value)}
-        />
-        <select
-          className="select select-bordered w-full max-w-xs"
-          value={filterRole}
-          onChange={(e) => setFilterRole(e.target.value as "All" | Role)}
-        >
-          <option value="All">All Roles</option>
-          <option value="SOCC">SOCC</option>
-          <option value="AU">AU</option>
-          <option value="RSO">RSO</option>
-          <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
-          <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
-        </select>
-        <select
-          className="select select-bordered w-full max-w-xs"
-          value={showArchived ? "archived" : "active"}
-          onChange={(e) => setShowArchived(e.target.value === "archived")}
-        >
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
-        </select>
-        <button className="btn btn-primary" onClick={() => setIsCreatingAccount(true)}>
-          <UserPlus className="mr-2" />
-          Create Account
-        </button>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Signatory Requests</h2>
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Position</th>
-                <th>Organization</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSignatoryRequests.map((request) => (
-                <tr key={request._id}>
-                  <td>{request.email}</td>
-                  <td>{request.role}</td>
-                  <td>{request.position}</td>
-                  <td>{request.organization?.name}</td>
-                  <td>
-                    {!showArchived && !request.isApproved && (
-                      <button
-                        className="btn btn-success btn-xs mr-2"
-                        onClick={() => handleApproveSignatoryRequest(request._id)}
-                      >
-                        <Check className="h-4 w-4" />
-                      </button>
-                    )}
-                    {!showArchived && (
-                      <button
-                        className="btn btn-ghost btn-xs"
-                        onClick={() => handleArchiveSignatoryRequest(request._id)}
-                      >
-                        <Archive className="h-4 w-4" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white shadow-lg rounded-lg p-6 mb-8"
+      >
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Accounts Dashboard</h1>
+        <div className="flex flex-wrap gap-4 mb-6">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search emails..."
+              className="input input-bordered w-full"
+              value={accountSearchTerm}
+              onChange={(e) => setAccountSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex-1">
+            <select
+              className="select select-bordered w-full"
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value as "All" | Role)}
+            >
+              <option value="All">All Roles</option>
+              <option value="SOCC">SOCC</option>
+              <option value="AU">AU</option>
+              <option value="RSO">RSO</option>
+              <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
+              <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
+            </select>
+          </div>
+          <div className="flex-1">
+            <select
+              className="select select-bordered w-full"
+              value={showArchived ? "archived" : "active"}
+              onChange={(e) => setShowArchived(e.target.value === "archived")}
+            >
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <button className="btn btn-primary" onClick={() => setIsCreatingAccount(true)}>
+            <UserPlus className="mr-2" />
+            Create Account
+          </button>
         </div>
-      </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Accounts</h2>
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Position</th>
-                <th>Organization</th>
-                <th>Affiliation</th>
-                <th>Requested By</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAccounts.map((account) => (
-                <tr key={account._id}>
-                  <td>{account.email}</td>
-                  <td>{account.role}</td>
-                  <td>{account.position}</td>
-                  <td>{account.organization || "-"}</td>
-                  <td>{account.affiliation || "-"}</td>
-                  <td>{account.requestedBy}</td>
-                  <td>
-                    {!showArchived && (
-                      <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
-                        <Archive className="h-4 w-4" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex mb-6">
+          <button
+            className={`flex-1 py-2 px-4 text-center ${
+              activeTab === "signatory" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"
+            } rounded-l-lg transition-colors duration-200`}
+            onClick={() => setActiveTab("signatory")}
+          >
+            Signatory Requests
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-center ${
+              activeTab === "accounts" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"
+            } rounded-r-lg transition-colors duration-200`}
+            onClick={() => setActiveTab("accounts")}
+          >
+            Accounts
+          </button>
         </div>
-      </div>
+
+        {activeTab === "signatory" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-700">Signatory Requests</h2>
+            <div className="overflow-x-auto bg-white rounded-lg">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Position</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organization</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Submitted At</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSignatoryRequests.map((request) => (
+                    <tr key={request._id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="py-3 px-4">{request.email}</td>
+                      <td className="py-3 px-4">{request.role}</td>
+                      <td className="py-3 px-4">{request.position}</td>
+                      <td className="py-3 px-4">{request.organization?.name || "-"}</td>
+                      <td className="py-3 px-4">{formatDateTime(request.submittedAt)}</td>
+                      <td className="py-3 px-4">
+                        {!request.isApproved && (
+                          <button
+                            className="btn btn-success btn-xs mr-2"
+                            onClick={() => handleApproveSignatoryRequest(request._id)}
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-ghost btn-xs"
+                          onClick={() => handleDeleteSignatoryRequest(request._id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "accounts" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-700">Accounts</h2>
+            <div className="overflow-x-auto bg-white rounded-lg">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organizations and Positions</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Requested By</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAccounts.map((account) => (
+                    <tr key={account._id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="py-3 px-4">{account.email}</td>
+                      <td className="py-3 px-4">{account.role}</td>
+                      <td className="py-3 px-4">
+                        <ul>
+                          {account.positions.map((pos) => (
+                            <li key={pos._id}>
+                              {pos.organization?.name}: {pos.position}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="py-3 px-4">{account.requestedBy}</td>
+                      <td className="py-3 px-4">
+                        {!showArchived && (
+                          <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </motion.div>
 
       {isCreatingAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Create Account</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">Create Account</h2>
             <form onSubmit={handleCreateAccount} className="space-y-4">
               <div>
                 <label className="label">
-                  <span className="label-text">Email</span>
+                  <span className="label-text text-gray-700">Email</span>
                 </label>
                 <input
                   type="email"
@@ -340,7 +394,7 @@ const AccountsDashboard = () => {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text">Role</span>
+                  <span className="label-text text-gray-700">Role</span>
                 </label>
                 <select
                   className="select select-bordered w-full"
@@ -356,55 +410,51 @@ const AccountsDashboard = () => {
                   <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
                 </select>
               </div>
-              {(newAccount.role === "AU" || newAccount.role === "RSO-SIGNATORY") && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Affiliation</h3>
-                  <div className="flex items-center justify-between w-full">
-                    <div className="relative w-full">
-                      <div className="flex w-full">
-                        <input
-                          type="text"
-                          className="input input-bordered w-full pr-10"
-                          placeholder="Search for affiliation..."
-                          value={affiliationSearchTerm}
-                          onChange={handleAffiliationInputChange}
-                          onFocus={handleAffiliationInputFocus}
-                          onBlur={handleInputBlur}
-                          disabled={affiliationOptionsLoading}
-                        />
-                        {affiliationSearchTerm && (
-                          <button
-                            type="button"
-                            className="absolute right-10 top-1/2 transform -translate-y-1/2"
-                            onClick={() => {
-                              setAffiliationSearchTerm("");
-                              setNewAccount({ ...newAccount, affiliation: "" });
-                            }}
-                          >
-                            <X className="h-5 w-5 text-gray-400" />
-                          </button>
-                        )}
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <Search className="h-5 w-5 text-gray-400" />
-                        </div>
-                      </div>
-                      {isDropdownOpen && filteredAffiliations.length > 0 && (
-                        <ul className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
-                          {filteredAffiliations.map((affiliation) => (
-                            <li
-                              key={affiliation._id}
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => handleSelectAffiliation(affiliation)}
-                            >
-                              {affiliation.name}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
+              <div>
+                <label className="label">
+                  <span className="label-text text-gray-700">Organization</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    className="input input-bordered w-full pr-10"
+                    placeholder="Search for organization..."
+                    value={affiliationSearchTerm}
+                    onChange={handleAffiliationInputChange}
+                    onFocus={handleAffiliationInputFocus}
+                    onBlur={handleInputBlur}
+                    required
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
                   </div>
                 </div>
-              )}
+                {isDropdownOpen && filteredAffiliations.length > 0 && (
+                  <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                    {filteredAffiliations.map((affiliation) => (
+                      <li
+                        key={affiliation._id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleSelectAffiliation(affiliation)}
+                      >
+                        {affiliation.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <label className="label">
+                  <span className="label-text text-gray-700">Position</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={newAccount.position}
+                  onChange={(e) => setNewAccount({ ...newAccount, position: e.target.value })}
+                  required
+                />
+              </div>
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
@@ -419,6 +469,4 @@ const AccountsDashboard = () => {
       )}
     </PageWrapper>
   );
-};
-
-export default AccountsDashboard;
+}

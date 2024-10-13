@@ -1,5 +1,17 @@
 import { Schema, model, models } from "mongoose";
 
+const PositionSchema = new Schema({
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
+    required: true,
+  },
+  position: {
+    type: String,
+    required: true,
+  },
+});
+
 const UserSchema = new Schema({
   email: {
     type: String,
@@ -11,9 +23,7 @@ const UserSchema = new Schema({
     enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY", "RSO"],
     required: true,
   },
-  position: {
-    type: String,
-  },
+  positions: [PositionSchema],
   image: {
     type: String,
   },

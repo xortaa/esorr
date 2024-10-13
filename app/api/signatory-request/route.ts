@@ -6,7 +6,7 @@ export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const signatoryRequests = await SignatoryRequests.find({ isArchived: false }).populate({
+    const signatoryRequests = await SignatoryRequests.find({}).populate({
       path: "organization",
       select: "name",
     });

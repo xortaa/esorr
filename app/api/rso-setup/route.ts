@@ -36,10 +36,7 @@ export async function POST(req: NextRequest) {
     if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
 
-    let socials = [],
-      signatoryRequests = [],
-      strategicDirectionalAreas = [],
-      objectives = [];
+    let socials = [], signatoryRequests = [], strategicDirectionalAreas = [], objectives = [];
 
     if (socialsString) {
       try {
@@ -105,7 +102,7 @@ export async function POST(req: NextRequest) {
             ...request,
             organization: newOrganization._id,
             requestedBy: email,
-            role: request.isExecutive ? "RSO-EXECUTIVE" : "RSO-SIGNATORY",
+            role: "RSO-SIGNATORY",
           });
         })
       );
@@ -116,14 +113,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    await User.findOneAndUpdate(
-      { email },
-      {
-        isSetup: true,
-        organizations: [...currentUser.organizations, newOrganization._id],
-      },
-      { new: true }
+    // Update the user's organizations and positions
+    const existingPositionIndex = currentUser.positions.findIndex(
+      (pos) => pos.organization.toString() === newOrganization._id.toString()
     );
+
+    if (existingPositionIndex !== -1) {
+      // Update the existing position
+      currentUser.positions[existingPositionIndex].position = "RSO-SIGNATORY";
+    } else {
+      // Add a new position
+      currentUser.positions.push({
+        organization: newOrganization._id,
+        position: "RSO-SIGNATORY",
+      });
+    }
+
+    currentUser.organizations.push(newOrganization._id);
+    currentUser.isSetup = true;
+
+    await currentUser.save();
 
     return NextResponse.json(
       {
