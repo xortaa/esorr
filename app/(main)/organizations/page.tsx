@@ -113,7 +113,7 @@ const OrganizationCard = ({ organization }) => {
   return (
     <div
       className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
-      onClick={() => router.push(`/organizations/${organization._id}/annexes`)}
+      onClick={() => router.push(`/organizations/${organization._id}`)}
     >
       <figure className="px-4 pt-4">
         <img src={organization.logo} alt={organization.name} className="rounded-xl h-48 w-full object-cover" />
