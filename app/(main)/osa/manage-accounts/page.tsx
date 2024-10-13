@@ -26,7 +26,6 @@ type Account = {
   role: Role;
   positions: Position[];
   organizations: string[];
-  requestedBy: string;
   isArchived: boolean;
   isSetup: boolean;
   isExecutive: boolean;
@@ -40,6 +39,7 @@ type SignatoryRequest = {
   organization: Organization;
   isApproved: boolean;
   submittedAt: string;
+  requestedBy: string;
 };
 
 export default function AccountsDashboard() {
@@ -294,6 +294,7 @@ export default function AccountsDashboard() {
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Position</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organization</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Requested By</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Submitted At</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
                   </tr>
@@ -305,6 +306,7 @@ export default function AccountsDashboard() {
                       <td className="py-3 px-4">{request.role}</td>
                       <td className="py-3 px-4">{request.position}</td>
                       <td className="py-3 px-4">{request.organization?.name || "-"}</td>
+                      <td className="py-3 px-4">{request.requestedBy}</td>
                       <td className="py-3 px-4">{formatDateTime(request.submittedAt)}</td>
                       <td className="py-3 px-4">
                         {!request.isApproved && (
@@ -340,7 +342,6 @@ export default function AccountsDashboard() {
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organizations and Positions</th>
-                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Requested By</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
                   </tr>
                 </thead>
@@ -358,7 +359,6 @@ export default function AccountsDashboard() {
                           ))}
                         </ul>
                       </td>
-                      <td className="py-3 px-4">{account.requestedBy}</td>
                       <td className="py-3 px-4">
                         {!showArchived && (
                           <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
