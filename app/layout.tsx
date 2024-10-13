@@ -25,10 +25,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={`${poppins.className}`}>
-        <SessionProvider session={session}>
-          <NextTopLoader color="#FEC00F" height={8}/>
-          {children}
-        </SessionProvider>
+        <NextTopLoader color="#FEC00F" height={8} />
+        <SessionProvider session={session}>{children}</SessionProvider>
       </body>
     </html>
   );
