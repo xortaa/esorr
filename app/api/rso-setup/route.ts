@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
     }
 
-
     let socials = [],
       signatoryRequests = [],
       strategicDirectionalAreas = [],
@@ -150,7 +149,7 @@ export async function POST(req: NextRequest) {
       // Add a new position
       currentUser.positions.push({
         organization: newOrganization._id,
-        position: "RSO-SIGNATORY",
+        position: "OFFICIAL EMAIL",
       });
     }
 
