@@ -58,6 +58,7 @@ export default function AccountsDashboard() {
     role: "" as Role | "",
     organization: "",
     position: "",
+    affiliation: "",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
@@ -125,29 +126,11 @@ export default function AccountsDashboard() {
   }, [affiliationOptions, affiliationSearchTerm]);
 
   const isCreateButtonDisabled = () => {
-    if (!newAccount.email || !newAccount.role || !newAccount.organization || !newAccount.position) return true;
+    if (!newAccount.email || !newAccount.role) return true;
+    if (newAccount.role === "SOCC-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
+    if (newAccount.role === "RSO-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
+    if (newAccount.role === "AU" && !newAccount.affiliation) return true;
     return false;
-  };
-
-  const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isCreateButtonDisabled()) return;
-
-    try {
-      const response = await axios.post("/api/users", {
-        email: newAccount.email,
-        role: newAccount.role,
-        positions: [{ organization: newAccount.organization, position: newAccount.position }],
-        requestedBy: session?.user?.email,
-      });
-      if (response.status === 201) {
-        setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-        setNewAccount({ email: "", role: "", organization: "", position: "" });
-        setIsCreatingAccount(false);
-      }
-    } catch (error) {
-      console.error("Error creating account:", error);
-    }
   };
 
   const handleArchiveAccount = async (accountId: string) => {
@@ -204,9 +187,39 @@ export default function AccountsDashboard() {
     setIsDropdownOpen(false);
   };
 
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isCreateButtonDisabled()) return;
+
+    try {
+      const accountData: any = {
+        email: newAccount.email,
+        role: newAccount.role,
+        requestedBy: session?.user?.email,
+      };
+
+      if (newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") {
+        accountData.positions = [{ organization: newAccount.organization, position: newAccount.position }];
+      }
+
+      if (newAccount.role === "AU") {
+        accountData.affiliation = newAccount.affiliation;
+      }
+
+      const response = await axios.post("/api/users", accountData);
+      if (response.status === 201) {
+        setAccounts((prevAccounts) => [...prevAccounts, response.data]);
+        setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
+        setIsCreatingAccount(false);
+      }
+    } catch (error) {
+      console.error("Error creating account:", error);
+    }
+  };
+
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
-    setNewAccount({ email: "", role: "", organization: "", position: "" });
+    setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
     setAffiliationSearchTerm("");
   };
 
@@ -410,51 +423,69 @@ export default function AccountsDashboard() {
                   <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
                 </select>
               </div>
-              <div>
-                <label className="label">
-                  <span className="label-text text-gray-700">Organization</span>
-                </label>
-                <div className="relative">
+              {(newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") && (
+                <>
+                  <div>
+                    <label className="label">
+                      <span className="label-text text-gray-700">Organization</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="input input-bordered w-full pr-10"
+                        placeholder="Search for organization..."
+                        value={affiliationSearchTerm}
+                        onChange={handleAffiliationInputChange}
+                        onFocus={handleAffiliationInputFocus}
+                        onBlur={handleInputBlur}
+                        required
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                      </div>
+                    </div>
+                    {isDropdownOpen && filteredAffiliations.length > 0 && (
+                      <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                        {filteredAffiliations.map((affiliation) => (
+                          <li
+                            key={affiliation._id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectAffiliation(affiliation)}
+                          >
+                            {affiliation.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text text-gray-700">Position</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={newAccount.position}
+                      onChange={(e) => setNewAccount({ ...newAccount, position: e.target.value })}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+              {newAccount.role === "AU" && (
+                <div>
+                  <label className="label">
+                    <span className="label-text text-gray-700">Affiliation</span>
+                  </label>
                   <input
                     type="text"
-                    className="input input-bordered w-full pr-10"
-                    placeholder="Search for organization..."
-                    value={affiliationSearchTerm}
-                    onChange={handleAffiliationInputChange}
-                    onFocus={handleAffiliationInputFocus}
-                    onBlur={handleInputBlur}
+                    className="input input-bordered w-full"
+                    value={newAccount.affiliation}
+                    onChange={(e) => setNewAccount({ ...newAccount, affiliation: e.target.value })}
                     required
                   />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
                 </div>
-                {isDropdownOpen && filteredAffiliations.length > 0 && (
-                  <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-                    {filteredAffiliations.map((affiliation) => (
-                      <li
-                        key={affiliation._id}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleSelectAffiliation(affiliation)}
-                      >
-                        {affiliation.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div>
-                <label className="label">
-                  <span className="label-text text-gray-700">Position</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={newAccount.position}
-                  onChange={(e) => setNewAccount({ ...newAccount, position: e.target.value })}
-                  required
-                />
-              </div>
+              )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
