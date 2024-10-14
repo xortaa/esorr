@@ -1,20 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Trash2, Edit, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, Plus, FileText, Trash2, Edit, Eye } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
 type AnnexStatus = "Not Submitted" | "For Review" | "Ready For Printing";
 
-export default function AnnexHManager() {
-  const [annexList, setAnnexList] = useState([]);
+interface Annex {
+  id: string;
+  year: number;
+  status: AnnexStatus;
+  remarks: string;
+}
+
+export default function AnnexAManager() {
+  const [annexList, setAnnexList] = useState<Annex[]>([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const router = useRouter();
+  const currentPath = usePathname();
 
   const createNewAnnex = () => {
     const currentYear = new Date().getFullYear();
-    const newAnnex = {
+    const newAnnex: Annex = {
       id: `123`,
       year: currentYear,
       status: "Not Submitted",
@@ -42,22 +50,34 @@ export default function AnnexHManager() {
     }
   };
 
+  const editAnnex = (id: string) => {
+    router.push(`${currentPath}/${id}`);
+  };
+
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-6">Annex A Student Organizations General Information Annex Manager</h1>
+      <h1 className="text-2xl font-bold mb-6">ANNEX A Student Organizations General Information Report</h1>
       <button onClick={createNewAnnex} className="btn btn-primary mb-6">
         <Plus className="mr-2 h-4 w-4" />
-        Create Student Organizations General Information Annex
+        Create New tudent Organizations General Information Report Annex
       </button>
       <div className="space-y-4">
         {annexList.map((annex) => (
           <div key={annex.id} className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <div className="flex items-center justify-between">
-                <h2 className="card-title">Student Organizations General Information Annex for Year {annex.year}</h2>
+                <div className="flex items-center">
+                  <FileText className="mr-2 h-5 w-5 text-primary" />
+                  <h2 className="card-title">
+                    tudent Organizations General Information Report Annex for Year {annex.year}
+                  </h2>
+                </div>
                 <div className="flex items-center space-x-2">
                   <button className="btn btn-ghost btn-sm text-primary">
                     <Eye className="h-4 w-4" />
+                  </button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex.id)}>
+                    <Edit className="h-4 w-4" />
                   </button>
                   <button className="btn btn-ghost btn-sm" onClick={() => removeAnnex(annex.id)}>
                     <Trash2 className="h-4 w-4 text-error" />
@@ -106,7 +126,7 @@ export default function AnnexHManager() {
       </div>
       {annexList.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
-          <p>No Student Organizations General Information Annex created yet.</p>
+          <p>No tudent Organizations General Information Report Annex created yet.</p>
           <p>Click the button above to create one.</p>
         </div>
       )}
