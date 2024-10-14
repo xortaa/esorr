@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X, Plus, Minus } from "lucide-react";
+import {
+  CircleFadingPlus,
+  XCircle,
+  CornerDownLeft,
+  BadgeInfo,
+  Check,
+  Search,
+  X,
+  Plus,
+  Minus,
+  PhilippinePeso,
+} from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import { AffiliationResponse } from "@/types";
@@ -28,6 +39,8 @@ const RSOSetupPage = () => {
     vision: "",
     description: "",
     objectives: [""],
+    startingBalance: 0,
+    academicYearOfLastRecognition: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -334,7 +347,9 @@ const OrganizationSetupStep1 = ({
       (!isNotUniversityWide || selectedAffiliation !== null) &&
       formData.website.trim() !== "" &&
       formData.category.trim() !== "" &&
-      formData.strategicDirectionalAreas.length > 0
+      formData.strategicDirectionalAreas.length > 0 &&
+      formData.startingBalance >= 0 &&
+      formData.academicYearOfLastRecognition.trim() !== ""
     );
   };
 
@@ -342,6 +357,29 @@ const OrganizationSetupStep1 = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">General Information</h2>
       <form className="space-y-4">
+        <div className="form-control">
+          <label className="label" htmlFor="logo-upload">
+            <span className="label-text">Upload Organization Logo</span>
+          </label>
+          <input
+            type="file"
+            id="logo-upload"
+            className="file-input file-input-bordered w-full max-w-xs"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            required
+          />
+          {imagePreview && (
+            <div className="mt-4">
+              <div className="avatar">
+                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img src={imagePreview} alt="Organization Logo" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="form-control">
           <label className="label" htmlFor="org-name">
             <span className="label-text">Organization Name</span>
@@ -534,26 +572,45 @@ const OrganizationSetupStep1 = ({
         </div>
 
         <div className="form-control">
-          <label className="label" htmlFor="logo-upload">
-            <span className="label-text">Upload Organization Logo</span>
+          <label className="label" htmlFor="starting-balance">
+            <span className="label-text">Starting Balance</span>
+          </label>
+          <div className="relative">
+            <PhilippinePeso className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="number"
+              id="starting-balance"
+              placeholder="0.00"
+              className="input input-bordered w-full pl-10"
+              value={formData.startingBalance}
+              onChange={(e) => setFormData({ ...formData, startingBalance: parseFloat(e.target.value) || 0 })}
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-control">
+          <label className="label" htmlFor="academic-year">
+            <span className="label-text">Academic Year of Last Recognition</span>
           </label>
           <input
-            type="file"
-            id="logo-upload"
-            className="file-input file-input-bordered w-full max-w-xs"
-            accept="image/*"
-            onChange={handleLogoUpload}
+            type="text"
+            id="academic-year"
+            placeholder="e.g., 2023-2024"
+            className="input input-bordered w-full"
+            value={formData.academicYearOfLastRecognition}
+            onChange={(e) => setFormData({ ...formData, academicYearOfLastRecognition: e.target.value })}
+            pattern="\d{4}-\d{4}"
             required
           />
-          {imagePreview && (
-            <div className="mt-4">
-              <div className="avatar">
-                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                  <img src={imagePreview} alt="Organization Logo" />
-                </div>
-              </div>
-            </div>
-          )}
+          <label className="label">
+            <span className="label-text-alt text-info flex items-center">
+              <BadgeInfo className="w-4 h-4 mr-1" />
+              Format: YYYY-YYYY (e.g., 2023-2024)
+            </span>
+          </label>
         </div>
 
         <div className="flex justify-end mt-6">
@@ -876,6 +933,8 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
       {renderField("Mission", formData.mission)}
       {renderField("Vision", formData.vision)}
       {renderField("Brief Description", formData.description)}
+      {renderField("Starting Balance", `₱${formData.startingBalance.toFixed(2)}`)}
+      {renderField("Academic Year of Last Recognition", formData.academicYearOfLastRecognition)}
 
       <section className="mb-4">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Objectives</h3>

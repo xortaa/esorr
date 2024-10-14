@@ -4,6 +4,7 @@ import Organization from "@/models/organization";
 import SignatoryRequest from "@/models/signatory-request";
 import User from "@/models/user";
 import { uploadImage } from "@/utils/storage";
+import AnnexA from "@/models/annex-a";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -24,6 +25,9 @@ export async function POST(req: NextRequest) {
     const vision = formData.get("vision") as string;
     const description = formData.get("description") as string;
     const objectivesString = formData.get("objectives") as string;
+    const startingBalance = parseFloat(formData.get("startingBalance") as string);
+
+    const academicYearOfLastRecognition = formData.get("academicYearOfLastRecognition") as string;
 
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
     if (!logo) return NextResponse.json({ error: "Missing organization logo" }, { status: 400 });
@@ -35,8 +39,15 @@ export async function POST(req: NextRequest) {
     if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
     if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
+    if (isNaN(startingBalance)) {
+      return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
+    }
 
-    let socials = [], signatoryRequests = [], strategicDirectionalAreas = [], objectives = [];
+
+    let socials = [],
+      signatoryRequests = [],
+      strategicDirectionalAreas = [],
+      objectives = [];
 
     if (socialsString) {
       try {
@@ -81,19 +92,33 @@ export async function POST(req: NextRequest) {
 
     const logoUrl = await uploadImage(logo);
 
+    // create organization
     const newOrganization = await Organization.create({
       name,
       logo: logoUrl,
-      socials,
       affiliation: finalAffiliation,
-      website,
+    });
+
+    // create annex a
+    const newAnnexA = await AnnexA.create({
+      organization: newOrganization._id,
+      academicYearOfLastRecognition,
+      affiliation: finalAffiliation,
+      officialEmail: email,
+      officialWebsite: website,
+      organizationSocials: socials,
       category,
       strategicDirectionalAreas,
       mission,
       vision,
       description,
       objectives,
+      startingBalance,
     });
+
+    // add the annex to the organization
+    newOrganization.annexA.push(newAnnexA._id);
+    await newOrganization.save();
 
     if (signatoryRequests.length > 0) {
       await Promise.all(
@@ -137,7 +162,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "RSO setup successful",
-        organizationId: newOrganization._id,
       },
       { status: 201 }
     );
