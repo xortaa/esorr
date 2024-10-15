@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     const description = formData.get("description") as string;
     const objectivesString = formData.get("objectives") as string;
     const startingBalance = parseFloat(formData.get("startingBalance") as string);
+    const currentAcademicYear = formData.get("currentAcademicYear") as string;
 
     const academicYearOfLastRecognition = formData.get("academicYearOfLastRecognition") as string;
 
@@ -113,7 +114,10 @@ export async function POST(req: NextRequest) {
       description,
       objectives,
       startingBalance,
+      academicYear: currentAcademicYear,
     });
+
+    
 
     // add the annex to the organization
     newOrganization.annexA.push(newAnnexA._id);
