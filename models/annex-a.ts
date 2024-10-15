@@ -48,6 +48,14 @@ const AnnexASchema = new Schema({
   validUntil: {
     type: Date,
   },
+  academicYear: {
+    type: String,
+    required: true,
+  },
+  isSubmitted: { 
+    type: Boolean, 
+    default: false
+  },
 });
 
 const AnnexA = models.AnnexA || model("AnnexA", AnnexASchema);
