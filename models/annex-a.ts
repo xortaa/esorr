@@ -45,9 +45,6 @@ const AnnexASchema = new Schema({
     type: Number,
     default: 0,
   },
-  validUntil: {
-    type: Date,
-  },
   academicYear: {
     type: String,
     required: true,

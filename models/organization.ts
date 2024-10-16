@@ -29,10 +29,123 @@ const OrganizationSchema = new Schema({
     enum: ["Active", "Incomplete", "Inactive", "For Revision"],
     default: "Incomplete",
   },
+  annex01: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Annex01",
+      default: [],
+    },
+  ],
+  annex02: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Annex02",
+      default: [],
+    },
+  ],
   annexA: [
     {
       type: Schema.Types.ObjectId,
       ref: "AnnexA",
+      default: [],
+    },
+  ],
+  annexA1: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexA1",
+      default: [],
+    },
+  ],
+  annexB: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexB",
+      default: [],
+    },
+  ],
+  annexC: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexC",
+      default: [],
+    },
+  ],
+  annexC1: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexC1",
+      default: [],
+    },
+  ],
+  annexD: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexD",
+      default: [],
+    },
+  ],
+  annexE: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexE",
+      default: [],
+    },
+  ],
+  annexE1: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexE1",
+      default: [],
+    },
+  ],
+  annexF: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexF",
+      default: [],
+    },
+  ],
+  annexG: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexG",
+      default: [],
+    },
+  ],
+  annexH: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexH",
+      default: [],
+    },
+  ],
+  annexI: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexI",
+      default: [],
+    },
+  ],
+  annexJ: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexJ",
+      default: [],
+    },
+  ],
+  annexK: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexK",
+      default: [],
+    },
+  ],
+  annexL: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexL",
+      default: [],
     },
   ],
 });
