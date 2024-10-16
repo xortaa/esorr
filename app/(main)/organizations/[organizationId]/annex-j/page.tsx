@@ -1,109 +1,80 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Trash2, Edit, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ChevronDown, ChevronUp, FileText, Edit, Send, Download, PenTool } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
-type AnnexStatus = "Not Submitted" | "For Review" | "Ready For Printing";
+type AnnexJ = {
+  _id: string;
+  academicYear: string;
+  isSubmitted: boolean;
+};
 
-export default function AnnexIManager() {
-  const [annexList, setAnnexList] = useState([]);
+export default function AnnexJManager({ params }: { params: { organizationId: string } }) {
+  const [annexList, setAnnexList] = useState<AnnexJ[]>([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const router = useRouter();
+  const currentPath = usePathname();
 
-  const createNewAnnex = () => {
-    const currentYear = new Date().getFullYear();
-    const newAnnex = {
-      id: `123`,
-      year: currentYear,
-      status: "Not Submitted",
-      remarks: "",
-    };
-    setAnnexList([...annexList, newAnnex]);
-  };
+  useEffect(() => {
+    fetchAnnexes();
+  }, []);
 
-  const updateAnnexStatus = (id: string, status: AnnexStatus) => {
-    setAnnexList(annexList.map((annex) => (annex.id === id ? { ...annex, status } : annex)));
-  };
-
-  const updateAnnexRemarks = (id: string, remarks: string) => {
-    setAnnexList(annexList.map((annex) => (annex.id === id ? { ...annex, remarks } : annex)));
+  const fetchAnnexes = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-j`);
+      setAnnexList(response.data);
+    } catch (error) {
+      console.error("Error fetching annexes:", error);
+    }
   };
 
   const toggleExpand = (id: string) => {
     setExpandedAnnex(expandedAnnex === id ? null : id);
   };
 
-  const removeAnnex = (id: string) => {
-    setAnnexList(annexList.filter((annex) => annex.id !== id));
-    if (expandedAnnex === id) {
-      setExpandedAnnex(null);
+  const editAnnex = (id: string) => {
+    router.push(`${currentPath}/${id}`);
+  };
+
+  const submitAnnexForReview = async (id: string) => {
+    try {
+      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-j/${id}`, {
+        isSubmitted: true,
+      });
+      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+    } catch (error) {
+      console.error("Error submitting annex:", error);
     }
+  };
+
+  const addSignature = (id: string) => {
+    // Implement signature functionality here
+    console.log("Add signature for annex:", id);
+  };
+
+  const downloadPDF = (id: string) => {
+    // Implement PDF download functionality here
+    console.log("Download PDF for annex:", id);
   };
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-6">Annex J Commitment to Active Participation Manager</h1>
-      <button onClick={createNewAnnex} className="btn btn-primary mb-6">
-        <Plus className="mr-2 h-4 w-4" />
-        Create Commitment to Active Participation Annex
-      </button>
+      <h1 className="text-2xl font-bold mb-6">ANNEX J Commitment to Active Participation</h1>
       <div className="space-y-4">
         {annexList.map((annex) => (
-          <div key={annex.id} className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <div className="flex items-center justify-between">
-                <h2 className="card-title">
-                  Commitment To Responsible Use of Social Media Annex for Year {annex.year}
-                </h2>
-                <div className="flex items-center space-x-2">
-                  <button className="btn btn-ghost btn-sm text-primary">
-                    <Eye className="h-4 w-4" />
-                  </button>
-                  <button className="btn btn-ghost btn-sm" onClick={() => removeAnnex(annex.id)}>
-                    <Trash2 className="h-4 w-4 text-error" />
-                  </button>
-                  <button className="btn btn-ghost btn-circle" onClick={() => toggleExpand(annex.id)}>
-                    {expandedAnnex === annex.id ? (
-                      <ChevronUp className="h-5 w-5" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              {expandedAnnex === annex.id && (
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <label className="font-medium">Status:</label>
-                    <select
-                      className="select select-bordered w-full max-w-xs"
-                      value={annex.status}
-                      onChange={(e) => updateAnnexStatus(annex.id, e.target.value as AnnexStatus)}
-                    >
-                      <option value="Not Submitted">Not Submitted</option>
-                      <option value="For Review">For Review</option>
-                      <option value="Ready For Printing">Ready For Printing</option>
-                    </select>
-                  </div>
-                  <div className="form-control">
-                    <label htmlFor={`remarks-${annex.id}`} className="label">
-                      <span className="label-text font-medium">SOCC Remarks:</span>
-                    </label>
-                    <textarea
-                      id={`remarks-${annex.id}`}
-                      placeholder="Enter remarks here..."
-                      className="textarea textarea-bordered h-24"
-                      value={annex.remarks}
-                      onChange={(e) => updateAnnexRemarks(annex.id, e.target.value)}
-                    ></textarea>
-                  </div>
-                  <button className="btn btn-primary float-right">Submit</button>
-                </div>
-              )}
-            </div>
-          </div>
+          <AnnexCard
+            key={annex._id}
+            annex={annex}
+            expandedAnnex={expandedAnnex}
+            toggleExpand={toggleExpand}
+            editAnnex={editAnnex}
+            submitAnnexForReview={submitAnnexForReview}
+            addSignature={addSignature}
+            downloadPDF={downloadPDF}
+          />
         ))}
       </div>
       {annexList.length === 0 && (
@@ -113,5 +84,75 @@ export default function AnnexIManager() {
         </div>
       )}
     </PageWrapper>
+  );
+}
+
+interface AnnexCardProps {
+  annex: AnnexJ;
+  expandedAnnex: string | null;
+  toggleExpand: (id: string) => void;
+  editAnnex: (id: string) => void;
+  submitAnnexForReview: (id: string) => void;
+  addSignature: (id: string) => void;
+  downloadPDF: (id: string) => void;
+}
+
+function AnnexCard({
+  annex,
+  expandedAnnex,
+  toggleExpand,
+  editAnnex,
+  submitAnnexForReview,
+  addSignature,
+  downloadPDF,
+}: AnnexCardProps) {
+  return (
+    <div className="card bg-base-100 shadow-xl">
+      <div className="card-body">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-primary" />
+            <h2 className="card-title">
+              Commitment to Active Participation Annex for AY {annex.academicYear}
+            </h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex._id)}>
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => addSignature(annex._id)}>
+              <PenTool className="h-4 w-4" />
+              <span className="ml-2">Add Signature</span>
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
+              <Download className="h-4 w-4" />
+              <span className="ml-2">Download PDF</span>
+            </button>
+            <button className="btn btn-ghost btn-circle" onClick={() => toggleExpand(annex._id)}>
+              {expandedAnnex === annex._id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        {expandedAnnex === annex._id && (
+          <div className="mt-4 space-y-4">
+            <div className="flex items-center space-x-4">
+              <label className="font-medium">Status:</label>
+              <span>{annex.isSubmitted ? "Submitted" : "Not Submitted"}</span>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
+                onClick={() => submitAnnexForReview(annex._id)}
+                disabled={annex.isSubmitted}
+              >
+                <Send className="mr-2 h-4 w-4" />
+                Submit for Review
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

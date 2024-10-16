@@ -6,14 +6,14 @@ import { ChevronDown, ChevronUp, FileText, Edit, Send, Download, PenTool } from 
 import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
-type AnnexI = {
+type AnnexC = {
   _id: string;
   academicYear: string;
   isSubmitted: boolean;
 };
 
-export default function AnnexIManager({ params }: { params: { organizationId: string } }) {
-  const [annexList, setAnnexList] = useState<AnnexI[]>([]);
+export default function AnnexCManager({ params }: { params: { organizationId: string } }) {
+  const [annexList, setAnnexList] = useState<AnnexC[]>([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const router = useRouter();
   const currentPath = usePathname();
@@ -24,7 +24,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
 
   const fetchAnnexes = async () => {
     try {
-      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-i`);
+      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-c`);
       setAnnexList(response.data);
     } catch (error) {
       console.error("Error fetching annexes:", error);
@@ -41,7 +41,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
 
   const submitAnnexForReview = async (id: string) => {
     try {
-      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-i/${id}`, {
+      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-c/${id}`, {
         isSubmitted: true,
       });
       setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
@@ -62,7 +62,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-6">ANNEX I Commitment To Responsible Use of Social Media </h1>
+      <h1 className="text-2xl font-bold mb-6">ANNEX C ANNEX C Certification of the Articles of Association</h1>
       <div className="space-y-4">
         {annexList.map((annex) => (
           <AnnexCard
@@ -79,7 +79,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
       </div>
       {annexList.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
-          <p>No Commitment To Responsible Use of Social Media  Annex created yet.</p>
+          <p>No ANNEX C Certification of the Articles of Association Annex created yet.</p>
           <p>Click the button above to create one.</p>
         </div>
       )}
@@ -88,7 +88,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
 }
 
 interface AnnexCardProps {
-  annex: AnnexI;
+  annex: AnnexC;
   expandedAnnex: string | null;
   toggleExpand: (id: string) => void;
   editAnnex: (id: string) => void;
@@ -113,7 +113,7 @@ function AnnexCard({
           <div className="flex items-center">
             <FileText className="mr-2 h-5 w-5 text-primary" />
             <h2 className="card-title">
-              Commitment To Responsible Use of Social Media  Annex for AY {annex.academicYear}
+              ANNEX C Certification of the Articles of Association Annex for AY {annex.academicYear}
             </h2>
           </div>
           <div className="flex items-center space-x-2">

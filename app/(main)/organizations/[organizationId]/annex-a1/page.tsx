@@ -1,494 +1,158 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { UserPlus, X, Trash2, Search, FilePenLine, Eye } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ChevronDown, ChevronUp, FileText, Edit, Send, Download, PenTool } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
-export default function Component() {
+type AnnexA1 = {
+  _id: string;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export default function AnnexA1Manager({ params }: { params: { organizationId: string } }) {
+  const [annexList, setAnnexList] = useState<AnnexA1[]>([]);
+  const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
+  const router = useRouter();
+  const currentPath = usePathname();
+
+  useEffect(() => {
+    fetchAnnexes();
+  }, []);
+
+  const fetchAnnexes = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-a1`);
+      setAnnexList(response.data);
+    } catch (error) {
+      console.error("Error fetching annexes:", error);
+    }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedAnnex(expandedAnnex === id ? null : id);
+  };
+
+  const editAnnex = (id: string) => {
+    router.push(`${currentPath}/${id}`);
+  };
+
+  const submitAnnexForReview = async (id: string) => {
+    try {
+      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-a1/${id}`, {
+        isSubmitted: true,
+      });
+      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+    } catch (error) {
+      console.error("Error submitting annex:", error);
+    }
+  };
+
+  const addSignature = (id: string) => {
+    // Implement signature functionality here
+    console.log("Add signature for annex:", id);
+  };
+
+  const downloadPDF = (id: string) => {
+    // Implement PDF download functionality here
+    console.log("Download PDF for annex:", id);
+  };
+
   return (
     <PageWrapper>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-6"
-      >
-        <h1 className="text-3xl font-bold">ANNEX A-1 OFFICER'S INFORMATION SHEET DASHBOARD</h1>
-        <p className="text-sm text-slate-500">
-          Manage and create officer information sheets for student organizations. Use the table below to view existing
-          officer information sheets.
-        </p>
-      </motion.div>
-      <OfficersTable />
+      <h1 className="text-2xl font-bold mb-6">ANNEX A-1 Officer_s Information Sheet</h1>
+      <div className="space-y-4">
+        {annexList.map((annex) => (
+          <AnnexCard
+            key={annex._id}
+            annex={annex}
+            expandedAnnex={expandedAnnex}
+            toggleExpand={toggleExpand}
+            editAnnex={editAnnex}
+            submitAnnexForReview={submitAnnexForReview}
+            addSignature={addSignature}
+            downloadPDF={downloadPDF}
+          />
+        ))}
+      </div>
+      {annexList.length === 0 && (
+        <div className="text-center text-gray-500 mt-8">
+          <p>No Officer_s Information Sheet Annex created yet.</p>
+          <p>Click the button above to create one.</p>
+        </div>
+      )}
     </PageWrapper>
   );
 }
 
-function OfficersTable() {
-  const [officers, setOfficers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const filteredOfficers = officers.filter((officer) => officer.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  const handleDeleteOfficer = (id: number) => {
-    setOfficers(officers.filter((officer) => officer.id !== id));
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="h-full w-full"
-    >
-      <div className="flex justify-between items-center w-full my-4">
-        <div className="flex items-center gap-4">
-          <CreateOfficerModal officers={officers} setOfficers={setOfficers} />
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <label className="input input-bordered flex items-center gap-2">
-            <Search />
-            <input
-              type="text"
-              className="grow"
-              placeholder="Search Officer"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </label>
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Position</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOfficers.map((officer) => (
-              <motion.tr
-                key={officer.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="avatar">
-                      <div className="mask mask-squircle h-12 w-12">
-                        <img
-                          src={officer.avatarUrl ? officer.avatarUrl : "/assets/user-placeholder.png"}
-                          alt={`Avatar of ${officer.name}`}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">{officer.name}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>{officer.position}</td>
-                <td className={officer.status === "Complete" ? "text-success" : "text-error"}>{officer.status}</td>
-                <td>
-                  <div className="flex items-center gap-2">
-                    <button className="btn btn-ghost btn-sm">
-                      <Eye />
-                      Preview PDF
-                    </button>
-                    <button className="btn btn-ghost btn-sm">
-                      <FilePenLine />
-                      Edit
-                    </button>
-                    <button className="btn btn-ghost btn-sm text-error" onClick={() => handleDeleteOfficer(officer.id)}>
-                      <Trash2 />
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </motion.div>
-  );
+interface AnnexCardProps {
+  annex: AnnexA1;
+  expandedAnnex: string | null;
+  toggleExpand: (id: string) => void;
+  editAnnex: (id: string) => void;
+  submitAnnexForReview: (id: string) => void;
+  addSignature: (id: string) => void;
+  downloadPDF: (id: string) => void;
 }
 
-function CreateOfficerModal({ officers, setOfficers }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [newOfficer, setNewOfficer] = useState({
-    firstName: "",
-    middleName: "",
-    surname: "",
-    position: "",
-    academicYear: "",
-    status: "Incomplete",
-    avatarUrl: "",
-    religion: "",
-    citizenship: "",
-    gender: "",
-    college: "",
-    program: "",
-    educationalBackground: [
-      { level: "Secondary", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-      { level: "College/Major", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-      { level: "Special Training", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-    ],
-    extraCurricularActivities: [
-      { name: "", position: "", inclusiveDates: "" },
-      { name: "", position: "", inclusiveDates: "" },
-    ],
-  });
-  const fileInputRef = useRef(null);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const uppercaseFields = [
-      "firstName",
-      "middleName",
-      "surname",
-      "religion",
-      "citizenship",
-      "position",
-      "college",
-      "program",
-    ];
-    setNewOfficer({
-      ...newOfficer,
-      [name]: uppercaseFields.includes(name) ? value.toUpperCase() : value,
-    });
-  };
-
-  const handleEducationChange = (index: number, field: string, value: string) => {
-    const updatedEducation = [...newOfficer.educationalBackground];
-    updatedEducation[index] = { ...updatedEducation[index], [field]: value };
-    setNewOfficer({ ...newOfficer, educationalBackground: updatedEducation });
-  };
-
-  const handleExtraCurricularChange = (index: number, field: string, value: string) => {
-    const updatedActivities = [...newOfficer.extraCurricularActivities];
-    updatedActivities[index] = { ...updatedActivities[index], [field]: value };
-    setNewOfficer({ ...newOfficer, extraCurricularActivities: updatedActivities });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewOfficer({ ...newOfficer, avatarUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-    setNewOfficer({
-      firstName: "",
-      middleName: "",
-      surname: "",
-      position: "",
-      academicYear: "",
-      status: "Incomplete",
-      avatarUrl: "",
-      religion: "",
-      citizenship: "",
-      gender: "",
-      college: "",
-      program: "",
-      educationalBackground: [
-        { level: "Secondary", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-        { level: "College/Major", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-        { level: "Special Training", name: "", location: "", yearGraduation: "", organization: "", position: "" },
-      ],
-      extraCurricularActivities: [
-        { name: "", position: "", inclusiveDates: "" },
-        { name: "", position: "", inclusiveDates: "" },
-      ],
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const fullName = `${newOfficer.firstName} ${newOfficer.middleName} ${newOfficer.surname}`.trim();
-    setOfficers([
-      ...officers,
-      {
-        ...newOfficer,
-        id: officers.length + 1,
-        name: fullName,
-      },
-    ]);
-    handleClose();
-  };
-
+function AnnexCard({
+  annex,
+  expandedAnnex,
+  toggleExpand,
+  editAnnex,
+  submitAnnexForReview,
+  addSignature,
+  downloadPDF,
+}: AnnexCardProps) {
   return (
-    <>
-      <button className="btn btn-primary" onClick={() => setIsOpen(true)}>
-        <UserPlus />
-        Add Officer
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-            >
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-bold">Officer Details</h2>
-                  <button className="btn btn-ghost" onClick={handleClose} type="button">
-                    <X />
-                  </button>
-                </div>
-                <p className="text-sm text-slate-500">Enter the details below for the officer</p>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    <div className="w-full">
-                      <label className="label mb-1">FIRST NAME</label>
-                      <input
-                        name="firstName"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="JUAN MIGUEL"
-                        value={newOfficer.firstName}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">MIDDLE NAME</label>
-                      <input
-                        name="middleName"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="GONZALEZ"
-                        value={newOfficer.middleName}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">SURNAME</label>
-                      <input
-                        name="surname"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="DELA CRUZ"
-                        value={newOfficer.surname}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">RELIGION</label>
-                      <input
-                        name="religion"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="CATHOLIC"
-                        value={newOfficer.religion}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">CITIZENSHIP</label>
-                      <input
-                        name="citizenship"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="FILIPINO"
-                        value={newOfficer.citizenship}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">GENDER</label>
-                      <div className="flex gap-4">
-                        <label className="label cursor-pointer">
-                          <input
-                            type="radio"
-                            name="gender"
-                            className="radio radio-primary"
-                            value="MALE"
-                            checked={newOfficer.gender === "MALE"}
-                            onChange={handleInputChange}
-                          />
-                          <span className="label-text ml-2">MALE</span>
-                        </label>
-                        <label className="label cursor-pointer">
-                          <input
-                            type="radio"
-                            name="gender"
-                            className="radio radio-primary"
-                            value="FEMALE"
-                            checked={newOfficer.gender === "FEMALE"}
-                            onChange={handleInputChange}
-                          />
-                          <span className="label-text ml-2">FEMALE</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="w-full">
-                      <label className="label mb-1">POSITION</label>
-                      <input
-                        name="position"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="EXTERNAL VICE PRESIDENT"
-                        value={newOfficer.position}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">ACADEMIC YEAR</label>
-                      <input
-                        name="academicYear"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="2023-2024"
-                        value={newOfficer.academicYear}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">COLLEGE / FACULTY</label>
-                      <input
-                        name="college"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="COLLEGE OF EDUCATION"
-                        value={newOfficer.college}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">PROGRAM / MAJOR</label>
-                      <input
-                        name="program"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="BS FOOD TECHNOLOGY"
-                        value={newOfficer.program}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="w-full">
-                    <label className="label mb-1">OFFICER IMAGE (1x1)</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="file-input file-input-bordered w-full"
-                      onChange={handleImageUpload}
-                      ref={fileInputRef}
-                    />
-                  </div>
-                  <div className="avatar">
-                    <div className="w-24 rounded">
-                      <img src={newOfficer.avatarUrl || "/assets/user-placeholder.png"} alt="Officer preview" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
-                    {newOfficer.educationalBackground.map((edu, index) => (
-                      <div key={index} className="mb-4 p-4 border rounded">
-                        <h4 className="font-semibold mb-2">{edu.level}</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <div>
-                            <label className="label mb-1">Name of Institution</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.name}
-                              onChange={(e) => handleEducationChange(index, "name", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Location</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.location}
-                              onChange={(e) => handleEducationChange(index, "location", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Year of Graduation</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.yearGraduation}
-                              onChange={(e) => handleEducationChange(index, "yearGraduation", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Organization/Club/Society</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.organization}
-                              onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Position</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.position}
-                              onChange={(e) => handleEducationChange(index, "position", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
-                    {newOfficer.extraCurricularActivities.map((activity, index) => (
-                      <div key={index} className="mb-4 p-4 border rounded">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <div>
-                            <label className="label mb-1">Name of Organization</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={activity.name}
-                              onChange={(e) => handleExtraCurricularChange(index, "name", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Position</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={activity.position}
-                              onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Inclusive Dates</label>
-                            <input
-                              className="input input-bordered w-full"
-                              placeholder="e.g. 2022-2023"
-                              value={activity.inclusiveDates}
-                              onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
-                    ADD OFFICER
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
+    <div className="card bg-base-100 shadow-xl">
+      <div className="card-body">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-primary" />
+            <h2 className="card-title">
+              Officer_s Information Sheet Annex for AY {annex.academicYear}
+            </h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex._id)}>
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => addSignature(annex._id)}>
+              <PenTool className="h-4 w-4" />
+              <span className="ml-2">Add Signature</span>
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
+              <Download className="h-4 w-4" />
+              <span className="ml-2">Download PDF</span>
+            </button>
+            <button className="btn btn-ghost btn-circle" onClick={() => toggleExpand(annex._id)}>
+              {expandedAnnex === annex._id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        {expandedAnnex === annex._id && (
+          <div className="mt-4 space-y-4">
+            <div className="flex items-center space-x-4">
+              <label className="font-medium">Status:</label>
+              <span>{annex.isSubmitted ? "Submitted" : "Not Submitted"}</span>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
+                onClick={() => submitAnnexForReview(annex._id)}
+                disabled={annex.isSubmitted}
+              >
+                <Send className="mr-2 h-4 w-4" />
+                Submit for Review
+              </button>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
-    </>
+      </div>
+    </div>
   );
 }

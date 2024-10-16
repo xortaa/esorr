@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Plus, FileText, Edit, Eye, Send, Download, PenTool } from "lucide-react";
+import axios from "axios";
+import { ChevronDown, ChevronUp, FileText, Edit, Send, Download, PenTool } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 
@@ -14,10 +15,6 @@ type AnnexA = {
 export default function AnnexAManager({ params }: { params: { organizationId: string } }) {
   const [annexList, setAnnexList] = useState<AnnexA[]>([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
-  const [newAcademicYear, setNewAcademicYear] = useState<string>(
-    `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
-  );
-  const [isCreatingAnnex, setIsCreatingAnnex] = useState(false);
   const router = useRouter();
   const currentPath = usePathname();
 
@@ -27,28 +24,10 @@ export default function AnnexAManager({ params }: { params: { organizationId: st
 
   const fetchAnnexes = async () => {
     try {
-      const response = await fetch(`/api/annexes/${params.organizationId}/annex-a`);
-      if (!response.ok) throw new Error("Failed to fetch annexes");
-      const data = await response.json();
-      setAnnexList(data);
+      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-a`);
+      setAnnexList(response.data);
     } catch (error) {
       console.error("Error fetching annexes:", error);
-    }
-  };
-
-  const createNewAnnex = async () => {
-    try {
-      const response = await fetch(`/api/annexes/${params.organizationId}/annex-a`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ academicYear: newAcademicYear }),
-      });
-      if (!response.ok) throw new Error("Failed to create annex");
-      const newAnnex = await response.json();
-      setAnnexList([...annexList, newAnnex]);
-      setIsCreatingAnnex(false);
-    } catch (error) {
-      console.error("Error creating annex:", error);
     }
   };
 
@@ -62,14 +41,10 @@ export default function AnnexAManager({ params }: { params: { organizationId: st
 
   const submitAnnexForReview = async (id: string) => {
     try {
-      const response = await fetch(`/api/annexes/${params.organizationId}/annex-a/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isSubmitted: true }),
+      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-a/${id}`, {
+        isSubmitted: true,
       });
-      if (!response.ok) throw new Error("Failed to submit annex");
-      const updatedAnnex = await response.json();
-      setAnnexList(annexList.map((annex) => (annex._id === id ? updatedAnnex : annex)));
+      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
     } catch (error) {
       console.error("Error submitting annex:", error);
     }
@@ -88,39 +63,6 @@ export default function AnnexAManager({ params }: { params: { organizationId: st
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-6">ANNEX A Student Organizations General Information Report</h1>
-      {!isCreatingAnnex ? (
-        <button onClick={() => setIsCreatingAnnex(true)} className="btn btn-primary mb-6">
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Annex
-        </button>
-      ) : (
-        <div className="card bg-base-100 shadow-xl mb-6">
-          <div className="card-body">
-            <h2 className="card-title">Create New Annex</h2>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Academic Year</span>
-              </label>
-              <input
-                type="text"
-                value={newAcademicYear}
-                onChange={(e) => setNewAcademicYear(e.target.value)}
-                className="input input-bordered"
-                placeholder="e.g., 2023-2024"
-              />
-            </div>
-            <div className="card-actions justify-end mt-4">
-              <button onClick={() => setIsCreatingAnnex(false)} className="btn btn-ghost">
-                Cancel
-              </button>
-              <button onClick={createNewAnnex} className="btn btn-primary">
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="space-y-4">
         {annexList.map((annex) => (
           <AnnexCard
