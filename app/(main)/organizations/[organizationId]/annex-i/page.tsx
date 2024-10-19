@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ChevronDown, ChevronUp, FileText, Edit, Send, Download, PenTool } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { ChevronDown, ChevronUp, FileText, Send, Download, PenTool } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 
 type AnnexI = {
@@ -15,8 +14,6 @@ type AnnexI = {
 export default function AnnexIManager({ params }: { params: { organizationId: string } }) {
   const [annexList, setAnnexList] = useState<AnnexI[]>([]);
   const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
-  const router = useRouter();
-  const currentPath = usePathname();
 
   useEffect(() => {
     fetchAnnexes();
@@ -33,10 +30,6 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
 
   const toggleExpand = (id: string) => {
     setExpandedAnnex(expandedAnnex === id ? null : id);
-  };
-
-  const editAnnex = (id: string) => {
-    router.push(`${currentPath}/${id}`);
   };
 
   const submitAnnexForReview = async (id: string) => {
@@ -70,7 +63,6 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
             annex={annex}
             expandedAnnex={expandedAnnex}
             toggleExpand={toggleExpand}
-            editAnnex={editAnnex}
             submitAnnexForReview={submitAnnexForReview}
             addSignature={addSignature}
             downloadPDF={downloadPDF}
@@ -79,7 +71,7 @@ export default function AnnexIManager({ params }: { params: { organizationId: st
       </div>
       {annexList.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
-          <p>No Commitment To Responsible Use of Social Media  Annex created yet.</p>
+          <p>No Commitment To Responsible Use of Social Media Annex created yet.</p>
           <p>Click the button above to create one.</p>
         </div>
       )}
@@ -91,7 +83,6 @@ interface AnnexCardProps {
   annex: AnnexI;
   expandedAnnex: string | null;
   toggleExpand: (id: string) => void;
-  editAnnex: (id: string) => void;
   submitAnnexForReview: (id: string) => void;
   addSignature: (id: string) => void;
   downloadPDF: (id: string) => void;
@@ -101,7 +92,6 @@ function AnnexCard({
   annex,
   expandedAnnex,
   toggleExpand,
-  editAnnex,
   submitAnnexForReview,
   addSignature,
   downloadPDF,
@@ -113,14 +103,10 @@ function AnnexCard({
           <div className="flex items-center">
             <FileText className="mr-2 h-5 w-5 text-primary" />
             <h2 className="card-title">
-              Commitment To Responsible Use of Social Media  Annex for AY {annex.academicYear}
+              Commitment To Responsible Use of Social Media Annex for AY {annex.academicYear}
             </h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex._id)}>
-              <Edit className="h-4 w-4" />
-              <span className="sr-only">Edit</span>
-            </button>
             <button className="btn btn-ghost btn-sm" onClick={() => addSignature(annex._id)}>
               <PenTool className="h-4 w-4" />
               <span className="ml-2">Add Signature</span>
