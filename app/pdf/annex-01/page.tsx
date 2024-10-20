@@ -2,7 +2,7 @@
 
 // Update the path to the correct location of the fonts module
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render, Image } from "@react-pdf/renderer";
 import { Underline } from "lucide-react";
 
 // Register Times New Roman and Arial Narrow fonts
@@ -210,21 +210,20 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginBottom: 40,
   },
-  signatureLine: {
-    borderTopWidth: 1,
-    borderTopColor: "#000",
-    marginTop: 10,
-    width: "40%",
-    alignSelf: "center",
-  },
+
   signatureText: {
     textAlign: "left",
   },
   signatureDetails: {
+    position: "relative",
     marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+  },
+  signatureImage: {
+    width: 100,
+    height: 50,
   },
 });
 
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={styles.page}>
+      <Page size="LEGAL" style={styles.page}>
         {/* Header */}
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
@@ -558,9 +557,11 @@ const MyDocument = () => {
           </View>
 
           <View style={[styles.tableRow, { borderWidth: 0 }]}>
-            <Text style={styles.tableCell}>College of Tourism and Hospitality Management</Text>
-            <Text style={styles.tableCell}>APPLE GREEN</Text>
-            <Text style={styles.tableLastCell}>CTHM</Text>
+            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}>
+              College of Tourism and Hospitality Management
+            </Text>
+            <Text style={[styles.tableCell, { borderBottomWidth: 0 }]}>APPLE GREEN</Text>
+            <Text style={[styles.tableLastCell, { borderBottomWidth: 0 }]}>CTHM</Text>
           </View>
         </View>
         {/* Table ends here */}
@@ -607,14 +608,12 @@ const MyDocument = () => {
           {/* Signature title */}
           <Text style={[styles.signatureText, { paddingTop: 10 }]}>Signed:</Text>
 
-          {/* Signature details (Print name, Date signed) */}
-          <View style={styles.signatureDetails}>
-            <Text style={{ fontFamily: "Arial Narrow Bold", textDecoration: "underline", paddingTop: 20 }}>
-              PRINT NAME AND SIGNATURE
-            </Text>
-            <Text style={{ paddingTop: 20 }}>Date Signed: ____________________</Text>
-          </View>
-          <Text style={styles.signatureText}>Incoming Organization President</Text>
+          <SignatureSection
+            printedName="PRINT NAME AND SIGNATURE"
+            dateSigned="Date Signed: ____________________"
+            title="Incoming Organization President"
+            signatureImage="/assets/signature.png" // Replace with the actual path to the signature image
+          />
         </View>
         <Footer />
       </Page>
@@ -633,6 +632,19 @@ const Footer = () => (
 const Br = () => "\n";
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
+
+const SignatureSection = ({ printedName, dateSigned, title, signatureImage }) => (
+  <View style={styles.signatureSection}>
+    {signatureImage && <Image src={signatureImage} style={styles.signatureImage} />}
+    <View style={styles.signatureDetails}>
+      <Text style={{ fontFamily: "Arial Narrow Bold", textDecoration: "underline" }}>{printedName}</Text>
+      <Text style={{}}>{dateSigned}</Text>
+    </View>
+    <Text break style={styles.signatureText}>
+      {title}
+    </Text>
+  </View>
+);
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {

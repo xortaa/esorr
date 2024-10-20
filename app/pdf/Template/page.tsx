@@ -266,7 +266,7 @@ const Br = () => "\n";
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
-// Function to generate PDF and open in new tab
+// Funcation to generate PDF and open in new tab
 const generatePDF = async () => {
   const doc = <MyDocument />;
   const asPdf = pdf(doc);

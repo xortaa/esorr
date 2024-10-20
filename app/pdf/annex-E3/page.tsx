@@ -514,7 +514,7 @@ const MyDocument = () => {
               <Text style={{ fontSize: 9, textAlign: "justify", width: "32.5%", marginLeft: 1 }}></Text>
             </View>
 
-            <View style={{ flexDirection: "row", borderBottomWidth: 1 }}>
+            <View style={{ flexDirection: "row" }}>
               <View style={{ flexDirection: "row", width: "50%", borderRightWidth: 1 }}>
                 <Text style={{ width: "10%", paddingLeft: 4, marginVertical: 2 }}>7.2</Text>
                 <Text style={{ width: "90%", paddingLeft: 4, marginVertical: 2 }}>
