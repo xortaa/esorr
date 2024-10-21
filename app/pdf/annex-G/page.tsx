@@ -83,26 +83,50 @@ const styles = StyleSheet.create({
   },
   table: {
     display: "flex",
-    flexDirection: "column",
-    width: "auto",
-    marginBottom: 10,
+    width: "100%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#000",
   },
   tableRow: {
+    display: "flex",
     flexDirection: "row",
+    width: "100%",
+  },
+  tableCol: {
+    display: "flex",
+    flexDirection: "column",
   },
   tableCell: {
     padding: 5,
     fontSize: 11,
-    flex: 1,
-    borderWidth: 1, // Border for the nominee table
-    borderColor: "#000",
+    textAlign: "left",
   },
+  tableLastCell: {
+    padding: 5,
+    fontSize: 11,
+    textAlign: "left",
+  },
+
+  tableCellHeader: {
+    backgroundColor: "#d3d3d3",
+    borderRightWidth: 1,
+    borderRightColor: "#000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000",
+    padding: 5,
+    fontWeight: "bold",
+    fontSize: 10,
+    flex: 1,
+  },
+
   invisibleBorderCell: {
     padding: 5,
     fontSize: 11,
     flex: 1,
     borderWidth: 0, // Invisible border for the signature section
   },
+
 });
 
 // Create Document Component
@@ -129,6 +153,7 @@ const MyDocument = () => {
         {/* Nomination Table */}
         <View style={styles.section}>
           <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
+            {"\n"}{"\n"}
             <EmphasizedText>ORGANIZATION ADVISER NOMINATION FORM</EmphasizedText> 
             {"\n"}{"\n"}
           </Text>
@@ -141,27 +166,103 @@ const MyDocument = () => {
           </Text>
         </View>
 
-        <View style={styles.table}>
-          {/* Nominees */}
-          {[1, 2, 3].map((num) => (
-            <View style={styles.tableRow} key={num}>
-              <Text style={styles.tableCell}>
-                {num} Nominee: (Please specify complete name with rank) {"\n"}
-                Name of Faculty: {"\n"}
-                Faculty/College/Institute/School: {"\n"}
+         {/* Table for Beginning Table */}
+         <View style={styles.table}>
+          {/* Header Row */}
+          <View style={styles.tableRow}>
+            <Text style={[styles.tableCell, { width: "60%", borderBottomWidth: 1, borderRightWidth: 1 }]}>
+            1st Nominee: <EmphasizedText> (Please specify complete name with rank) </EmphasizedText> <Br /> <Br />
+            Name of Faculty: <Br />
+            Faculty/College/Institute/School: 
+            </Text>
+            <View
+              style={[
+                styles.tableCell,
+                {
+                  width: "50%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  borderBottomWidth: 1,
+                },
+              ]}
+            >
+               <Text style={[styles.tableCell, {borderBottomWidth: 1}]}>
+                Email address:
               </Text>
-              <Text style={styles.tableCell}>
-                Email address: {"\n"}
-                Contact nos: {"\n"}
-                Landline: {"\n"}
-                Mobile: {"\n"}
+              <View style={styles.tableCol}>
+              <Text style={[styles.tableCell, { width: "50%" }]}>
+              Contact nos: <Br />
+              Landline: <Br />
+              Mobile:
+                
               </Text>
             </View>
-          ))}
-        </View>
+            </View>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={[styles.tableCell, { width: "60%", borderBottomWidth: 1, borderRightWidth: 1 }]}>
+            2nd Nominee: <EmphasizedText> (Please specify complete name with rank) </EmphasizedText> <Br /> <Br />
+            Name of Faculty: <Br />
+            Faculty/College/Institute/School: 
+            </Text>
+            <View
+              style={[
+                styles.tableCell,
+                {
+                  width: "50%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  borderBottomWidth: 1,
+                },
+              ]}
+            >
+               <Text style={[styles.tableCell, {borderBottomWidth: 1}]}>
+                Email address:
+              </Text>
+              <View style={styles.tableCol}>
+              <Text style={[styles.tableCell, { width: "50%" }]}>
+              Contact nos: <Br />
+              Landline: <Br />
+              Mobile:
+              </Text>
+            </View>
+            </View>
+          </View>
+
+          <View style={styles.tableRow}>
+            <Text style={[styles.tableCell, { width: "60%", borderBottomWidth: 1, borderRightWidth: 1 }]}>
+            3rd Nominee: <EmphasizedText> (Please specify complete name with rank) </EmphasizedText>  <Br /> <Br />
+            Name of Faculty: <Br />
+            Faculty/College/Institute/School: 
+            </Text>
+            <View
+              style={[
+                styles.tableCell,
+                {
+                  width: "50%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  borderBottomWidth: 1,
+                },
+              ]}
+            >
+               <Text style={[styles.tableCell, {borderBottomWidth: 1}]}>
+                Email address:
+              </Text>
+              <View style={styles.tableCol}>
+              <Text style={[styles.tableCell, { width: "50%" }]}>
+              Contact nos: <Br />
+              Landline: <Br />
+              Mobile:
+              </Text>
+            </View>
+            </View>
+          </View>
+
+          </View>
 
         {/* Signature Table */}
-        <View style={styles.table}>
+        <View style={[styles.table, {borderWidth: 0}]}>
           <View style={styles.tableRow}>
             <Text style={styles.invisibleBorderCell}></Text>
             <Text style={styles.invisibleBorderCell}>
