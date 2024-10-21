@@ -252,7 +252,7 @@ const MyDocument = () => {
         </View>
 
         {/* Content */}
-        <View style={{ flexDirection: "row", width: "100%" }}>
+        <View style={{ flexDirection: "row", width: "100%", marginBottom: 40 }}>
           <View style={{ width: "80%", flexDirection: "column", textAlign: "center", paddingHorizontal: "40" }}>
             <Text style={{ textDecoration: "underline", fontSize: 16, fontFamily: "Arial Narrow Bold" }}>
               Organization Officer's Information Sheet
@@ -264,7 +264,7 @@ const MyDocument = () => {
           </View>
         </View>
         <View style={{ flexDirection: "row" }}>
-          <Text style={{ textDecoration: "underline" }}>
+          <Text style={{}}>
             NAME OF ORGANIZATION: ____________________ <Text style={{ fontFamily: "Boxed" }}>O</Text> USO{" "}
             <Text style={{ fontFamily: "Boxed" }}>O</Text> CBO: ____________________
           </Text>
