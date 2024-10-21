@@ -1,7 +1,7 @@
 import Members from "@/models/member";
 import { NextRequest, NextResponse } from "next/server";
 import { Member, MemberInput } from "@/types";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import Organization from "@/models/organization";
 
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {

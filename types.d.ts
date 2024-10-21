@@ -92,17 +92,16 @@ export type EducationalBackgroundOrganizationInput = {
 export type Organization = {
   _id: string;
   name: string;
-  image: string;
+  logo: string;
   affiliation: string;
-  is_univ_wide: boolean;
-  website?: string;
-  email: string;
-  socials?: Socials[];
-  members?: Member[];
-  advisers?: string[];
-  accreditation_code: string;
-  is_active: boolean;
-  status: "For Revision" | "Ready for Printing";
+  socials?: [
+    {
+      platform: string;
+      link: string;
+    }
+  ];
+  status: "Active" | "Incomplete" | "Inactive" | "For Revision";
+  isArchived: boolean;
   __v: number;
 };
 

@@ -1,11 +1,18 @@
 "use client";
 
-import PageWrapper from "@/components/PageWrapper";
 import { useState } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check } from "lucide-react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const SOCCSetupPage = () => {
   const [step, setStep] = useState<number>(1);
+  const [memberInputs, setMemberInputs] = useState([{ signatoryEmail: "", position: "" }]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const nextStep = () => {
     setStep(step + 1);
@@ -15,40 +22,104 @@ const SOCCSetupPage = () => {
     setStep(step - 1);
   };
 
+  const handleSubmit = async () => {
+    setError(null);
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post("/api/socc-setup", {
+        email: session?.user?.email,
+        signatories: memberInputs,
+      });
+
+      if (response.status === 201) {
+        alert("SOCC setup completed successfully!");
+        router.push("/organizations");
+      }
+    } catch (error) {
+      console.error("Error setting up SOCC:", error);
+      setError("An error occurred while setting up SOCC. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const validateForm = () => {
+    if (memberInputs.some((input) => !input.signatoryEmail || !input.position)) {
+      setError("All member inputs must have both an email and a position.");
+      return false;
+    }
+    return true;
+  };
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <PageWrapper>
       <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
         <div>
           <h1 className="text-3xl font-bold text-primary">Setup SOCC member accounts</h1>
           <p className="text-gray-600">Follow the steps to setup SOCC accounts.</p>
         </div>
+        {error && (
+          <div className="alert alert-error">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
         <div className="flex flex-col items-start justify-center w-full">
           <SetupStepper step={step} />
           <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
             {step === 1 ? (
-              <SOCCSetupStep1 nextStep={nextStep} />
+              <SOCCSetupStep1 nextStep={nextStep} memberInputs={memberInputs} setMemberInputs={setMemberInputs} />
             ) : (
-              <SOCCSetupStep2 prevStep={prevStep} nextStep={nextStep} />
+              <SOCCSetupStep2
+                prevStep={prevStep}
+                memberInputs={memberInputs}
+                handleSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+              />
             )}
           </div>
         </div>
       </div>
-    </PageWrapper>
   );
 };
 
-const SOCCSetupStep1 = ({ nextStep }: { nextStep: () => void }) => {
-  const [memberInputs, setMemberInputs] = useState([{ email: "", position: "" }]);
-
+const SOCCSetupStep1 = ({
+  nextStep,
+  memberInputs,
+  setMemberInputs,
+}: {
+  nextStep: () => void;
+  memberInputs: any[];
+  setMemberInputs: React.Dispatch<React.SetStateAction<any[]>>;
+}) => {
   const handleAddMemberInput = () => {
-    setMemberInputs([...memberInputs, { email: "", position: "" }]);
+    setMemberInputs([...memberInputs, { signatoryEmail: "", position: "" }]);
   };
 
   const handleRemoveMemberInput = (index: number) => {
     setMemberInputs(memberInputs.filter((_, i) => i !== index));
   };
 
-  const handleMemberInputChange = (index: number, field: "email" | "position", value: string) => {
+  const handleMemberInputChange = (index: number, field: "signatoryEmail" | "position", value: string) => {
     const newInputs = [...memberInputs];
     newInputs[index][field] = value;
     setMemberInputs(newInputs);
@@ -79,8 +150,8 @@ const SOCCSetupStep1 = ({ nextStep }: { nextStep: () => void }) => {
                 id={`member-email-${index}`}
                 placeholder="email@ust.edu.ph"
                 className="input input-bordered w-full"
-                value={input.email}
-                onChange={(e) => handleMemberInputChange(index, "email", e.target.value)}
+                value={input.signatoryEmail}
+                onChange={(e) => handleMemberInputChange(index, "signatoryEmail", e.target.value)}
               />
             </div>
             <div className="form-control">
@@ -120,23 +191,17 @@ const SOCCSetupStep1 = ({ nextStep }: { nextStep: () => void }) => {
   );
 };
 
-interface Social {
-  platform: string;
-  link: string;
-}
-
-interface Member {
-  email: string;
-  position: string;
-}
-
-const SOCCSetupStep2 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep: () => void }) => {
-  const [signatories, setSignatories] = useState<Member[]>([
-    { email: "president@site.org", position: "President" },
-    { email: "vicepresident@site.org", position: "Vice President" },
-    { email: "secretary@site.org", position: "Secretary" },
-  ]);
-
+const SOCCSetupStep2 = ({
+  prevStep,
+  memberInputs,
+  handleSubmit,
+  isSubmitting,
+}: {
+  prevStep: () => void;
+  memberInputs: any[];
+  handleSubmit: () => void;
+  isSubmitting: boolean;
+}) => {
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-primary">Confirm Setup</h2>
@@ -154,9 +219,9 @@ const SOCCSetupStep2 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep
               </tr>
             </thead>
             <tbody>
-              {signatories.map((member, index) => (
+              {memberInputs.map((member, index) => (
                 <tr key={index}>
-                  <td>{member.email}</td>
+                  <td>{member.signatoryEmail}</td>
                   <td>{member.position}</td>
                 </tr>
               ))}
@@ -166,13 +231,22 @@ const SOCCSetupStep2 = ({ prevStep, nextStep }: { prevStep: () => void; nextStep
       </section>
 
       <div className="flex justify-between mt-8">
-        <button className="btn btn-outline" onClick={prevStep}>
+        <button className="btn btn-outline" onClick={prevStep} disabled={isSubmitting}>
           <CornerDownLeft className="mr-2" />
           Previous Step
         </button>
-        <button className="btn btn-primary" type="submit" onClick={nextStep}>
-          <Check className="mr-2" />
-          Confirm Setup
+        <button className="btn btn-primary" type="button" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <span className="loading loading-spinner"></span>
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Check className="mr-2" />
+              Confirm Setup
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -200,9 +274,9 @@ const SetupStepper = ({ step }: { step: number }) => {
         >
           <path
             stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             d="m7 9 4-4-4-4M1 9l4-4-4-4"
           />
         </svg>

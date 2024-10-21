@@ -1,19 +1,23 @@
 import Users from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 
 interface UserInput {
   email: string;
   role: string;
   position: string;
   requestedBy: string;
+  affiliation?: string;
 }
 
 export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const users = await Users.find({ isArchived: false });
+    const users = await Users.find({ isArchived: false, role: { $ne: "OSA" } }).populate({
+      path: "positions.organization",
+      select: "name",
+    });
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -32,6 +36,7 @@ export const POST = async (req: NextRequest) => {
       role: userInput.role,
       position: userInput.role === "SOCC" || userInput.role === "RSO" ? "CENTRAL EMAIL" : "",
       requestedBy: userInput.requestedBy,
+      affiliation: userInput.affiliation,
     });
 
     if (!user) {

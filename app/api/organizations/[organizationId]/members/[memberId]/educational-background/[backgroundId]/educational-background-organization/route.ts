@@ -1,7 +1,7 @@
 import EducationalBackgroundOrganizations from "@/models/educational-background-organization";
 import { EducationalBackgroundOrganization, EducationalBackgroundOrganizationInput } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import EducationalBackgrounds from "@/models/educational-background";
 
 export const GET = async (

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import AnnexC1s from "@/models/articles-of-association/annex-c-1";
 
 interface Params {

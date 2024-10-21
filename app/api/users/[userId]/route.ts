@@ -1,6 +1,6 @@
 import Users from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 
 export const DELETE = async (req: NextRequest, { params }: { params: { userId: string } }) => {
   await connectToDatabase();

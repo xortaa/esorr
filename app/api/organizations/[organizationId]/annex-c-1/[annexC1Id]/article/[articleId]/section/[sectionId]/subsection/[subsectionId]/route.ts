@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import Subsections from "@/models/articles-of-association/subsection";
 import { SubsectionInput } from "@/types";
 

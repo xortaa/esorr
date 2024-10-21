@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import connectToDatabase from "@/db/mongodb";
+import connectToDatabase from "@/utils/mongodb";
 import LetteredParagraphs from "@/models/articles-of-association/lettered-paragraph";
 import Subsections from "@/models/articles-of-association/subsection";
 import { LetteredParagraphInput } from "@/types";
