@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Affiliations from "@/models/affiliation";
 
+
+export const GET = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
+  await connectToDatabase(); 
+
+  const programs = await Affiliations.findById(params.affiliationId, "programs");
+  
+  return NextResponse.json(programs, {status: 200});
+}
+
 export const POST = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
   await connectToDatabase();
 
