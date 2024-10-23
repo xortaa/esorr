@@ -157,7 +157,8 @@ const styles = StyleSheet.create({
       display: "flex",
       width: "auto",
       borderStyle: "solid",
-      borderWidth: 1,
+      borderWidth: 0,
+  
       borderColor: "#000",
       marginBottom: 10,
     },
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
     },
   
     tableCellHeader: {
-      backgroundColor: "#30D5C8",
+      backgroundColor: "#993300",
       borderRightWidth: 1,
       borderRightColor: "#000",
       borderBottomWidth: 1,
@@ -177,10 +178,11 @@ const styles = StyleSheet.create({
       fontSize: 10,
       flex: 1,
       fontFamily: "Arial Narrow Bold",
+      textAlign: "center"
     },
 
     tableCellTotal: {
-        backgroundColor: "#d3d3d3",
+        backgroundColor: "#FFFF00",
         borderRightWidth: 1,
         borderRightColor: "#000",
         borderBottomWidth: 1,
@@ -275,6 +277,21 @@ const styles = StyleSheet.create({
       flex: 1,
       textAlign: "center"
       },
+
+      bannerlogo: {
+        fontFamily: "Arial Narrow Bold",
+      backgroundColor: "#FFFFFF",
+      //borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontSize: 10,
+      flex: 1,
+      textAlign: "center",
+      position: "relative",
+      marginTop: 10,
+      flexDirection: "row",
+      //justifyContent: "space-between",
+      },
   });
 
 // Create Document Component
@@ -291,126 +308,120 @@ const MyDocument = () => {
 
         <View>
             
-        <View fixed style={styles.banner}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
-           Financial Report
-          </Text>
+        <View style={{ flexDirection: "row",  paddingTop: 20, textAlign: "left", fontSize: 9 }}>
+          <View style={styles.bannerlogo}>
+            <Text>
+            (UST LOGO) 
+        </Text>
+            <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
+                EXPENSE REPORT {"\n"}{"\n"}
+            <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
+                .Note:     This form shall be used for expense report reimbursements, petty cash replenishment and liquidation of cash advances {"\n"}
+                (if budget released by the University) {"\n"}
+                .Please attach original receipts/invoices and any other pertinent documents. Single payment of over P2000 from petty cash is not allowed
+            </Text>
+        </Text>
+          </View>
+          </View>
+
+        
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>PURPOSE:____________________________________________________</Text> 
+        {"\n"}{"\n"}
         </View>
 
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
-          UNIVERSITY OF SANTO TOMAS
-          </Text>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>Name of Organization/Council</Text> 
-        {"\n"}
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>Liquidation Report {"\n"}
-          As of (MONTH) {"\n"}
-          (Date covered)
-          </Text>
+        <View> 
+            <Text style={{ fontSize: 8, fontWeight: "bold", paddingTop:20, textAlign: "left" }}>ORGANIZATION INFORMATION: </Text>
         </View>
 
-        {/* Table Inflow starts here */}
+        <View style={{ flexDirection: "row", width: "50%", textAlign: "left", fontSize: 9 }}>
+       
+          <View style={styles.signatureDetails}>
+            <Text>
+            Name of Organization: ___________________________________
+            </Text>
+            <Text>
+            Department: ___________________________________
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", width: "50%", textAlign: "left", fontSize: 9 }}>
+          <View style={styles.signatureDetails}>
+            <Text>
+            Source of Funds: ___________________________________
+            </Text>
+            <Text>
+             ___________________________________
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", width: "50%", textAlign: "left", fontSize: 9 }}>
+          <View style={styles.signatureDetails}>
+            <Text>
+            Source of Funds: ___________________________________
+            </Text>
+            <Text>
+             ___________________________________
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", width: "53.5%", textAlign: "left", fontSize: 9 }}>
+          <View style={styles.signatureDetails}>
+            <Text>
+            Subsidies from the University: _____________________________
+            </Text>
+            <Text>
+            Cash Requisition No. ___________________________________
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", width: "53.5%", textAlign: "left", paddingBottom: 5, fontSize: 9 }}>
+          <View style={styles.signatureDetails}>
+            <Text>
+            Subsidies from the University: _____________________________
+            </Text>
+            <Text>
+            Cash Requisition No. ___________________________________
+            </Text>
+          </View>
+        </View>
+
+           {/* Table EXPENSES starts here */}
         <View style={styles.table}>
           {/* Header Row */}
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellHeader, { width: "30%" }]}>Date</Text> {/* Corrected to use width */}
-            <Text style={styles.tableCellHeader}>Source of Fund</Text>
-            <Text style={styles.tableCellHeader}>Total PhP</Text>
-          </View>
-
-          {/* Table Rows */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Organization Fund / Beginning Balance</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Membership Fee</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Registration Fee</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Merchandise Selling</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Student Activity Fund (For LSC & CBO Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Community Service Fund </Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: University-Wide Student Organization Fund (For USO Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Local Student Council Fund (For LSC Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Cash Sponsorships</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Interest Income</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCellTotalExp}>TOTAL RECEIPTS</Text>
-            <Text style={styles.tableCellTotalExp}>₱ </Text>
-          </View>
-
-          </View>
-
-           {/* Table Outflow starts here */}
-        <View style={styles.table}>
-          {/* Header Row */}
-          <View style={styles.tableRow}>
+          <View style={[styles.tableRow, {borderTop: 1, borderLeft: 1}]}>
             <Text style={styles.tableCellHeader }>Date</Text>
-            <Text style={styles.tableCellHeader}>Details/Description</Text>
-            <Text style={styles.tableCellHeader}>Payee/Establishment</Text>
-            <Text style={styles.tableCellHeader}> </Text>
-            <Text style={styles.tableCellHeader}>Reference No.</Text>
-            <Text style={styles.tableCellHeader}>Unit Cost</Text>
-            <Text style={styles.tableCellHeader}>Unit/s</Text>
-            <Text style={styles.tableCellHeader}>Total PhP</Text>
+            <Text style={styles.tableCellHeader}>Ref</Text>
+            <Text style={styles.tableCellHeader}>Description</Text>
+            <Text style={styles.tableCellHeader}>Meals </Text>
+            <Text style={styles.tableCellHeader}>Transport</Text>
+            <Text style={styles.tableCellHeader}>Supplies</Text>
+            <Text style={styles.tableCellHeader}>Lodging</Text>
+            <Text style={styles.tableCellHeader}>Repairs</Text>
+            <Text style={styles.tableCellHeader}>Others</Text>
+            <Text style={styles.tableCellHeader}>Misc.</Text>
+            <Text style={styles.tableCellHeader}>Total</Text>
           </View>
 
           {/* Table Rows */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> I. Food Expense </Text>
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
           </View>
-          <View style={styles.tableRow}>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -419,287 +430,297 @@ const MyDocument = () => {
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
           </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+
+          {/*subtotals */}
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1, borderRight:1, backgroundColor:"#000000"}]}>  </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> II. Transportation </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> Subtotal </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}> - </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> III. Office Supplies </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}>Check No. __________  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}>Less-Advances(Subsidies) </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}>  </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> IV. Physical Arrangement </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> V. Documentation </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VI. Promotions </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VII. Professional Fee/ Honoraria/ Token </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VIII. Awards and Prizes </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> IX. Publication </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> X. Rentals </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XI. Equipment </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XII. Costumes </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XIII. Membership Kits </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XIV. Registration Fees </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XV. Cash Donations or Sponsorship to Other Organizations </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XVI. Miscellaneous Expense </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>  </Text>
-            <Text style={styles.tableCellTotalExp}>TOTAL EXPENSES  </Text>
-            <Text style={styles.tableCellTotalExp}>  </Text>
-            <Text style={styles.tableCellTotalExp}>  </Text>
-            <Text style={styles.tableCellTotalExp}>  </Text>
-            <Text style={styles.tableCellTotalExp}>  </Text>
-            <Text style={styles.tableCellTotalExp}>  </Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>P 0.00  </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>  </Text>
-            <Text style={styles.tableCellTotalNet}>NET CASH FLOW / ENDING BALANCE  </Text>
-            <Text style={styles.tableCellTotalNet}>  </Text>
-            <Text style={styles.tableCellTotalNet}>  </Text>
-            <Text style={styles.tableCellTotalNet}>  </Text>
-            <Text style={styles.tableCellTotalNet}>  </Text>
-            <Text style={styles.tableCellTotalNet}>  </Text>
-            <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>P 0.00  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> Refund (Reimbursement) </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}> - </Text>
           </View>
 
           </View>
+
+          
+
 
           <View style={{ flexDirection: "row", width: "35.5%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
@@ -715,12 +736,12 @@ const MyDocument = () => {
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
             <Text>
-            (Signature over printed name; date) <Br></Br>
+            (Treasurer's Name) <Br></Br>
             ___________________________________    <Br></Br>
               Treasurer
             </Text>
             <Text>
-            (Signature over printed name; date) <Br></Br>
+            (Auditor's Name) <Br></Br>
             ___________________________________    <Br></Br>
               Auditor
             </Text>
@@ -732,46 +753,28 @@ const MyDocument = () => {
         <View style={{ flexDirection: "row", width: "42%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
             <Text>
-             Approved by:
+             Prepared by:
             </Text>
            
           </View>
           </View>
 
-        <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
+        <View style={{ flexDirection: "row", width: "81.5%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
           <Text>
-            (Signature over printed name; date) <Br></Br>
+            (Name of President) <Br></Br>
             ___________________________________    <Br></Br>
               President
             </Text>
-          </View>
-        </View>
-        
-        <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            <Text>
-            (Signature over printed name; date) <Br></Br>
-            ___________________________________    <Br></Br>
-            SOCC Corporate Treasurer
-            </Text>
-            <Text>
-            (Signature over printed name; date) <Br></Br>
-            ___________________________________    <Br></Br>
-            SOCC VP Audit and Logistics
-            </Text>
-          </View>
-        </View>
 
-        <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
             <Text>
-            (Signature over printed name; date) <Br></Br>
+            (Adviser's Name) <Br></Br>
             ___________________________________    <Br></Br>
             Adviser
             </Text>
+            
             <Text>
-            (Signature over printed name; date) <Br></Br>
+            (Adviser's Name) <Br></Br>
             ___________________________________    <Br></Br>
             Adviser
             </Text>
@@ -781,7 +784,7 @@ const MyDocument = () => {
         <View style={{ flexDirection: "row", width: "42%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
             <Text>
-             Noted by:
+             Noted:
             </Text>
            
           </View>
@@ -840,7 +843,7 @@ const generatePDF = async () => {
 
 const App = () => (
   <div>
-    <h1>PDF GENERATOR EXAMPLE ANNEX E2</h1>
+    <h1>PDF GENERATOR EXAMPLE EXPENSE REPORT</h1>
     <button onClick={generatePDF} className="btn btn-primary">
       Generate PDF
     </button>
