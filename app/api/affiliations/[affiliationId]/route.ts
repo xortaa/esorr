@@ -1,13 +1,13 @@
 import Affiliations from "@/models/affiliation";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import { AffiliationResponse, AffiliationInput } from "@/types";
+import { Affiliation } from "@/types";
 
 export const GET = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
   await connectToDatabase();
 
   try {
-    const affiliation: AffiliationResponse = await Affiliations.findById(params.affiliationId);
+    const affiliation: Affiliation = await Affiliations.findById(params.affiliationId);
     if (!affiliation) {
       return NextResponse.json({ error: "Affiliation not found" }, { status: 404 });
     }
@@ -21,10 +21,10 @@ export const GET = async (req: NextRequest, { params }: { params: { affiliationI
 export const PATCH = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
   await connectToDatabase();
 
-  const affiliationInput: AffiliationInput = await req.json();
+  const affiliationInput = await req.json();
 
   try {
-    const updatedAffiliation: AffiliationResponse = await Affiliations.findByIdAndUpdate(
+    const updatedAffiliation: Affiliation = await Affiliations.findByIdAndUpdate(
       params.affiliationId,
       affiliationInput,
       {
@@ -42,7 +42,7 @@ export const DELETE = async (req: NextRequest, { params }: { params: { affiliati
   await connectToDatabase();
 
   try {
-    const affiliation: AffiliationResponse = await Affiliations.findByIdAndDelete(params.affiliationId);
+    const affiliation: Affiliation = await Affiliations.findByIdAndDelete(params.affiliationId);
     if (!affiliation) {
       return NextResponse.json({ error: "Affiliation not found" }, { status: 404 });
     }

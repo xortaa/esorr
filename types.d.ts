@@ -87,7 +87,7 @@ export type Officer = {
   academicYear: string;
 };
 
-export type OfficerData = Omic<Officer, '_id' | 'organization', 'academicYear',>
+export type OfficerData = Omic<Officer, "_id" | "organization", "academicYear">;
 
 export type OfficerData = {
   organization: string;
@@ -256,3 +256,15 @@ export type Organization = {
   annexK: AnnexK;
   annexL: AnnexL;
 };
+
+export interface Program {
+  _id: string;
+  name: string;
+}
+
+export interface Affiliation {
+  _id: string;
+  name: string;
+  isArchived: boolean;
+  programs: Program[];
+}
