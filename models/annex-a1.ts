@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\models\annex-a1.ts
 import { Schema, model, models } from "mongoose";
 
 const AnnexA1Schema = new Schema({
@@ -12,6 +13,11 @@ const AnnexA1Schema = new Schema({
   isSubmitted: {
     type: Boolean,
     default: false,
+  },
+  officers: {
+    type: [Schema.Types.ObjectId],
+    ref: "Officer",
+    default: [],
   },
 });
 
