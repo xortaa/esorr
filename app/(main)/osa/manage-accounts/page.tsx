@@ -6,7 +6,7 @@ import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { AffiliationResponse } from "@/types";
+import { Affiliation } from "@/types";
 import { Organization } from "@/types";
 
 type Role = "SOCC" | "AU" | "RSO" | "RSO-SIGNATORY" | "SOCC-SIGNATORY";
@@ -43,7 +43,7 @@ type SignatoryRequest = {
 };
 
 export default function AccountsDashboard() {
-  const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
+  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -181,7 +181,7 @@ export default function AccountsDashboard() {
     setTimeout(() => setIsDropdownOpen(false), 200);
   };
 
-  const handleSelectAffiliation = (affiliation: AffiliationResponse) => {
+  const handleSelectAffiliation = (affiliation: Affiliation) => {
     setNewAccount({ ...newAccount, organization: affiliation.name });
     setAffiliationSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
