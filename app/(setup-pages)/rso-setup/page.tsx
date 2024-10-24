@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
-import { AffiliationResponse } from "@/types";
+import { Affiliation } from "@/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -12,9 +12,9 @@ const RSOSetupPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
-  const [affiliationOptions, setAffiliationOptions] = useState<AffiliationResponse[]>([]);
+  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(true);
-  const [selectedAffiliation, setSelectedAffiliation] = useState<AffiliationResponse | null>(null);
+  const [selectedAffiliation, setSelectedAffiliation] = useState<Affiliation | null>(null);
   const [isNotUniversityWide, setIsNotUniversityWide] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
@@ -218,10 +218,10 @@ const RSOSetupPage = () => {
 
 interface OrganizationSetupStep1Props {
   nextStep: () => void;
-  affiliationOptions: AffiliationResponse[];
+  affiliationOptions: Affiliation[];
   affiliationOptionsLoading: boolean;
-  selectedAffiliation: AffiliationResponse | null;
-  setSelectedAffiliation: (affiliation: AffiliationResponse | null) => void;
+  selectedAffiliation: Affiliation | null;
+  setSelectedAffiliation: (affiliation: Affiliation | null) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   isNotUniversityWide: boolean;
@@ -932,7 +932,7 @@ interface OrganizationSetupStep4Props {
   handleSubmit: () => void;
   isSubmitting: boolean;
   isNotUniversityWide: boolean;
-  selectedAffiliation: AffiliationResponse | null;
+  selectedAffiliation: Affiliation | null;
 }
 
 const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({

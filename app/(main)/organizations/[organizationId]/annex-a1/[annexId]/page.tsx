@@ -5,7 +5,7 @@ import { UserPlus, X, Trash2, Search, FilePenLine, Eye, PenTool, List, Grid, Mor
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
-import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity } from "@/types";
+import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity, Affiliation, Program } from "@/types";
 
 export default function OfficerManager({ params }: { params: { organizationId: string; annexId: string } }) {
   const { organizationId, annexId } = params;
@@ -35,7 +35,9 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
   const [editingOfficer, setEditingOfficer] = useState<Officer | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [officerToDelete, setOfficerToDelete] = useState<Officer | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "card">(localStorage.getItem("officersViewMode") as "table" | "card" || "table");
+  const [viewMode, setViewMode] = useState<"table" | "card">(
+    (localStorage.getItem("officersViewMode") as "table" | "card") || "table"
+  );
 
   useEffect(() => {
     const savedViewMode = localStorage.getItem("officersViewMode") as "table" | "card";
@@ -256,19 +258,15 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
             Grid View
           </button>
 
-          <div className="form-control">
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="Search Officer"
-                className="input input-bordered"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button className="btn btn-square">
-                <Search />
-              </button>
-            </div>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search Officer"
+              className="input input-bordered pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           </div>
         </div>
       </div>
@@ -348,6 +346,36 @@ function CreateOfficerModal({
       { nameOfOrganization: "", position: "", inclusiveDates: "" },
     ],
   });
+  // affiliations
+  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
+  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedAffiliation, setSelectedAffiliation] = useState<Affiliation | null>(null);
+
+  // program
+
+  const [programOptions, setProgramOptions] = useState<Program[]>([]);
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
+  const [programSearchTerm, setProgramSearchTerm] = useState("");
+  const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      setAffiliationOptionsLoading(true);
+      try {
+        const response = await axios.get("/api/affiliations");
+        setAffiliationOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching affiliations:", error);
+      } finally {
+        setAffiliationOptionsLoading(false);
+      }
+    };
+
+    fetchAffiliations();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -463,6 +491,65 @@ function CreateOfficerModal({
     return isComplete && isSecondaryEducationComplete && isCollegeEducationComplete ? "COMPLETE" : "INCOMPLETE";
   };
 
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setSelectedAffiliation(null);
+    setIsDropdownOpen(true);
+  };
+
+  const handleSelectAffiliation = async (affiliation: Affiliation) => {
+    setSelectedAffiliation(affiliation);
+    setSearchTerm(affiliation.name);
+    setIsDropdownOpen(false);
+    setNewOfficer({ ...newOfficer, affiliation: affiliation.name });
+    setSelectedProgram(null);
+    setProgramSearchTerm("");
+
+    // Fetch programs for the selected affiliation
+    setProgramOptionsLoading(true);
+    try {
+      const response = await axios.get(`/api/affiliations/${affiliation._id}/programs`);
+      setProgramOptions(response.data.programs);
+    } catch (error) {
+      console.error("Error fetching programs:", error);
+    } finally {
+      setProgramOptionsLoading(false);
+    }
+  };
+
+  const handleProgramInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProgramSearchTerm(e.target.value);
+    setSelectedProgram(null);
+    setIsProgramDropdownOpen(true);
+  };
+
+  const handleSelectProgram = (program: Program) => {
+    setSelectedProgram(program);
+    setProgramSearchTerm(program.name);
+    setIsProgramDropdownOpen(false);
+    setNewOfficer({ ...newOfficer, program: program.name });
+  };
+
+  const handleAffiliationInputFocus = () => {
+    setIsDropdownOpen(true);
+  };
+
+  const handleProgramInputFocus = () => {
+    setIsProgramDropdownOpen(true);
+  };
+
+  const handleInputBlur = () => {
+    setTimeout(() => setIsDropdownOpen(false), 200);
+  };
+
+  const filteredAffiliations = affiliationOptions.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredPrograms = programOptions.filter((program) =>
+    program.name.toLowerCase().includes(programSearchTerm.toLowerCase())
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -500,12 +587,12 @@ function CreateOfficerModal({
             >
               <form onSubmit={handleSubmit}>
                 <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-bold">Officer Details</h2>
+                  <h2 className="text-3xl font-bold">Add a new officer</h2>
                   <button className="btn btn-ghost" onClick={handleClose} type="button">
                     <X />
                   </button>
                 </div>
-                <p className="text-sm text-slate-500">Enter the details below for the officer</p>
+                <p className="text-sm text-slate-500">Enter the details below for the officer to be added</p>
                 <div className="space-y-6">
                   <div className="mb-6">
                     <label className="label mb-1">Officer's 1x1 Picture</label>
@@ -623,23 +710,97 @@ function CreateOfficerModal({
                     </div>
                     <div className="w-full">
                       <label className="label mb-1">COLLEGE / AFFILIATION</label>
-                      <input
-                        name="affiliation"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="COLLEGE OF EDUCATION"
-                        value={newOfficer.affiliation}
-                        onChange={handleInputChange}
-                      />
+                      <div className="relative w-full">
+                        <input
+                          type="text"
+                          className="input input-bordered w-full pr-10 uppercase"
+                          placeholder="Search for affiliation..."
+                          value={searchTerm}
+                          onChange={handleAffiliationInputChange}
+                          onFocus={handleAffiliationInputFocus}
+                          onBlur={handleInputBlur}
+                          disabled={affiliationOptionsLoading}
+                          required
+                        />
+                        {searchTerm && (
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                            onClick={() => {
+                              setSearchTerm("");
+                              setSelectedAffiliation(null);
+                              setNewOfficer({ ...newOfficer, affiliation: "" });
+                            }}
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        )}
+                        {isDropdownOpen && filteredAffiliations.length > 0 && (
+                          <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {filteredAffiliations.map((affiliation) => (
+                              <li
+                                key={affiliation._id}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => handleSelectAffiliation(affiliation)}
+                              >
+                                {affiliation.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      {affiliationOptionsLoading && (
+                        <div className="text-center mt-2">
+                          <span className="loading loading-dots loading-md"></span>
+                        </div>
+                      )}
                     </div>
                     <div className="w-full">
                       <label className="label mb-1">PROGRAM / MAJOR</label>
-                      <input
-                        name="program"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="BS FOOD TECHNOLOGY"
-                        value={newOfficer.program}
-                        onChange={handleInputChange}
-                      />
+                      <div className="relative w-full">
+                        <input
+                          type="text"
+                          className="input input-bordered w-full pr-10 uppercase"
+                          placeholder="Search for program..."
+                          value={programSearchTerm}
+                          onChange={handleProgramInputChange}
+                          onFocus={handleProgramInputFocus}
+                          onBlur={handleInputBlur}
+                          disabled={!selectedAffiliation || programOptionsLoading}
+                          required
+                        />
+                        {programSearchTerm && (
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                            onClick={() => {
+                              setProgramSearchTerm("");
+                              setSelectedProgram(null);
+                              setNewOfficer({ ...newOfficer, program: "" });
+                            }}
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        )}
+                        {isProgramDropdownOpen && filteredPrograms.length > 0 && (
+                          <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {filteredPrograms.map((program) => (
+                              <li
+                                key={program._id}
+                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onClick={() => handleSelectProgram(program)}
+                              >
+                                {program.name}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      {programOptionsLoading && (
+                        <div className="text-center mt-2">
+                          <span className="loading loading-dots loading-md"></span>
+                        </div>
+                      )}
                     </div>
                     <div className="w-full">
                       <label className="label mb-1">MOBILE NUMBER</label>
@@ -809,6 +970,36 @@ function EditOfficerModal({
     ],
   });
 
+  // Affiliation state
+  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
+  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState(officer.affiliation || "");
+  const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
+  const [selectedAffiliation, setSelectedAffiliation] = useState<Affiliation | null>(null);
+
+  // Program state
+  const [programOptions, setProgramOptions] = useState<Program[]>([]);
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
+  const [programSearchTerm, setProgramSearchTerm] = useState(officer.program || "");
+  const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+
+  useEffect(() => {
+    const fetchAffiliations = async () => {
+      setAffiliationOptionsLoading(true);
+      try {
+        const response = await axios.get("/api/affiliations");
+        setAffiliationOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching affiliations:", error);
+      } finally {
+        setAffiliationOptionsLoading(false);
+      }
+    };
+
+    fetchAffiliations();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -880,6 +1071,49 @@ function EditOfficerModal({
     return isComplete && isSecondaryEducationComplete && isCollegeEducationComplete ? "COMPLETE" : "INCOMPLETE";
   };
 
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAffiliationSearchTerm(value);
+    setSelectedAffiliation(null);
+    setIsAffiliationDropdownOpen(true);
+    setEditedOfficer({ ...editedOfficer, affiliation: value });
+  };
+
+  const handleSelectAffiliation = async (affiliation: Affiliation) => {
+    setSelectedAffiliation(affiliation);
+    setAffiliationSearchTerm(affiliation.name);
+    setIsAffiliationDropdownOpen(false);
+    setEditedOfficer({ ...editedOfficer, affiliation: affiliation.name });
+    setSelectedProgram(null);
+    setProgramSearchTerm("");
+
+    // Fetch programs for the selected affiliation
+    setProgramOptionsLoading(true);
+    try {
+      const response = await axios.get(`/api/affiliations/${affiliation._id}/programs`);
+      setProgramOptions(response.data.programs);
+    } catch (error) {
+      console.error("Error fetching programs:", error);
+    } finally {
+      setProgramOptionsLoading(false);
+    }
+  };
+
+  const handleProgramInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setProgramSearchTerm(value);
+    setSelectedProgram(null);
+    setIsProgramDropdownOpen(true);
+    setEditedOfficer({ ...editedOfficer, program: value });
+  };
+
+  const handleSelectProgram = (program: Program) => {
+    setSelectedProgram(program);
+    setProgramSearchTerm(program.name);
+    setIsProgramDropdownOpen(false);
+    setEditedOfficer({ ...editedOfficer, program: program.name });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -894,6 +1128,14 @@ function EditOfficerModal({
       console.error("Error updating officer:", error);
     }
   };
+
+  const filteredAffiliations = affiliationOptions.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes((affiliationSearchTerm || "").toLowerCase())
+  );
+
+  const filteredPrograms = programOptions.filter((program) =>
+    program.name.toLowerCase().includes((programSearchTerm || "").toLowerCase())
+  );
 
   return (
     <AnimatePresence>
@@ -1025,24 +1267,100 @@ function EditOfficerModal({
                 </div>
                 <div className="w-full">
                   <label className="label mb-1">COLLEGE / AFFILIATION</label>
-                  <input
-                    name="affiliation"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="COLLEGE OF EDUCATION"
-                    value={editedOfficer.affiliation}
-                    onChange={handleInputChange}
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      className="input input-bordered w-full pr-10 uppercase"
+                      placeholder="Search for affiliation..."
+                      value={affiliationSearchTerm}
+                      onChange={handleAffiliationInputChange}
+                      onFocus={() => setIsAffiliationDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsAffiliationDropdownOpen(false), 200)}
+                      disabled={affiliationOptionsLoading}
+                      required
+                    />
+                    {affiliationSearchTerm && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => {
+                          setAffiliationSearchTerm("");
+                          setSelectedAffiliation(null);
+                          setEditedOfficer({ ...editedOfficer, affiliation: "" });
+                        }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    {isAffiliationDropdownOpen && filteredAffiliations.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {filteredAffiliations.map((affiliation) => (
+                          <li
+                            key={affiliation._id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectAffiliation(affiliation)}
+                          >
+                            {affiliation.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {affiliationOptionsLoading && (
+                    <div className="text-center mt-2">
+                      <span className="loading loading-dots loading-md"></span>
+                    </div>
+                  )}
                 </div>
+
                 <div className="w-full">
                   <label className="label mb-1">PROGRAM / MAJOR</label>
-                  <input
-                    name="program"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="BS FOOD TECHNOLOGY"
-                    value={editedOfficer.program}
-                    onChange={handleInputChange}
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      className="input input-bordered w-full pr-10 uppercase"
+                      placeholder="Search for program..."
+                      value={programSearchTerm}
+                      onChange={handleProgramInputChange}
+                      onFocus={() => setIsProgramDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsProgramDropdownOpen(false), 200)}
+                      disabled={!selectedAffiliation || programOptionsLoading}
+                      required
+                    />
+                    {programSearchTerm && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => {
+                          setProgramSearchTerm("");
+                          setSelectedProgram(null);
+                          setEditedOfficer({ ...editedOfficer, program: "" });
+                        }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    {isProgramDropdownOpen && filteredPrograms.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {filteredPrograms.map((program) => (
+                          <li
+                            key={program._id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectProgram(program)}
+                          >
+                            {program.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {programOptionsLoading && (
+                    <div className="text-center mt-2">
+                      <span className="loading loading-dots loading-md"></span>
+                    </div>
+                  )}
                 </div>
+
                 <div className="w-full">
                   <label className="label mb-1">MOBILE NUMBER</label>
                   <input
