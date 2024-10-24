@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render, Image } from "@react-pdf/renderer";
+import { Underline, Vegan } from "lucide-react";
 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={[styles.page]}>
+      <Page size="LEGAL" style={[styles.page]}>
         {/* Header */}
 
         <View fixed style={styles.header}>
@@ -259,15 +260,401 @@ const MyDocument = () => {
             </Text>
             <Text style={{ fontSize: 10 }}>Academic Year __ - __</Text>
           </View>
-          <View style={{ width: "20%", flexDirection: "column" }}>
+          <View style={{ width: "20%", flexDirection: "column", borderWidth: 1 }}>
             <Text style={styles.subheading}>(NEED TO TEST PICTURE HERE)</Text>
           </View>
         </View>
+
         <View style={{ flexDirection: "row" }}>
-          <Text style={{}}>
-            NAME OF ORGANIZATION: ____________________ <Text style={{ fontFamily: "Boxed" }}>O</Text> USO{" "}
-            <Text style={{ fontFamily: "Boxed" }}>O</Text> CBO: ____________________
+          <Text style={{}}>NAME OF ORGANIZATION: ____________________</Text>
+          <Text style={{ marginLeft: 5 }}>
+            <Text style={{ fontFamily: "Boxed" }}>O</Text>
+            USO
           </Text>
+          <Text style={{ marginLeft: 5 }}>
+            <Text style={{ fontFamily: "Boxed" }}>O</Text>
+            CBO:{" "}
+            <Text style={{ textDecoration: "underline", fontSize: 7 }}>
+              {" "}
+              (Di ko alam ano input dito basta naka underline){" "}
+            </Text>
+          </Text>
+        </View>
+
+        {/* Table */}
+
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              marginTop: 10,
+              backgroundColor: "yellow",
+            }}
+          >
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>SURNAME</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>FIRST NAME</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column" }}>
+              <Text>MIDDLE NAME</Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT SURNAME </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text>INPUT FIRS NAME</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", padding: 10 }}>
+              <Text>INPUT MIDDLE NAME</Text>
+            </View>
+          </View>
+        </View>
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              borderTopWidth: 0,
+              backgroundColor: "yellow",
+            }}
+          >
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>POSITION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>COLLEGE / FACULTY </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column" }}>
+              <Text>PROGRAM / MAJOR</Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT POSITION </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text>INPUT COLLEGE / FACULTY</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", padding: 10 }}>
+              <Text>INPUT PROGRAM / MAJOR</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={{ textDecoration: "underline", paddingTop: 10 }}>CONTACT DETAILS: </Text>
+
+        <View style={{ paddingTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderTopWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              backgroundColor: "yellow",
+            }}
+          >
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text> MOBILE # </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>RESIDENCE/HOME #</Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>E-MAIL</Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column" }}>
+              <Text>FACEBOOK</Text>
+            </View>
+          </View>
+        </View>
+
+        <View>
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT MOBILE # </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT RESIDENCE/HOME #</Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", padding: 10, borderRightWidth: 1 }}>
+              <Text> INPUT E-MAIL</Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", padding: 10 }}>
+              <Text> INPUT FACEBOOK</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={{ textDecoration: "underline", paddingTop: 10 }}>EDUCATIONAL BACKGROUND: </Text>
+
+        <View style={{ paddingTop: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderTopWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              backgroundColor: "yellow",
+              fontSize: 9,
+            }}
+          >
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text> EDUCATIONAL ATTAINMENT </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                {" "}
+                NAME AND LOCATION OF <Br /> INSTITUTION{" "}
+              </Text>
+            </View>
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                YEAR OF <Br /> GRADUATION
+              </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                ORGANIZATION / CLUB / <Br /> SOCIETY
+              </Text>
+            </View>
+            <View style={{ width: "20%", flexDirection: "column" }}>
+              <Text>POSITION</Text>
+            </View>
+          </View>
+        </View>
+
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderTopWidth: 0,
+              width: "100%",
+              textAlign: "center",
+
+              fontSize: 9,
+            }}
+          >
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text style={{ marginTop: 10 }}> Secondary </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                {" "}
+                INPUT FOR NAME AND LOCATION OF <Br /> INSTITUTION{" "}
+              </Text>
+            </View>
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR YEAR OF <Br /> GRADUATION
+              </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR ORGANIZATION / CLUB / <Br /> SOCIETY
+              </Text>
+            </View>
+            <View style={{ width: "20%", flexDirection: "column" }}>
+              <Text> INPUT FOR POSITION</Text>
+            </View>
+          </View>
+        </View>
+
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderTopWidth: 0,
+              width: "100%",
+              textAlign: "center",
+
+              fontSize: 9,
+            }}
+          >
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text style={{ marginTop: 10 }}> College / Major </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                {" "}
+                INPUT FOR NAME AND LOCATION OF <Br /> INSTITUTION{" "}
+              </Text>
+            </View>
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR YEAR OF <Br /> GRADUATION
+              </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR ORGANIZATION / CLUB / <Br /> SOCIETY
+              </Text>
+            </View>
+            <View style={{ width: "20%", flexDirection: "column" }}>
+              <Text> INPUT FOR POSITION</Text>
+            </View>
+          </View>
+        </View>
+
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              borderTopWidth: 0,
+              width: "100%",
+              textAlign: "center",
+
+              fontSize: 9,
+            }}
+          >
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text style={{ marginTop: 10 }}> Special Training </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                {" "}
+                INPUT FOR NAME AND LOCATION OF <Br /> INSTITUTION{" "}
+              </Text>
+            </View>
+            <View style={{ width: "15%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR YEAR OF <Br /> GRADUATION
+              </Text>
+            </View>
+            <View style={{ width: "25%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>
+                INPUT FOR ORGANIZATION / CLUB / <Br /> SOCIETY
+              </Text>
+            </View>
+            <View style={{ width: "20%", flexDirection: "column" }}>
+              <Text> INPUT FOR POSITION</Text>
+            </View>
+          </View>
+        </View>
+
+        <Text style={{ textDecoration: "underline", paddingTop: 10 }}>OTHER INFORMATION: </Text>
+
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ backgroundColor: "yellow", borderWidth: 1, paddingLeft: 5 }}>
+            RECORD OF EXTRA-CURRICULAR ACTIVITIES (Inside and Outside of the University)
+          </Text>
+        </View>
+
+        <View>
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              borderTopWidth: 0,
+              backgroundColor: "yellow",
+            }}
+          >
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>NAME OF ORGANIZATION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>POSITION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column" }}>
+              <Text>INCLUSIVE DATES</Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT NAME OF ORGANIZATION </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text>INPUT POSITION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", padding: 10 }}>
+              <Text>INPUT INCLUSIVE DATES</Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT NAME OF ORGANIZATION </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text>INPUT POSITION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", padding: 10 }}>
+              <Text>INPUT INCLUSIVE DATES</Text>
+            </View>
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              borderWidth: 1,
+              width: "100%",
+              textAlign: "center",
+              borderTopWidth: 0,
+              backgroundColor: "yellow",
+            }}
+          >
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>RELIGION</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1 }}>
+              <Text>CITIZENSHIP</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column" }}>
+              <Text>GENDER</Text>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", borderWidth: 1, borderTopWidth: 0, width: "100%", textAlign: "center" }}>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text> INPUT RELIGION </Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", borderRightWidth: 1, padding: 10 }}>
+              <Text>INPUT CITIZENSHIP</Text>
+            </View>
+            <View style={{ width: "33%", flexDirection: "column", padding: 10 }}>
+              <View style={{ flexDirection: "row", width: "100%" }}>
+                <View style={{ width: "50%", flexDirection: "column" }}>
+                  <Text>
+                    <Text style={{ fontFamily: "Boxed" }}>O</Text> Male
+                  </Text>
+                </View>
+                <View style={{ width: "50%", flexDirection: "column" }}>
+                  <Text>
+                    <Text style={{ fontFamily: "Boxed" }}>O</Text> Female
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>
+          To the best of my knowledge, the above-stated information is true and correct. Furthermore, the information
+          stated herein will be subject to UST’s policies on Privacy and Disclosure of Information.
+        </Text>
+
+        <View style={{ textAlign: "center", marginTop: 30, alignItems: "center" }}>
+          <Image src="/assets/signature.png" style={{ width: 100, height: 50 }} />
+          <Text style={{}}>___________________________________________</Text>
+          <Text style={{}}>SIGNATURE OF OFFICER (with watermark)</Text>
         </View>
 
         <Footer />
