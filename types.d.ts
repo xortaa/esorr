@@ -9,6 +9,15 @@ export type Signatory = {
   submittedAt: Date;
 };
 
+export type SignatoryRequest = {
+  _id: string;
+  email: string;
+  organization: Organization;
+  position: string;
+  requestedBy: string;
+  submittedAt: Date;
+};
+
 export type Annex01 = {
   _id: string;
   orgnanization: Organization;
