@@ -42,7 +42,6 @@ export const PATCH = async (req: NextRequest, { params }: { params: { signatory_
             position: signatoryRequest.position,
           },
         ],
-        isExecutive: signatoryRequest.isExecutive,
       });
 
       await Organization.findByIdAndUpdate(signatoryRequest.organization, {

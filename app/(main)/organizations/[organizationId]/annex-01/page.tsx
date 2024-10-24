@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Plus, FileText, Send, Download, PenTool } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
+import Annex01SignatureButton from "@/components/annexPDF/annex01SignatureButton";
 
 type Annex01 = {
   _id: string;
@@ -154,6 +155,7 @@ function AnnexCard({
             <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
+            <Annex01SignatureButton />
             <button className="btn btn-ghost btn-sm" onClick={() => addSignature(annex._id)}>
               <PenTool className="h-4 w-4" />
               <span className="ml-2">Add Signature</span>

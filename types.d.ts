@@ -1,243 +1,279 @@
-export type Social = {
+export type Signatory = {
   _id: string;
-  platform: string;
-  link: string;
-  __v: number;
+  email: string;
+  role: string;
+  organization: string;
+  position: string;
+  requestedBy: string;
+  isExecutive: boolean;
+  submittedAt: Date;
 };
 
-export type SocialInput = {
-  platform: string;
-  link: string;
-};
-
-export type Member = {
+export type SignatoryRequest = {
   _id: string;
-  __v: number;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
+  email: string;
+  organization: Organization;
   position: string;
-  college: string;
-  student_number: string;
-  contact_number: string;
-  address: string;
-  other_organizations: {
-    name: string;
-    position: string;
-    inclusive_date: string;
-  }[];
-  religion: string;
-  citizenship: string;
-  gender: string;
-  educational_background: EducationalBackground[];
-  is_new_member: boolean;
-  program: string;
-  year_level: string;
-  image?: string;
+  requestedBy: string;
+  submittedAt: Date;
 };
 
-export type MemberInput = {
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  position: string;
-  college: string;
-  student_number: string;
-  contact_number: string;
-  address: string;
-  other_organizations: {
-    name: string;
-    position: string;
-    inclusive_date: string;
-  }[];
-  religion: string;
-  citizenship: string;
-  gender: string;
-  educational_background: string[];
-  is_new_member: boolean;
-  program: string;
-  year_level: string;
+export type Annex01 = {
+  _id: string;
+  orgnanization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
 };
 
-export type EducationalBackgroundInput = {
-  attainment: "Secondary" | "College" | "Special Training";
-  name: string;
-  location: string;
-  year_of_graduation: string;
-  organizations: string[];
+export type Annex01 = {
+  _id: string;
+  orgnanization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexA = {
+  _id: string;
+  organization: Organization;
+  academicYearOfLastRecognition: string;
+  affiliation: string;
+  officialEmail: string;
+  officialWebsite: string;
+  organizationSocials: string[];
+  category: string;
+  strategicDirectionalAreas: string[];
+  mission: string;
+  vision: string;
+  description: string;
+  objectives: string[];
+  startingBalance: number;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexA1 = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+  officers: Officer[];
 };
 
 export type EducationalBackground = {
-  _id: string;
-  attainment: "Secondary" | "College" | "Special Training";
-  name: string;
-  location: string;
-  year_of_graduation: string;
-  organizations: EducationalBackgroundOrganization[];
-  __v: number;
+  level: string;
+  nameAndLocation: string;
+  yearOfGraduation: string;
+  organization: string;
+  position: string;
 };
 
-export type EducationalBackgroundOrganization = {
-  _id: string;
-  name: string;
+export type ExtraCurricularActivity = {
+  nameOfOrganization: string;
   position: string;
-  __v: number;
+  inclusiveDates: string;
 };
 
-export type EducationalBackgroundOrganizationInput = {
-  name: string;
+export type Officer = {
+  _id: string;
+  organization: Organization;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   position: string;
+  affiliation: string;
+  program: string;
+  mobileNumber: string;
+  residence: string;
+  email: string;
+  facebook: string;
+  educationalBackground: EducationalBackground[];
+  recordOfExtraCurricularActivities: ExtraCurricularActivity[];
+  religion: string;
+  citizenship: string;
+  gender: string;
+  image: string;
+  status: "COMPLETE" | "INCOMPLETE";
+  academicYear: string;
+};
+
+export type OfficerData = Omic<Officer, "_id" | "organization", "academicYear">;
+
+export type OfficerData = {
+  organization: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  position: string;
+  affiliation: string;
+  program: string;
+  mobileNumber: string;
+  residence: string;
+  email: string;
+  facebook: string;
+  educationalBackground: [
+    {
+      level: string;
+      nameAndLocation: string;
+      yearOfGraduation: string;
+      organization: string;
+      position: string;
+    }
+  ];
+  recordOfExtraCurricularActivities: [
+    {
+      nameOfOrganization: string;
+      position: string;
+      inclusiveDates: string;
+    }
+  ];
+  religion: string;
+  citizenship: string;
+  gender: string;
+  image: string;
+  status: "COMPLETE" | "INCOMPLETE";
+};
+
+export type AnnexB = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexC = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexC1 = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexD = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexE = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexE1 = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexE2 = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexE3 = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexF = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexG = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexH = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexI = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexJ = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexK = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
+};
+
+export type AnnexL = {
+  _id: string;
+  organization: Organization;
+  academicYear: string;
+  isSubmitted: boolean;
 };
 
 export type Organization = {
   _id: string;
   name: string;
   logo: string;
-  affiliation: string;
-  socials?: [
-    {
-      platform: string;
-      link: string;
-    }
-  ];
-  status: "Active" | "Incomplete" | "Inactive" | "For Revision";
+  signatories: Signatory[];
   isArchived: boolean;
-  __v: number;
-};
-
-export type OrganizationInput = {
-  name: string;
-  image: string;
   affiliation: string;
-  is_univ_wide: boolean;
-  website: string;
-  email: string;
-  socials: Socials[];
-  members: Member[];
-  advisers: string[];
-  accreditation_code: string;
-  is_active: boolean;
-  status: "For Revision" | "Ready for Printing";
+  status: "Acrtive" | "Incomplete" | "Inactive" | "For Revision";
+  annex01: Annex01;
+  annexA: AnnexA;
+  annexA1: AnnexA1;
+  annexB: AnnexB;
+  annexC: AnnexC;
+  annexC1: AnnexC1;
+  annexD: AnnexD;
+  annexE: AnnexE;
+  annexE1: AnnexE1;
+  annexE2: AnnexE2;
+  annexE3: AnnexE3;
+  annexF: AnnexF;
+  annexG: AnnexG;
+  annexH: AnnexH;
+  annexI: AnnexI;
+  annexJ: AnnexJ;
+  annexK: AnnexK;
+  annexL: AnnexL;
 };
 
-export type UserInput = {
-  email: string;
-  password: string;
-};
-
-export type UserRegistrationInput = {
-  email: string;
-  password: string;
-  confirm_password: string;
-  role: "RSO" | "SOCC" | "AU";
-};
-
-export type User = {
+export interface Program {
   _id: string;
-  email: string;
-  password: string;
-  image: string;
-  role: "RSO" | "OSA" | "SOCC" | "AU" | "ADVISER";
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  contact_number: string;
-  college: string;
-  address: string;
-  second_address: string;
-  signature: string;
-  organization: Organization;
-  affiliation: string;
-  __v: number;
-};
-
-export type AnnexC1 = {
-  _id: string;
-  articles: Article[];
-  organization: Organization;
-  __v: number;
-};
-
-export type AnnexC1Input = {
-  articles: string[];
-  organization: string;
-};
-
-export type Article = {
-  _id: string;
-  order: number;
-  title: string;
-  description: string[];
-  sections: Section[];
-  __v: number;
-};
-
-export type ArticleInput = {
-  order: number;
-  title: string;
-  description: string[];
-  sections: string[];
-};
-
-export type Section = {
-  _id: string;
-  order: number;
-  title: string;
-  paragraph: string;
-  image: string;
-  article: string;
-  subsections: Subsection[];
-  __v: number;
-};
-
-export type SectionInput = {
-  order: number;
-  title: string;
-  paragraph: string;
-  image: string;
-  article: string;
-  subsections: string[];
-};
-
-export type Subsection = {
-  _id: string;
-  number: string;
-  title: string;
-  paragraph: string;
-  section: string;
-  __v: number;
-};
-
-export type SubsectionInput = {
-  number: string;
-  title: string;
-  paragraph: string;
-  section: string;
-};
-
-export type LetteredParagraph = {
-  _id: string;
-  letter: string;
-  paragraph: string;
-  subsection: string;
-  section: string;
-  __v: number;
-};
-
-export type LetteredParagraphInput = {
-  letter: string;
-  paragraph: string;
-  subsection: string;
-  section: string;
-};
-
-type AffiliationInput = {
   name: string;
-};
+}
 
-type AffiliationResponse = {
+export interface Affiliation {
   _id: string;
   name: string;
   isArchived: boolean;
-  _v: number;
-};
+  programs: Program[];
+}

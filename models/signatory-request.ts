@@ -21,12 +21,7 @@ const SignatoryRequestSchema = new Schema({
   requestedBy: {
     type: String,
     required: true,
-  },
-  isExecutive: {
-    type: Boolean,
-    default: false,
-    index: true,
-  },
+  },  
   submittedAt: {
     type: Date,
     default: Date.now,

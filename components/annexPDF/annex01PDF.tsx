@@ -4,7 +4,7 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
 import { Underline } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
@@ -635,70 +635,4 @@ const Br = () => "\n";
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
-// Function to generate PDF and open in new tab
-const generatePDF = async () => {
-  const doc = <MyDocument />;
-  const asPdf = pdf(doc);
-  const blob = await asPdf.toBlob();
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
-};
-
-const sstyles = StyleSheet.create({
-  viewer: {
-    width: "100%",
-    height: "70vh",
-  },
-});
-
-const App = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">PDF Generator Example</h1>
-      <button onClick={openModal} className="btn btn-primary">
-        Generate PDF
-      </button>
-
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none bg-black bg-opacity-50">
-          <div className="relative w-11/12 max-w-6xl mx-auto my-6">
-            <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
-              <div className="flex items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
-                <h3 className="text-3xl font-semibold">PDF Viewer</h3>
-                <button
-                  className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none hover:text-gray-600"
-                  onClick={closeModal}
-                >
-                  <span className="bg-transparent text-black h-6 w-6 text-2xl block outline-none focus:outline-none">
-                    ×
-                  </span>
-                </button>
-              </div>
-              <div className="relative p-6 flex-auto">
-                <PDFViewer style={sstyles.viewer}>
-                  <MyDocument />
-                </PDFViewer>
-              </div>
-              <div className="flex items-center justify-end p-6 border-t border-solid border-gray-300 rounded-b">
-                <button
-                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150 hover:text-red-600"
-                  type="button"
-                  onClick={closeModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default App;
+export default MyDocument;

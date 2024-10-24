@@ -1,6 +1,12 @@
 import { Schema, model, models } from "mongoose";
 
-const AffiliationModel = new Schema({
+const ProgramSchema = new Schema({
+  name: {
+    type: String,
+  },
+});
+
+const AffiliationSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -8,11 +14,11 @@ const AffiliationModel = new Schema({
   isArchived: {
     type: Boolean,
     default: false,
+    index: true,
   },
+  programs: [ProgramSchema],
 });
 
-AffiliationModel.index({ isArchived: 1 });
-
-const Affiliation = models.Affiliation || model("Affiliation", AffiliationModel);
+const Affiliation = models.Affiliation || model("Affiliation", AffiliationSchema);
 
 export default Affiliation;

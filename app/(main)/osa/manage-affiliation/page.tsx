@@ -1,19 +1,35 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { PlusCircle, Trash2, AlertCircle, Edit, Save, X, Search } from "lucide-react";
+import {
+  PlusCircle,
+  Trash2,
+  AlertCircle,
+  Edit,
+  Save,
+  X,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  School,
+  BookOpen,
+} from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
-import { AffiliationResponse } from "@/types";
+import { Affiliation, Program } from "@/types";
 
 export default function AffiliationManagement() {
-  const [affiliations, setAffiliations] = useState<AffiliationResponse[]>([]);
+  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
   const [newAffiliationName, setNewAffiliationName] = useState("");
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [affiliationsResponseLoading, setAffiliationsResponseLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [newProgramName, setNewProgramName] = useState("");
+  const [expandedAffiliationId, setExpandedAffiliationId] = useState<string | null>(null);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
+  const [editProgramName, setEditProgramName] = useState("");
 
   useEffect(() => {
     const fetchAffiliations = async () => {
@@ -68,7 +84,7 @@ export default function AffiliationManagement() {
     }
   };
 
-  const startEditing = (affiliation: AffiliationResponse) => {
+  const startEditing = (affiliation: Affiliation) => {
     setEditingId(affiliation._id);
     setEditName(affiliation.name);
   };
@@ -115,11 +131,80 @@ export default function AffiliationManagement() {
     addAffiliation();
   };
 
+  const addProgram = async (affiliationId: string) => {
+    if (newProgramName.trim() === "") {
+      setError("Program name cannot be empty");
+      return;
+    }
+    try {
+      const { data: updatedAffiliation } = await axios.post(`/api/affiliations/${affiliationId}/programs`, {
+        name: newProgramName.trim(),
+      });
+      setAffiliations(affiliations.map((aff) => (aff._id === affiliationId ? updatedAffiliation : aff)));
+      setNewProgramName("");
+      setError("");
+    } catch (error) {
+      console.error("Error adding program:", error);
+      setError("Failed to add program. Please try again.");
+    }
+  };
+
+  const toggleExpand = (affiliationId: string) => {
+    setExpandedAffiliationId(expandedAffiliationId === affiliationId ? null : affiliationId);
+  };
+
+  const startEditingProgram = (program: Program) => {
+    setEditingProgramId(program._id);
+    setEditProgramName(program.name);
+  };
+
+  const saveEditProgram = async (affiliationId: string, programId: string) => {
+    if (editProgramName.trim() === "") {
+      setError("Program name cannot be empty");
+      return;
+    }
+    try {
+      const { data: updatedAffiliation } = await axios.patch(
+        `/api/affiliations/${affiliationId}/programs/${programId}`,
+        {
+          name: editProgramName.trim(),
+        }
+      );
+      setAffiliations(affiliations.map((aff) => (aff._id === affiliationId ? updatedAffiliation : aff)));
+      setEditingProgramId(null);
+      setError("");
+    } catch (error) {
+      console.error("Error updating program:", error);
+      setError("Failed to update program. Please try again.");
+    }
+  };
+
+  const cancelEditProgram = () => {
+    setEditingProgramId(null);
+    setError("");
+  };
+
+  const deleteProgram = async (affiliationId: string, programId: string) => {
+    try {
+      const { data: updatedAffiliation } = await axios.delete(
+        `/api/affiliations/${affiliationId}/programs/${programId}`
+      );
+      setAffiliations(affiliations.map((aff) => (aff._id === affiliationId ? updatedAffiliation : aff)));
+    } catch (error) {
+      console.error("Error deleting program:", error);
+      setError("Failed to delete program. Please try again.");
+    }
+  };
+
   return (
     <PageWrapper>
-      <h1 className="text-3xl font-bold mb-6">Manage Affiliations</h1>
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Add New Faculty/College/Institute/School</h2>
+      <h1 className="text-4xl font-bold mb-8 text-center text-primary">Affiliation Management</h1>
+
+      <div className="bg-card text-card-foreground shadow-lg rounded-lg p-6 mb-8">
+        <h2 className="text-2xl font-semibold mb-4 flex items-center">
+          <School className="mr-2" />
+          Add New Affiliation
+        </h2>
         <form onSubmit={handleSubmit} className="flex items-center space-x-2">
           <input
             type="text"
@@ -129,9 +214,9 @@ export default function AffiliationManagement() {
             className="input input-bordered flex-grow"
             aria-label="New affiliation name"
           />
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn bg-primary">
             <PlusCircle className="w-5 h-5 mr-2" />
-            Add Affiliation
+            Add
           </button>
         </form>
         {error && (
@@ -141,86 +226,172 @@ export default function AffiliationManagement() {
           </div>
         )}
       </div>
-      <div>
-        {/* search input */}
-        <div className="mb-6 flex justify-between items-center ">
-          <h2 className="text-xl font-semibold mb-4">Existing Affiliations</h2>
-          <label className="input input-bordered flex items-center gap-2 max-w-xs">
+
+      <div className="bg-card text-card-foreground shadow-lg rounded-lg p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold flex items-center">
+            <BookOpen className="mr-2" />
+            Existing Affiliations
+          </h2>
+          <div className="relative">
             <input
               type="text"
-              className="grow"
+              className="input input-bordered pl-10"
               placeholder="Search affiliations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="h-4 w-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </label>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
         </div>
+
         {affiliationsResponseLoading ? (
-          <div className="flex items-center justify-center">
-            <span className="loading loading-dots loading-md"></span>
+          <div className="flex items-center justify-center py-8">
+            <span className="loading loading-dots loading-lg"></span>
           </div>
         ) : filteredAffiliations.length === 0 ? (
-          <p className="text-gray-500">No affiliations found.</p>
+          <p className="text-gray-500 text-center py-8">No affiliations found.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-4">
             {filteredAffiliations.map((affiliation) => (
-              <li key={affiliation._id} className="flex items-center justify-between bg-base-200 p-3 rounded-lg">
-                {editingId === affiliation._id ? (
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="input input-bordered flex-grow mr-2"
-                    aria-label={`Edit ${affiliation.name}`}
-                  />
-                ) : (
-                  <span>{affiliation.name}</span>
-                )}
-                <div className="flex space-x-2">
+              <li
+                key={affiliation._id}
+                className="bg-base-200 rounded-lg overflow-hidden transition-all duration-200 ease-in-out"
+              >
+                <div className="p-4 flex items-center justify-between">
                   {editingId === affiliation._id ? (
-                    <>
-                      <button
-                        onClick={() => saveEdit(affiliation._id)}
-                        className="btn btn-sm btn-primary"
-                        aria-label={`Save changes for ${affiliation.name}`}
-                      >
-                        <Save className="w-4 h-4" />
-                      </button>
-                      <button onClick={cancelEdit} className="btn btn-sm btn-ghost" aria-label="Cancel editing">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="input input-bordered flex-grow mr-2"
+                      aria-label={`Edit ${affiliation.name}`}
+                    />
                   ) : (
-                    <>
-                      <button
-                        onClick={() => startEditing(affiliation)}
-                        className="btn btn-sm btn-ghost"
-                        aria-label={`Edit ${affiliation.name}`}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => removeAffiliation(affiliation._id)}
-                        className="btn btn-sm btn-neutral"
-                        aria-label={`Remove ${affiliation.name}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </>
+                    <span className="font-semibold text-lg">{affiliation.name}</span>
                   )}
+                  <div className="flex space-x-2">
+                    {editingId === affiliation._id ? (
+                      <>
+                        <button
+                          onClick={() => saveEdit(affiliation._id)}
+                          className="btn btn-ghost"
+                          aria-label={`Save changes for ${affiliation.name}`}
+                        >
+                          <Save className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="btn bg-red-100 text-red-800 "
+                          aria-label="Cancel editing"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => startEditing(affiliation)}
+                          className="btn bg-blue-100 text-blue-800"
+                          aria-label={`Edit ${affiliation.name}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => removeAffiliation(affiliation._id)}
+                          className="btn bg-red-100 text-red-800"
+                          aria-label={`Remove ${affiliation.name}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => toggleExpand(affiliation._id)}
+                          className="btn btn-ghost"
+                          aria-label={`Toggle programs for ${affiliation.name}`}
+                        >
+                          {expandedAffiliationId === affiliation._id ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+                {expandedAffiliationId === affiliation._id && (
+                  <div className="bg-base-100 p-4 border-t border-base-300">
+                    <h3 className="text-lg font-semibold mb-2">Programs</h3>
+                    <ul className="space-y-2 mb-4">
+                      {affiliation.programs.map((program) => (
+                        <li key={program._id} className="bg-base-200 p-2 rounded-md flex items-center justify-between">
+                          {editingProgramId === program._id ? (
+                            <input
+                              type="text"
+                              value={editProgramName}
+                              onChange={(e) => setEditProgramName(e.target.value)}
+                              className="input input-bordered flex-grow mr-2"
+                              aria-label={`Edit ${program.name}`}
+                            />
+                          ) : (
+                            <span>{program.name}</span>
+                          )}
+                          <div className="flex space-x-2">
+                            {editingProgramId === program._id ? (
+                              <>
+                                <button
+                                  onClick={() => saveEditProgram(affiliation._id, program._id)}
+                                  className="btn btn-ghost"
+                                  aria-label={`Save changes for ${program.name}`}
+                                >
+                                  <Save className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={cancelEditProgram}
+                                  className="btn bg-red-100 text-red-800"
+                                  aria-label="Cancel editing program"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => startEditingProgram(program)}
+                                  className="btn bg-blue-100 text-blue-800"
+                                  aria-label={`Edit ${program.name}`}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => deleteProgram(affiliation._id, program._id)}
+                                  className="btn bg-red-100 text-red-800"
+                                  aria-label={`Delete ${program.name}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={newProgramName}
+                        onChange={(e) => setNewProgramName(e.target.value)}
+                        placeholder="Enter program name"
+                        className="input input-bordered flex-grow"
+                        aria-label="New program name"
+                      />
+                      <button onClick={() => addProgram(affiliation._id)} className="btn bg-blue-100 text-blue-800">
+                        <PlusCircle className="w-5 h-5 mr-2" />
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
