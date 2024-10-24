@@ -257,417 +257,427 @@ const OrganizationSetupStep1 = ({
   isNotUniversityWide,
   setIsNotUniversityWide,
 }: OrganizationSetupStep1Props) => {
- const [searchTerm, setSearchTerm] = useState("");
- const [isDropdownOpen, setIsDropdownOpen] = useState(false);
- const [imagePreview, setImagePreview] = useState(null);
- const [isSDAreaDropdownOpen, setIsSDAreaDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isSDAreaDropdownOpen, setIsSDAreaDropdownOpen] = useState(false);
 
- // Generate an array of years from current year to 5 years in the future
- const futureYears = useMemo(() => {
-   const currentYear = new Date().getFullYear();
-   return Array.from({ length: 6 }, (_, i) => currentYear + i);
- }, []);
+  // Generate an array of years from current year to 5 years in the future
+  const futureYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 6 }, (_, i) => currentYear + i);
+  }, []);
 
- // Generate an array of years from 5 years in the past to the current year
- const pastYears = useMemo(() => {
-   const currentYear = new Date().getFullYear();
-   return Array.from({ length: 6 }, (_, i) => currentYear - i);
- }, []);
+  // Generate an array of years from 5 years in the past to the current year
+  const pastYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 6 }, (_, i) => currentYear - i);
+  }, []);
 
- const handleOrganizationTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-   setIsNotUniversityWide(event.target.value === "college-based");
-   if (event.target.value === "univ-wide") {
-     setSelectedAffiliation(null);
-     setSearchTerm("");
-   }
- };
+  const handleOrganizationTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsNotUniversityWide(event.target.value === "college-based");
+    if (event.target.value === "univ-wide") {
+      setSelectedAffiliation(null);
+      setSearchTerm("");
+    }
+  };
 
- const filteredAffiliations = useMemo(() => {
-   return affiliationOptions.filter((affiliation) => affiliation.name.toLowerCase().includes(searchTerm.toLowerCase()));
- }, [affiliationOptions, searchTerm]);
+  const filteredAffiliations = useMemo(() => {
+    return affiliationOptions.filter((affiliation) =>
+      affiliation.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [affiliationOptions, searchTerm]);
 
- const handleSelectAffiliation = (affiliation: any) => {
-   setSelectedAffiliation(affiliation);
-   setSearchTerm(affiliation.name);
-   setIsDropdownOpen(false);
- };
+  const handleSelectAffiliation = (affiliation: any) => {
+    setSelectedAffiliation(affiliation);
+    setSearchTerm(affiliation.name);
+    setIsDropdownOpen(false);
+  };
 
- const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   setSearchTerm(e.target.value);
-   setSelectedAffiliation(null);
-   setIsDropdownOpen(true);
- };
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setSelectedAffiliation(null);
+    setIsDropdownOpen(true);
+  };
 
- const handleAffiliationInputFocus = () => {
-   setIsDropdownOpen(true);
- };
+  const handleAffiliationInputFocus = () => {
+    setIsDropdownOpen(true);
+  };
 
- const handleInputBlur = () => {
-   setTimeout(() => setIsDropdownOpen(false), 200);
- };
+  const handleInputBlur = () => {
+    setTimeout(() => setIsDropdownOpen(false), 200);
+  };
 
- const handleAddSocialInput = () => {
-   setFormData({
-     ...formData,
-     socials: [...formData.socials, ""],
-   });
- };
+  const handleAddSocialInput = () => {
+    setFormData({
+      ...formData,
+      socials: [...formData.socials, ""],
+    });
+  };
 
- const handleRemoveSocialInput = (index: number) => {
-   const newSocials = formData.socials.filter((_, i) => i !== index);
-   setFormData({ ...formData, socials: newSocials });
- };
+  const handleRemoveSocialInput = (index: number) => {
+    const newSocials = formData.socials.filter((_, i) => i !== index);
+    setFormData({ ...formData, socials: newSocials });
+  };
 
- const handleSocialInputChange = (index: number, value: string) => {
-   const newSocials = [...formData.socials];
-   newSocials[index] = value;
-   setFormData({ ...formData, socials: newSocials });
- };
+  const handleSocialInputChange = (index: number, value: string) => {
+    const newSocials = [...formData.socials];
+    newSocials[index] = value;
+    setFormData({ ...formData, socials: newSocials });
+  };
 
- const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-   if (e.target.files && e.target.files[0]) {
-     const file = e.target.files[0];
-     setFormData({ ...formData, logo: file });
-     setImagePreview(URL.createObjectURL(file));
-   }
- };
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFormData({ ...formData, logo: file });
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
- const handleStrategicDirectionalAreaChange = (area: string) => {
-   const currentAreas = formData.strategicDirectionalAreas || [];
-   const updatedAreas = currentAreas.includes(area)
-     ? currentAreas.filter((a: string) => a !== area)
-     : [...currentAreas, area];
-   setFormData({ ...formData, strategicDirectionalAreas: updatedAreas });
- };
+  const handleStrategicDirectionalAreaChange = (area: string) => {
+    const currentAreas = formData.strategicDirectionalAreas || [];
+    const updatedAreas = currentAreas.includes(area)
+      ? currentAreas.filter((a: string) => a !== area)
+      : [...currentAreas, area];
+    setFormData({ ...formData, strategicDirectionalAreas: updatedAreas });
+  };
 
- const handleCurrentAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-   const startYear = parseInt(e.target.value);
-   const endYear = startYear + 1;
-   setFormData((prevData) => ({
-     ...prevData,
-     currentAcademicYear: `${startYear}-${endYear}`,
-   }));
- };
+  const handleCurrentAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const startYear = parseInt(e.target.value);
+    const endYear = startYear + 1;
+    setFormData((prevData) => ({
+      ...prevData,
+      currentAcademicYear: `${startYear}-${endYear}`,
+    }));
+  };
 
- const handleAcademicYearOfLastRecognitionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-   const startYear = parseInt(e.target.value);
-   const endYear = startYear + 1;
-   setFormData((prevData) => ({
-     ...prevData,
-     academicYearOfLastRecognition: `${startYear}-${endYear}`,
-   }));
- };
+  const handleAcademicYearOfLastRecognitionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const startYear = parseInt(e.target.value);
+    const endYear = startYear + 1;
+    setFormData((prevData) => ({
+      ...prevData,
+      academicYearOfLastRecognition: `${startYear}-${endYear}`,
+    }));
+  };
 
- const isFormValid = () => {
-   return (
-     formData.name.trim() !== "" &&
-     formData.logo !== null &&
-     (!isNotUniversityWide || selectedAffiliation !== null) &&
-     formData.website.trim() !== "" &&
-     formData.category.trim() !== "" &&
-     formData.strategicDirectionalAreas.length > 0 &&
-     formData.startingBalance >= 0 &&
-     formData.academicYearOfLastRecognition.trim() !== "" &&
-     formData.currentAcademicYear.trim() !== ""
-   );
- };
+  const isFormValid = () => {
+    return (
+      formData.name.trim() !== "" &&
+      formData.logo !== null &&
+      (!isNotUniversityWide || selectedAffiliation !== null) &&
+      formData.website.trim() !== "" &&
+      formData.category.trim() !== "" &&
+      formData.strategicDirectionalAreas.length > 0 &&
+      formData.startingBalance >= 0 &&
+      formData.academicYearOfLastRecognition.trim() !== "" &&
+      formData.currentAcademicYear.trim() !== ""
+    );
+  };
 
- return (
-   <div className="space-y-6">
-     <h2 className="text-2xl font-bold text-gray-800">General Information</h2>
-     <form className="space-y-4">
-       <div className="form-control">
-         <label className="label" htmlFor="current-academic-year">
-           <span className="label-text">Current Academic Year</span>
-         </label>
-         <select
-           id="current-academic-year"
-           className="select select-bordered w-full"
-           value={formData.currentAcademicYear.split("-")[0]}
-           onChange={handleCurrentAcademicYearChange}
-           required
-         >
-           <option value="">Select academic year</option>
-           {futureYears.map((year) => (
-             <option key={year} value={year.toString()}>
-               {year}-{year + 1}
-             </option>
-           ))}
-         </select>
-         <label className="label">
-           <span className="label-text-alt text-info flex items-center">
-             <BadgeInfo className="w-4 h-4 mr-1" />
-             Academic year runs from August to May
-           </span>
-         </label>
-       </div>
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-800">General Information</h2>
+      <form className="space-y-4">
+        <div className="form-control">
+          <label className="label" htmlFor="current-academic-year">
+            <span className="label-text">Current Academic Year</span>
+          </label>
+          <select
+            id="current-academic-year"
+            className="select select-bordered w-full"
+            value={formData.currentAcademicYear.split("-")[0]}
+            onChange={handleCurrentAcademicYearChange}
+            required
+          >
+            <option value="">Select academic year</option>
+            {futureYears.map((year) => (
+              <option key={year} value={year.toString()}>
+                {year}-{year + 1}
+              </option>
+            ))}
+          </select>
+          <label className="label">
+            <span className="label-text-alt text-info flex items-center">
+              <BadgeInfo className="w-4 h-4 mr-1" />
+              Academic year runs from August to May
+            </span>
+          </label>
+        </div>
 
-       <div className="form-control">
-         <label className="label" htmlFor="logo-upload">
-           <span className="label-text">Upload Organization Logo</span>
-         </label>
-         <input
-           type="file"
-           id="logo-upload"
-           className="file-input file-input-bordered w-full max-w-xs"
-           accept="image/*"
-           onChange={handleLogoUpload}
-           required
-         />
-         {imagePreview && (
-           <div className="mt-4">
-             <div className="avatar">
-               <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                 <img src={imagePreview} alt="Organization Logo" />
-               </div>
-             </div>
-           </div>
-         )}
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="logo-upload">
+            <span className="label-text">Upload Organization Logo</span>
+          </label>
+          <input
+            type="file"
+            id="logo-upload"
+            className="file-input file-input-bordered w-full max-w-xs"
+            accept="image/*"
+            onChange={handleLogoUpload}
+            required
+          />
+          {imagePreview && (
+            <div className="mt-4">
+              <div className="avatar">
+                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img src={imagePreview} alt="Organization Logo" />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
-       <div className="form-control">
-         <label className="label" htmlFor="org-name">
-           <span className="label-text">Organization Name</span>
-         </label>
-         <input
-           type="text"
-           id="org-name"
-           placeholder="Society of Information Technology Enthusiasts"
-           className="input input-bordered w-full"
-           value={formData.name}
-           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-           required
-         />
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="org-name">
+            <span className="label-text">Organization Name</span>
+          </label>
+          <input
+            type="text"
+            id="org-name"
+            placeholder="Society of Information Technology Enthusiasts"
+            className="input input-bordered w-full"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
+        </div>
 
-       <div className="form-control">
-         <label className="label">
-           <span className="label-text">Organization Type</span>
-         </label>
-         <div className="flex space-x-2">
-           <label className="label cursor-pointer justify-start space-x-2">
-             <input
-               type="radio"
-               name="organization-type"
-               className="radio radio-primary"
-               value="univ-wide"
-               checked={!isNotUniversityWide}
-               onChange={handleOrganizationTypeChange}
-             />
-             <span className="label-text">University-Wide</span>
-           </label>
-           <label className="label cursor-pointer justify-start space-x-2">
-             <input
-               type="radio"
-               name="organization-type"
-               className="radio radio-primary"
-               value="college-based"
-               checked={isNotUniversityWide}
-               onChange={handleOrganizationTypeChange}
-             />
-             <span className="label-text">College-Based</span>
-           </label>
-         </div>
-       </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Organization Type</span>
+          </label>
+          <div className="flex space-x-2">
+            <label className="label cursor-pointer justify-start space-x-2">
+              <input
+                type="radio"
+                name="organization-type"
+                className="radio radio-primary"
+                value="univ-wide"
+                checked={!isNotUniversityWide}
+                onChange={handleOrganizationTypeChange}
+              />
+              <span className="label-text">University-Wide</span>
+            </label>
+            <label className="label cursor-pointer justify-start space-x-2">
+              <input
+                type="radio"
+                name="organization-type"
+                className="radio radio-primary"
+                value="college-based"
+                checked={isNotUniversityWide}
+                onChange={handleOrganizationTypeChange}
+              />
+              <span className="label-text">College-Based</span>
+            </label>
+          </div>
+        </div>
 
-       {isNotUniversityWide && (
-         <div className="flex items-center justify-between w-full">
-           <div className="relative w-5/6">
-             <div className="flex w-full">
-               <input
-                 type="text"
-                 className="input input-bordered w-full pr-10"
-                 placeholder="Search for your affiliation..."
-                 value={searchTerm}
-                 onChange={handleAffiliationInputChange}
-                 onFocus={handleAffiliationInputFocus}
-                 onBlur={handleInputBlur}
-                 disabled={affiliationOptionsLoading}
-                 required
-               />
-               {searchTerm && (
-                 <button
-                   type="button"
-                   className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                   onClick={() => {
-                     setSearchTerm("");
-                     setSelectedAffiliation(null);
-                   }}
-                 >
-                   <X className="h-5 w-5" />
-                 </button>
-               )}
-             </div>
-             {isDropdownOpen && filteredAffiliations.length > 0 && (
-               <ul className="menu bg-base-100 w-full p-2 rounded-box shadow-lg max-h-60 overflow-auto absolute z-10">
-                 {filteredAffiliations.map((affiliation) => (
-                   <li key={affiliation._id}>
-                     <a onClick={() => handleSelectAffiliation(affiliation)}>{affiliation.name}</a>
-                   </li>
-                 ))}
-               </ul>
-             )}
-           </div>
-           {affiliationOptionsLoading && (
-             <div className="text-center w-1/6">
-               <span className="loading loading-dots loading-md"></span>
-             </div>
-           )}
-         </div>
-       )}
+        {isNotUniversityWide && (
+          <div className="form-control w-full">
+            <label className="label" htmlFor="affiliation-search">
+              <span className="label-text">Search for your affiliation</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="affiliation-search"
+                className="input input-bordered w-full pr-10"
+                placeholder="Search for your affiliation..."
+                value={searchTerm}
+                onChange={handleAffiliationInputChange}
+                onFocus={handleAffiliationInputFocus}
+                onBlur={handleInputBlur}
+                disabled={affiliationOptionsLoading}
+                required
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedAffiliation(null);
+                  }}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+            {isDropdownOpen && filteredAffiliations.length > 0 && (
+              <div className="relative">
+                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {filteredAffiliations.map((affiliation) => (
+                    <li
+                      key={affiliation._id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelectAffiliation(affiliation)}
+                    >
+                      {affiliation.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {affiliationOptionsLoading && (
+              <div className="text-center mt-2">
+                <span className="loading loading-dots loading-md"></span>
+              </div>
+            )}
+          </div>
+        )}
 
-       <div className="form-control">
-         <label className="label" htmlFor="org-website">
-           <span className="label-text">Official Organization Website</span>
-         </label>
-         <input
-           type="url"
-           id="org-website"
-           placeholder="https://www.example.com"
-           className="input input-bordered w-full"
-           value={formData.website}
-           onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-           required
-         />
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="org-website">
+            <span className="label-text">Official Organization Website</span>
+          </label>
+          <input
+            type="url"
+            id="org-website"
+            placeholder="https://www.example.com"
+            className="input input-bordered w-full"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            required
+          />
+        </div>
 
-       <div className="form-control">
-         <label className="label" htmlFor="org-category">
-           <span className="label-text">Student Organization Category</span>
-         </label>
-         <select
-           id="org-category"
-           className="select select-bordered w-full"
-           value={formData.category}
-           onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-           required
-         >
-           <option value="">Select a category</option>
-           {["Academic", "Cultural", "Religious", "Sports"].map((category) => (
-             <option key={category} value={category}>
-               {category}
-             </option>
-           ))}
-         </select>
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="org-category">
+            <span className="label-text">Student Organization Category</span>
+          </label>
+          <select
+            id="org-category"
+            className="select select-bordered w-full"
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            required
+          >
+            <option value="">Select a category</option>
+            {["Academic", "Cultural", "Religious", "Sports"].map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
 
-       <div className="form-control">
-         <label className="label">
-           <span className="label-text">Strategic Directional Areas</span>
-         </label>
-         <div className="dropdown">
-           <label tabIndex={0} className="btn m-1" onClick={() => setIsSDAreaDropdownOpen(!isSDAreaDropdownOpen)}>
-             Select Areas
-           </label>
-           {isSDAreaDropdownOpen && (
-             <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-               {["Research", "Innovation", "Community Engagement", "Sustainability"].map((area) => (
-                 <li key={area}>
-                   <label className="label cursor-pointer justify-start">
-                     <input
-                       type="checkbox"
-                       className="checkbox checkbox-primary"
-                       checked={formData.strategicDirectionalAreas?.includes(area)}
-                       onChange={() => handleStrategicDirectionalAreaChange(area)}
-                     />
-                     <span className="label-text ml-2">{area}</span>
-                   </label>
-                 </li>
-               ))}
-             </ul>
-           )}
-         </div>
-         {formData.strategicDirectionalAreas?.length > 0 && (
-           <div className="mt-2">
-             <span className="font-semibold">Selected Areas: </span>
-             {formData.strategicDirectionalAreas.join(", ")}
-           </div>
-         )}
-       </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Strategic Directional Areas</span>
+          </label>
+          <div className="dropdown">
+            <label tabIndex={0} className="btn m-1" onClick={() => setIsSDAreaDropdownOpen(!isSDAreaDropdownOpen)}>
+              Select Areas
+            </label>
+            {isSDAreaDropdownOpen && (
+              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                {["Research", "Innovation", "Community Engagement", "Sustainability"].map((area) => (
+                  <li key={area}>
+                    <label className="label cursor-pointer justify-start">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-primary"
+                        checked={formData.strategicDirectionalAreas?.includes(area)}
+                        onChange={() => handleStrategicDirectionalAreaChange(area)}
+                      />
+                      <span className="label-text ml-2">{area}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {formData.strategicDirectionalAreas?.length > 0 && (
+            <div className="mt-2">
+              <span className="font-semibold">Selected Areas: </span>
+              {formData.strategicDirectionalAreas.join(", ")}
+            </div>
+          )}
+        </div>
 
-       <div className="form-control">
-         <label className="label">
-           <span className="label-text">Social Media Links (Optional)</span>
-         </label>
-         {formData.socials.map((link: string, index: number) => (
-           <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
-             <input
-               type="url"
-               placeholder="https://www.example.com"
-               className="input input-bordered flex-grow"
-               value={link}
-               onChange={(e) => handleSocialInputChange(index, e.target.value)}
-             />
-             <button
-               type="button"
-               className="btn btn-ghost btn-circle text-error"
-               onClick={() => handleRemoveSocialInput(index)}
-             >
-               <Minus />
-             </button>
-           </div>
-         ))}
-         <button type="button" className="btn btn-outline btn-primary mt-2" onClick={handleAddSocialInput}>
-           Add Social Media Link
-           <Plus className="ml-2" />
-         </button>
-       </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Social Media Links (Optional)</span>
+          </label>
+          {formData.socials.map((link: string, index: number) => (
+            <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
+              <input
+                type="url"
+                placeholder="https://www.example.com"
+                className="input input-bordered flex-grow"
+                value={link}
+                onChange={(e) => handleSocialInputChange(index, e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn btn-ghost btn-circle text-error"
+                onClick={() => handleRemoveSocialInput(index)}
+              >
+                <Minus />
+              </button>
+            </div>
+          ))}
+          <button type="button" className="btn btn-outline btn-primary mt-2" onClick={handleAddSocialInput}>
+            Add Social Media Link
+            <Plus className="ml-2" />
+          </button>
+        </div>
 
-       <div className="form-control">
-         <label className="label" htmlFor="starting-balance">
-           <span className="label-text">Starting Balance</span>
-         </label>
-         <div className="relative">
-           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
-           <input
-             type="number"
-             id="starting-balance"
-             placeholder="0.00"
-             className="input input-bordered w-full pl-10"
-             value={formData.startingBalance}
-             onChange={(e) => setFormData({ ...formData, startingBalance: parseFloat(e.target.value) || 0 })}
-             min="0"
-             step="0.01"
-             required
-           />
-         </div>
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="starting-balance">
+            <span className="label-text">Starting Balance</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
+            <input
+              type="number"
+              id="starting-balance"
+              placeholder="0.00"
+              className="input input-bordered w-full pl-10"
+              value={formData.startingBalance}
+              onChange={(e) => setFormData({ ...formData, startingBalance: parseFloat(e.target.value) || 0 })}
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+        </div>
 
-       <div className="form-control">
-         <label className="label" htmlFor="academic-year-of-last-recognition">
-           <span className="label-text">Academic Year of Last Recognition</span>
-         </label>
-         <select
-           id="academic-year-of-last-recognition"
-           className="select select-bordered w-full"
-           value={formData.academicYearOfLastRecognition.split("-")[0]}
-           onChange={handleAcademicYearOfLastRecognitionChange}
-           required
-         >
-           <option value="">Select academic year</option>
-           {pastYears.map((year) => (
-             <option key={year} value={year.toString()}>
-               {year}-{year + 1}
-             </option>
-           ))}
-         </select>
-         <label className="label">
-           <span className="label-text-alt text-info flex items-center">
-             <BadgeInfo className="w-4 h-4 mr-1" />
-             Select the academic year of last recognition
-           </span>
-         </label>
-       </div>
+        <div className="form-control">
+          <label className="label" htmlFor="academic-year-of-last-recognition">
+            <span className="label-text">Academic Year of Last Recognition</span>
+          </label>
+          <select
+            id="academic-year-of-last-recognition"
+            className="select select-bordered w-full"
+            value={formData.academicYearOfLastRecognition.split("-")[0]}
+            onChange={handleAcademicYearOfLastRecognitionChange}
+            required
+          >
+            <option value="">Select academic year</option>
+            {pastYears.map((year) => (
+              <option key={year} value={year.toString()}>
+                {year}-{year + 1}
+              </option>
+            ))}
+          </select>
+          <label className="label">
+            <span className="label-text-alt text-info flex items-center">
+              <BadgeInfo className="w-4 h-4 mr-1" />
+              Select the academic year of last recognition
+            </span>
+          </label>
+        </div>
 
-       <div className="flex justify-end mt-6">
-         <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
-           Next Step
-         </button>
-       </div>
-     </form>
-   </div>
- );
-}
+        <div className="flex justify-end mt-6">
+          <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
+            Next Step
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 const OrganizationSetupStep2 = ({
   prevStep,
@@ -803,7 +813,7 @@ const OrganizationSetupStep3: React.FC<OrganizationSetupStep3Props> = ({
   const handleAddSignatoryInput = () => {
     setFormData({
       ...formData,
-      signatoryRequests: [...formData.signatoryRequests, { email: "", position: "", isExecutive: false }],
+      signatoryRequests: [...formData.signatoryRequests, { email: "", position: "" }],
     });
   };
 
@@ -812,11 +822,7 @@ const OrganizationSetupStep3: React.FC<OrganizationSetupStep3Props> = ({
     setFormData({ ...formData, signatoryRequests: newSignatoryRequests });
   };
 
-  const handleSignatoryInputChange = (
-    index: number,
-    field: "email" | "position" | "isExecutive",
-    value: string | boolean
-  ) => {
+  const handleSignatoryInputChange = (index: number, field: "email" | "position", value: string | boolean) => {
     const newSignatoryRequests = [...formData.signatoryRequests];
     newSignatoryRequests[index][field] = value;
     setFormData({ ...formData, signatoryRequests: newSignatoryRequests });
@@ -890,20 +896,6 @@ const OrganizationSetupStep3: React.FC<OrganizationSetupStep3Props> = ({
                 />
               </div>
             </div>
-            <div className="form-control mt-4">
-              <label className="label cursor-pointer justify-start">
-                <input
-                  type="checkbox"
-                  className="toggle toggle-primary mr-3"
-                  checked={input.isExecutive}
-                  onChange={(e) => handleSignatoryInputChange(index, "isExecutive", e.target.checked)}
-                />
-                <span className="label-text">Executive Officer</span>
-              </label>
-              <p className="text-xs text-gray-500 mt-2">
-                Enabling this toggle will add the signatory to the officer list.
-              </p>
-            </div>
           </div>
         ))}
         <button type="button" className="btn btn-outline btn-primary w-full" onClick={handleAddSignatoryInput}>
@@ -924,7 +916,6 @@ const OrganizationSetupStep3: React.FC<OrganizationSetupStep3Props> = ({
     </div>
   );
 };
-
 
 interface OrganizationSetupStep4Props {
   prevStep: () => void;
@@ -1029,7 +1020,6 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
                   <tr key={index}>
                     <td>{signatory.email}</td>
                     <td>{signatory.position}</td>
-                    <td>{signatory.isExecutive ? "Yes" : "No"}</td>
                   </tr>
                 ))}
               </tbody>
