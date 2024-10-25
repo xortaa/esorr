@@ -1,68 +1,30 @@
 import { Schema, model, models } from "mongoose";
 
 const MemberModel = new Schema({
-  first_name: {
+  firstName: {
     type: String,
   },
-  middle_name: {
+  middleName: {
     type: String,
   },
-  last_name: {
+  lastName: {
     type: String,
   },
-  position: {
+  studentNumber: {
     type: String,
   },
-  college: {
+  contactNumber: {
     type: String,
-  },
-  student_number: {
-    type: String,
-  },
-  contact_number: {
-    type: String,
-  },
-  address: {
-    type: String,
-  },
-  other_organizations: [
-    {
-      name: { type: String },
-      position: { type: String },
-      inclusive_date: { type: String },
-    },
-  ],
-  religion: {
-    type: String,
-  },
-  citizenship: {
-    type: String,
-  },
-  gender: {
-    type: String,
-  },
-  educational_background: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "EducationalBackground",
-    },
-  ],
-  is_new_member: {
-    type: Boolean,
-    default: true,
   },
   program: {
     type: String,
   },
-  year_level: {
-    type: String,
+  startYear: {
+    type: Number,
   },
-  image: {
+  status: {
     type: String,
-  },
-  organization: {
-    type: Schema.Types.ObjectId,
-    ref: "Organization",
+    enum: ["COMPLETE", "INCOMPLETE"],
   },
 });
 

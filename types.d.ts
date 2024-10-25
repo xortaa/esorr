@@ -18,6 +18,17 @@ export type SignatoryRequest = {
   submittedAt: Date;
 };
 
+type Member = {
+  _id: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  studentNumber: string;
+  program: string;
+  startYear: number;
+  status: "COMPLETE" | "INCOMPLETE";
+};
+
 export type Annex01 = {
   _id: string;
   orgnanization: Organization;

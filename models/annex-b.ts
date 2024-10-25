@@ -13,6 +13,11 @@ const AnnexBSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  members: {
+    type: [Schema.Types.ObjectId],
+    ref: "Member",
+    default: [],
+  }
 });
 
 const AnnexB = models.AnnexB || model("AnnexB", AnnexBSchema);
