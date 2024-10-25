@@ -189,6 +189,8 @@ export async function POST(req: NextRequest) {
     });
 
     const newAnnexD = await AnnexD.create({
+      logo: logoUrl,
+      description: "",
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
