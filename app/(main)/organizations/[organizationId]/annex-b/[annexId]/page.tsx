@@ -1,49 +1,18 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Trash2, Search, FilePenLine, UserPlus, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import { motion } from "framer-motion";
 import { Member } from "@/types";
-
+import { useParams } from "next/navigation";
 
 const AnnexBMembersDashboard = () => {
-  const [members, setMembers] = useState<Member[]>([
-    {
-      _id: 1,
-      surname: "ALAMEDA",
-      firstName: "PRINCE ALEC",
-      middleName: "SANTOS",
-      studentNumber: "2023-189138",
-      program: "BS FOOD TECHNOLOGY",
-      startYear: 2024,
-      status: "COMPLETE",
-    },
-    {
-      _id: 2,
-      surname: "BAUTISTA",
-      firstName: "MARIA",
-      middleName: "LUISA",
-      studentNumber: "2023-189139",
-      program: "BS CHEMISTRY",
-      startYear: 2023,
-      status: "INCOMPLETE",
-    },
-    {
-      _id: 3,
-      surname: "CRUZ",
-      firstName: "JUAN",
-      middleName: "CARLOS",
-      studentNumber: "2023-189140",
-      program: "BS BIOLOGY",
-      startYear: 2023,
-      status: "COMPLETE",
-    },
-  ]);
+  const { organizationId, annexId } = useParams();
+  const [members, setMembers] = useState<Member[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [newMember, setNewMember] = useState<Omit<Member, "_id" | "status">>({
-    surname: "",
+    lastName: "",
     firstName: "",
     middleName: "",
     studentNumber: "",
@@ -55,31 +24,79 @@ const AnnexBMembersDashboard = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await fetch(`/api/annexes/${organizationId}/annex-b/${annexId}/members`);
+      if (!response.ok) throw new Error("Failed to fetch members");
+      const data = await response.json();
+      setMembers(data);
+    } catch (error) {
+      console.error("Error fetching members:", error);
+    }
+  };
+
+  const uniqueStartYears = Array.from(new Set(members.map((member) => member.startYear))).sort((a, b) => b - a);
+
   const filteredMembers = members.filter(
     (member) =>
-      (member.surname + " " + member.firstName + " " + member.middleName)
+      (member.lastName + " " + member.firstName + " " + member.middleName)
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) &&
       (selectedYear === "" || member.startYear.toString() === selectedYear)
   );
 
-  const handleDeleteMember = (id: number) => {
-    setMembers(members.filter((member) => member._id !== id));
-    setDeleteModalOpen(false);
+  const handleDeleteMember = async (id: string) => {
+    try {
+      const response = await fetch(`/api/annexes/${organizationId}/annex-b/${annexId}/members/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete member");
+      setMembers(members.filter((member) => member._id !== id));
+      setDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting member:", error);
+    }
   };
 
-  const handleCreateMember = (memberData: Omit<Member, "id" | "status">) => {
-    const newId = Math.max(...members.map((m) => m._id), 0) + 1;
-    setMembers([...members, { ...memberData, _id: newId, status: "INCOMPLETE" }]);
-    setNewMember({
-      surname: "",
-      firstName: "",
-      middleName: "",
-      studentNumber: "",
-      program: "",
-      startYear: 0,
-    });
-    setIsModalOpen(false);
+  const checkCompleteness = (member: Partial<Member>): boolean => {
+    const requiredFields = ["lastName", "firstName", "studentNumber", "program", "startYear"];
+    return requiredFields.every((field) => member[field] && member[field] !== "");
+  };
+
+  const handleCreateMember = async (memberData: Omit<Member, "_id" | "status">) => {
+    try {
+      const isComplete = checkCompleteness(memberData);
+      const dataToSend = { ...memberData, status: isComplete ? "COMPLETE" : "INCOMPLETE" };
+
+      console.log("Sending member data:", dataToSend);
+      const response = await fetch(`/api/annexes/${organizationId}/annex-b/${annexId}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSend),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to create member: ${errorData.message || response.statusText}`);
+      }
+      const newMember = await response.json();
+      console.log("Received new member:", newMember);
+      setMembers([...members, newMember]);
+      setNewMember({
+        lastName: "",
+        firstName: "",
+        middleName: "",
+        studentNumber: "",
+        program: "",
+        startYear: 0,
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error creating member:", error);
+    }
   };
 
   const handleEditMember = (member: Member) => {
@@ -87,10 +104,24 @@ const AnnexBMembersDashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleUpdateMember = (updatedMember: Member) => {
-    setMembers(members.map((m) => (m._id === updatedMember._id ? updatedMember : m)));
-    setEditingMember(null);
-    setIsModalOpen(false);
+  const handleUpdateMember = async (updatedMember: Member) => {
+    try {
+      const isComplete = checkCompleteness(updatedMember);
+      const dataToSend = { ...updatedMember, status: isComplete ? "COMPLETE" : "INCOMPLETE" };
+
+      const response = await fetch(`/api/annexes/${organizationId}/annex-b/${annexId}/members/${updatedMember._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSend),
+      });
+      if (!response.ok) throw new Error("Failed to update member");
+      const updatedMemberData = await response.json();
+      setMembers(members.map((m) => (m._id === updatedMemberData._id ? updatedMemberData : m)));
+      setEditingMember(null);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error updating member:", error);
+    }
   };
 
   const openDeleteModal = (member: Member) => {
@@ -125,8 +156,11 @@ const AnnexBMembersDashboard = () => {
               onChange={(e) => setSelectedYear(e.target.value)}
             >
               <option value="">All Years</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
+              {uniqueStartYears.map((year) => (
+                <option key={year} value={year.toString()}>
+                  {year}
+                </option>
+              ))}
             </select>
             <div className="relative">
               <input
@@ -162,7 +196,7 @@ const AnnexBMembersDashboard = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <td>
-                    <div className="font-bold">{`${member.surname}, ${member.firstName} ${member.middleName}`}</div>
+                    <div className="font-bold">{`${member.lastName}, ${member.firstName} ${member.middleName}`}</div>
                   </td>
                   <td>{member.studentNumber}</td>
                   <td>{member.program}</td>
@@ -216,7 +250,7 @@ const AnnexBMembersDashboard = () => {
           <div className="modal-box">
             <h3 className="font-bold text-lg">Confirm Deletion</h3>
             <p className="py-4">
-              Are you sure you want to delete {memberToDelete?.firstName} {memberToDelete?.surname}? This action is
+              Are you sure you want to delete {memberToDelete?.firstName} {memberToDelete?.lastName}? This action is
               irreversible.
             </p>
             <div className="modal-action">
@@ -278,15 +312,14 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="form-control">
             <label className="label">
-              <span className="label-text">SURNAME</span>
+              <span className="label-text">LASTNAME</span>
             </label>
             <input
-              name="surname"
+              name="lastName"
               className="input input-bordered w-full uppercase"
               placeholder="DELA CRUZ"
-              value={formData.surname}
+              value={formData.lastName}
               onChange={handleInputChange}
-              required
             />
           </div>
           <div className="form-control">
@@ -299,7 +332,6 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
               placeholder="JUAN MIGUEL"
               value={formData.firstName}
               onChange={handleInputChange}
-              required
             />
           </div>
           <div className="form-control">
@@ -324,7 +356,6 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
               placeholder="2021148086"
               value={formData.studentNumber}
               onChange={handleInputChange}
-              required
             />
           </div>
           <div className="form-control">
@@ -336,7 +367,6 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
               className="select select-bordered w-full"
               value={formData.startYear}
               onChange={handleInputChange}
-              required
             >
               <option value={0} disabled>
                 SELECT
@@ -358,7 +388,6 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
               placeholder="BS FOOD TECHNOLOGY"
               value={formData.program}
               onChange={handleInputChange}
-              required
             />
           </div>
           <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">

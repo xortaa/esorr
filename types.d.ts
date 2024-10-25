@@ -19,8 +19,8 @@ export type SignatoryRequest = {
 };
 
 type Member = {
-  _id: number;
-  surname: string;
+  _id: string;
+  lastName: string;
   firstName: string;
   middleName: string;
   studentNumber: string;
