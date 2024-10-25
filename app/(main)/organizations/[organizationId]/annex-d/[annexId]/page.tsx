@@ -1,23 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
+import axios from "axios";
+import { useParams } from "next/navigation";
 
 const AnnexDCreator = () => {
   const [isSaving, setIsSaving] = useState(false);
+  const [description, setDescription] = useState<string>("");
+  const [logoUrl, setLogoUrl] = useState<string>(
+    "https://static.wikia.nocookie.net/roblox-skittles-nextbots/images/f/f6/Sad_spunch.png/revision/latest?cb=20240505183908"
+  );
+  const { organizationId, annexId } = useParams();
 
-  const [enableOrganizationName, setEnableOrganizationName] = useState<boolean>(false);
-  const [enableFaculty, setEnableFaculty] = useState<boolean>(false);
-  const [faculty, setFaculty] = useState<string>("College of Information and Computer Sciences");
-  const [organizationName, setOrganizationName] = useState<string>("Society of Information Technology Enthusiasts");
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-d/${annexId}`);
+      console.log(response.data)
+      const data = response.data;
+      setDescription(data.description);
+      setLogoUrl(data.logo);
+    };
+    fetchData();
+  }, []);
 
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Draft saved:", "insert organization name");
+      await axios.patch(`/api/annexes/${organizationId}/annex-d/${annexId}`, { description });
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -29,80 +40,44 @@ const AnnexDCreator = () => {
 
   return (
     <PageWrapper>
-      <h1 className="font-bold text-2xl">Organizations Logo and Letterhead Editor</h1>
-      <form className="mt-6 relative">
-        {/* image */}
-        <div className="w-full grid place-items-center">
-          <img
-            src="https://static.wikia.nocookie.net/roblox-skittles-nextbots/images/f/f6/Sad_spunch.png/revision/latest?cb=20240505183908"
-            alt="logo"
-            className="w-56 h-56"
-          />
-        </div>
-        {/* description */}
-        <label className="form-control w-full mb-4">
-          <div className="label">
-            <span>Description</span>
+      <h1 className="text-3xl font-bold text-center mb-8">Organizations Logo and Letterhead Editor</h1>
+      <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+        <div className="card-body">
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative w-56 h-56 mb-4">
+              <img src={logoUrl} alt="logo" className="w-full h-full object-cover rounded-lg" />
+            </div>
           </div>
-          <div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Description</span>
+            </label>
             <textarea
-              className="textarea textarea-bordered w-full"
+              className="textarea textarea-bordered h-24"
               placeholder="Input detailed description of the logo"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             ></textarea>
           </div>
-        </label>
-        {/* organization name */}
-        <div className="form-control w-full mb-4">
-          <div className="label">
-            <span>Organization Name</span>
-            <div className="flex items-center gap-2">
-              <p className="text-slate-500">EDIT</p>
-              <input
-                type="checkbox"
-                className="toggle toggle-primary"
-                onChange={() => setEnableOrganizationName(!enableOrganizationName)}
-              />
-            </div>
-          </div>
-          <div>
-            <input
-              type="text"
-              className="input input-bordered w-full"
-              value={organizationName}
-              disabled={!enableOrganizationName}
-              onChange={(e) => setOrganizationName(e.target.value)}
-            />
+          <div className="card-actions justify-end mt-6">
+            <button onClick={saveDraft} className="btn btn-primary" disabled={isSaving}>
+              {isSaving ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Draft
+                </>
+              )}
+            </button>
           </div>
         </div>
-        {/* faculty/college/institute/school */}
-        <div className="form-control w-full mb-4">
-          <div className="label">
-            <span>Faculty/College/Institute/School</span>
-            <div className="flex items-center gap-2">
-              <p className="text-slate-500">EDIT</p>
-              <input
-                type="checkbox"
-                className="toggle toggle-primary"
-                onChange={() => setEnableFaculty(!enableFaculty)}
-              />
-            </div>
-          </div>
-          <div>
-            <input
-              type="text"
-              className="input input-bordered w-full"
-              value={faculty}
-              disabled={!enableFaculty}
-              onChange={(e) => setFaculty(e.target.value)}
-            />
-          </div>
-        </div>
-        <button onClick={saveDraft} className="fixed  btn btn-neutral bottom-4 right-4 px-16" disabled={isSaving}>
-          <Save className="w-4 h-4 mr-2" />
-          {isSaving ? "Saving..." : "Save Draft"}
-        </button>
-      </form>
+      </div>
     </PageWrapper>
   );
 };
+
 export default AnnexDCreator;

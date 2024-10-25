@@ -5,6 +5,12 @@ const AnnexDSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Organization",
   },
+  logo: {
+    type: String,
+  },
+  description: {
+    type: String,
+  },
   academicYear: {
     type: String,
     required: true,
