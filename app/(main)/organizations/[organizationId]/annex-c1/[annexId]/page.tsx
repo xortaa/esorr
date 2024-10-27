@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Delete } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { Save, Plus, Trash2, ChevronRight } from "lucide-react";
+import { useParams } from "next/navigation";
+
 type Article = {
-  order: number;
+  order: string;
   title: string;
   sections: Section[];
 };
@@ -28,49 +31,107 @@ type LetteredParagraph = {
   paragraph: string;
 };
 
-export default function ArticleCreator() {
+type ArticlesOfAssociation = {
+  _id?: string;
+  annexc1: string;
+  articles: Article[];
+};
+
+export default function ArticlesOfAssociationEditor() {
+  const { annexId, organizationId } = useParams() as { annexId: string; organizationId: string };
   const [articles, setArticles] = useState<Article[]>([]);
   const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
   const [currentSection, setCurrentSection] = useState<Section | null>(null);
   const [currentSubsection, setCurrentSubsection] = useState<Subsection | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [articlesOfAssociationId, setArticlesOfAssociationId] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedArticles, setLastSavedArticles] = useState<Article[]>([]);
+
+  const toRoman = (num: number): string => {
+    const romanNumerals = [
+      { value: 1000, numeral: "M" },
+      { value: 900, numeral: "CM" },
+      { value: 500, numeral: "D" },
+      { value: 400, numeral: "CD" },
+      { value: 100, numeral: "C" },
+      { value: 90, numeral: "XC" },
+      { value: 50, numeral: "L" },
+      { value: 40, numeral: "XL" },
+      { value: 10, numeral: "X" },
+      { value: 9, numeral: "IX" },
+      { value: 5, numeral: "V" },
+      { value: 4, numeral: "IV" },
+      { value: 1, numeral: "I" },
+    ];
+
+    let result = "";
+    for (const { value, numeral } of romanNumerals) {
+      while (num >= value) {
+        result += numeral;
+        num -= value;
+      }
+    }
+    return result;
+  };
+
+  useEffect(() => {
+    fetchArticlesOfAssociation();
+  }, []);
+
+  useEffect(() => {
+    const isChanged = JSON.stringify(articles) !== JSON.stringify(lastSavedArticles);
+    setHasUnsavedChanges(isChanged);
+  }, [articles, lastSavedArticles]);
+
+  const fetchArticlesOfAssociation = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-c1/${annexId}/articles-of-association`);
+      if (response.data) {
+        setArticles(response.data.articles);
+        setLastSavedArticles(response.data.articles);
+        setArticlesOfAssociationId(response.data._id);
+      }
+    } catch (error) {
+      console.error("Error fetching Articles of Association:", error);
+    }
+  };
+
+  const updateArticles = useCallback((newArticles: Article[]) => {
+    setArticles(newArticles);
+  }, []);
 
   const addArticle = () => {
     const newArticle: Article = {
-      order: articles.length + 1,
+      order: toRoman(articles.length + 1),
       title: "",
       sections: [],
     };
-    setArticles([...articles, newArticle]);
+    updateArticles([...articles, newArticle]);
     setCurrentArticle(newArticle);
     setCurrentSection(null);
     setCurrentSubsection(null);
   };
-
-  
 
   const removeArticle = (articleToRemove: Article) => {
     const updatedArticles = articles
       .filter((article) => article !== articleToRemove)
       .map((article, index) => ({
         ...article,
-        order: index + 1,
+        order: toRoman(index + 1),
       }));
-    setArticles(updatedArticles);
+    updateArticles(updatedArticles);
     if (currentArticle === articleToRemove) {
       setCurrentArticle(null);
       setCurrentSection(null);
       setCurrentSubsection(null);
-    } else {
-      const updatedCurrentArticle = updatedArticles.find((article) => article.title === currentArticle?.title);
-      setCurrentArticle(updatedCurrentArticle || null);
     }
   };
 
   const addSection = () => {
     if (currentArticle) {
       const newSection: Section = {
-        number: "",
+        number: (currentArticle.sections.length + 1).toString(),
         title: "",
         paragraph: "",
         letteredParagraphs: [],
@@ -80,7 +141,7 @@ export default function ArticleCreator() {
         ...currentArticle,
         sections: [...currentArticle.sections, newSection],
       };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
       setCurrentSection(newSection);
       setCurrentSubsection(null);
@@ -91,7 +152,7 @@ export default function ArticleCreator() {
     if (currentArticle) {
       const updatedSections = currentArticle.sections.filter((section) => section !== sectionToRemove);
       const updatedArticle = { ...currentArticle, sections: updatedSections };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
       if (currentSection === sectionToRemove) {
         setCurrentSection(null);
@@ -103,7 +164,7 @@ export default function ArticleCreator() {
   const addSubsection = () => {
     if (currentArticle && currentSection) {
       const newSubsection: Subsection = {
-        number: "",
+        number: (currentSection.subsections.length + 1).toString(),
         title: "",
         paragraph: "",
         letteredParagraphs: [],
@@ -116,7 +177,7 @@ export default function ArticleCreator() {
         ...currentArticle,
         sections: currentArticle.sections.map((s) => (s === currentSection ? updatedSection : s)),
       };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
       setCurrentSection(updatedSection);
       setCurrentSubsection(newSubsection);
@@ -131,7 +192,7 @@ export default function ArticleCreator() {
         ...currentArticle,
         sections: currentArticle.sections.map((s) => (s === currentSection ? updatedSection : s)),
       };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
       setCurrentSection(updatedSection);
       if (currentSubsection === subsectionToRemove) {
@@ -179,7 +240,7 @@ export default function ArticleCreator() {
   const updateArticle = (field: keyof Article, value: string) => {
     if (currentArticle) {
       const updatedArticle = { ...currentArticle, [field]: value };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
     }
   };
@@ -190,7 +251,7 @@ export default function ArticleCreator() {
         ...currentArticle,
         sections: currentArticle.sections.map((s) => (s === currentSection ? updatedSection : s)),
       };
-      setArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
+      updateArticles(articles.map((a) => (a.order === currentArticle.order ? updatedArticle : a)));
       setCurrentArticle(updatedArticle);
       setCurrentSection(updatedSection);
     }
@@ -224,9 +285,29 @@ export default function ArticleCreator() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Draft saved:", articles);
+      const articlesOfAssociation: ArticlesOfAssociation = {
+        annexc1: annexId,
+        articles,
+      };
+
+      let response;
+      if (articlesOfAssociationId) {
+        response = await axios.put(
+          `/api/annexes/${organizationId}/annex-c1/${annexId}/articles-of-association/${articlesOfAssociationId}`,
+          articlesOfAssociation
+        );
+      } else {
+        response = await axios.post(
+          `/api/annexes/${organizationId}/annex-c1/${annexId}/articles-of-association`,
+          articlesOfAssociation
+        );
+      }
+
+      if (response.data._id) {
+        setArticlesOfAssociationId(response.data._id);
+      }
+
+      setLastSavedArticles(articles);
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -237,51 +318,35 @@ export default function ArticleCreator() {
   };
 
   return (
-    <div className="flex page_wrapper_height bg-base-200 relative">
-      {/* Sticky Save Draft Button */}
-      <button onClick={saveDraft} className="fixed  btn btn-neutral bottom-4 right-4 px-16" disabled={isSaving}>
-        <Save className="w-4 h-4 mr-2" />
-        {isSaving ? "Saving..." : "Save Draft"}
-      </button>
-
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className="w-64 bg-base-100 shadow-xl">
-        <div className="h-full overflow-y-auto">
-          <div className="p-4">
-            <button onClick={addArticle} className="btn btn-sm btn-primary w-full mb-4">
-              ADD ARTICLE
-            </button>
+      <div className="w-64 bg-white border-r border-gray-200">
+        <div className="p-4">
+          <button onClick={addArticle} className="btn btn-primary w-full mb-4">
+            <Plus className="inline-block mr-2 h-4 w-4" /> Add Article
+          </button>
+          <div className="h-[calc(100vh-8rem)] overflow-y-auto">
             {articles.map((article) => (
               <div key={article.order} className="mb-2">
-                <button className="btn btn-ghost w-full justify-start" onClick={() => setCurrentArticle(article)}>
+                <button
+                  className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded transition duration-200"
+                  onClick={() => setCurrentArticle(article)}
+                >
+                  <ChevronRight className="inline-block mr-2 h-4 w-4" />
                   Article {article.order}: {article.title || "Untitled"}
                 </button>
                 {article.sections.map((section) => (
-                  <div key={section.number}>
-                    <button
-                      className="btn btn-ghost w-full justify-start pl-8 text-sm"
-                      onClick={() => {
-                        setCurrentArticle(article);
-                        setCurrentSection(section);
-                        setCurrentSubsection(null);
-                      }}
-                    >
-                      Section {section.number}: {section.title || "Untitled"}
-                    </button>
-                    {section.subsections.map((subsection) => (
-                      <button
-                        key={subsection.number}
-                        className="btn btn-ghost w-full justify-start pl-12 text-xs"
-                        onClick={() => {
-                          setCurrentArticle(article);
-                          setCurrentSection(section);
-                          setCurrentSubsection(subsection);
-                        }}
-                      >
-                        Subsection {subsection.number}: {subsection.title || "Untitled"}
-                      </button>
-                    ))}
-                  </div>
+                  <button
+                    key={section.number}
+                    className="w-full text-left pl-6 py-1 text-sm hover:bg-gray-100 transition duration-200"
+                    onClick={() => {
+                      setCurrentArticle(article);
+                      setCurrentSection(section);
+                      setCurrentSubsection(null);
+                    }}
+                  >
+                    Section {section.number}
+                  </button>
                 ))}
               </div>
             ))}
@@ -290,123 +355,126 @@ export default function ArticleCreator() {
       </div>
 
       {/* Main Form Area */}
-      <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 p-6 overflow-y-auto">
         {currentArticle && (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <h3 className="text-xl font-semibold">Article {currentArticle.order}</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => removeArticle(currentArticle)}>
-                <Delete className="text-error w-4 h-4" />
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Article {currentArticle.order}</h2>
+              <button
+                className="text-red-500 hover:text-red-700 transition duration-200"
+                onClick={() => removeArticle(currentArticle)}
+              >
+                <Trash2 className="h-5 w-5" />
               </button>
             </div>
             <input
               type="text"
               placeholder="Article Title"
-              className="input input-bordered w-full"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
               value={currentArticle.title}
               onChange={(e) => updateArticle("title", e.target.value)}
             />
-            <button onClick={addSection} className="btn btn-secondary mr-4">
-              Add Section
+            <button onClick={addSection} className="btn bg-green-100 text-green-800">
+              <Plus className="inline-block mr-2 h-4 w-4" /> Add Section
             </button>
           </div>
         )}
         {currentSection && (
-          <div className="mt-8 space-y-4">
-            <div className="flex items-center space-x-2">
-              <h4 className="text-lg font-semibold">Section</h4>
-              <button className="btn btn-ghost btn-sm" onClick={() => removeSection(currentSection)}>
-                <Delete className="text-error w-4 h-4" />
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">Section {currentSection.number}</h3>
+              <button
+                className="text-red-500 hover:text-red-700 transition duration-200"
+                onClick={() => removeSection(currentSection)}
+              >
+                <Trash2 className="h-5 w-5" />
               </button>
             </div>
             <input
               type="text"
-              placeholder="Section Number"
-              className="input input-bordered w-full"
-              value={currentSection.number}
-              onChange={(e) => updateSection({ ...currentSection, number: e.target.value })}
-            />
-            <input
-              type="text"
               placeholder="Section Title"
-              className="input input-bordered w-full"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
               value={currentSection.title}
               onChange={(e) => updateSection({ ...currentSection, title: e.target.value })}
             />
             <textarea
               placeholder="Section Paragraph"
-              className="textarea textarea-bordered w-full h-24"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              rows={4}
               value={currentSection.paragraph}
               onChange={(e) => updateSection({ ...currentSection, paragraph: e.target.value })}
             />
-            <div className="flex space-x-4">
-              <button onClick={() => addLetteredParagraph("section")} className="btn btn-secondary">
-                Add Lettered Paragraph
+            <div className="flex space-x-4 mb-4">
+              <button onClick={() => addLetteredParagraph("section")} className="btn bg-blue-100 text-blue-800">
+                <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
               </button>
-              <button onClick={addSubsection} className="btn btn-secondary">
-                Add Subsection
+              <button onClick={addSubsection} className="btn bg-purple-100 text-purple-800">
+                <Plus className="inline-block mr-2 h-4 w-4" /> Add Subsection
               </button>
             </div>
             {currentSection.letteredParagraphs.map((lp, index) => (
-              <div key={lp.letter} className="flex items-center space-x-2">
-                <span>{lp.letter}.</span>
+              <div key={lp.letter} className="flex items-center space-x-2 mb-2">
+                <span className="font-medium">{lp.letter}.</span>
                 <input
                   type="text"
                   placeholder="Paragraph content"
-                  className="input input-bordered flex-grow"
                   value={lp.paragraph}
                   onChange={(e) => updateLetteredParagraph(index, e.target.value, "section")}
+                  className="flex-grow p-2 border border-gray-300 rounded"
                 />
-                <button className="btn btn-ghost btn-sm" onClick={() => removeLetteredParagraph(index, "section")}>
-                  <Delete className="text-error w-4 h-4" />
+                <button
+                  className="text-red-500 hover:text-red-700 transition duration-200"
+                  onClick={() => removeLetteredParagraph(index, "section")}
+                >
+                  <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             ))}
           </div>
         )}
         {currentSubsection && (
-          <div className="mt-8 space-y-4">
-            <div className="flex items-center space-x-2">
-              <h5 className="text-md font-semibold">Subsection</h5>
-              <button className="btn btn-ghost btn-sm" onClick={() => removeSubsection(currentSubsection)}>
-                <Delete className="text-error w-4 h-4" />
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold">Subsection {currentSubsection.number}</h4>
+              <button
+                className="text-red-500 hover:text-red-700 transition duration-200"
+                onClick={() => removeSubsection(currentSubsection)}
+              >
+                <Trash2 className="h-5 w-5" />
               </button>
             </div>
             <input
               type="text"
-              placeholder="Subsection Number"
-              className="input input-bordered w-full"
-              value={currentSubsection.number}
-              onChange={(e) => updateSubsection({ ...currentSubsection, number: e.target.value })}
-            />
-            <input
-              type="text"
               placeholder="Subsection Title"
-              className="input input-bordered w-full"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
               value={currentSubsection.title}
               onChange={(e) => updateSubsection({ ...currentSubsection, title: e.target.value })}
             />
             <textarea
               placeholder="Subsection Paragraph"
-              className="textarea textarea-bordered w-full h-24"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              rows={4}
               value={currentSubsection.paragraph}
               onChange={(e) => updateSubsection({ ...currentSubsection, paragraph: e.target.value })}
             />
-            <button onClick={() => addLetteredParagraph("subsection")} className="btn btn-secondary">
-              Add Lettered Paragraph
+            <button onClick={() => addLetteredParagraph("subsection")} className="btn bg-blue-100 text-blue-800 mb-4">
+              <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
             </button>
             {currentSubsection.letteredParagraphs.map((lp, index) => (
-              <div key={lp.letter} className="flex items-center space-x-2">
-                <span>{lp.letter}.</span>
+              <div key={lp.letter} className="flex items-center space-x-2 mb-2">
+                <span className="font-medium">{lp.letter}.</span>
                 <input
                   type="text"
                   placeholder="Paragraph content"
-                  className="input input-bordered flex-grow"
                   value={lp.paragraph}
                   onChange={(e) => updateLetteredParagraph(index, e.target.value, "subsection")}
+                  className="flex-grow p-2 border border-gray-300 rounded"
                 />
-                <button className="btn btn-ghost btn-sm" onClick={() => removeLetteredParagraph(index, "subsection")}>
-                  <Delete className="text-error w-4 h-4" />
+                <button
+                  className="text-red-500 hover:text-red-700 transition duration-200"
+                  onClick={() => removeLetteredParagraph(index, "subsection")}
+                >
+                  <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             ))}
@@ -415,42 +483,54 @@ export default function ArticleCreator() {
       </div>
 
       {/* Preview Pane */}
-      <div className="w-1/3 bg-base-100 shadow-xl p-8 overflow-y-auto">
+      <div className="w-1/3 bg-white border-l border-gray-200 p-6 overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4">Preview</h2>
-        {articles.map((article) => (
-          <div key={article.order} className="mb-8">
-            <h3 className="text-xl font-semibold mb-2">
-              Article {article.order}: {article.title}
-            </h3>
-            {article.sections.map((section) => (
-              <div key={section.number} className="ml-4 mb-4">
-                <h4 className="text-lg font-medium mb-2">
-                  Section {section.number}: {section.title}
-                </h4>
-                <p>{section.paragraph}</p>
-                {section.letteredParagraphs.map((lp) => (
-                  <p key={lp.letter} className="ml-4">
-                    {lp.letter}. {lp.paragraph}
-                  </p>
-                ))}
-                {section.subsections.map((subsection) => (
-                  <div key={subsection.number} className="ml-4 mb-2">
-                    <h5 className="text-md font-medium mb-1">
-                      Subsection {subsection.number}: {subsection.title}
-                    </h5>
-                    <p>{subsection.paragraph}</p>
-                    {subsection.letteredParagraphs.map((lp) => (
-                      <p key={lp.letter} className="ml-4">
-                        {lp.letter}. {lp.paragraph}
-                      </p>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
+        <div className="h-[calc(100vh-8rem)] overflow-y-auto">
+          {articles.map((article) => (
+            <div key={article.order} className="mb-8">
+              <h3 className="text-xl font-semibold mb-2">
+                Article {article.order}: {article.title}
+              </h3>
+              {article.sections.map((section) => (
+                <div key={section.number} className="ml-4 mb-4">
+                  <h4 className="text-lg font-medium mb-2">
+                    Section {section.number}: {section.title}
+                  </h4>
+                  <p className="mb-2">{section.paragraph}</p>
+                  {section.letteredParagraphs.map((lp) => (
+                    <p key={lp.letter} className="ml-4 mb-1">
+                      {lp.letter}. {lp.paragraph}
+                    </p>
+                  ))}
+                  {section.subsections.map((subsection) => (
+                    <div key={subsection.number} className="ml-4 mb-2">
+                      <h5 className="text-md font-medium mb-1">
+                        Subsection {subsection.number}: {subsection.title}
+                      </h5>
+                      <p className="mb-1">{subsection.paragraph}</p>
+                      {subsection.letteredParagraphs.map((lp) => (
+                        <p key={lp.letter} className="ml-4 mb-1">
+                          {lp.letter}. {lp.paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Save Draft Button */}
+      <button
+        onClick={saveDraft}
+        className={`fixed bottom-4 right-4 btn btn-neutral ${hasUnsavedChanges && !isSaving ? "animate-pulse" : ""}`}
+        disabled={isSaving}
+      >
+        <Save className="mr-2 h-5 w-5" />
+        {isSaving ? "Saving..." : "Save Draft"}
+      </button>
     </div>
   );
 }

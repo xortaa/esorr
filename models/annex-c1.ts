@@ -4,6 +4,7 @@ const AnnexC1Schema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
     ref: "Organization",
+    required: true,
   },
   academicYear: {
     type: String,
@@ -12,6 +13,11 @@ const AnnexC1Schema = new Schema({
   isSubmitted: {
     type: Boolean,
     default: false,
+  },
+  articlesOfAssociation: {
+    type: Schema.Types.ObjectId,
+    ref: "ArticlesOfAssociation",
+    default: null,
   },
 });
 
