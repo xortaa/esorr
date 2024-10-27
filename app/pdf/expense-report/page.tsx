@@ -662,7 +662,7 @@ const MyDocument = () => {
 
           {/*subtotals */}
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, width:"10%"}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
@@ -698,7 +698,7 @@ const MyDocument = () => {
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}>Check No. __________  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, width:"1%"}]}>Check No. __________  </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}>Less-Advances(Subsidies) </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}>  </Text>
           </View>

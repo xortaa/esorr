@@ -179,6 +179,164 @@ const styles = StyleSheet.create({
       fontFamily: "Arial Narrow Bold",
     },
 
+    tableCellDate: { //FOR DATE INFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 0.15,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+      width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellSOF: { //FOR SOURCE OF FUNDS INFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: .6,
+      fontFamily: "Arial Narrow Bold",
+      
+    },
+
+    tableCellDate2: { //FOR DATE OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 1.92,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"10%",
+      flexDirection:"row"
+    },
+
+    tableCellDesc: { //FOR DETAILS OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 7.8,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+      width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellPay: { //FOR PAYEE/ESTABLISHMENT OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 4,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellBlank: { //FOR BLANK CELL OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 1,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellRef: { //FOR REFERENCE OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 3.4,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellCost: { //FOR UNIT COST OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 1,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellUnit: { //FOR NUM OF UNIT OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: .6,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
+    tableCellTotalPhP: { //FOR TOTAL PHP OUTFLOW
+      //backgroundColor: "#30D5C8",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      flex: 1.3,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+       width:"100%",
+      flexDirection:"row"
+    },
+
     tableCellTotal: {
         backgroundColor: "#d3d3d3",
         borderRightWidth: 1,
@@ -218,7 +376,18 @@ const styles = StyleSheet.create({
         fontFamily: "Arial Narrow Bold",
       },
 
-    tableCell: {
+    tableCell: {//CELL FOR INFLOW
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontSize: 10,
+      flex: 1,
+      fontFamily: "Arial Narrow Bold",
+    },
+
+    tableCell2: {//CELL FOR OUTFLOW 
       borderRightWidth: 1,
       borderRightColor: "#000",
       borderBottomWidth: 1,
@@ -227,6 +396,7 @@ const styles = StyleSheet.create({
       fontSize: 10,
       flex: 1,
     },
+
     tableHeaderLastCell: {
       fontFamily: "Arial Narrow Bold",
       backgroundColor: "#d3d3d3",
@@ -292,18 +462,18 @@ const MyDocument = () => {
         <View>
             
         <View fixed style={styles.banner}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
-           Financial Report
+          <Text style={{ fontSize: 8, textAlign: "center" }}>
+          Financial Report
           </Text>
         </View>
 
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
-          UNIVERSITY OF SANTO TOMAS
+          <EmphasizedText>UNIVERSITY OF SANTO TOMAS</EmphasizedText>
           </Text>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>Name of Organization/Council</Text> 
         {"\n"}
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>Liquidation Report {"\n"}
-          As of (MONTH) {"\n"}
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}><EmphasizedText>Liquidation Report</EmphasizedText> {"\n"}
+          <EmphasizedText> As of (MONTH)</EmphasizedText> {"\n"}
           (Date covered)
           </Text>
         </View>
@@ -312,82 +482,85 @@ const MyDocument = () => {
         <View style={styles.table}>
           {/* Header Row */}
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCellHeader, { width: "30%" }]}>Date</Text> {/* Corrected to use width */}
-            <Text style={styles.tableCellHeader}>Source of Fund</Text>
+            <Text style={[styles.tableCellDate, {backgroundColor: "#30D5C8"}]}>Date</Text>
+            <Text style={[styles.tableCellSOF,{textAlign: "center", backgroundColor: "#30D5C8"}]}>Source of Fund</Text>
             <Text style={styles.tableCellHeader}>Total PhP</Text>
           </View>
 
           {/* Table Rows */}
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Organization Fund / Beginning Balance</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Organization Fund / Beginning Balance</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Membership Fee</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Membership Fee</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Registration Fee</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Registration Fee</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Merchandise Selling</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Merchandise Selling</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Student Activity Fund (For LSC & CBO Only)</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Subsidy: Student Activity Fund (For LSC & CBO Only)</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Community Service Fund </Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Subsidy: Community Service Fund </Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: University-Wide Student Organization Fund (For USO Only)</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Subsidy: University-Wide Student Organization Fund (For USO Only)</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Subsidy: Local Student Council Fund (For LSC Only)</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Subsidy: Local Student Council Fund (For LSC Only)</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Cash Sponsorships</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Cash Sponsorships</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCell}>Interest Income</Text>
+            <Text style={styles.tableCellDate}> </Text>
+            <Text style={styles.tableCellSOF}>Interest Income</Text>
             <Text style={styles.tableLastCell}>₱ </Text>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> </Text>
-            <Text style={styles.tableCellTotalExp}>TOTAL RECEIPTS</Text>
-            <Text style={styles.tableCellTotalExp}>₱ </Text>
+            <Text style={[styles.tableCellDate,{flex:0.487}]}> </Text>
+            <Text style={styles.tableCellTotalExp}> </Text>
+            <Text style={styles.tableCellTotalExp}> </Text>
+            <Text style={styles.tableCellTotalExp}> </Text>
+            <Text style={[styles.tableCellTotalExp,{textAlign:"right",}]}>TOTAL RECEIPTS</Text>
+            <Text style={[styles.tableCellTotalExp,{textAlign:"right",}]}>₱. 00 </Text>
           </View>
 
           </View>
@@ -396,14 +569,14 @@ const MyDocument = () => {
         <View style={styles.table}>
           {/* Header Row */}
           <View style={styles.tableRow}>
-            <Text style={styles.tableCellHeader }>Date</Text>
-            <Text style={styles.tableCellHeader}>Details/Description</Text>
-            <Text style={styles.tableCellHeader}>Payee/Establishment</Text>
-            <Text style={styles.tableCellHeader}> </Text>
-            <Text style={styles.tableCellHeader}>Reference No.</Text>
-            <Text style={styles.tableCellHeader}>Unit Cost</Text>
-            <Text style={styles.tableCellHeader}>Unit/s</Text>
-            <Text style={styles.tableCellHeader}>Total PhP</Text>
+          <Text style={[styles.tableCellDate2, {backgroundColor: "#30D5C8"}]}>Date</Text>
+            <Text style={[styles.tableCellDesc, {backgroundColor: "#30D5C8"}]}>Details/Description</Text>
+            <Text style={[styles.tableCellPay, {backgroundColor: "#30D5C8"}]}>Payee/Establishment</Text>
+            <Text style={[styles.tableCellBlank, {backgroundColor: "#30D5C8"}]}> </Text>
+            <Text style={[styles.tableCellRef, {backgroundColor: "#30D5C8"}]}>Reference No.</Text>
+            <Text style={[styles.tableCellCost, {backgroundColor: "#30D5C8"}]}>Unit Cost</Text>
+            <Text style={[styles.tableCellUnit, {backgroundColor: "#30D5C8"}]}>Unit/s</Text>
+            <Text style={[styles.tableCellTotalPhP, {backgroundColor: "#30D5C8"}]}>Total PhP</Text>
           </View>
 
           {/* Table Rows */}
@@ -411,31 +584,31 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> I. Food Expense </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> 10/10/24 </Text>
+          <Text style={styles.tableCellDesc}> Jollibee Yum Burger </Text>
+          <Text style={styles.tableCellPay}> Jollibee </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> JB1095248702 </Text>
+          <Text style={styles.tableCellCost}> 100 </Text>
+          <Text style={styles.tableCellUnit}> 10 </Text>
+          <Text style={styles.tableCellTotalPhP}> 10000 </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
+          <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 10000  </Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCell}> II. Transportation </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}>  </Text>
+          <Text style={styles.tableCellDesc}>  </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -445,14 +618,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> III. Office Supplies </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -462,14 +635,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> IV. Physical Arrangement </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -479,14 +652,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> V. Documentation </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -496,14 +669,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> VI. Promotions </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -513,14 +686,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> VII. Professional Fee/ Honoraria/ Token </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -530,14 +703,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> VIII. Awards and Prizes </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -547,14 +720,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> IX. Publication </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -564,14 +737,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> X. Rentals </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -581,14 +754,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XI. Equipment </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -598,14 +771,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XII. Costumes </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -615,14 +788,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XIII. Membership Kits </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -632,14 +805,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XIV. Registration Fees </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -649,14 +822,14 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XV. Cash Donations or Sponsorship to Other Organizations </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
@@ -666,20 +839,20 @@ const MyDocument = () => {
             <Text style={styles.tableCell}> XVI. Miscellaneous Expense </Text>
           </View>
           <View style={styles.tableRow}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDate2}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCellPay}> </Text>
+          <Text style={styles.tableCellBlank}> </Text>
+          <Text style={styles.tableCellRef}> </Text>
+          <Text style={styles.tableCellCost}> </Text>
+          <Text style={styles.tableCellUnit}> </Text>
+          <Text style={styles.tableCellTotalPhP}> </Text>
           </View>
           <View style={styles.tableRow}>
           <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00  </Text>
           </View>
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>  </Text>
+            <Text style={styles.tableCellDate2}>  </Text>
             <Text style={styles.tableCellTotalExp}>TOTAL EXPENSES  </Text>
             <Text style={styles.tableCellTotalExp}>  </Text>
             <Text style={styles.tableCellTotalExp}>  </Text>
@@ -689,8 +862,8 @@ const MyDocument = () => {
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>P 0.00  </Text>
           </View>
           <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>  </Text>
-            <Text style={styles.tableCellTotalNet}>NET CASH FLOW / ENDING BALANCE  </Text>
+            <Text style={[styles.tableCellDate2,{flex:.65}]}>  </Text>
+            <Text style={[styles.tableCellTotalNet,{flex:2}]}>NET CASH FLOW / ENDING BALANCE  </Text>
             <Text style={styles.tableCellTotalNet}>  </Text>
             <Text style={styles.tableCellTotalNet}>  </Text>
             <Text style={styles.tableCellTotalNet}>  </Text>
