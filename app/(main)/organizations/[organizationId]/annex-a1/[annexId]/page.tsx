@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
 import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity, Affiliation, Program } from "@/types";
+import { uploadImage } from "@/utils/storage";
 
 export default function OfficerManager({ params }: { params: { organizationId: string; annexId: string } }) {
   const { organizationId, annexId } = params;
@@ -377,6 +378,19 @@ function CreateOfficerModal({
     fetchAffiliations();
   }, []);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      try {
+        const imageUrl = await uploadImage(file);
+        setNewOfficer({ ...newOfficer, image: imageUrl });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image. Please try again.");
+      }
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -600,16 +614,7 @@ function CreateOfficerModal({
                       type="file"
                       name="image"
                       accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setNewOfficer({ ...newOfficer, image: reader.result as string });
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
+                      onChange={handleImageUpload}
                       className="file-input file-input-bordered w-full"
                     />
                     {newOfficer.image && (
@@ -1000,6 +1005,19 @@ function EditOfficerModal({
     fetchAffiliations();
   }, []);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      try {
+        const imageUrl = await uploadImage(file);
+        setEditedOfficer({ ...editedOfficer, image: imageUrl });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image. Please try again.");
+      }
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     if (type === "file") {
@@ -1166,7 +1184,7 @@ function EditOfficerModal({
                   type="file"
                   name="image"
                   accept="image/*"
-                  onChange={handleInputChange}
+                  onChange={handleImageUpload}
                   className="file-input file-input-bordered w-full"
                 />
                 {editedOfficer.image && (
