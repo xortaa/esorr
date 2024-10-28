@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-c1\[annexId]\articles-of-association\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import mongoose from "mongoose";

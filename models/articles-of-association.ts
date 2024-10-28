@@ -32,6 +32,9 @@ const SectionSchema = new Schema({
   paragraph: {
     type: String,
   },
+  image: {
+    type: String,
+  },
   letteredParagraphs: [LetteredParagraphSchema],
   subsections: [SubsectionSchema],
 });

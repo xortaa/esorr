@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Save, Plus, Trash2, ChevronRight } from "lucide-react";
+import { Save, Plus, Trash2, ChevronRight, Image as ImageIcon } from "lucide-react";
 import { useParams } from "next/navigation";
+import { uploadImage } from "@/utils/storage";
+import Image from "next/image";
 
 type Article = {
   order: string;
@@ -15,6 +17,7 @@ type Section = {
   number: string;
   title: string;
   paragraph: string;
+  image?: string;
   letteredParagraphs: LetteredParagraph[];
   subsections: Subsection[];
 };
@@ -282,6 +285,27 @@ export default function ArticlesOfAssociationEditor() {
     }
   };
 
+   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+     if (event.target.files && event.target.files[0] && currentSection) {
+       const file = event.target.files[0];
+       try {
+         const imageUrl = await uploadImage(file);
+         const updatedSection = { ...currentSection, image: imageUrl };
+         updateSection(updatedSection);
+       } catch (error) {
+         console.error("Error uploading image:", error);
+         alert("Failed to upload image. Please try again.");
+       }
+     }
+   };
+
+ const removeImage = () => {
+   if (currentSection) {
+     const updatedSection = { ...currentSection, image: undefined };
+     updateSection(updatedSection);
+   }
+ };
+
   const saveDraft = async () => {
     setIsSaving(true);
     try {
@@ -390,6 +414,35 @@ export default function ArticlesOfAssociationEditor() {
                 <Trash2 className="h-5 w-5" />
               </button>
             </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
+              {currentSection.image ? (
+                <div className="relative w-full h-48 mb-2">
+                  <Image
+                    src={currentSection.image}
+                    alt="Section image"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded"
+                  />
+                  <button
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition duration-200"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300">
+                  <label className="flex flex-col items-center justify-center cursor-pointer">
+                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                    <span className="mt-2 text-sm text-gray-500">Upload an image</span>
+                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                  </label>
+                </div>
+              )}
+            </div>
+
             <input
               type="text"
               placeholder="Section Title"
@@ -496,6 +549,17 @@ export default function ArticlesOfAssociationEditor() {
                   <h4 className="text-lg font-medium mb-2">
                     Section {section.number}: {section.title}
                   </h4>
+                  {section.image && (
+                    <div className="relative w-full h-48 mb-2">
+                      <Image
+                        src={section.image}
+                        alt={`Image for Section ${section.number}`}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded"
+                      />
+                    </div>
+                  )}
                   <p className="mb-2">{section.paragraph}</p>
                   {section.letteredParagraphs.map((lp) => (
                     <p key={lp.letter} className="ml-4 mb-1">
