@@ -438,6 +438,7 @@ const MyDocument = () => {
 // Footer component
 const Footer = () => (
   <View fixed style={styles.footer}>
+    <Text style={{textAlign: "right", color:"#000"}}>UST:S030-00-FO114</Text>
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );

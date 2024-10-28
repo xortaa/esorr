@@ -162,6 +162,22 @@ const styles = StyleSheet.create({
       borderColor: "#000",
       marginBottom: 10,
     },
+
+    tableInfo: { //ORG INFO
+      display: "flex",
+      width: "auto",
+      borderWidth: 0,
+      marginBottom: 10,
+      fontSize: 9,
+    },
+
+    tableOfc: { //OFFICE USE ONLY
+      display: "flex",
+      width: "auto",
+      borderWidth: 0,
+     
+      fontSize: 9,
+    },
   
     tableRow: {
       flexDirection: "row",
@@ -178,7 +194,23 @@ const styles = StyleSheet.create({
       fontSize: 10,
       flex: 1,
       fontFamily: "Arial Narrow Bold",
-      textAlign: "center"
+      textAlign: "center",
+      color: "white",
+    },
+
+    tableCellDesc: {
+      //backgroundColor: "#993300",
+      borderRightWidth: 1,
+      borderRightColor: "#000",
+      borderBottomWidth: 1,
+      borderBottomColor: "#000",
+      padding: 5,
+      fontWeight: "bold",
+      fontSize: 10,
+      fontFamily: "Arial Narrow Bold",
+      textAlign: "center",
+      //color: "white",
+      flex: 2, 
     },
 
     tableCellTotal: {
@@ -307,6 +339,22 @@ const MyDocument = () => {
         </View>
 
         <View>
+
+        <View style={styles.tableOfc}>
+          {/* Header Row */}
+          <View style={[styles.tableRow, {borderWidth: 0}]}>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {backgroundColor:"#FFA550", color:"#000", border:0, fontFamily:"Arial Narrow"}]}>For Office Use Only</Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+          <Text style={[styles.tableCellHeader, {borderWidth: 0, backgroundColor:"#FFFFFF"}]}></Text>
+            </View>
+          </View>
             
         <View style={{ flexDirection: "row",  paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.bannerlogo}>
@@ -325,7 +373,7 @@ const MyDocument = () => {
           </View>
 
         
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>PURPOSE:____________________________________________________</Text> 
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>PURPOSE:_____________________________________________________________________________________________________</Text> 
         {"\n"}{"\n"}
         </View>
 
@@ -333,14 +381,16 @@ const MyDocument = () => {
             <Text style={{ fontSize: 8, fontWeight: "bold", paddingTop:20, textAlign: "left" }}>ORGANIZATION INFORMATION: </Text>
         </View>
 
-        <View style={{ flexDirection: "row", width: "50%", textAlign: "left", fontSize: 9 }}>
-       
+        <View style={{ flexDirection: "row", width: "640.5", textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
             <Text>
             Name of Organization: ___________________________________
             </Text>
             <Text>
             Department: ___________________________________
+            </Text>
+            <Text>
+              Date Submitted: ___________________________________
             </Text>
           </View>
         </View>
@@ -395,7 +445,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderTop: 1, borderLeft: 1}]}>
             <Text style={styles.tableCellHeader }>Date</Text>
             <Text style={styles.tableCellHeader}>Ref</Text>
-            <Text style={styles.tableCellHeader}>Description</Text>
+            <Text style={[styles.tableCellDesc, {backgroundColor: "#993300", color:"#FFFFFF"}]}>Description</Text>
             <Text style={styles.tableCellHeader}>Meals </Text>
             <Text style={styles.tableCellHeader}>Transport</Text>
             <Text style={styles.tableCellHeader}>Supplies</Text>
@@ -410,21 +460,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -438,21 +474,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -466,21 +488,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -494,21 +502,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -522,21 +516,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -550,21 +530,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -578,21 +544,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -606,21 +558,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> - </Text>
-          </View>
-
-          <View style={[styles.tableRow, {borderWidth: 1}]}>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -634,7 +572,7 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
-          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -648,7 +586,119 @@ const MyDocument = () => {
           <View style={[styles.tableRow, {borderWidth: 1}]}>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> - </Text>
+          </View>
+
+          <View style={[styles.tableRow, {borderWidth: 1}]}>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCell}> </Text>
+          <Text style={styles.tableCellDesc}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
           <Text style={styles.tableCell}> </Text>
@@ -662,8 +712,9 @@ const MyDocument = () => {
 
           {/*subtotals */}
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCell, {borderWidth: 0, width:"10%"}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0,}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCellDesc, {borderWidth: 0, flex:2.04}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
@@ -671,49 +722,48 @@ const MyDocument = () => {
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1}]}> - </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1, borderRight:1, backgroundColor:"#000000"}]}>  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderBottom: 1, borderRight:1, backgroundColor:"#000000", flex:1.01}]}>  </Text>
           </View>
 
           <View style={styles.tableRow}>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCellDesc, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> Subtotal </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, textAlign: "right"}]}> Subtotal </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}> - </Text>
           </View>
 
           <View style={styles.tableRow}>
+          <Text style={[styles.tableCell, {borderWidth: 0, flex: .001}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, flex: 1}]}> </Text>
+          <Text style={[styles.tableCellDesc, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0, width:"1%"}]}>Check No. __________  </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}>Less-Advances(Subsidies) </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}>  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, width:"1%", flex: 2, textAlign:"right"}]}>Check No. __________  </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, flex: 2.1, textAlign:"right"}]}>Less-Advances(Subsidies) </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1, flex: 1.1}]}>  </Text>
           </View>
 
           <View style={styles.tableRow}>
+          <Text style={[styles.tableCell, {borderWidth: 0, flex: 0.001}]}> </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
+          <Text style={[styles.tableCellDesc, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
           <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> </Text>
-          <Text style={[styles.tableCell, {borderWidth: 0}]}> Refund (Reimbursement) </Text>
+          <Text style={[styles.tableCell, {borderWidth: 0, flex:2, textAlign:"right"}]}> Refund (Reimbursement) </Text>
           <Text style={[styles.tableCell, {borderWidth: 0, borderLeft: 1, borderRight:1, borderBottom:1}]}> - </Text>
           </View>
 
