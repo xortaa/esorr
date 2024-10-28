@@ -1,29 +1,17 @@
-import { Storage } from "@google-cloud/storage";
+// utils/storage.ts
+export const uploadImage = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
 
-const storageClient = new Storage({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-  projectId: process.env.GCP_PROJECT_ID,
-});
-
-const bucketName = process.env.GCP_BUCKET_NAME;
-const bucket = storageClient.bucket(bucketName);
-
-export const uploadImage = async (image: File): Promise<string> => {
-  const blob = bucket.file(image.name);
-  const blobStream = blob.createWriteStream({
-    resumable: false,
-    metadata: {
-      contentType: image.type,
-    },
+  const response = await fetch("/api/upload-image", {
+    method: "POST",
+    body: formData,
   });
 
-  const imageBuffer = await image.arrayBuffer();
-  blobStream.end(Buffer.from(imageBuffer));
+  if (!response.ok) {
+    throw new Error("Failed to upload image");
+  }
 
-  await new Promise((resolve, reject) => {
-    blobStream.on("finish", resolve);
-    blobStream.on("error", reject);
-  });
-
-  return `https://storage.googleapis.com/${bucketName}/${image.name}`;
+  const data = await response.json();
+  return data.url;
 };
