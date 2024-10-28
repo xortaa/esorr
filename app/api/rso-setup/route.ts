@@ -3,7 +3,6 @@ import connectToDatabase from "@/utils/mongodb";
 import Organization from "@/models/organization";
 import SignatoryRequest from "@/models/signatory-request";
 import User from "@/models/user";
-import { uploadImage } from "@/utils/storage";
 import Annex01 from "@/models/annex-01";
 import Annex02 from "@/models/annex-02";
 import AnnexA from "@/models/annex-a";
