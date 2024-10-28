@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={[styles.page]}>
+      <Page style={styles.page} size="LEGAL" orientation="portrait">
         {/* Header */}
 
         <View fixed style={styles.header}>
