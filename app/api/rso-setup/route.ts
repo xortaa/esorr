@@ -28,30 +28,31 @@ export async function POST(req: NextRequest) {
   await connectToDatabase();
 
   try {
-    const formData = await req.formData();
-    const name = formData.get("name") as string;
-    const logo = formData.get("logo") as File;
-    const socialsString = formData.get("socials") as string;
-    const signatoryRequestsString = formData.get("signatoryRequests") as string;
-    const isNotUniversityWideString = formData.get("isNotUniversityWide") as string;
-    const affiliation = formData.get("affiliation") as string;
-    const email = formData.get("email") as string;
-    const website = formData.get("website") as string;
-    const category = formData.get("category") as string;
-    const strategicDirectionalAreasString = formData.get("strategicDirectionalAreas") as string;
-    const mission = formData.get("mission") as string;
-    const vision = formData.get("vision") as string;
-    const description = formData.get("description") as string;
-    const objectivesString = formData.get("objectives") as string;
-    const startingBalance = parseFloat(formData.get("startingBalance") as string);
-    const currentAcademicYear = formData.get("currentAcademicYear") as string;
-
-    const academicYearOfLastRecognition = formData.get("academicYearOfLastRecognition") as string;
+    const body = await req.json();
+    const {
+      name,
+      logo,
+      socials,
+      signatoryRequests,
+      isNotUniversityWide,
+      affiliation,
+      email,
+      website,
+      category,
+      strategicDirectionalAreas,
+      mission,
+      vision,
+      description,
+      objectives,
+      startingBalance,
+      currentAcademicYear,
+      academicYearOfLastRecognition,
+    } = body;
 
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
     if (!logo) return NextResponse.json({ error: "Missing organization logo" }, { status: 400 });
-    if (!isNotUniversityWideString)
-      return NextResponse.json({ error: "Missing university-wide status" }, { status: 400 });
+    if (typeof isNotUniversityWide !== "boolean")
+      return NextResponse.json({ error: "Invalid university-wide status" }, { status: 400 });
     if (!email) return NextResponse.json({ error: "Missing user email" }, { status: 400 });
     if (!website) return NextResponse.json({ error: "Missing organization website" }, { status: 400 });
     if (!category) return NextResponse.json({ error: "Missing organization category" }, { status: 400 });
@@ -62,59 +63,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
     }
 
-    let socials = [],
-      signatoryRequests = [],
-      strategicDirectionalAreas = [],
-      objectives = [];
-
-    if (socialsString) {
-      try {
-        socials = JSON.parse(socialsString);
-        if (!Array.isArray(socials)) {
-          throw new Error("Socials must be an array");
-        }
-      } catch (error) {
-        return NextResponse.json({ error: "Invalid JSON in socials" }, { status: 400 });
-      }
-    }
-
-    if (signatoryRequestsString) {
-      try {
-        signatoryRequests = JSON.parse(signatoryRequestsString);
-      } catch (error) {
-        return NextResponse.json({ error: "Invalid JSON in signatory requests" }, { status: 400 });
-      }
-    }
-    if (strategicDirectionalAreasString) {
-      try {
-        strategicDirectionalAreas = JSON.parse(strategicDirectionalAreasString);
-      } catch (error) {
-        return NextResponse.json({ error: "Invalid JSON in strategic directional areas" }, { status: 400 });
-      }
-    }
-    if (objectivesString) {
-      try {
-        objectives = JSON.parse(objectivesString);
-      } catch (error) {
-        return NextResponse.json({ error: "Invalid JSON in objectives" }, { status: 400 });
-      }
-    }
-
-    const isNotUniversityWide = isNotUniversityWideString === "true";
+    const logoUrl = logo;
 
     if (isNotUniversityWide && !affiliation) {
       return NextResponse.json({ error: "Missing affiliation for non-university-wide organization" }, { status: 400 });
     }
 
     const finalAffiliation = isNotUniversityWide ? affiliation : "University Wide";
-
-    const logoUrl = await uploadImage(logo);
-
     // create organization
     const newOrganization = await Organization.create({
       name,
       logo: logoUrl,
-      affiliation: finalAffiliation,
+      affiliation,
       annex01: [],
       annex02: [],
       annexA: [],
@@ -135,7 +95,6 @@ export async function POST(req: NextRequest) {
       annexK: [],
       annexL: [],
     });
-
     // Debugging: Log the new organization
     console.log("New Organization:", newOrganization);
 
@@ -186,6 +145,7 @@ export async function POST(req: NextRequest) {
     const newAnnexC1 = await AnnexC1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      articlesOfAssociation: null,
     });
 
     const newAnnexD = await AnnexD.create({

@@ -7,6 +7,7 @@ import axios from "axios";
 import { Affiliation } from "@/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { uploadImage } from "@/utils/storage";
 
 const RSOSetupPage = () => {
   const { data: session, status } = useSession();
@@ -101,32 +102,29 @@ const RSOSetupPage = () => {
 
     setIsSubmitting(true);
     try {
-      const submitFormData = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === "logo" && value instanceof File) {
-          submitFormData.append(key, value);
-        } else if (Array.isArray(value)) {
-          submitFormData.append(key, JSON.stringify(value));
-        } else {
-          submitFormData.append(key, value as string);
-        }
-      });
+      // Create a new object with the form data
+      const submitData = {
+        name: formData.name,
+        logo: formData.logo,
+        socials: formData.socials,
+        signatoryRequests: formData.signatoryRequests,
+        isNotUniversityWide,
+        affiliation: isNotUniversityWide && selectedAffiliation ? selectedAffiliation.name : "University Wide",
+        email: session?.user?.email,
+        website: formData.website,
+        category: formData.category,
+        strategicDirectionalAreas: formData.strategicDirectionalAreas,
+        mission: formData.mission,
+        vision: formData.vision,
+        description: formData.description,
+        objectives: formData.objectives,
+        startingBalance: formData.startingBalance,
+        currentAcademicYear: formData.currentAcademicYear,
+        academicYearOfLastRecognition: formData.academicYearOfLastRecognition,
+      };
 
-      submitFormData.append("isNotUniversityWide", isNotUniversityWide.toString());
-
-      if (isNotUniversityWide && selectedAffiliation) {
-        submitFormData.append("affiliation", selectedAffiliation.name);
-      } else {
-        submitFormData.append("affiliation", "University Wide");
-      }
-
-      if (!session?.user?.email) {
-        throw new Error("User email not found. Please ensure you're logged in.");
-      }
-      submitFormData.append("email", session.user.email);
-
-      const response = await axios.post("/api/rso-setup", submitFormData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post("/api/rso-setup", submitData, {
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response.status === 201) {
@@ -261,6 +259,8 @@ const OrganizationSetupStep1 = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [isSDAreaDropdownOpen, setIsSDAreaDropdownOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
 
   // Generate an array of years from current year to 5 years in the future
   const futureYears = useMemo(() => {
@@ -326,13 +326,28 @@ const OrganizationSetupStep1 = ({
     setFormData({ ...formData, socials: newSocials });
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFormData({ ...formData, logo: file });
-      setImagePreview(URL.createObjectURL(file));
+const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadImage(file);
+      setFormData({ ...formData, logo: imageUrl });
+      setImagePreview(imageUrl);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
-  };
+  }
+};
+
+ const handleRemoveLogo = () => {
+   setFormData({ ...formData, logo: null });
+   setImagePreview(null);
+ };
+
 
   const handleStrategicDirectionalAreaChange = (area: string) => {
     const currentAreas = formData.strategicDirectionalAreas || [];
@@ -408,23 +423,43 @@ const OrganizationSetupStep1 = ({
           <label className="label" htmlFor="logo-upload">
             <span className="label-text">Upload Organization Logo</span>
           </label>
+          {formData.logo ? (
+            <div className="flex items-center space-x-4">
+              <div className="avatar">
+                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img src={formData.logo} alt="Organization Logo" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <button type="button" className="btn btn-outline btn-error btn-sm" onClick={handleRemoveLogo}>
+                  Remove Logo
+                </button>
+                <label className="btn btn-outline btn-primary btn-sm" htmlFor="logo-upload">
+                  Change Logo
+                </label>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                id="logo-upload"
+                className="file-input file-input-bordered w-full max-w-xs"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={isUploading}
+              />
+              {isUploading && <span className="loading loading-spinner loading-md"></span>}
+            </div>
+          )}
           <input
             type="file"
             id="logo-upload"
-            className="file-input file-input-bordered w-full max-w-xs"
+            className="hidden"
             accept="image/*"
             onChange={handleLogoUpload}
-            required
+            disabled={isUploading}
           />
-          {imagePreview && (
-            <div className="mt-4">
-              <div className="avatar">
-                <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                  <img src={imagePreview} alt="Organization Logo" />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="form-control">
@@ -945,18 +980,13 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-primary">Confirm Setup</h2>
 
-      {renderField(
-        "Current Academic Year",
-        `${formData.currentAcademicYear.start} - ${formData.currentAcademicYear.end}`
-      )}
+      {renderField("Current Academic Year", formData.currentAcademicYear)}
 
       <section className="mb-4">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Organization Logo</h3>
         <div className="avatar">
           <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-            {formData.logo && (
-              <Image src={URL.createObjectURL(formData.logo)} alt="Organization Logo" width={128} height={128} />
-            )}
+            {formData.logo && <Image src={formData.logo} alt="Organization Logo" width={128} height={128} />}
           </div>
         </div>
       </section>
@@ -1012,7 +1042,6 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
                 <tr>
                   <th>Email</th>
                   <th>Position</th>
-                  <th>Executive</th>
                 </tr>
               </thead>
               <tbody>

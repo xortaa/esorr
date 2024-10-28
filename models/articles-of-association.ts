@@ -49,7 +49,7 @@ const ArticleSchema = new Schema({
   sections: [SectionSchema],
 });
 
-const ArticleOfAssociationSchema = new Schema({
+const ArticlesOfAssociationSchema = new Schema({
   articles: {
     type: [ArticleSchema],
   },
@@ -57,10 +57,14 @@ const ArticleOfAssociationSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "AnnexC1",
     unique: true,
+    sparse: true,
   },
 });
 
+// Ensure the index is created with the correct options
+ArticlesOfAssociationSchema.index({ annexc1: 1 }, { unique: true, sparse: true });
+
 const ArticlesOfAssociation =
-  models.ArticlesOfAssociation || model("ArticlesOfAssociation", ArticleOfAssociationSchema);
+  models.ArticlesOfAssociation || model("ArticlesOfAssociation", ArticlesOfAssociationSchema);
 
 export default ArticlesOfAssociation;
