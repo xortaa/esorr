@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Save, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Save, Plus, Trash2, Image as ImageIcon, Eye } from "lucide-react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 
@@ -39,7 +39,7 @@ type ArticlesOfAssociation = {
   articles: Article[];
 };
 
-export default function ArticlesOfAssociationEditor() {
+export default function ArticlesOfAssociationCreator() {
   const { annexId, organizationId } = useParams() as { annexId: string; organizationId: string };
   const [articles, setArticles] = useState<Article[]>([]);
   const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
@@ -49,6 +49,13 @@ export default function ArticlesOfAssociationEditor() {
   const [articlesOfAssociationId, setArticlesOfAssociationId] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedArticles, setLastSavedArticles] = useState<Article[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const setCurrentArticleAndResetSectionSubsection = (article: Article) => {
+    setCurrentArticle(article);
+    setCurrentSection(null);
+    setCurrentSubsection(null);
+  };
 
   const toRoman = (num: number): string => {
     const romanNumerals = [
@@ -369,15 +376,19 @@ export default function ArticlesOfAssociationEditor() {
             {articles.map((article) => (
               <div key={article.order} className="mb-2">
                 <button
-                  className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded transition duration-200"
-                  onClick={() => setCurrentArticle(article)}
+                  className={`w-full text-left px-2 py-1 rounded transition duration-200 ${
+                    currentArticle === article ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => setCurrentArticleAndResetSectionSubsection(article)}
                 >
                   Article {article.order}: {article.title || "Untitled"}
                 </button>
                 {article.sections.map((section) => (
                   <button
                     key={section.number}
-                    className="w-full text-left pl-6 py-1 text-sm hover:bg-gray-100 transition duration-200"
+                    className={`w-full text-left pl-6 py-1 text-sm rounded transition duration-200 ${
+                      currentSection === section ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100"
+                    }`}
                     onClick={() => {
                       setCurrentArticle(article);
                       setCurrentSection(section);
@@ -394,232 +405,252 @@ export default function ArticlesOfAssociationEditor() {
       </div>
 
       {/* Main Form Area */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        {currentArticle && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Article {currentArticle.order}</h2>
-              <button
-                className="text-red-500 hover:text-red-700 transition duration-200"
-                onClick={() => removeArticle(currentArticle)}
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Article Title"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={currentArticle.title}
-              onChange={(e) => updateArticle("title", e.target.value)}
-            />
-            <button onClick={addSection} className="btn bg-green-100 text-green-800">
-              <Plus className="inline-block mr-2 h-4 w-4" /> Add Section
+      <div className="flex-1 flex flex-col">
+        {/* Toolbar */}
+        <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Articles of Association Creator</h1>
+          <div>
+            <button onClick={() => setShowPreview(!showPreview)} className="btn btn-secondary mr-2">
+              <Eye className="inline-block mr-2 h-4 w-4" />
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </button>
+            <button
+              onClick={saveDraft}
+              className={`btn btn-primary ${hasUnsavedChanges && !isSaving ? "animate-pulse" : ""}`}
+              disabled={isSaving}
+            >
+              <Save className="inline-block mr-2 h-4 w-4" />
+              {isSaving ? "Saving..." : "Save Draft"}
             </button>
           </div>
-        )}
-        {currentSection && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Section {currentSection.number}</h3>
-              <button
-                className="text-red-500 hover:text-red-700 transition duration-200"
-                onClick={() => removeSection(currentSection)}
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
-            </div>
+        </div>
 
-            <input
-              type="text"
-              placeholder="Section Title"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={currentSection.title}
-              onChange={(e) => updateSection({ ...currentSection, title: e.target.value })}
-            />
-            <textarea
-              placeholder="Section Paragraph"
-              className="w-full p-2 border border-gray-300 rounded"
-              rows={4}
-              value={currentSection.paragraph}
-              onChange={(e) => updateSection({ ...currentSection, paragraph: e.target.value })}
-            />
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
-              {currentSection.image ? (
-                <div className="relative w-full h-48 mb-2">
-                  <Image
-                    src={currentSection.image}
-                    alt="Section image"
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded"
-                  />
+        {/* Editor and Preview Area */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Editor */}
+          <div className={`${showPreview ? "w-1/2" : "w-full"} p-6 overflow-y-auto`}>
+            {currentArticle && (
+              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold">Article {currentArticle.order}</h2>
                   <button
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition duration-200"
+                    className="text-red-500 hover:text-red-700 transition duration-200"
+                    onClick={() => removeArticle(currentArticle)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
-              ) : (
-                <div className="flex items-center justify-center w-full h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300">
-                  <label className="flex flex-col items-center justify-center cursor-pointer">
-                    <ImageIcon className="h-8 w-8 text-gray-400" />
-                    <span className="mt-2 text-sm text-gray-500">Upload an image</span>
-                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                  </label>
+                <input
+                  type="text"
+                  placeholder="Article Title"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  value={currentArticle.title}
+                  onChange={(e) => updateArticle("title", e.target.value)}
+                />
+                <button onClick={addSection} className="btn bg-green-100 text-green-800">
+                  <Plus className="inline-block mr-2 h-4 w-4" /> Add Section
+                </button>
+              </div>
+            )}
+            {currentSection && (
+              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold">Section {currentSection.number}</h3>
+                  <button
+                    className="text-red-500 hover:text-red-700 transition duration-200"
+                    onClick={() => removeSection(currentSection)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
                 </div>
-              )}
-            </div>
-            <div className="flex space-x-4 mb-4">
-              <button onClick={() => addLetteredParagraph("section")} className="btn bg-blue-100 text-blue-800">
-                <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
-              </button>
-              <button onClick={addSubsection} className="btn bg-purple-100 text-purple-800">
-                <Plus className="inline-block mr-2 h-4 w-4" /> Add Subsection
-              </button>
-            </div>
 
-            {currentSection.letteredParagraphs.map((lp, index) => (
-              <div key={lp.letter} className="flex items-center space-x-2 mb-2">
-                <span className="font-medium">{lp.letter}.</span>
                 <input
                   type="text"
-                  placeholder="Paragraph content"
-                  value={lp.paragraph}
-                  onChange={(e) => updateLetteredParagraph(index, e.target.value, "section")}
-                  className="flex-grow p-2 border border-gray-300 rounded"
+                  placeholder="Section Title"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  value={currentSection.title}
+                  onChange={(e) => updateSection({ ...currentSection, title: e.target.value })}
                 />
-                <button
-                  className="text-red-500 hover:text-red-700 transition duration-200"
-                  onClick={() => removeLetteredParagraph(index, "section")}
-                >
-                  <Trash2 className="h-5 w-5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {currentSubsection && (
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold">Subsection</h4>
-              <button
-                className="text-red-500 hover:text-red-700 transition duration-200"
-                onClick={() => removeSubsection(currentSubsection)}
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Subsection Number (e.g., 3.2.a)"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={currentSubsection.number}
-              onChange={(e) => updateSubsection({ ...currentSubsection, number: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Subsection Title"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={currentSubsection.title}
-              onChange={(e) => updateSubsection({ ...currentSubsection, title: e.target.value })}
-            />
-            <textarea
-              placeholder="Subsection Paragraph"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              rows={4}
-              value={currentSubsection.paragraph}
-              onChange={(e) => updateSubsection({ ...currentSubsection, paragraph: e.target.value })}
-            />
-            <button onClick={() => addLetteredParagraph("subsection")} className="btn bg-blue-100 text-blue-800 mb-4">
-              <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
-            </button>
-            {currentSubsection.letteredParagraphs.map((lp, index) => (
-              <div key={lp.letter} className="flex items-center space-x-2 mb-2">
-                <span className="font-medium">{lp.letter}.</span>
-                <input
-                  type="text"
-                  placeholder="Paragraph content"
-                  value={lp.paragraph}
-                  onChange={(e) => updateLetteredParagraph(index, e.target.value, "subsection")}
-                  className="flex-grow p-2 border border-gray-300 rounded"
+                <textarea
+                  placeholder="Section Paragraph"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  rows={4}
+                  value={currentSection.paragraph}
+                  onChange={(e) => updateSection({ ...currentSection, paragraph: e.target.value })}
                 />
-                <button
-                  className="text-red-500 hover:text-red-700 transition duration-200"
-                  onClick={() => removeLetteredParagraph(index, "subsection")}
-                >
-                  <Trash2 className="h-5 w-5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Preview Pane */}
-      <div className="w-1/3 bg-white border-l border-gray-200 p-6 overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Preview</h2>
-        <div className="h-[calc(100vh-8rem)] overflow-y-auto">
-          {articles.map((article) => (
-            <div key={article.order} className="mb-8">
-              <h3 className="text-xl font-semibold mb-2">
-                Article {article.order}: {article.title}
-              </h3>
-              {article.sections.map((section) => (
-                <div key={section.number} className="ml-4 mb-4">
-                  <h4 className="text-lg font-medium mb-2">
-                    Section {section.number}: {section.title}
-                  </h4>
-
-                  <p className="mb-2">{section.paragraph}</p>
-                  {section.letteredParagraphs.map((lp) => (
-                    <p key={lp.letter} className="ml-4 mb-1">
-                      {lp.letter}. {lp.paragraph}
-                    </p>
-                  ))}
-
-                  {section.image && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
+                  {currentSection.image ? (
                     <div className="relative w-full h-48 mb-2">
                       <Image
-                        src={section.image}
-                        alt={`Image for Section ${section.number}`}
+                        src={currentSection.image}
+                        alt="Section image"
                         layout="fill"
                         objectFit="cover"
                         className="rounded"
                       />
+                      <button
+                        onClick={removeImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition duration-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-48 bg-gray-100 rounded border-2 border-dashed border-gray-300">
+                      <label className="flex flex-col items-center justify-center cursor-pointer">
+                        <ImageIcon className="h-8 w-8 text-gray-400" />
+                        <span className="mt-2 text-sm text-gray-500">Upload an image</span>
+                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                      </label>
                     </div>
                   )}
-                  {section.subsections.map((subsection) => (
-                    <div key={subsection.number} className="ml-4 mb-2">
-                      <h5 className="text-md font-medium mb-1">
-                        {subsection.number}: {subsection.title}
-                      </h5>
-                      <p className="mb-1">{subsection.paragraph}</p>
-                      {subsection.letteredParagraphs.map((lp) => (
-                        <p key={lp.letter} className="ml-4 mb-1">
-                          {lp.letter}. {lp.paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  ))}
                 </div>
-              ))}
+                <div className="flex space-x-4 mb-4">
+                  <button onClick={() => addLetteredParagraph("section")} className="btn bg-blue-100 text-blue-800">
+                    <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
+                  </button>
+                  <button onClick={addSubsection} className="btn bg-purple-100 text-purple-800">
+                    <Plus className="inline-block mr-2 h-4 w-4" /> Add Subsection
+                  </button>
+                </div>
+                {currentSection.letteredParagraphs.map((lp, index) => (
+                  <div key={lp.letter} className="flex items-center space-x-2 mb-2">
+                    <span className="font-medium">{lp.letter}.</span>
+                    <input
+                      type="text"
+                      placeholder="Paragraph content"
+                      value={lp.paragraph}
+                      onChange={(e) => updateLetteredParagraph(index, e.target.value, "section")}
+                      className="flex-grow p-2 border border-gray-300 rounded"
+                    />
+                    <button
+                      className="text-red-500 hover:text-red-700 transition duration-200"
+                      onClick={() => removeLetteredParagraph(index, "section")}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {currentSubsection && (
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold">Subsection</h4>
+                  <button
+                    className="text-red-500 hover:text-red-700 transition duration-200"
+                    onClick={() => removeSubsection(currentSubsection)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Subsection Number (e.g., 3.2.a)"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  value={currentSubsection.number}
+                  onChange={(e) => updateSubsection({ ...currentSubsection, number: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Subsection Title"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  value={currentSubsection.title}
+                  onChange={(e) => updateSubsection({ ...currentSubsection, title: e.target.value })}
+                />
+                <textarea
+                  placeholder="Subsection Paragraph"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  rows={4}
+                  value={currentSubsection.paragraph}
+                  onChange={(e) => updateSubsection({ ...currentSubsection, paragraph: e.target.value })}
+                />
+                <button
+                  onClick={() => addLetteredParagraph("subsection")}
+                  className="btn bg-blue-100 text-blue-800 mb-4"
+                >
+                  <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
+                </button>
+                {currentSubsection.letteredParagraphs.map((lp, index) => (
+                  <div key={lp.letter} className="flex items-center space-x-2 mb-2">
+                    <span className="font-medium">{lp.letter}.</span>
+                    <input
+                      type="text"
+                      placeholder="Paragraph content"
+                      value={lp.paragraph}
+                      onChange={(e) => updateLetteredParagraph(index, e.target.value, "subsection")}
+                      className="flex-grow p-2 border border-gray-300 rounded"
+                    />
+                    <button
+                      className="text-red-500 hover:text-red-700 transition duration-200"
+                      onClick={() => removeLetteredParagraph(index, "subsection")}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Preview */}
+          {showPreview && (
+            <div className="w-1/2 bg-white border-l border-gray-200 p-6 overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4 text-center">Preview</h2>
+              <div className="max-w-3xl mx-auto">
+                {articles.map((article) => (
+                  <div key={article.order} className="mb-8">
+                    <h3 className="text-xl font-semibold mb-4 text-center">
+                      Article {article.order}: {article.title}
+                    </h3>
+                    {article.sections.map((section) => (
+                      <div key={section.number} className="mb-4">
+                        <div className="flex items-start mb-2">
+                          <span className="font-bold mr-2 w-20 flex-shrink-0">Section {section.number}.</span>
+                          <div className="flex-grow">
+                            <h4 className="text-lg font-bold inline">{section.title}.</h4>
+                            <span className="ml-1">{section.paragraph}</span>
+                          </div>
+                        </div>
+                        {section.image && (
+                          <div className="relative w-full h-48 mb-2 ml-20">
+                            <Image
+                              src={section.image}
+                              alt={`Image for Section ${section.number}`}
+                              layout="fill"
+                              objectFit="cover"
+                              className="rounded"
+                            />
+                          </div>
+                        )}
+                        {section.letteredParagraphs.map((lp) => (
+                          <p key={lp.letter} className="ml-20 mb-1">
+                            {lp.letter}. {lp.paragraph}
+                          </p>
+                        ))}
+                        {section.subsections.map((subsection) => (
+                          <div key={subsection.number} className="ml-20 mb-2">
+                            <h5 className="text-md font-medium mb-1">
+                              {subsection.number}: {subsection.title}
+                            </h5>
+                            <p className="mb-1">{subsection.paragraph}</p>
+                            {subsection.letteredParagraphs.map((lp) => (
+                              <p key={lp.letter} className="ml-4 mb-1">
+                                {lp.letter}. {lp.paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
-
-      {/* Save Draft Button */}
-      <button
-        onClick={saveDraft}
-        className={`fixed bottom-4 right-4 btn btn-neutral ${hasUnsavedChanges && !isSaving ? "animate-pulse" : ""}`}
-        disabled={isSaving}
-      >
-        <Save className="mr-2 h-5 w-5" />
-        {isSaving ? "Saving..." : "Save Draft"}
-      </button>
     </div>
   );
 }
