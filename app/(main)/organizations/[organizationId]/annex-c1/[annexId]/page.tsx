@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Save, Plus, Trash2, ChevronRight, Image as ImageIcon } from "lucide-react";
+import { Save, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { useParams } from "next/navigation";
-import { uploadImage } from "@/utils/storage";
 import Image from "next/image";
 
 type Article = {
@@ -167,7 +166,7 @@ export default function ArticlesOfAssociationEditor() {
   const addSubsection = () => {
     if (currentArticle && currentSection) {
       const newSubsection: Subsection = {
-        number: (currentSection.subsections.length + 1).toString(),
+        number: "", // Changed to an empty string for manual input
         title: "",
         paragraph: "",
         letteredParagraphs: [],
@@ -285,39 +284,59 @@ export default function ArticlesOfAssociationEditor() {
     }
   };
 
-   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-     if (event.target.files && event.target.files[0] && currentSection) {
-       const file = event.target.files[0];
-       try {
-         const imageUrl = await uploadImage(file);
-         const updatedSection = { ...currentSection, image: imageUrl };
-         updateSection(updatedSection);
-       } catch (error) {
-         console.error("Error uploading image:", error);
-         alert("Failed to upload image. Please try again.");
-       }
-     }
-   };
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0] && currentSection) {
+      const file = event.target.files[0];
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
 
- const removeImage = () => {
-   if (currentSection) {
-     const updatedSection = { ...currentSection, image: undefined };
-     updateSection(updatedSection);
-   }
- };
+        const response = await axios.post("/api/upload-image", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.data && response.data.url) {
+          const updatedSection = { ...currentSection, image: response.data.url };
+          updateSection(updatedSection);
+        } else {
+          throw new Error("Invalid response from server");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image. Please try again.");
+      }
+    }
+  };
+
+  const removeImage = async () => {
+    if (currentSection && currentSection.image) {
+      try {
+        const fileName = currentSection.image.split("/").pop();
+        if (fileName) {
+          await axios.post("/api/delete-file", { fileName });
+        }
+        const updatedSection = { ...currentSection, image: undefined };
+        updateSection(updatedSection);
+      } catch (error) {
+        console.error("Error deleting image:", error);
+        alert("Failed to delete image. Please try again.");
+      }
+    }
+  };
 
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      const articlesOfAssociation: ArticlesOfAssociation = {
-        annexc1: annexId,
+      const articlesOfAssociation = {
         articles,
       };
 
       let response;
       if (articlesOfAssociationId) {
         response = await axios.put(
-          `/api/annexes/${organizationId}/annex-c1/${annexId}/articles-of-association/${articlesOfAssociationId}`,
+          `/api/annexes/${organizationId}/annex-c1/${annexId}/articles-of-association`,
           articlesOfAssociation
         );
       } else {
@@ -327,15 +346,12 @@ export default function ArticlesOfAssociationEditor() {
         );
       }
 
-      if (response.data._id) {
-        setArticlesOfAssociationId(response.data._id);
-      }
-
+      setArticlesOfAssociationId(response.data._id);
       setLastSavedArticles(articles);
       alert("Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
-      alert("Failed to save draft. Please try again.");
+      alert(`Failed to save draft. ${error.response?.data?.message || "Please try again."}`);
     } finally {
       setIsSaving(false);
     }
@@ -356,7 +372,6 @@ export default function ArticlesOfAssociationEditor() {
                   className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded transition duration-200"
                   onClick={() => setCurrentArticle(article)}
                 >
-                  <ChevronRight className="inline-block mr-2 h-4 w-4" />
                   Article {article.order}: {article.title || "Untitled"}
                 </button>
                 {article.sections.map((section) => (
@@ -414,6 +429,21 @@ export default function ArticlesOfAssociationEditor() {
                 <Trash2 className="h-5 w-5" />
               </button>
             </div>
+
+            <input
+              type="text"
+              placeholder="Section Title"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={currentSection.title}
+              onChange={(e) => updateSection({ ...currentSection, title: e.target.value })}
+            />
+            <textarea
+              placeholder="Section Paragraph"
+              className="w-full p-2 border border-gray-300 rounded"
+              rows={4}
+              value={currentSection.paragraph}
+              onChange={(e) => updateSection({ ...currentSection, paragraph: e.target.value })}
+            />
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
               {currentSection.image ? (
@@ -442,21 +472,6 @@ export default function ArticlesOfAssociationEditor() {
                 </div>
               )}
             </div>
-
-            <input
-              type="text"
-              placeholder="Section Title"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              value={currentSection.title}
-              onChange={(e) => updateSection({ ...currentSection, title: e.target.value })}
-            />
-            <textarea
-              placeholder="Section Paragraph"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              rows={4}
-              value={currentSection.paragraph}
-              onChange={(e) => updateSection({ ...currentSection, paragraph: e.target.value })}
-            />
             <div className="flex space-x-4 mb-4">
               <button onClick={() => addLetteredParagraph("section")} className="btn bg-blue-100 text-blue-800">
                 <Plus className="inline-block mr-2 h-4 w-4" /> Add Lettered Paragraph
@@ -465,6 +480,7 @@ export default function ArticlesOfAssociationEditor() {
                 <Plus className="inline-block mr-2 h-4 w-4" /> Add Subsection
               </button>
             </div>
+
             {currentSection.letteredParagraphs.map((lp, index) => (
               <div key={lp.letter} className="flex items-center space-x-2 mb-2">
                 <span className="font-medium">{lp.letter}.</span>
@@ -488,7 +504,7 @@ export default function ArticlesOfAssociationEditor() {
         {currentSubsection && (
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold">Subsection {currentSubsection.number}</h4>
+              <h4 className="text-lg font-semibold">Subsection</h4>
               <button
                 className="text-red-500 hover:text-red-700 transition duration-200"
                 onClick={() => removeSubsection(currentSubsection)}
@@ -496,6 +512,13 @@ export default function ArticlesOfAssociationEditor() {
                 <Trash2 className="h-5 w-5" />
               </button>
             </div>
+            <input
+              type="text"
+              placeholder="Subsection Number (e.g., 3.2.a)"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={currentSubsection.number}
+              onChange={(e) => updateSubsection({ ...currentSubsection, number: e.target.value })}
+            />
             <input
               type="text"
               placeholder="Subsection Title"
@@ -549,6 +572,14 @@ export default function ArticlesOfAssociationEditor() {
                   <h4 className="text-lg font-medium mb-2">
                     Section {section.number}: {section.title}
                   </h4>
+
+                  <p className="mb-2">{section.paragraph}</p>
+                  {section.letteredParagraphs.map((lp) => (
+                    <p key={lp.letter} className="ml-4 mb-1">
+                      {lp.letter}. {lp.paragraph}
+                    </p>
+                  ))}
+
                   {section.image && (
                     <div className="relative w-full h-48 mb-2">
                       <Image
@@ -560,16 +591,10 @@ export default function ArticlesOfAssociationEditor() {
                       />
                     </div>
                   )}
-                  <p className="mb-2">{section.paragraph}</p>
-                  {section.letteredParagraphs.map((lp) => (
-                    <p key={lp.letter} className="ml-4 mb-1">
-                      {lp.letter}. {lp.paragraph}
-                    </p>
-                  ))}
                   {section.subsections.map((subsection) => (
                     <div key={subsection.number} className="ml-4 mb-2">
                       <h5 className="text-md font-medium mb-1">
-                        Subsection {subsection.number}: {subsection.title}
+                        {subsection.number}: {subsection.title}
                       </h5>
                       <p className="mb-1">{subsection.paragraph}</p>
                       {subsection.letteredParagraphs.map((lp) => (

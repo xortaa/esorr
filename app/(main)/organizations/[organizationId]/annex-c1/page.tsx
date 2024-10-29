@@ -113,6 +113,7 @@ function AnnexCard({
           <div className="flex items-center">
             <FileText className="mr-2 h-5 w-5 text-primary" />
             <h2 className="card-title">Articles of Association for AY {annex.academicYear}</h2>
+            <p>annex id: {annex._id}</p>
           </div>
           <div className="flex items-center space-x-2">
             <button className="btn btn-ghost btn-sm" onClick={() => editAnnex(annex._id)}>

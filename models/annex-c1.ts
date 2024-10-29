@@ -18,7 +18,6 @@ const AnnexC1Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "ArticlesOfAssociation",
     default: null,
-    index: false, // Explicitly set index to false
   },
 });
 

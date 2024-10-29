@@ -1,4 +1,4 @@
-// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-c\[annexId]\articles-of-association\[articlesOfAssociationId]\route.ts
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-c1\[annexId]\articles-of-association\[articlesOfAssociationId]\route.ts
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import ArticlesOfAssociation from "@/models/articles-of-association";

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import AnnexC1 from "@/models/annex-a";
+import AnnexC1 from "@/models/annex-c1";
 
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();

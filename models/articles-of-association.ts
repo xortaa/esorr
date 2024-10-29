@@ -1,68 +1,44 @@
 import { Schema, model, models } from "mongoose";
 
 const LetteredParagraphSchema = new Schema({
-  letter: {
-    type: String,
-  },
-  paragraph: {
-    type: String,
-  },
+  letter: String,
+  paragraph: String,
 });
 
 const SubsectionSchema = new Schema({
-  number: {
-    type: String,
-  },
-  title: {
-    type: String,
-  },
-  paragraph: {
-    type: String,
-  },
+  number: String,
+  title: String,
+  paragraph: String,
   letteredParagraphs: [LetteredParagraphSchema],
 });
 
 const SectionSchema = new Schema({
-  number: {
-    type: String,
-  },
-  title: {
-    type: String,
-  },
-  paragraph: {
-    type: String,
-  },
-  image: {
-    type: String,
-  },
+  number: String,
+  title: String,
+  paragraph: String,
+  image: String,
   letteredParagraphs: [LetteredParagraphSchema],
   subsections: [SubsectionSchema],
 });
 
 const ArticleSchema = new Schema({
-  order: {
-    type: String,
-  },
-  title: {
-    type: String,
-  },
+  order: String,
+  title: String,
   sections: [SectionSchema],
 });
 
 const ArticlesOfAssociationSchema = new Schema({
-  articles: {
-    type: [ArticleSchema],
-  },
+  articles: [ArticleSchema],
   annexc1: {
     type: Schema.Types.ObjectId,
     ref: "AnnexC1",
+    required: true,
     unique: true,
-    sparse: true,
   },
 });
 
 // Ensure the index is created with the correct options
-ArticlesOfAssociationSchema.index({ annexc1: 1 }, { unique: true, sparse: true });
+ArticlesOfAssociationSchema.index({ annexc1: 1 }, { unique: true });
 
 const ArticlesOfAssociation =
   models.ArticlesOfAssociation || model("ArticlesOfAssociation", ArticlesOfAssociationSchema);
