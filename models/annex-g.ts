@@ -13,6 +13,10 @@ const AnnexGSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  nominees: {
+    type: [Schema.Types.ObjectId],
+    ref: "Nominee",
+  },
 });
 
 const AnnexG = models.AnnexG || model("AnnexG", AnnexGSchema);
