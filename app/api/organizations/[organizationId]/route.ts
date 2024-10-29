@@ -1,7 +1,7 @@
 import Organizations from "@/models/organization";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import { Organization, OrganizationInput } from "@/types";
+import { Organization} from "@/types";
 
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();
@@ -21,7 +21,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
 export const PATCH = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();
 
-  const organizationInput: OrganizationInput = await req.json();
+  const organizationInput = await req.json();
 
   try {
     const updatedOrganization: Organization = await Organizations.findByIdAndUpdate(
