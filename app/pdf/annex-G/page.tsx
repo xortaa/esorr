@@ -116,9 +116,7 @@ const MyDocument = () => {
             STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
           </Text>
 
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
-            ANNEX G
-          </Text>
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>ANNEX G</Text>
 
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
             Organization Adviser Nomination Form
@@ -129,35 +127,79 @@ const MyDocument = () => {
         {/* Nomination Table */}
         <View style={styles.section}>
           <Text style={{ fontSize: 16, fontWeight: "bold", textAlign: "center", textDecoration: "underline" }}>
-            <EmphasizedText>ORGANIZATION ADVISER NOMINATION FORM</EmphasizedText> 
-            {"\n"}{"\n"}
+            <EmphasizedText>ORGANIZATION ADVISER NOMINATION FORM</EmphasizedText>
+            {"\n"}
+            {"\n"}
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text>
-            Petitioner hereby nominates the following as organization adviser for (university-wide student organization):
-            {"\n"}{"\n"}
+            Petitioner hereby nominates the following as organization adviser for (university-wide student
+            organization):
+            {"\n"}
+            {"\n"}
           </Text>
         </View>
 
-        <View style={styles.table}>
-          {/* Nominees */}
-          {[1, 2, 3].map((num) => (
-            <View style={styles.tableRow} key={num}>
-              <Text style={styles.tableCell}>
-                {num} Nominee: (Please specify complete name with rank) {"\n"}
-                Name of Faculty: {"\n"}
-                Faculty/College/Institute/School: {"\n"}
+        <View style={{ border: 1, fontSize: 9 }}>
+          <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "column", width: "50%", borderRight: 1, marginLeft: 1 }}>
+              <Text>
+                1st Nominee:
+                <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>(Please specify complete name with rank)</Text>
               </Text>
-              <Text style={styles.tableCell}>
-                Email address: {"\n"}
-                Contact nos: {"\n"}
-                Landline: {"\n"}
-                Mobile: {"\n"}
-              </Text>
+
+              <Text style={{ marginTop: 20 }}>Name of Faculty:</Text>
+              <Text style={{ marginTop: 5 }}>Faculty/College/Institute/School:</Text>
             </View>
-          ))}
+            <View style={{ flexDirection: "column", width: "50%" }}>
+              <Text style={{ borderBottom: 1, fontFamily: "Arial Narrow Bold", paddingBottom: 10, paddingLeft: 1 }}>
+                E-mail Address:
+              </Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Contact Nos.:</Text>
+              <Text style={{ paddingTop: 10, fontFamily: "Arial Narrow Bold" }}> Landline:</Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Mobile:</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", borderTop: 1 }}>
+            <View style={{ flexDirection: "column", width: "50%", borderRight: 1, marginLeft: 1 }}>
+              <Text>
+                2nd Nominee:
+                <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>(Please specify complete name with rank)</Text>
+              </Text>
+
+              <Text style={{ marginTop: 20 }}>Name of Faculty:</Text>
+              <Text style={{ marginTop: 5 }}>Faculty/College/Institute/School:</Text>
+            </View>
+            <View style={{ flexDirection: "column", width: "50%" }}>
+              <Text style={{ borderBottom: 1, fontFamily: "Arial Narrow Bold", paddingBottom: 10, paddingLeft: 1 }}>
+                E-mail Address:
+              </Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Contact Nos.:</Text>
+              <Text style={{ paddingTop: 10, fontFamily: "Arial Narrow Bold" }}> Landline:</Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Mobile:</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", borderTop: 1 }}>
+            <View style={{ flexDirection: "column", width: "50%", borderRight: 1, marginLeft: 1 }}>
+              <Text>
+                3rd Nominee:
+                <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>(Please specify complete name with rank)</Text>
+              </Text>
+
+              <Text style={{ marginTop: 20 }}>Name of Faculty:</Text>
+              <Text style={{ marginTop: 5 }}>Faculty/College/Institute/School:</Text>
+            </View>
+            <View style={{ flexDirection: "column", width: "50%" }}>
+              <Text style={{ borderBottom: 1, fontFamily: "Arial Narrow Bold", paddingBottom: 10, paddingLeft: 1 }}>
+                E-mail Address:
+              </Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Contact Nos.:</Text>
+              <Text style={{ paddingTop: 10, fontFamily: "Arial Narrow Bold" }}> Landline:</Text>
+              <Text style={{ fontFamily: "Arial Narrow Bold" }}> Mobile:</Text>
+            </View>
+          </View>
         </View>
 
         {/* Signature Table */}
@@ -165,7 +207,9 @@ const MyDocument = () => {
           <View style={styles.tableRow}>
             <Text style={styles.invisibleBorderCell}></Text>
             <Text style={styles.invisibleBorderCell}>
-              {"\n"}{"\n"}{"\n"}
+              {"\n"}
+              {"\n"}
+              {"\n"}
               <Text style={{ fontSize: 11, fontFamily: "Arial Narrow Bold", textDecoration: "underline" }}>
                 Signature over Printed Name of President {"\n"}
               </Text>
@@ -178,7 +222,13 @@ const MyDocument = () => {
         </View>
 
         <Text style={{ fontSize: 9, fontFamily: "Arial Narrow Bold", textAlign: "left" }}>
-          {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}*FOR NEW ORGANIZATION ADVISER NOMINATION, PLEASE ATTACH A COPY OF HIS/HER CURRICULUM VITAE.
+          {"\n"}
+          {"\n"}
+          {"\n"}
+          {"\n"}
+          {"\n"}
+          {"\n"}
+          {"\n"}*FOR NEW ORGANIZATION ADVISER NOMINATION, PLEASE ATTACH A COPY OF HIS/HER CURRICULUM VITAE.
         </Text>
 
         <Footer />
@@ -197,7 +247,6 @@ const Footer = () => (
 const Br = () => "\n";
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
-
 
 // Function to generate PDF and open in new tab
 const generatePDF = async () => {
