@@ -234,12 +234,21 @@ const MyDocument = () => {
       <Page style={styles.page} size={"LEGAL"}>
         {/* Header */}
         <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
+          <View fixed style={{ flexDirection: "row" }}>
+            <View style={{ width: "80%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
+                STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
+              </Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right", fontFamily: "Arial Narrow Bold" }}>
+                ANNEX 02
+              </Text>
+            </View>
+          </View>
 
           <Text
-            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            style={{ fontSize: 8, textAlign: "right" }}
             render={({ pageNumber, totalPages }) => `Page | ${pageNumber}`}
           />
 

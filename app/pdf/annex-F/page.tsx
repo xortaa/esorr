@@ -234,13 +234,23 @@ const MyDocument = () => {
     <Document>
       <Page size="LEGAL" style={styles.page}>
         {/* Header */}
+
         <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
+          <View fixed style={{ flexDirection: "row" }}>
+            <View style={{ width: "80%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
+                STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
+              </Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right", fontFamily: "Arial Narrow Bold" }}>
+                ANNEX F
+              </Text>
+            </View>
+          </View>
 
           <Text
-            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            style={{ fontSize: 8, textAlign: "right" }}
             render={({ pageNumber, totalPages }) => `Page | ${pageNumber}`}
           />
 
@@ -502,14 +512,15 @@ const MyDocument = () => {
             >
               <Text style={{ backgroundColor: "black" }}>Prepared by:</Text>
             </Text>
-            <Text style={{ borderTopWidth: 1, marginTop: 40 }}>
-              {" "}
-              Signature of over Printed Name of Outgoing President
-            </Text>
-            <Text style={{ borderTopWidth: 1, marginTop: 40 }}>
-              {" "}
-              Signature of over Printed Name of Incoming President
-            </Text>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ borderTopWidth: 1 }}> Signature of over Printed Name of Outgoing President</Text>
+            </View>
+
+            <View style={{ flexDirection: "column" }}>
+              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ borderTopWidth: 1 }}> Signature of over Printed Name of Incoming President</Text>
+            </View>
 
             <Text
               style={{
@@ -521,19 +532,21 @@ const MyDocument = () => {
             >
               <Text style={{ backgroundColor: "black" }}>Appproved by:</Text>
             </Text>
-            <Text style={{ borderTopWidth: 1, marginTop: 40 }}>
-              {" "}
-              Signature of over Printed Name of Incoming President
-            </Text>
+
+            <View style={{ flexDirection: "column" }}>
+              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ borderTopWidth: 1 }}> Signature of over Current Organization Adviser</Text>
+            </View>
           </View>
+
           <View style={{ width: "50%", flexDirection: "column" }}></View>
         </View>
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>
+        <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>
           Suggested list of KEY UNIT ACTIVITIES (KUA) to ensure the achievement of the expected targets from student
           organizations.
         </Text>
 
-        <View style={{ flexDirection: "row", paddingTop: 20, fontSize: 11 }}>
+        <View style={{ flexDirection: "row", paddingTop: 20, fontSize: 10 }}>
           <Text style={{ width: "20%", flexDirection: "column", fontFamily: "Arial Narrow Bold" }}>First Term</Text>
           <View style={{ width: "80%", flexDirection: "column" }}>
             <Text>
@@ -565,15 +578,18 @@ const MyDocument = () => {
             </View>
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
-              <Text> {"\u2022"} Meetings </Text>
+              <Text>Meetings </Text>
             </View>
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
-              <Text> {"\u2022"} Active Participation in OSA/University-initiated Activities </Text>
+              <Text>
+                Active Participation in OSA/University-initiated Activities{" "}
+                <Text style={{ fontFamily: "Arial Narrow Italic" }}> (at least attended by a representative)</Text>{" "}
+              </Text>
             </View>
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
-              <Text> {"\u2022"} Active Support/Cooperation in SOCC-initiated Activities </Text>
+              <Text>Active Support/Cooperation in SOCC-initiated Activities </Text>
             </View>
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
@@ -584,12 +600,7 @@ const MyDocument = () => {
             </View>
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
-              <Text> Community Service </Text>
-            </View>
-
-            <View style={{ flexDirection: "row" }}>
-              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
-              <Text>Timely submission of Evaluation Report and Financial Statement for every completed activity –</Text>
+              <Text>Community Service </Text>
             </View>
 
             <View style={{ flexDirection: "row" }}>
@@ -601,9 +612,95 @@ const MyDocument = () => {
               <Text style={{ width: "5%" }}> {"\u2022"} </Text>
               <Text>Midyear review and evaluation of Operational Plan</Text>
             </View>
+          </View>
+        </View>
 
-            <Text>{"\u2022"} Midyear review and evaluation of Operational Plan </Text>
-            <Text>{"\u2022"}Midyear review and evaluation of Operational Plan </Text>
+        <View style={{ flexDirection: "row", paddingTop: 20, fontSize: 10 }}>
+          <Text style={{ width: "20%", flexDirection: "column", fontFamily: "Arial Narrow Bold" }}>Second Term</Text>
+          <View style={{ width: "80%", flexDirection: "column" }}>
+            <Text>
+              <Br />
+              <Br />
+            </Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Meetings</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Year-End Assembly/Report</Text>
+            </View>
+
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text>
+                Active participation in OSA/University-initiated Activities
+                <Text style={{ fontFamily: "Arial Narrow Italic" }}> (at least attended by a representative)</Text>{" "}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Active Support/Cooperation in SOCC-initiated Activities</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>
+                Specific Activities of the Organization{" "}
+                <Text style={{ fontFamily: "Arial Narrow Italic" }}> (aligned with your Mission or KRA)</Text>{" "}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text> Election of Officers </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text> Application for Petition for Re-recognition </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text> Timely submission of Evaluation Report and Financial Statement for every completed activity </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text>
+                Student Awards
+                <Text style={{ fontFamily: "Arial Narrow Italic" }}>
+                  (be a Student Awards Recipient by completing/accomplishing worthy activities not later than every 30th
+                  of April)
+                </Text>{" "}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text> End-of-Year review and evaluation of Operational Plan </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", paddingTop: 20, fontSize: 10 }}>
+          <Text style={{ width: "20%", flexDirection: "column", fontFamily: "Arial Narrow Bold" }}>Special Term</Text>
+          <View style={{ width: "80%", flexDirection: "column" }}>
+            <Text>
+              <Br />
+              <Br />
+            </Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Attendance in Day 0</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Attendance in SOCC LTS</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Attendance in VLT 1 (Anti Hazing Law)</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ width: "5%" }}> {"\u2022"} </Text>
+              <Text style={{ width: "95%" }}>Monitoring, Evaluation and Review of Operational Plan</Text>
+            </View>
           </View>
         </View>
 
