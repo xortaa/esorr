@@ -13,6 +13,10 @@ const AnnexFSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  activities: {
+    type: [Schema.Types.ObjectId],
+    ref: "Activity",
+  }
 });
 
 const AnnexF = models.AnnexF || model("AnnexF", AnnexFSchema);
