@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle, Delete, Save, ChevronDown, ChevronUp } from "lucide-react";
+import { useParams } from "next/navigation";
+import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
 
 type Activity = {
+  _id?: string;
   id: string;
   term: string;
   keyUnitActivity: string;
-  targetDate: string;
+  targetDateRange: string;
   actualDateAccomplished: string;
   postEventEvaluation: string;
   interpretation: string;
@@ -26,16 +29,56 @@ export default function ActivitiesFormCreator() {
     { name: "Second Term", activities: [] },
     { name: "Special Term", activities: [] },
   ]);
-  const [showTable, setShowTable] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+  const annexId = params.annexId as string;
+
+  useEffect(() => {
+    fetchActivities();
+  }, [organizationId, annexId]);
+
+  const fetchActivities = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-f/${annexId}/activities`);
+      const activities = response.data;
+
+      const newTerms = [
+        { name: "First Term", activities: [] },
+        { name: "Second Term", activities: [] },
+        { name: "Special Term", activities: [] },
+      ];
+
+      activities.forEach((activity: Activity) => {
+        const termIndex = newTerms.findIndex((term) => term.name === activity.term);
+        if (termIndex !== -1) {
+          newTerms[termIndex].activities.push({
+            ...activity,
+            id: activity._id || activity.id,
+            isOpen: false,
+            actualDateAccomplished: activity.actualDateAccomplished
+              ? new Date(activity.actualDateAccomplished).toISOString().split("T")[0]
+              : "",
+          });
+        }
+      });
+
+      setTerms(newTerms);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const addActivity = (termIndex: number) => {
     const newTerms = [...terms];
     const newActivity: Activity = {
-      id: Date.now().toString(),
+      id: `temp_${Date.now().toString()}`,
       term: terms[termIndex].name,
       keyUnitActivity: "",
-      targetDate: "",
+      targetDateRange: "",
       actualDateAccomplished: "",
       postEventEvaluation: "",
       interpretation: "",
@@ -45,7 +88,19 @@ export default function ActivitiesFormCreator() {
     setTerms(newTerms);
   };
 
-  const removeActivity = (termIndex: number, activityIndex: number) => {
+  const removeActivity = async (termIndex: number, activityIndex: number) => {
+    const activity = terms[termIndex].activities[activityIndex];
+    if (!activity.id.startsWith("temp_")) {
+      try {
+        await axios.delete(`/api/annexes/${organizationId}/annex-f/${annexId}/activities/${activity.id}`);
+        alert("Activity deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting activity:", error);
+        alert("Failed to delete activity. Please try again.");
+        return;
+      }
+    }
+
     const newTerms = [...terms];
     newTerms[termIndex].activities.splice(activityIndex, 1);
     setTerms(newTerms);
@@ -53,7 +108,11 @@ export default function ActivitiesFormCreator() {
 
   const updateActivity = (termIndex: number, activityIndex: number, field: keyof Activity, value: string | boolean) => {
     const newTerms = [...terms];
-    newTerms[termIndex].activities[activityIndex][field] = value as never;
+    if (field === "actualDateAccomplished" && typeof value === "string") {
+      newTerms[termIndex].activities[activityIndex][field] = value ? new Date(value).toISOString().split("T")[0] : "";
+    } else {
+      newTerms[termIndex].activities[activityIndex][field] = value as never;
+    }
     setTerms(newTerms);
   };
 
@@ -61,82 +120,74 @@ export default function ActivitiesFormCreator() {
     updateActivity(termIndex, activityIndex, "isOpen", !terms[termIndex].activities[activityIndex].isOpen);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", terms);
-    // Here you would typically send the data to your backend
-  };
-
-  const allActivities = terms.flatMap((term) => term.activities);
-
-  const saveDraft = async () => {
+  const saveActivity = async (termIndex: number, activityIndex: number) => {
     setIsSaving(true);
+    const activity = terms[termIndex].activities[activityIndex];
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Draft saved:", terms);
-      alert("Draft saved successfully!");
+      const activityData = {
+        ...activity,
+        actualDateAccomplished: activity.actualDateAccomplished
+          ? new Date(activity.actualDateAccomplished).toISOString()
+          : null,
+      };
+
+      let savedActivity;
+      if (activity.id.startsWith("temp_")) {
+        const response = await axios.post(`/api/annexes/${organizationId}/annex-f/${annexId}/activities`, activityData);
+        savedActivity = response.data;
+      } else {
+        const response = await axios.put(
+          `/api/annexes/${organizationId}/annex-f/${annexId}/activities/${activity.id}`,
+          activityData
+        );
+        savedActivity = response.data;
+      }
+
+      const newTerms = [...terms];
+      newTerms[termIndex].activities[activityIndex] = {
+        ...savedActivity,
+        id: savedActivity._id || savedActivity.id,
+        isOpen: true,
+        actualDateAccomplished: savedActivity.actualDateAccomplished
+          ? new Date(savedActivity.actualDateAccomplished).toISOString().split("T")[0]
+          : "",
+      };
+      setTerms(newTerms);
+      alert("Activity saved successfully!");
     } catch (error) {
-      console.error("Error saving draft:", error);
-      alert("Failed to save draft. Please try again.");
+      console.error("Error saving activity:", error);
+      alert("Failed to save activity. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="loading loading-spinner loading-lg"></div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-4">Activities Monitoring Form Creator</h1>
-      <div className="flex justify-end mb-4">
-        <button className="btn btn-primary" onClick={() => setShowTable(!showTable)}>
-          {showTable ? "Show Form" : "Show Table"}
-        </button>
-      </div>
-      {showTable ? (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>Term</th>
-                <th>Key Unit Activity</th>
-                <th>Target Date</th>
-                <th>Actual Date Accomplished</th>
-                <th>Post Event Evaluation</th>
-                <th>Interpretation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allActivities.map((activity) => (
-                <tr key={activity.id}>
-                  <td>{activity.term}</td>
-                  <td>{activity.keyUnitActivity}</td>
-                  <td>{activity.targetDate}</td>
-                  <td>{activity.actualDateAccomplished}</td>
-                  <td>{activity.postEventEvaluation}</td>
-                  <td>{activity.interpretation}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {terms.map((term, termIndex) => (
-            <div key={term.name} className="card bg-base-100 shadow-md">
-              <div className="card-body">
-                <h2 className="card-title">{term.name}</h2>
-                <div className="space-y-4">
-                  {term.activities.map((activity, activityIndex) => (
-                    <div key={activity.id} className="collapse collapse-arrow border">
-                      <input
-                        type="checkbox"
-                        checked={activity.isOpen}
-                        onChange={() => toggleActivityOpen(termIndex, activityIndex)}
-                      />
-                      <div className="collapse-title text-xl font-medium flex justify-between items-center">
-                        <span>
-                          Activity {activityIndex + 1}: {activity.keyUnitActivity || "Untitled"}
-                        </span>
+      <form className="space-y-8">
+        {terms.map((term, termIndex) => (
+          <div key={term.name} className="card bg-base-100 shadow-md">
+            <div className="card-body">
+              <h2 className="card-title">{term.name}</h2>
+              <div className="space-y-4">
+                {term.activities.map((activity, activityIndex) => (
+                  <div key={activity.id} className="border rounded-lg">
+                    <div className="p-4 flex justify-between items-center">
+                      <span className="text-lg font-medium">
+                        Activity {activityIndex + 1}: {activity.keyUnitActivity || "Untitled"}
+                      </span>
+                      <div className="flex items-center space-x-2">
                         <button
                           type="button"
                           className="btn btn-ghost btn-sm text-error"
@@ -145,8 +196,18 @@ export default function ActivitiesFormCreator() {
                           <Delete className="h-4 w-4" />
                           <span className="sr-only">Remove activity</span>
                         </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => toggleActivityOpen(termIndex, activityIndex)}
+                        >
+                          {activity.isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          <span className="sr-only">{activity.isOpen ? "Collapse" : "Expand"}</span>
+                        </button>
                       </div>
-                      <div className="collapse-content">
+                    </div>
+                    {activity.isOpen && (
+                      <div className="p-4 border-t">
                         <div className="form-control">
                           <label className="label" htmlFor={`keyUnitActivity-${activity.id}`}>
                             <span className="label-text">Key Unit Activity</span>
@@ -163,15 +224,17 @@ export default function ActivitiesFormCreator() {
                           />
                         </div>
                         <div className="form-control">
-                          <label className="label" htmlFor={`targetDate-${activity.id}`}>
+                          <label className="label" htmlFor={`targetDateRange-${activity.id}`}>
                             <span className="label-text">Target Date Range</span>
                           </label>
                           <input
                             type="text"
-                            id={`targetDate-${activity.id}`}
+                            id={`targetDateRange-${activity.id}`}
                             className="input input-bordered w-full"
-                            value={activity.targetDate}
-                            onChange={(e) => updateActivity(termIndex, activityIndex, "targetDate", e.target.value)}
+                            value={activity.targetDateRange}
+                            onChange={(e) =>
+                              updateActivity(termIndex, activityIndex, "targetDateRange", e.target.value)
+                            }
                             placeholder="e.g., August 2023 - October 2024"
                             required
                           />
@@ -184,7 +247,7 @@ export default function ActivitiesFormCreator() {
                             type="date"
                             id={`actualDateAccomplished-${activity.id}`}
                             className="input input-bordered w-full"
-                            value={activity.actualDateAccomplished}
+                            value={activity.actualDateAccomplished || ""}
                             onChange={(e) =>
                               updateActivity(termIndex, activityIndex, "actualDateAccomplished", e.target.value)
                             }
@@ -221,23 +284,28 @@ export default function ActivitiesFormCreator() {
                             onChange={(e) => updateActivity(termIndex, activityIndex, "interpretation", e.target.value)}
                           ></textarea>
                         </div>
+                        <button
+                          type="button"
+                          className="btn btn-primary mt-4"
+                          onClick={() => saveActivity(termIndex, activityIndex)}
+                          disabled={isSaving}
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          {isSaving ? "Saving..." : "Save Activity"}
+                        </button>
                       </div>
-                    </div>
-                  ))}
-                  <button type="button" className="btn btn-outline btn-primary" onClick={() => addActivity(termIndex)}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Activity
-                  </button>
-                </div>
+                    )}
+                  </div>
+                ))}
+                <button type="button" className="btn btn-outline btn-primary" onClick={() => addActivity(termIndex)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Activity
+                </button>
               </div>
             </div>
-          ))}
-          <button onClick={saveDraft} className="fixed btn btn-neutral bottom-4 right-4 px-16" disabled={isSaving}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? "Saving..." : "Save Draft"}
-          </button>
-        </form>
-      )}
+          </div>
+        ))}
+      </form>
     </PageWrapper>
   );
 }
