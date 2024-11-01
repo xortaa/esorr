@@ -22,6 +22,7 @@ import AnnexI from "@/models/annex-i";
 import AnnexJ from "@/models/annex-j";
 import AnnexK from "@/models/annex-k";
 import AnnexL from "@/models/annex-l";
+import FinancialReport from "@/models/financial-report";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -159,9 +160,111 @@ export async function POST(req: NextRequest) {
       academicYear: currentAcademicYear,
     });
 
+    const newFinancialReport = await FinancialReport.create({
+      june: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      july: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      august: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      september: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      october: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      november: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      december: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      january: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      february: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      march: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      april: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+      may: {
+        startingBalance: startingBalance,
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: startingBalance,
+        inflow: [],
+        outflow: [],
+      },
+    });
+
+    console.log("New Financial Report:", newFinancialReport);
+
     const newAnnexE1 = await AnnexE1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      financialReport: newFinancialReport._id,
     });
 
     const newAnnexE2 = await AnnexE2.create({
