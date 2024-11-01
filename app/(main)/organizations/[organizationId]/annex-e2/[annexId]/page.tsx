@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import {
   Plus,
-  X,
-  Edit,
   Trash,
   Receipt,
   Calendar,
@@ -16,29 +15,33 @@ import {
   Building2,
   Users,
   ShoppingBag,
+  Edit,
+  X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { uploadImage } from "@/utils/storage";
 
-interface Receipt {
-  id: string;
-  file: File;
+interface OutflowItem {
+  _id: string;
+  category: string;
+  description: string;
+  cost: number;
+  quantity: number;
+  serialNumber: string;
+}
+
+interface Outflow {
+  _id: string;
   establishment: string;
   date: string;
   items: OutflowItem[];
-  previewUrl?: string;
+  image: string;
+  totalCost: number;
 }
 
-interface OutflowItem {
-  id: string;
-  category: string;
-  details: string;
-  cost: number;
-  quantity: number;
-  serialNo: string;
-}
-
-interface InflowTransaction {
-  id: string;
+interface Inflow {
+  _id: string;
   category: string;
   date: string;
   amount: number;
@@ -80,22 +83,22 @@ const inflowCategories = [
   "Interest Income",
 ];
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
+};
+
 export default function AnnexE2FinancialLiquidationReport() {
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+  const annexId = params.annexId as string;
+
   const [activeTab, setActiveTab] = useState<"outflow" | "inflow">("outflow");
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const [currentReceipt, setCurrentReceipt] = useState<Receipt | null>(null);
-  const [isAddingItem, setIsAddingItem] = useState(false);
-  const [newItem, setNewItem] = useState<OutflowItem>({
-    id: "",
-    category: "",
-    details: "",
-    cost: 0,
-    quantity: 1,
-    serialNo: "",
-  });
-  const [inflowTransactions, setInflowTransactions] = useState<InflowTransaction[]>([]);
-  const [newInflowTransaction, setNewInflowTransaction] = useState<InflowTransaction>({
-    id: "",
+  const [outflows, setOutflows] = useState<Outflow[]>([]);
+  const [currentOutflow, setCurrentOutflow] = useState<Outflow | null>(null);
+  const [inflows, setInflows] = useState<Inflow[]>([]);
+  const [currentInflow, setCurrentInflow] = useState<Inflow>({
+    _id: "",
     category: "",
     date: "",
     amount: 0,
@@ -103,74 +106,193 @@ export default function AnnexE2FinancialLiquidationReport() {
     totalMembers: 0,
     merchandiseSales: 0,
   });
+  const [isEditingInflow, setIsEditingInflow] = useState(false);
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [newItem, setNewItem] = useState<OutflowItem>({
+    _id: "",
+    category: "",
+    description: "",
+    cost: 0,
+    quantity: 1,
+    serialNumber: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingItem, setEditingItem] = useState<OutflowItem | null>(null);
 
   useEffect(() => {
-    return () => {
-      receipts.forEach((receipt) => {
-        if (receipt.previewUrl) {
-          URL.revokeObjectURL(receipt.previewUrl);
-        }
-      });
-    };
-  }, [receipts]);
+    fetchOutflows();
+    fetchInflows();
+  }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const previewUrl = URL.createObjectURL(file);
-      const newReceipt: Receipt = {
-        id: Date.now().toString(),
-        file: file,
-        establishment: "",
-        date: "",
-        items: [],
-        previewUrl: previewUrl,
-      };
-      setCurrentReceipt(newReceipt);
+  const fetchOutflows = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`);
+      setOutflows(response.data);
+    } catch (error) {
+      console.error("Error fetching outflows:", error);
     }
   };
 
-  const handleReceiptDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (currentReceipt) {
-      setCurrentReceipt({ ...currentReceipt, [e.target.name]: e.target.value });
+  const fetchInflows = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-e2/${annexId}/inflow`);
+      setInflows(
+        response.data.map((inflow: Inflow) => ({
+          ...inflow,
+          date: formatDate(inflow.date),
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching inflows:", error);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      try {
+        const imageUrl = await uploadImage(file);
+        setCurrentOutflow({
+          _id: "",
+          establishment: "",
+          date: "",
+          items: [],
+          image: imageUrl,
+          totalCost: 0,
+        });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+  };
+
+  const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (currentOutflow) {
+      const { name, value } = e.target;
+      setCurrentOutflow({ ...currentOutflow, [name]: value });
     }
   };
 
   const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
+    if (editingItem) {
+      setEditingItem({ ...editingItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
+    } else {
+      setNewItem({ ...newItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
+    }
   };
 
   const addItem = () => {
-    if (currentReceipt) {
-      const updatedReceipt = {
-        ...currentReceipt,
-        items: [...currentReceipt.items, { ...newItem, id: Date.now().toString() }],
+    if (currentOutflow) {
+      const updatedOutflow = {
+        ...currentOutflow,
+        items: [...currentOutflow.items, { ...newItem, _id: Date.now().toString() }],
       };
-      setCurrentReceipt(updatedReceipt);
+      setCurrentOutflow(updatedOutflow);
       setNewItem({
-        id: "",
+        _id: "",
         category: "",
-        details: "",
+        description: "",
         cost: 0,
         quantity: 1,
-        serialNo: "",
+        serialNumber: "",
       });
       setIsAddingItem(false);
     }
   };
 
-  const saveReceipt = () => {
-    if (currentReceipt) {
-      setReceipts([...receipts, currentReceipt]);
-      setCurrentReceipt(null);
+  const updateItem = async () => {
+    if (currentOutflow && editingItem) {
+      try {
+        const response = await axios.put(
+          `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}/${editingItem._id}`,
+          editingItem
+        );
+        const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? response.data : item));
+        setCurrentOutflow({ ...currentOutflow, items: updatedItems });
+        setEditingItem(null);
+      } catch (error) {
+        console.error("Error updating item:", error);
+      }
     }
   };
 
-  const handleInflowTransactionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const deleteItem = async (itemId: string) => {
+    if (currentOutflow) {
+      try {
+        await axios.delete(
+          `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}/${itemId}`
+        );
+        const updatedItems = currentOutflow.items.filter((item) => item._id !== itemId);
+        setCurrentOutflow({ ...currentOutflow, items: updatedItems });
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
+    }
+  };
+
+  const createOutflow = async () => {
+    if (currentOutflow) {
+      setIsLoading(true);
+      try {
+        const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+        const outflowData = {
+          establishment: currentOutflow.establishment,
+          date: currentOutflow.date,
+          totalCost,
+          image: currentOutflow.image,
+          items: currentOutflow.items.map(({ _id, ...item }) => item),
+        };
+        const response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
+        setOutflows([...outflows, response.data]);
+        setCurrentOutflow(null);
+      } catch (error) {
+        console.error("Error creating outflow:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const updateOutflow = async () => {
+    if (currentOutflow) {
+      setIsLoading(true);
+      try {
+        const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+        const outflowData = {
+          ...currentOutflow,
+          date: currentOutflow.date,
+          totalCost,
+          items: currentOutflow.items.map(({ _id, ...item }) => item),
+        };
+        const response = await axios.put(
+          `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
+          outflowData
+        );
+        setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
+        setCurrentOutflow(null);
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error updating outflow:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const saveOutflow = async () => {
+    if (isEditing) {
+      await updateOutflow();
+    } else {
+      await createOutflow();
+    }
+  };
+
+  const handleInflowChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewInflowTransaction({
-      ...newInflowTransaction,
+    setCurrentInflow({
+      ...currentInflow,
       [name]:
         name === "amount" || name === "payingParticipants" || name === "totalMembers" || name === "merchandiseSales"
           ? Number(value)
@@ -178,19 +300,144 @@ export default function AnnexE2FinancialLiquidationReport() {
     });
   };
 
-  const addInflowTransaction = (e: React.FormEvent) => {
+  const createInflow = async () => {
+    setIsLoading(true);
+    try {
+      const inflowData = {
+        category: currentInflow.category,
+        date: currentInflow.date,
+        amount: currentInflow.amount,
+        ...(currentInflow.category === "Registration Fee" && { payingParticipants: currentInflow.payingParticipants }),
+        ...(currentInflow.category === "Membership Fee" && { totalMembers: currentInflow.totalMembers }),
+        ...(currentInflow.category === "Merchandise Selling" && { merchandiseSales: currentInflow.merchandiseSales }),
+      };
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/inflow`, inflowData);
+      setInflows([...inflows, response.data]);
+      setCurrentInflow({
+        _id: "",
+        category: "",
+        date: "",
+        amount: 0,
+        payingParticipants: 0,
+        totalMembers: 0,
+        merchandiseSales: 0,
+      });
+    } catch (error) {
+      console.error("Error creating inflow:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateInflow = async () => {
+    setIsLoading(true);
+    try {
+      const inflowData = {
+        category: currentInflow.category,
+        date: currentInflow.date,
+        amount: currentInflow.amount,
+        ...(currentInflow.category === "Registration Fee" && { payingParticipants: currentInflow.payingParticipants }),
+        ...(currentInflow.category === "Membership Fee" && { totalMembers: currentInflow.totalMembers }),
+        ...(currentInflow.category === "Merchandise Selling" && { merchandiseSales: currentInflow.merchandiseSales }),
+      };
+      const response = await axios.put(
+        `/api/annexes/${organizationId}/annex-e2/${annexId}/inflow/${currentInflow._id}`,
+        inflowData
+      );
+      setInflows(inflows.map((inflow) => (inflow._id === currentInflow._id ? response.data : inflow)));
+      setCurrentInflow({
+        _id: "",
+        category: "",
+        date: "",
+        amount: 0,
+        payingParticipants: 0,
+        totalMembers: 0,
+        merchandiseSales: 0,
+      });
+      setIsEditingInflow(false);
+    } catch (error) {
+      console.error("Error updating inflow:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveInflow = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newTransaction = { ...newInflowTransaction, id: Date.now().toString() };
-    setInflowTransactions([...inflowTransactions, newTransaction]);
-    setNewInflowTransaction({
-      id: "",
+    if (isEditingInflow) {
+      await updateInflow();
+    } else {
+      await createInflow();
+    }
+  };
+
+  const editInflow = (inflow: Inflow) => {
+    setCurrentInflow({
+      ...inflow,
+      date: formatDate(inflow.date),
+    });
+    setIsEditingInflow(true);
+  };
+
+  const deleteInflow = async (inflowId: string) => {
+    try {
+      await axios.delete(`/api/annexes/${organizationId}/annex-e2/${annexId}/inflow/${inflowId}`);
+      setInflows(inflows.filter((inflow) => inflow._id !== inflowId));
+    } catch (error) {
+      console.error("Error deleting inflow:", error);
+    }
+  };
+
+  const deleteOutflow = async (outflowId: string) => {
+    try {
+      await axios.delete(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${outflowId}`);
+      setOutflows(outflows.filter((outflow) => outflow._id !== outflowId));
+    } catch (error) {
+      console.error("Error deleting outflow:", error);
+    }
+  };
+
+  const editOutflow = (outflow: Outflow) => {
+    setCurrentOutflow(outflow);
+    setIsEditing(true);
+  };
+
+  const cancelOutflow = async () => {
+    if (currentOutflow && currentOutflow.image) {
+      try {
+        const fileName = currentOutflow.image.split("/").pop(); // Extract the file name from the URL
+        const response = await fetch("/api/delete-file", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileName }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete file");
+        }
+
+        console.log("File deleted successfully");
+      } catch (error) {
+        console.error("Error deleting file:", error);
+      }
+    }
+    setCurrentOutflow(null);
+  };
+
+  const cancelEditInflow = () => {
+    setCurrentInflow({
+      _id: "",
       category: "",
       date: "",
       amount: 0,
+
       payingParticipants: 0,
       totalMembers: 0,
       merchandiseSales: 0,
     });
+    setIsEditingInflow(false);
   };
 
   return (
@@ -210,7 +457,7 @@ export default function AnnexE2FinancialLiquidationReport() {
 
           {activeTab === "outflow" && (
             <>
-              {!currentReceipt && (
+              {!currentOutflow && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -228,18 +475,23 @@ export default function AnnexE2FinancialLiquidationReport() {
               )}
 
               <AnimatePresence>
-                {currentReceipt && (
+                {currentOutflow && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     className="bg-white p-8 rounded-lg shadow-md mb-8"
                   >
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-2xl font-semibold flex items-center text-neutral">
+                        <FileText className="mr-2" /> Receipt Description
+                      </h2>
+                      <button className="btn btn-ghost" onClick={cancelOutflow}>
+                        <X size={20} />
+                      </button>
+                    </div>
                     <div className="flex flex-col md:flex-row gap-8">
                       <div className="flex-1">
-                        <h2 className="text-2xl font-semibold mb-6 flex items-center text-neutral">
-                          <FileText className="mr-2" /> Receipt Details
-                        </h2>
                         <div className="grid grid-cols-1 gap-6 mb-6">
                           <div className="form-control">
                             <label className="label">
@@ -250,8 +502,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                             <input
                               type="text"
                               name="establishment"
-                              value={currentReceipt.establishment}
-                              onChange={handleReceiptDetailsChange}
+                              value={currentOutflow.establishment}
+                              onChange={handleOutflowDescriptionChange}
                               className="input input-bordered w-full"
                               required
                             />
@@ -265,30 +517,135 @@ export default function AnnexE2FinancialLiquidationReport() {
                             <input
                               type="date"
                               name="date"
-                              value={currentReceipt.date}
-                              onChange={handleReceiptDetailsChange}
+                              value={currentOutflow.date.split("T")[0]}
+                              onChange={handleOutflowDescriptionChange}
                               className="input input-bordered w-full"
                               required
                             />
                           </div>
                         </div>
 
-                        <h3 className="text-xl font-semibold mb-4 flex items-center text-neutral">
+                        <h3 className="text-xl font-semibold mb-4  flex items-center text-neutral">
                           <Layers className="mr-2" /> Items
                         </h3>
                         <div className="space-y-4 max-h-96 overflow-y-auto mb-4">
-                          {currentReceipt.items.map((item) => (
+                          {currentOutflow.items.map((item) => (
                             <motion.div
-                              key={item.id}
+                              key={item._id}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               className="border p-4 rounded-md shadow-sm"
                             >
-                              <h4 className="font-semibold text-lg text-neutral">{item.details}</h4>
-                              <p className="text-sm text-neutral-content">Category: {item.category}</p>
-                              <p className="text-sm text-neutral-content">Cost: ₱{item.cost}</p>
-                              <p className="text-sm text-neutral-content">Quantity: {item.quantity}</p>
-                              <p className="text-sm text-neutral-content">Serial No: {item.serialNo}</p>
+                              {editingItem && editingItem._id === item._id ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text">Category</span>
+                                    </label>
+                                    <select
+                                      name="category"
+                                      value={editingItem.category}
+                                      onChange={handleItemChange}
+                                      className="select select-bordered select-primary w-full"
+                                      required
+                                    >
+                                      <option value="">Select a category</option>
+                                      {outflowCategories.map((category) => (
+                                        <option key={category} value={category}>
+                                          {category}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text">Description</span>
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="description"
+                                      value={editingItem.description}
+                                      onChange={handleItemChange}
+                                      className="input input-bordered w-full"
+                                      required
+                                    />
+                                  </div>
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text flex items-center">
+                                        <PhilippinePeso className="mr-1" size={16} /> Cost
+                                      </span>
+                                    </label>
+                                    <input
+                                      type="number"
+                                      name="cost"
+                                      value={editingItem.cost}
+                                      onChange={handleItemChange}
+                                      className="input input-bordered w-full"
+                                      required
+                                    />
+                                  </div>
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text">Quantity</span>
+                                    </label>
+                                    <input
+                                      type="number"
+                                      name="quantity"
+                                      value={editingItem.quantity}
+                                      onChange={handleItemChange}
+                                      className="input input-bordered w-full"
+                                      required
+                                    />
+                                  </div>
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text flex items-center">
+                                        <Hash className="mr-1" size={16} /> Serial No.
+                                      </span>
+                                    </label>
+                                    <input
+                                      type="text"
+                                      name="serialNumber"
+                                      value={editingItem.serialNumber}
+                                      onChange={handleItemChange}
+                                      className="input input-bordered w-full"
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <h4 className="font-semibold text-lg text-neutral">{item.description}</h4>
+                                  <p className="text-sm text-neutral-content">Category: {item.category}</p>
+                                  <p className="text-sm text-neutral-content">Cost: ₱{item.cost}</p>
+                                  <p className="text-sm text-neutral-content">Quantity: {item.quantity}</p>
+                                  <p className="text-sm text-neutral-content">Serial No: {item.serialNumber}</p>
+                                </>
+                              )}
+                              <div className="flex justify-end mt-4">
+                                {editingItem && editingItem._id === item._id ? (
+                                  <>
+                                    <button className="btn btn-primary btn-sm mr-2" onClick={updateItem}>
+                                      Save
+                                    </button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => setEditingItem(null)}>
+                                      Cancel
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="btn btn-primary btn-sm mr-2"
+                                      onClick={() => setEditingItem(item)}
+                                    >
+                                      <Edit size={16} className="mr-1" /> Edit
+                                    </button>
+                                    <button className="btn btn-error btn-sm" onClick={() => deleteItem(item._id)}>
+                                      <Trash size={16} className="mr-1" /> Delete
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </motion.div>
                           ))}
                         </div>
@@ -329,12 +686,12 @@ export default function AnnexE2FinancialLiquidationReport() {
                               </div>
                               <div className="form-control">
                                 <label className="label">
-                                  <span className="label-text">Details/Description</span>
+                                  <span className="label-text">Description</span>
                                 </label>
                                 <input
                                   type="text"
-                                  name="details"
-                                  value={newItem.details}
+                                  name="description"
+                                  value={newItem.description}
                                   onChange={handleItemChange}
                                   className="input input-bordered w-full"
                                   required
@@ -376,8 +733,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                                 </label>
                                 <input
                                   type="text"
-                                  name="serialNo"
-                                  value={newItem.serialNo}
+                                  name="serialNumber"
+                                  value={newItem.serialNumber}
                                   onChange={handleItemChange}
                                   className="input input-bordered w-full"
                                 />
@@ -396,9 +753,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-4 flex items-center text-neutral">Receipt Preview</h3>
-                        {currentReceipt.previewUrl && (
+                        {currentOutflow.image && (
                           <img
-                            src={currentReceipt.previewUrl}
+                            src={currentOutflow.image}
                             alt="Receipt preview"
                             className="w-full h-auto object-contain rounded-lg shadow-md"
                           />
@@ -406,8 +763,12 @@ export default function AnnexE2FinancialLiquidationReport() {
                       </div>
                     </div>
                     <div className="flex justify-end mt-8">
-                      <button className="btn btn-primary" onClick={saveReceipt}>
-                        Save Receipt
+                      <button
+                        className={`btn btn-primary ${isLoading ? "loading" : ""}`}
+                        onClick={saveOutflow}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Saving..." : isEditing ? "Update Receipt" : "Save Receipt"}
                       </button>
                     </div>
                   </motion.div>
@@ -421,29 +782,33 @@ export default function AnnexE2FinancialLiquidationReport() {
                 className="mt-12"
               >
                 <h2 className="text-3xl font-bold mb-6 flex items-center text-neutral">
-                  <Receipt className="mr-2" /> Saved Receipts
+                  <Receipt className="mr-2" /> Saved Outflows
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {receipts.map((receipt) => (
+                  {outflows.map((outflow) => (
                     <motion.div
-                      key={receipt.id}
+                      key={outflow._id}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-white p-6 rounded-lg shadow-md"
+                      className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
+                      onClick={() => editOutflow(outflow)}
                     >
-                      {receipt.previewUrl && (
-                        <img
-                          src={receipt.previewUrl}
-                          alt="Receipt preview"
-                          className="w-full h-40 object-cover rounded-lg mb-4"
-                        />
+                      {outflow.image && (
+                        <img src={outflow.image} alt="Receipt" className="w-full h-40 object-cover rounded-lg mb-4" />
                       )}
-                      <h3 className="text-xl font-semibold mb-2 text-neutral">{receipt.establishment}</h3>
-                      <p className="text-neutral-content mb-1">Date: {receipt.date}</p>
-                      <p className="text-neutral-content mb-1">Items: {receipt.items.length}</p>
-                      <p className="text-lg font-semibold text-primary">
-                        Total: ₱{receipt.items.reduce((sum, item) => sum + item.cost * item.quantity, 0).toFixed(2)}
-                      </p>
+                      <h3 className="text-xl font-semibold mb-2 text-neutral">{outflow.establishment}</h3>
+                      <p className="text-neutral-content mb-1">Date: {outflow.date}</p>
+                      <p className="text-neutral-content mb-1">Items: {outflow.items.length}</p>
+                      <p className="text-lg font-semibold text-primary">Total: ₱{outflow.totalCost.toFixed(2)}</p>
+                      <button
+                        className="btn btn-sm btn-error mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteOutflow(outflow._id);
+                        }}
+                      >
+                        <Trash size={16} className="mr-1" /> Delete
+                      </button>
                     </motion.div>
                   ))}
                 </div>
@@ -457,18 +822,25 @@ export default function AnnexE2FinancialLiquidationReport() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-white p-8 rounded-lg shadow-md mb-8"
             >
-              <h2 className="text-2xl font-semibold mb-6 flex items-center text-neutral">
-                <Plus className="mr-2" /> Add Inflow Transaction
-              </h2>
-              <form onSubmit={addInflowTransaction} className="space-y-4">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold flex items-center text-neutral">
+                  <Plus className="mr-2" /> {isEditingInflow ? "Edit" : "Add"} Inflow Transaction
+                </h2>
+                {isEditingInflow && (
+                  <button className="btn btn-ghost" onClick={cancelEditInflow}>
+                    <X size={20} />
+                  </button>
+                )}
+              </div>
+              <form onSubmit={saveInflow} className="space-y-4">
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Category</span>
                   </label>
                   <select
                     name="category"
-                    value={newInflowTransaction.category}
-                    onChange={handleInflowTransactionChange}
+                    value={currentInflow.category}
+                    onChange={handleInflowChange}
                     className="select select-bordered select-primary w-full"
                     required
                   >
@@ -489,8 +861,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                   <input
                     type="date"
                     name="date"
-                    value={newInflowTransaction.date}
-                    onChange={handleInflowTransactionChange}
+                    value={currentInflow.date}
+                    onChange={handleInflowChange}
                     className="input input-bordered w-full"
                     required
                   />
@@ -504,13 +876,13 @@ export default function AnnexE2FinancialLiquidationReport() {
                   <input
                     type="number"
                     name="amount"
-                    value={newInflowTransaction.amount}
-                    onChange={handleInflowTransactionChange}
+                    value={currentInflow.amount}
+                    onChange={handleInflowChange}
                     className="input input-bordered w-full"
                     required
                   />
                 </div>
-                {newInflowTransaction.category === "Registration Fee" && (
+                {currentInflow.category === "Registration Fee" && (
                   <div className="form-control">
                     <label className="label">
                       <span className="label-text flex items-center">
@@ -520,14 +892,14 @@ export default function AnnexE2FinancialLiquidationReport() {
                     <input
                       type="number"
                       name="payingParticipants"
-                      value={newInflowTransaction.payingParticipants}
-                      onChange={handleInflowTransactionChange}
+                      value={currentInflow.payingParticipants}
+                      onChange={handleInflowChange}
                       className="input input-bordered w-full"
                       required
                     />
                   </div>
                 )}
-                {newInflowTransaction.category === "Membership Fee" && (
+                {currentInflow.category === "Membership Fee" && (
                   <div className="form-control">
                     <label className="label">
                       <span className="label-text flex items-center">
@@ -537,14 +909,14 @@ export default function AnnexE2FinancialLiquidationReport() {
                     <input
                       type="number"
                       name="totalMembers"
-                      value={newInflowTransaction.totalMembers}
-                      onChange={handleInflowTransactionChange}
+                      value={currentInflow.totalMembers}
+                      onChange={handleInflowChange}
                       className="input input-bordered w-full"
                       required
                     />
                   </div>
                 )}
-                {newInflowTransaction.category === "Merchandise Selling" && (
+                {currentInflow.category === "Merchandise Selling" && (
                   <div className="form-control">
                     <label className="label">
                       <span className="label-text flex items-center">
@@ -554,16 +926,20 @@ export default function AnnexE2FinancialLiquidationReport() {
                     <input
                       type="number"
                       name="merchandiseSales"
-                      value={newInflowTransaction.merchandiseSales}
-                      onChange={handleInflowTransactionChange}
+                      value={currentInflow.merchandiseSales}
+                      onChange={handleInflowChange}
                       className="input input-bordered w-full"
                       required
                     />
                   </div>
                 )}
                 <div className="form-control mt-6">
-                  <button type="submit" className="btn btn-primary">
-                    Add Inflow Transaction
+                  <button
+                    type="submit"
+                    className={`btn btn-primary ${isLoading ? "loading" : ""}`}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Saving..." : isEditingInflow ? "Update Inflow" : "Add Inflow"}
                   </button>
                 </div>
               </form>
@@ -585,20 +961,28 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <th>Date</th>
                         <th>Amount</th>
                         <th>Additional Info</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {inflowTransactions.map((transaction) => (
-                        <tr key={transaction.id}>
-                          <td>{transaction.category}</td>
-                          <td>{transaction.date}</td>
-                          <td>₱{transaction.amount.toFixed(2)}</td>
+                      {inflows.map((inflow) => (
+                        <tr key={inflow._id}>
+                          <td>{inflow.category}</td>
+                          <td>{formatDate(inflow.date)}</td>
+                          <td>₱{inflow.amount.toFixed(2)}</td>
                           <td>
-                            {transaction.category === "Registration Fee" &&
-                              `Paying Participants: ${transaction.payingParticipants}`}
-                            {transaction.category === "Membership Fee" && `Total Members: ${transaction.totalMembers}`}
-                            {transaction.category === "Merchandise Selling" &&
-                              `Total Sales: ${transaction.merchandiseSales}`}
+                            {inflow.category === "Registration Fee" &&
+                              `Paying Participants: ${inflow.payingParticipants}`}
+                            {inflow.category === "Membership Fee" && `Total Members: ${inflow.totalMembers}`}
+                            {inflow.category === "Merchandise Selling" && `Total Sales: ${inflow.merchandiseSales}`}
+                          </td>
+                          <td>
+                            <button className="btn btn-sm btn-primary mr-2" onClick={() => editInflow(inflow)}>
+                              <Edit size={16} className="mr-1" /> Edit
+                            </button>
+                            <button className="btn btn-sm btn-error" onClick={() => deleteInflow(inflow._id)}>
+                              <Trash size={16} className="mr-1" /> Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
