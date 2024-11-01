@@ -267,6 +267,8 @@ export async function POST(req: NextRequest) {
       financialReport: newFinancialReport._id,
     });
 
+    await newFinancialReport.updateOne({ annexE1: newAnnexE1._id });
+
     const newAnnexE2 = await AnnexE2.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,

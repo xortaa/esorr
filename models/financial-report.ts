@@ -16,6 +16,10 @@ const MonthlyReportSchema = new Schema({
 });
 
 const FinancialReportSchema = new Schema({
+  annexE1: {
+    type: Schema.Types.ObjectId,
+    ref: "AnnexE1",
+  },
   june: MonthlyReportSchema,
   july: MonthlyReportSchema,
   august: MonthlyReportSchema,
