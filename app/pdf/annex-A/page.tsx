@@ -126,6 +126,21 @@ const styles = StyleSheet.create({
     borderWidth: 0, // Invisible border for the signature section
   },
 
+  bannerlogo: {
+    fontFamily: "Arial Narrow Bold",
+  backgroundColor: "#FFFFFF",
+  //borderBottomWidth: 1,
+  borderBottomColor: "#000",
+  padding: 15,
+  fontSize: 10,
+  flex: 1,
+  textAlign: "center",
+  position: "relative",
+  marginTop: 10,
+  flexDirection: "row",
+  //justifyContent: "space-between",
+  },
+
 });
 
 // Create Document Component
@@ -174,31 +189,47 @@ const MyDocument = () => {
         <View style={[styles.table, {}]}>
           {/* Row 1 */}
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Name of the Organization: [ ] UNIV-WIDE [ ] COLLEGE-BASED</Text>
-            <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Academic Year of last Recognition:</Text>
-            <Text style={[styles.tableCell, {flex: .75, fontSize: 8}]}>Starting Fund for AY 2024-2025:{"\n"}
+            <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Name of the Organization: [ ] UNIV-WIDE [ ] COLLEGE-BASED 
+              <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> ORG </Text>
+            </Text>
+            <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Academic Year of last Recognition:
+            <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> 2024-2025 </Text>
+            </Text>
+            <Text style={[styles.tableCell, {flex: .75, fontSize: 8, borderBottom:0}]}>Starting Fund for AY 2024-2025:{"\n"}
             <Text style={[{fontSize: 7}]}>As reflected on the ending balance of Annex E1</Text>
             </Text>
           </View>
 
           {/* Row 2 */}
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Faculty / College / Institute / School Affiliation:</Text>
-          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Official Email address of the Organization:</Text>
-          <Text style={[styles.tableCell, {flex: .75, fontSize: 8}]}>PhP</Text>
+          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Faculty / College / Institute / School Affiliation:
+            <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> CICS </Text>
+            </Text>
+          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Official Email address of the Organization:
+          <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> ORG@UST.EDU.PH </Text>
+          </Text>
+          <Text style={[styles.tableCell, {flex: .75, fontSize: 8, borderTop: 0, borderBottom:0}]}>PhP</Text>
           </View>
 
           {/* Row 3 */}
           <View style={styles.tableRow}>
-          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Official Organization Website:</Text>
-          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Organization’s Social Networking Pages/Sites:</Text>
-          <Text style={[styles.tableCell, {flex: .75, fontSize: 8}]}>Row 3, Col 3</Text>
+          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Official Organization Website:
+          <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> PESBUK.COM </Text>
+          </Text>
+          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Organization’s Social Networking Pages/Sites:
+          <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> Twtur </Text>
+          </Text>
+          <Text style={[styles.tableCell, {display:"flex", flex: .75, fontSize: 15, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}]}>10000</Text>
           </View>
 
         <View style={styles.tableRow}>
-          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Student Organization Category:</Text>
-          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Strategic Directional Areas (SDAs):</Text>
-          <Text style={[styles.tableCell, {flex: .75, fontSize: 8}]}>Row 3, Col 3</Text>
+          <Text style={[styles.tableCell, {flex: 2.15, fontSize: 8}]}>Student Organization Category:
+          <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> ISPORTS </Text>
+          </Text>
+          <Text style={[styles.tableCell, {flex: 1.70, fontSize: 8}]}>Strategic Directional Areas (SDAs):
+          <Br /> <Text style={{fontSize: 12, borderTop:0, borderBottom:0, fontFamily:"Arial Narrow Bold", textAlign:"center"}}> 1,2,4,5 </Text>
+          </Text>
+          <Text style={[styles.tableCell, {flex: .75, fontSize: 8, borderTop:0}]}></Text>
           </View>
         </View>
 
@@ -232,7 +263,7 @@ const MyDocument = () => {
           <View style={styles.section}>
           <Text style={[{color:"#808080"}]}>Objectives for AY 2022-2023 - SMART (Specific, Measurable, Attainable, Realistic, Time-bound):</Text>
           <Text>(LOREM IMPSUM DOLOR Objectives for AY 2022-2023 - SMART (Specific, Measurable, Attainable, Realistic, Time-bound) DETAILS HERE)
-            {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}</Text>
+            {"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}{"\n"}</Text>
           
           </View>
 
