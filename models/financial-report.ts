@@ -1,42 +1,55 @@
-import mongoose from "mongoose";
+import { Schema, model, models } from "mongoose";
 
-const transactionSchema = new mongoose.Schema({
-  date: { type: Date },
-  amount: { type: Number },
+const TransactionSchema = new Schema({
+  date: Date,
+  amount: Number,
   type: { type: String, enum: ["inflow", "outflow"] },
-  category: { type: String },
+  category: String,
   description: String,
+  establishment: String,
+  items: [
+    {
+      category: String,
+      description: String,
+      cost: Number,
+      quantity: Number,
+      serialNumber: String,
+    },
+  ],
+  payingParticipants: Number,
+  totalMembers: Number,
+  merchandiseSales: Number,
 });
 
-const monthDataSchema = new mongoose.Schema({
-  startingBalance: { type: Number, default: 0 },
-  endingBalance: { type: Number, default: 0 },
-  totalIncome: { type: Number, default: 0 },
-  totalExpenses: { type: Number, default: 0 },
+const MonthDataSchema = new Schema({
+  startingBalance: Number,
+  endingBalance: Number,
+  totalIncome: Number,
+  totalExpenses: Number,
 });
 
-const financialReportSchema = new mongoose.Schema({
-  annexE1: { type: mongoose.Schema.Types.ObjectId, ref: "AnnexE1" },
-  academicYear: { type: String },
-  startingBalance: { type: Number },
-  transactions: [transactionSchema],
-  june: monthDataSchema,
-  july: monthDataSchema,
-  august: monthDataSchema,
-  september: monthDataSchema,
-  october: monthDataSchema,
-  november: monthDataSchema,
-  december: monthDataSchema,
-  january: monthDataSchema,
-  february: monthDataSchema,
-  march: monthDataSchema,
-  april: monthDataSchema,
-  may: monthDataSchema,
-  totalIncome: { type: Number, default: 0 },
-  totalExpenses: { type: Number, default: 0 },
-  endingBalance: { type: Number, default: 0 },
+const FinancialReportSchema = new Schema({
+  annexE1: { type: Schema.Types.ObjectId, ref: "AnnexE1" },
+  academicYear: String,
+  startingBalance: Number,
+  transactions: [TransactionSchema],
+  june: MonthDataSchema,
+  july: MonthDataSchema,
+  august: MonthDataSchema,
+  september: MonthDataSchema,
+  october: MonthDataSchema,
+  november: MonthDataSchema,
+  december: MonthDataSchema,
+  january: MonthDataSchema,
+  february: MonthDataSchema,
+  march: MonthDataSchema,
+  april: MonthDataSchema,
+  may: MonthDataSchema,
+  totalIncome: Number,
+  totalExpenses: Number,
+  endingBalance: Number,
 });
 
-const FinancialReport = mongoose.models.FinancialReport || mongoose.model("FinancialReport", financialReportSchema);
+const FinancialReport = models.FinancialReport || model("FinancialReport", FinancialReportSchema);
 
 export default FinancialReport;

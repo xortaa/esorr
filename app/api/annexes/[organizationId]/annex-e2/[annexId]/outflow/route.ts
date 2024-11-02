@@ -53,8 +53,10 @@ export async function POST(request: Request, { params }: { params: { organizatio
       date: new Date(newOutflow.date),
       amount: newOutflow.totalCost,
       type: "outflow",
-      category: newOutflow.establishment,
-      description: newOutflow.items.map((item) => item.description).join(", "),
+      category: newOutflow.items[0].category,
+      description: newOutflow.items[0].description,
+      establishment: newOutflow.establishment,
+      items: newOutflow.items,
     });
 
     // Recalculate the entire financial report

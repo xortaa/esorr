@@ -24,23 +24,19 @@ export async function POST(request: Request, { params }: { params: { organizatio
     await connectToDatabase();
     const body = await request.json();
     const newInflow = new Inflow(body);
-
-    if (isNaN(newInflow.amount) || newInflow.amount <= 0) {
-      return NextResponse.json({ error: "Invalid inflow amount" }, { status: 400 });
-    }
-
     await newInflow.save();
 
-    const annexE2 = await AnnexE2.findById(params.annexId);
-    if (!annexE2) {
+    const annex = await AnnexE2.findById(params.annexId);
+    if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
 
-    annexE2.inflow.push(newInflow._id);
-    await annexE2.save();
+    annex.inflow.push(newInflow._id);
+    await annex.save();
 
+    // Find the associated AnnexE1 and FinancialReport
     const annexE1 = await AnnexE1.findOne({
-      academicYear: annexE2.academicYear,
+      academicYear: annex.academicYear,
     });
 
     if (!annexE1) {
@@ -48,7 +44,6 @@ export async function POST(request: Request, { params }: { params: { organizatio
     }
 
     const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id });
-
     if (!financialReport) {
       return NextResponse.json({ error: "Financial report not found" }, { status: 404 });
     }
@@ -59,7 +54,10 @@ export async function POST(request: Request, { params }: { params: { organizatio
       amount: newInflow.amount,
       type: "inflow",
       category: newInflow.category,
-      description: newInflow.description || "",
+      description: "",
+      payingParticipants: newInflow.payingParticipants,
+      totalMembers: newInflow.totalMembers,
+      merchandiseSales: newInflow.merchandiseSales,
     });
 
     // Recalculate the entire financial report
@@ -69,7 +67,7 @@ export async function POST(request: Request, { params }: { params: { organizatio
 
     return NextResponse.json(newInflow, { status: 201 });
   } catch (error) {
-    console.error("Error adding inflow to financial report:", error);
+    console.error("Error creating inflow:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
