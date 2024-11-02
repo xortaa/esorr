@@ -123,7 +123,9 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<OutflowItem | null>(null);
-    const [localOutflow, setLocalOutflow] = useState<Outflow | null>(null);
+  const [localOutflow, setLocalOutflow] = useState<Outflow | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOutflows();
@@ -153,29 +155,29 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      try {
-        const imageUrl = await uploadImage(file);
-        setCurrentOutflow({
-          _id: "",
-          establishment: "",
-          date: "",
-          items: [],
-          image: imageUrl,
-          totalCost: 0,
-        });
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      }
-    }
-  };
+ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   if (e.target.files && e.target.files[0]) {
+     const file = e.target.files[0];
+     setSelectedFile(file);
+     setPreviewUrl(URL.createObjectURL(file));
+     setCurrentOutflow({
+       _id: "",
+       establishment: "",
+       date: "",
+       items: [],
+       image: "",
+       totalCost: 0,
+     });
+   }
+ };
 
   const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     if (localOutflow) {
-      const { name, value } = e.target;
       setLocalOutflow({ ...localOutflow, [name]: value });
+    }
+    if (currentOutflow) {
+      setCurrentOutflow({ ...currentOutflow, [name]: value });
     }
   };
 
@@ -224,7 +226,6 @@ export default function AnnexE2FinancialLiquidationReport() {
       setLocalOutflow({ ...localOutflow, items: updatedItems });
     }
   };
-
 
   const createOutflow = async () => {
     if (currentOutflow) {
@@ -276,29 +277,45 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const saveOutflow = async () => {
-    if (localOutflow) {
+    if (currentOutflow && selectedFile) {
       setIsLoading(true);
       try {
-        const totalCost = localOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+        // Upload image to Google Cloud Storage
+        const imageUrl = await uploadImage(selectedFile);
+
+        const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
         const outflowData = {
-          ...localOutflow,
-          date: localOutflow.date,
+          establishment: currentOutflow.establishment,
+          date: currentOutflow.date,
+          items: currentOutflow.items.map(({ _id, ...item }) => item),
+          image: imageUrl,
           totalCost,
-          items: localOutflow.items.map(({ _id, ...item }) => item),
         };
+
         let response;
         if (isEditing) {
           response = await axios.put(
-            `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${localOutflow._id}`,
+            `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
             outflowData
           );
         } else {
           response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
         }
-        setOutflows(outflows.map((outflow) => (outflow._id === localOutflow._id ? response.data : outflow)));
-        setLocalOutflow(null);
-        setCurrentOutflow(null);
-        setIsEditing(false);
+
+        if (response.status === 200 || response.status === 201) {
+          if (isEditing) {
+            setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
+          } else {
+            setOutflows([...outflows, response.data]);
+          }
+          setCurrentOutflow(null);
+          setSelectedFile(null);
+          setPreviewUrl(null);
+          setIsEditing(false);
+          console.log("Outflow saved successfully");
+        } else {
+          throw new Error("Failed to save outflow");
+        }
       } catch (error) {
         console.error("Error saving outflow:", error);
       } finally {
@@ -421,28 +438,10 @@ export default function AnnexE2FinancialLiquidationReport() {
     setIsEditing(true);
   };
 
-  const cancelOutflow = async () => {
-    if (currentOutflow && currentOutflow.image) {
-      try {
-        const fileName = currentOutflow.image.split("/").pop(); // Extract the file name from the URL
-        const response = await fetch("/api/delete-file", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fileName }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete file");
-        }
-
-        console.log("File deleted successfully");
-      } catch (error) {
-        console.error("Error deleting file:", error);
-      }
-    }
+  const cancelOutflow = () => {
     setCurrentOutflow(null);
+    setLocalOutflow(null);
+    setIsEditing(false);
   };
 
   const cancelEditInflow = () => {
@@ -521,7 +520,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                             <input
                               type="text"
                               name="establishment"
-                              value={localOutflow ? localOutflow.establishment : ""}
+                              value={currentOutflow.establishment}
                               onChange={handleOutflowDescriptionChange}
                               className="input input-bordered w-full"
                               required
@@ -772,9 +771,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-4 flex items-center text-neutral">Receipt Preview</h3>
-                        {currentOutflow.image && (
+                        {previewUrl && (
                           <img
-                            src={currentOutflow.image}
+                            src={previewUrl}
                             alt="Receipt preview"
                             className="w-full h-auto object-contain rounded-lg shadow-md"
                           />
