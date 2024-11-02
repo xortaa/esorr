@@ -288,3 +288,40 @@ export interface Affiliation {
   isArchived: boolean;
   programs: Program[];
 }
+
+export interface MonthData {
+  startingBalance: number;
+  endingBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+}
+
+export interface Transaction {
+  date: Date;
+  amount: number;
+  type: "inflow" | "outflow";
+  category: string;
+  description?: string;
+}
+
+export interface FinancialReportData {
+  annexE1: string | null;
+  academicYear: string;
+  startingBalance: number;
+  transactions: Transaction[];
+  totalIncome: number;
+  totalExpenses: number;
+  endingBalance: number;
+  june: MonthData;
+  july: MonthData;
+  august: MonthData;
+  september: MonthData;
+  october: MonthData;
+  november: MonthData;
+  december: MonthData;
+  january: MonthData;
+  february: MonthData;
+  march: MonthData;
+  april: MonthData;
+  may: MonthData;
+}

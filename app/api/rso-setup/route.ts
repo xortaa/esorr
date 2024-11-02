@@ -23,6 +23,7 @@ import AnnexJ from "@/models/annex-j";
 import AnnexK from "@/models/annex-k";
 import AnnexL from "@/models/annex-l";
 import FinancialReport from "@/models/financial-report";
+import { MonthData, Transaction, FinancialReportData } from "@/types";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -160,104 +161,57 @@ export async function POST(req: NextRequest) {
       academicYear: currentAcademicYear,
     });
 
-    const newFinancialReport = await FinancialReport.create({
-      june: {
-        startingBalance: startingBalance,
+    const months = [
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+    ] as const;
+
+    const financialReportData: FinancialReportData = {
+      annexE1: null, // This will be set after creation
+      academicYear: currentAcademicYear,
+      startingBalance: startingBalance,
+      transactions: [],
+      totalIncome: 0,
+      totalExpenses: 0,
+      endingBalance: startingBalance,
+      june: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      july: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      august: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      september: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      october: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      november: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      december: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      january: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      february: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      march: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      april: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      may: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+    };
+
+    months.forEach((month) => {
+      financialReportData[month] = {
+        startingBalance: 0,
+        endingBalance: 0,
         totalIncome: 0,
         totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      july: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      august: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      september: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      october: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      november: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      december: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      january: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      february: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      march: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      april: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
-      may: {
-        startingBalance: startingBalance,
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: startingBalance,
-        inflow: [],
-        outflow: [],
-      },
+      };
     });
+
+    // Set June's starting balance
+    financialReportData.june.startingBalance = startingBalance;
+    financialReportData.june.endingBalance = startingBalance;
+
+    const newFinancialReport = await FinancialReport.create(financialReportData);
 
     console.log("New Financial Report:", newFinancialReport);
 

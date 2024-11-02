@@ -4,6 +4,7 @@ import AnnexE2 from "@/models/annex-e2";
 import AnnexE1 from "@/models/annex-e1";
 import Inflow from "@/models/inflow";
 import FinancialReport from "@/models/financial-report";
+import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
 export async function GET(request: Request, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
@@ -23,6 +24,10 @@ export async function POST(request: Request, { params }: { params: { organizatio
     await connectToDatabase();
     const body = await request.json();
     const newInflow = new Inflow(body);
+
+    if (isNaN(newInflow.amount) || newInflow.amount <= 0) {
+      return NextResponse.json({ error: "Invalid inflow amount" }, { status: 400 });
+    }
 
     await newInflow.save();
 
@@ -48,31 +53,17 @@ export async function POST(request: Request, { params }: { params: { organizatio
       return NextResponse.json({ error: "Financial report not found" }, { status: 404 });
     }
 
-    const inflowDate = new Date(newInflow.date);
-    const month = inflowDate.getMonth();
-    const monthNames = [
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
-    ];
-    const monthName = monthNames[month];
+    // Add new transaction to FinancialReport
+    financialReport.transactions.push({
+      date: new Date(newInflow.date),
+      amount: newInflow.amount,
+      type: "inflow",
+      category: newInflow.category,
+      description: newInflow.description || "",
+    });
 
-    if (financialReport[monthName]) {
-      financialReport[monthName].inflow.push(newInflow._id);
-      financialReport[monthName].totalIncome += newInflow.amount;
-      financialReport[monthName].balance += newInflow.amount;
-    } else {
-      return NextResponse.json({ error: `Month ${monthName} not found in financial report` }, { status: 404 });
-    }
+    // Recalculate the entire financial report
+    recalculateFinancialReport(financialReport);
 
     await financialReport.save();
 

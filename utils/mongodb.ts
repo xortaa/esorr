@@ -22,9 +22,7 @@ const connectToDatabase = async () => {
 
     require("@/models/user");
     require("@/models/organization");
-    require("@/models/member");
-    require("@/models/educational-background");
-    require("@/models/educational-background-organization");
+    require("@/models/financial-report");
   } catch (error) {
     console.log(error);
   }

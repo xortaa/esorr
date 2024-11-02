@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { uploadImage } from "@/utils/storage";
+import { parseISO, isValid, format } from "date-fns";
 
 interface OutflowItem {
   _id: string;
@@ -84,8 +85,11 @@ const inflowCategories = [
 ];
 
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toISOString().split("T")[0];
+  const date = parseISO(dateString);
+  if (isValid(date)) {
+    return format(date, "yyyy-MM-dd");
+  }
+  return "Invalid Date";
 };
 
 export default function AnnexE2FinancialLiquidationReport() {
