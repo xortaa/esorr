@@ -22,6 +22,8 @@ import AnnexI from "@/models/annex-i";
 import AnnexJ from "@/models/annex-j";
 import AnnexK from "@/models/annex-k";
 import AnnexL from "@/models/annex-l";
+import FinancialReport from "@/models/financial-report";
+import { MonthData, Transaction, FinancialReportData } from "@/types";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -159,10 +161,67 @@ export async function POST(req: NextRequest) {
       academicYear: currentAcademicYear,
     });
 
+    const months = [
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+    ] as const;
+
+    const financialReportData: FinancialReportData = {
+      annexE1: null, // This will be set after creation
+      academicYear: currentAcademicYear,
+      startingBalance: startingBalance,
+      transactions: [],
+      totalIncome: 0,
+      totalExpenses: 0,
+      endingBalance: startingBalance,
+      june: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      july: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      august: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      september: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      october: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      november: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      december: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      january: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      february: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      march: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      april: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      may: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+    };
+
+    months.forEach((month) => {
+      financialReportData[month] = {
+        startingBalance: 0,
+        endingBalance: 0,
+        totalIncome: 0,
+        totalExpenses: 0,
+      };
+    });
+
+    // Set June's starting balance
+    financialReportData.june.startingBalance = startingBalance;
+    financialReportData.june.endingBalance = startingBalance;
+
+    const newFinancialReport = await FinancialReport.create(financialReportData);
+
+    console.log("New Financial Report:", newFinancialReport);
+
     const newAnnexE1 = await AnnexE1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      financialReport: newFinancialReport._id,
     });
+
+    await newFinancialReport.updateOne({ annexE1: newAnnexE1._id });
 
     const newAnnexE2 = await AnnexE2.create({
       organization: newOrganization._id,
