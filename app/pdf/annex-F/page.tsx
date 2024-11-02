@@ -539,7 +539,9 @@ const MyDocument = () => {
             </View>
           </View>
 
-          <View style={{ width: "50%", flexDirection: "column" }}></View>
+          <View style={{ width: "50%", flexDirection: "column", textAlign: "center" }}>
+            <Image src="/assets/Mean Rating.png" style={{ width: "80%", marginLeft: 45, marginTop: 30 }} />
+          </View>
         </View>
         <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>
           Suggested list of KEY UNIT ACTIVITIES (KUA) to ensure the achievement of the expected targets from student
