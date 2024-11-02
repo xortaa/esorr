@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
+import AnnexE1 from "@/models/annex-e1";
 import Outflow from "@/models/outflow";
+import FinancialReport from "@/models/financial-report";
+import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
 export async function GET(
   request: Request,
@@ -26,12 +29,62 @@ export async function PUT(
   try {
     await connectToDatabase();
     const body = await request.json();
+
+    const originalOutflow = await Outflow.findById(params.outflowId);
+    if (!originalOutflow) {
+      return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
+    }
+
     const updatedOutflow = await Outflow.findByIdAndUpdate(params.outflowId, body, { new: true });
     if (!updatedOutflow) {
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
+
+    // Find the associated AnnexE2, AnnexE1, and FinancialReport
+    const annexE2 = await AnnexE2.findById(params.annexId);
+    if (!annexE2) {
+      return NextResponse.json({ error: "AnnexE2 not found" }, { status: 404 });
+    }
+
+    const annexE1 = await AnnexE1.findOne({
+      academicYear: annexE2.academicYear,
+    });
+
+    if (!annexE1) {
+      return NextResponse.json({ error: "AnnexE1 not found" }, { status: 404 });
+    }
+
+    const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id });
+    if (!financialReport) {
+      return NextResponse.json({ error: "Financial report not found" }, { status: 404 });
+    }
+
+    // Update the corresponding transaction in the FinancialReport
+    const transactionIndex = financialReport.transactions.findIndex(
+      (t) =>
+        t.type === "outflow" &&
+        t.date.toISOString() === originalOutflow.date.toISOString() &&
+        t.amount === originalOutflow.totalCost
+    );
+
+    if (transactionIndex !== -1) {
+      financialReport.transactions[transactionIndex] = {
+        date: new Date(updatedOutflow.date),
+        amount: updatedOutflow.totalCost,
+        type: "outflow",
+        category: updatedOutflow.establishment,
+        description: updatedOutflow.items.map((item) => item.description).join(", "),
+      };
+    }
+
+    // Recalculate the entire financial report
+    recalculateFinancialReport(financialReport);
+
+    await financialReport.save();
+
     return NextResponse.json(updatedOutflow);
   } catch (error) {
+    console.error("Error updating outflow:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -47,6 +100,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
 
+    // Delete image if exists
     if (deletedOutflow.image) {
       const fileName = deletedOutflow.image.split("/").pop();
       if (fileName) {
@@ -64,7 +118,6 @@ export async function DELETE(
           }
         } catch (error) {
           console.error("Error deleting file:", error);
-          // Continue with outflow deletion even if file deletion fails
         }
       }
     }
@@ -74,9 +127,37 @@ export async function DELETE(
       $pull: { outflow: params.outflowId },
     });
 
+    // Update FinancialReport
+    const annexE2 = await AnnexE2.findById(params.annexId);
+    if (annexE2) {
+      const annexE1 = await AnnexE1.findOne({
+        academicYear: annexE2.academicYear,
+      });
+
+      if (annexE1) {
+        const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id });
+        if (financialReport) {
+          // Remove the corresponding transaction from the FinancialReport
+          financialReport.transactions = financialReport.transactions.filter(
+            (t) =>
+              !(
+                t.type === "outflow" &&
+                t.date.toISOString() === deletedOutflow.date.toISOString() &&
+                t.amount === deletedOutflow.totalCost
+              )
+          );
+
+          // Recalculate the financial report
+          recalculateFinancialReport(financialReport);
+          await financialReport.save();
+        }
+      }
+    }
+
     return NextResponse.json({ message: "Outflow deleted successfully" });
   } catch (error) {
     console.error("Error deleting outflow:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

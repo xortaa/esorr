@@ -123,6 +123,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<OutflowItem | null>(null);
+    const [localOutflow, setLocalOutflow] = useState<Outflow | null>(null);
 
   useEffect(() => {
     fetchOutflows();
@@ -172,16 +173,19 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (currentOutflow) {
+    if (localOutflow) {
       const { name, value } = e.target;
-      setCurrentOutflow({ ...currentOutflow, [name]: value });
+      setLocalOutflow({ ...localOutflow, [name]: value });
     }
   };
 
   const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (editingItem) {
-      setEditingItem({ ...editingItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
+    if (editingItem && localOutflow) {
+      const updatedItem = { ...editingItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value };
+      setEditingItem(updatedItem);
+      const updatedItems = localOutflow.items.map((item) => (item._id === editingItem._id ? updatedItem : item));
+      setLocalOutflow({ ...localOutflow, items: updatedItems });
     } else {
       setNewItem({ ...newItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
     }
@@ -206,35 +210,21 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-  const updateItem = async () => {
-    if (currentOutflow && editingItem) {
-      try {
-        const response = await axios.put(
-          `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}/${editingItem._id}`,
-          editingItem
-        );
-        const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? response.data : item));
-        setCurrentOutflow({ ...currentOutflow, items: updatedItems });
-        setEditingItem(null);
-      } catch (error) {
-        console.error("Error updating item:", error);
-      }
+  const updateItem = () => {
+    if (localOutflow && editingItem) {
+      const updatedItems = localOutflow.items.map((item) => (item._id === editingItem._id ? editingItem : item));
+      setLocalOutflow({ ...localOutflow, items: updatedItems });
+      setEditingItem(null);
     }
   };
 
-  const deleteItem = async (itemId: string) => {
-    if (currentOutflow) {
-      try {
-        await axios.delete(
-          `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}/${itemId}`
-        );
-        const updatedItems = currentOutflow.items.filter((item) => item._id !== itemId);
-        setCurrentOutflow({ ...currentOutflow, items: updatedItems });
-      } catch (error) {
-        console.error("Error deleting item:", error);
-      }
+  const deleteItem = (itemId: string) => {
+    if (localOutflow) {
+      const updatedItems = localOutflow.items.filter((item) => item._id !== itemId);
+      setLocalOutflow({ ...localOutflow, items: updatedItems });
     }
   };
+
 
   const createOutflow = async () => {
     if (currentOutflow) {
@@ -286,10 +276,34 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const saveOutflow = async () => {
-    if (isEditing) {
-      await updateOutflow();
-    } else {
-      await createOutflow();
+    if (localOutflow) {
+      setIsLoading(true);
+      try {
+        const totalCost = localOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+        const outflowData = {
+          ...localOutflow,
+          date: localOutflow.date,
+          totalCost,
+          items: localOutflow.items.map(({ _id, ...item }) => item),
+        };
+        let response;
+        if (isEditing) {
+          response = await axios.put(
+            `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${localOutflow._id}`,
+            outflowData
+          );
+        } else {
+          response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
+        }
+        setOutflows(outflows.map((outflow) => (outflow._id === localOutflow._id ? response.data : outflow)));
+        setLocalOutflow(null);
+        setCurrentOutflow(null);
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error saving outflow:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -402,6 +416,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const editOutflow = (outflow: Outflow) => {
+    setLocalOutflow(outflow);
     setCurrentOutflow(outflow);
     setIsEditing(true);
   };
@@ -506,7 +521,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                             <input
                               type="text"
                               name="establishment"
-                              value={currentOutflow.establishment}
+                              value={localOutflow ? localOutflow.establishment : ""}
                               onChange={handleOutflowDescriptionChange}
                               className="input input-bordered w-full"
                               required
