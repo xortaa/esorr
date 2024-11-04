@@ -24,6 +24,7 @@ import AnnexK from "@/models/annex-k";
 import AnnexL from "@/models/annex-l";
 import FinancialReport from "@/models/financial-report";
 import { MonthData, Transaction, FinancialReportData } from "@/types";
+import Pasoc from "@/models/pasoc";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -232,6 +233,48 @@ export async function POST(req: NextRequest) {
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+
+    const newPasoc = await Pasoc.create({
+      annexe3: newAnnexE3._id,
+      servantLeadership: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+        "3": { rating: 0, comment: "" },
+      },
+      operationalPlan: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+      },
+      constituentFocus: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+      },
+      monitoringAndEvaluation: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+        "3": { rating: 0, comment: "" },
+      },
+      membershipAndOrganizationClimate: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+        "3": { rating: 0, comment: "" },
+      },
+      personalAndSocialAndCommunityService: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+      },
+      outcomesAndAchievements: {
+        "1": { rating: 0, comment: "" },
+        "2": { rating: 0, comment: "" },
+        "3": { rating: 0, comment: "" },
+        "4": { rating: 0, comment: "" },
+        "5": { rating: 0, comment: "" },
+        "6": { rating: 0, comment: "" },
+      },
+      furtherComments: "",
+    });
+
+    await newAnnexE3.updateOne({ pasoc: newPasoc._id });
 
     const newAnnexF = await AnnexF.create({
       organization: newOrganization._id,
