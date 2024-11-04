@@ -50,7 +50,7 @@ const AnnexesPage = () => {
     {
       code: "E-3",
       title: "Performance Assesment of Student Organizations/Councils (PASOC) Form",
-      link: "annex-e2",
+      link: "annex-e3",
       status: "in_progress",
     },
     { code: "F", title: "Activities' Monitoring Form", link: "annex-f", status: "in_progress" },
