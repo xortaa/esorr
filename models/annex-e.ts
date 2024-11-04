@@ -13,6 +13,10 @@ const AnnexESchema = new Schema({
     type: Boolean,
     default: false,
   },
+  operationalAssessment: { 
+    type: Schema.Types.ObjectId,
+    ref: 'OperationalAssessment',
+  }
 });
 
 const AnnexE = models.AnnexE || model("AnnexE", AnnexESchema);
