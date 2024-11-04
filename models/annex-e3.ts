@@ -13,6 +13,10 @@ const AnnexE3Schema = new Schema({
     type: Boolean,
     default: false,
   },
+  pasoc: {
+    type: Schema.Types.ObjectId,
+    ref: "Pasoc",
+  },
 });
 
 const AnnexE3 = models.AnnexE3 || model("AnnexE3", AnnexE3Schema);
