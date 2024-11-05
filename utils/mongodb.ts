@@ -23,6 +23,7 @@ const connectToDatabase = async () => {
     require("@/models/user");
     require("@/models/organization");
     require("@/models/financial-report");
+    require("@/models/event");
   } catch (error) {
     console.log(error);
   }

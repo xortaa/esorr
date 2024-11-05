@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2 } from "lucide-react";
+import axios from "axios";
 
 interface EvaluationRatings {
   5: number;
@@ -32,17 +33,15 @@ interface Assessment {
   criteria: {
     [key: string]: AssessmentCriteria;
   };
-  comments: Comment[];
-  sponsorName: string;
-  sponsorshipTypes: string[];
 }
 
 interface EventData {
   title: string;
-  date: string;
+  eReserveNumber: string;
+  date: string | null;
   venue: string;
   adviser: string;
-  timeAttended: { from: string; to: string };
+  timeAttended?: { from: string; to: string };
   speakerName: string;
   speakerTopic: string;
   speakerAffiliation: string;
@@ -51,14 +50,26 @@ interface EventData {
   totalRespondents: number;
   evaluationSummary: EvaluationSummary;
   assessment: Assessment;
+  comments: Comment[];
+  sponsorName: string;
+  sponsorshipTypes: string[];
 }
 
+const defaultEvaluationRatings: EvaluationRatings = {
+  5: 0,
+  4: 0,
+  3: 0,
+  2: 0,
+  1: 0,
+};
+
 const EventDetails = () => {
-  const { annexId, eventId } = useParams();
+  const { organizationId, annexId, eventId } = useParams();
   const router = useRouter();
   const [event, setEvent] = useState<EventData>({
     title: "",
-    date: "",
+    eReserveNumber: "",
+    date: null,
     venue: "",
     adviser: "",
     timeAttended: { from: "", to: "" },
@@ -68,81 +79,51 @@ const EventDetails = () => {
     speakerPosition: "",
     totalParticipants: 0,
     totalRespondents: 0,
-    evaluationSummary: {
-      "Pre-event Publicity": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      Objectives: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      "Program Flow": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      "Organizers/Facilitators": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      "Venue/Online Platform": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      "Time Allotment": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      "Registration/Attendance": { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-      Overall: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-    },
+    evaluationSummary: {},
     assessment: {
-      criteria: {
-        "DISSEMINATION OF INFORMATION": { rating: 0, analysis: "", recommendation: "" },
-        "PREPARATION TIME": { rating: 0, analysis: "", recommendation: "" },
-        "THEME RELEVANCE": { rating: 0, analysis: "", recommendation: "" },
-        VENUE: { rating: 0, analysis: "", recommendation: "" },
-        "TIME SCHEDULE": { rating: 0, analysis: "", recommendation: "" },
-        "PROGRAM FLOW": { rating: 0, analysis: "", recommendation: "" },
-        HOSTS: { rating: 0, analysis: "", recommendation: "" },
-        "SOCC ASSISTANCE": { rating: 0, analysis: "", recommendation: "" },
-        "OVERALL QUALITY OF THE EVENT": { rating: 0, analysis: "", recommendation: "" },
-      },
-      comments: [],
-      sponsorName: "",
-      sponsorshipTypes: [],
+      criteria: {},
     },
+    comments: [],
+    sponsorName: "",
+    sponsorshipTypes: [],
   });
+  const [newCriteria, setNewCriteria] = useState("");
 
   useEffect(() => {
-    // Mock data
-    setEvent({
-      title: "Sample Event",
-      date: "2023-09-01",
-      venue: "Main Hall",
-      adviser: "John Doe",
-      timeAttended: { from: "09:00", to: "17:00" },
-      speakerName: "Jane Smith",
-      speakerTopic: "Leadership in the Digital Age",
-      speakerAffiliation: "Tech Co.",
-      speakerPosition: "CEO",
-      totalParticipants: 100,
-      totalRespondents: 80,
-      evaluationSummary: {
-        "Pre-event Publicity": { 5: 24, 4: 10, 3: 5, 2: 2, 1: 1 },
-        Objectives: { 5: 33, 4: 7, 3: 1, 2: 1, 1: 0 },
-        "Program Flow": { 5: 27, 4: 13, 3: 2, 2: 0, 1: 0 },
-        "Organizers/Facilitators": { 5: 32, 4: 6, 3: 4, 2: 0, 1: 0 },
-        "Venue/Online Platform": { 5: 31, 4: 6, 3: 5, 2: 0, 1: 0 },
-        "Time Allotment": { 5: 31, 4: 9, 3: 2, 2: 0, 1: 0 },
-        "Registration/Attendance": { 5: 36, 4: 5, 3: 1, 2: 0, 1: 0 },
-        Overall: { 5: 28, 4: 11, 3: 2, 2: 1, 1: 0 },
-      },
-      assessment: {
-        criteria: {
-          "DISSEMINATION OF INFORMATION": { rating: 4, analysis: "Good", recommendation: "Improve timing" },
-          "PREPARATION TIME": { rating: 5, analysis: "Excellent", recommendation: "Maintain current approach" },
-          "THEME RELEVANCE": { rating: 4, analysis: "Relevant", recommendation: "Consider more specific themes" },
-          VENUE: { rating: 5, analysis: "Perfect location", recommendation: "Book early for future events" },
-          "TIME SCHEDULE": { rating: 4, analysis: "Well-planned", recommendation: "Add more breaks" },
-          "PROGRAM FLOW": { rating: 4, analysis: "Smooth", recommendation: "Improve transitions" },
-          HOSTS: { rating: 5, analysis: "Engaging", recommendation: "Provide additional training" },
-          "SOCC ASSISTANCE": { rating: 4, analysis: "Helpful", recommendation: "Increase staff" },
-          "OVERALL QUALITY OF THE EVENT": { rating: 4, analysis: "Successful", recommendation: "Fine-tune details" },
-        },
-        comments: [{ id: "1", text: "Great event overall" }],
-        sponsorName: "XYZ Corporation",
-        sponsorshipTypes: ["Cash", "Product Launching"],
-      },
-    });
+    fetchEventDetails();
   }, [eventId]);
+
+  const fetchEventDetails = async () => {
+    try {
+      const response = await axios.get(
+        `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`
+      );
+      const data = response.data;
+      // Format the date to yyyy-MM-dd
+      const formattedDate = data.date ? new Date(data.date).toISOString().split("T")[0] : null;
+      setEvent((prevEvent) => ({
+        ...prevEvent,
+        ...data,
+        date: formattedDate, // Use the formatted date
+        evaluationSummary: data.evaluationSummary || {},
+        assessment: {
+          ...prevEvent.assessment,
+          ...data.assessment,
+          criteria: data.assessment?.criteria || {},
+        },
+        comments: data.comments || [],
+        sponsorName: data.sponsorName || "",
+        sponsorshipTypes: data.sponsorshipTypes || [],
+      }));
+    } catch (error) {
+      console.error("Error fetching event details:", error);
+    }
+  };
 
   const updateEvent = (field: keyof EventData, value: any) => {
     setEvent((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: field === "timeAttended" && !prev.timeAttended ? { from: "", to: "", ...value } : value,
     }));
   };
 
@@ -183,35 +164,39 @@ const EventDetails = () => {
         },
       },
     }));
+    updateAssessmentRating(criteria);
   };
 
   const updateComments = (comments: Comment[]) => {
     setEvent((prev) => ({
       ...prev,
-      assessment: {
-        ...prev.assessment,
-        comments,
-      },
+      comments,
     }));
   };
 
-  const criteriaMapping: { [key: string]: string } = {
-    "DISSEMINATION OF INFORMATION": "Pre-event Publicity",
-    "PREPARATION TIME": "Objectives",
-    "THEME RELEVANCE": "Objectives",
-    VENUE: "Venue/Online Platform",
-    "TIME SCHEDULE": "Time Allotment",
-    "PROGRAM FLOW": "Program Flow",
-    HOSTS: "Organizers/Facilitators",
-    "SOCC ASSISTANCE": "Organizers/Facilitators",
-    "OVERALL QUALITY OF THE EVENT": "Overall",
+  const addNewCriteria = () => {
+    if (newCriteria && !event.evaluationSummary[newCriteria]) {
+      setEvent((prev) => ({
+        ...prev,
+        evaluationSummary: {
+          ...prev.evaluationSummary,
+          [newCriteria]: { ...defaultEvaluationRatings },
+        },
+        assessment: {
+          ...prev.assessment,
+          criteria: {
+            ...prev.assessment.criteria,
+            [newCriteria]: { rating: 0, analysis: "", recommendation: "" },
+          },
+        },
+      }));
+      setNewCriteria("");
+    }
   };
 
   const calculateAverageRating = (criteria: string): number => {
-    const mappedCriteria = criteriaMapping[criteria] || criteria;
-    const ratings = event.evaluationSummary[mappedCriteria];
+    const ratings = event.evaluationSummary[criteria];
     if (!ratings) {
-      console.warn(`No ratings found for criteria: ${mappedCriteria}`);
       return 0;
     }
     const totalResponses = Object.values(ratings).reduce((sum, count) => sum + count, 0);
@@ -219,10 +204,36 @@ const EventDetails = () => {
     return totalResponses > 0 ? Math.round((weightedSum / totalResponses) * 10) / 10 : 0;
   };
 
-  const handleSave = () => {
-    // Save event details here
-    console.log("Saving event:", event);
-    router.push(`/rso/annexes/annex-e/${annexId}`);
+  const updateAssessmentRating = (criteria: string) => {
+    const averageRating = calculateAverageRating(criteria);
+    updateCriteria(criteria, "rating", averageRating);
+
+    // Force a re-render of the EventAssessmentForm
+    setEvent((prev) => ({
+      ...prev,
+      assessment: {
+        ...prev.assessment,
+        criteria: {
+          ...prev.assessment.criteria,
+          [criteria]: {
+            ...prev.assessment.criteria[criteria],
+            rating: averageRating,
+          },
+        },
+      },
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      await axios.put(
+        `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
+        event
+      );
+      console.log(event);
+    } catch (error) {
+      console.error("Error updating event:", error);
+    }
   };
 
   return (
@@ -230,16 +241,27 @@ const EventDetails = () => {
       <h1 className="text-3xl font-bold mb-6 text-center text-primary">Event Details</h1>
       <div className="space-y-8">
         <EventEvaluationForm event={event} updateEvent={updateEvent} />
-        <EvaluationSummaryTable event={event} updateEvaluationSummary={updateEvaluationSummary} />
+        <EvaluationSummaryTable
+          event={event}
+          updateEvaluationSummary={updateEvaluationSummary}
+          newCriteria={newCriteria}
+          setNewCriteria={setNewCriteria}
+          addNewCriteria={addNewCriteria}
+        />
         <EventAssessmentForm
           event={event}
           updateAssessment={updateAssessment}
           updateCriteria={updateCriteria}
           calculateAverageRating={calculateAverageRating}
-          updateComments={updateComments}
+        />
+        <CommentsForm comments={event.comments} updateComments={updateComments} />
+        <SponsorForm
+          sponsorName={event.sponsorName}
+          sponsorshipTypes={event.sponsorshipTypes}
+          updateEvent={updateEvent}
         />
         <div className="flex justify-between">
-          <Link href={`/rso/annexes/annex-e/${annexId}`} className="btn btn-secondary">
+          <Link href={`/organizations/${organizationId}/annex-e/${annexId}`} className="btn btn-secondary">
             Back to List
           </Link>
           <button className="btn btn-primary" onClick={handleSave}>
@@ -265,7 +287,7 @@ const EventEvaluationForm: React.FC<{
           <input
             type="date"
             className="input input-bordered"
-            value={event.date}
+            value={event.date || ""}
             onChange={(e) => updateEvent("date", e.target.value)}
           />
         </div>
@@ -325,13 +347,13 @@ const EventEvaluationForm: React.FC<{
               <input
                 type="time"
                 className="input input-bordered w-1/2"
-                value={event.timeAttended.from}
+                value={event.timeAttended?.from || ""}
                 onChange={(e) => updateEvent("timeAttended", { ...event.timeAttended, from: e.target.value })}
               />
               <input
                 type="time"
                 className="input input-bordered w-1/2"
-                value={event.timeAttended.to}
+                value={event.timeAttended?.to || ""}
                 onChange={(e) => updateEvent("timeAttended", { ...event.timeAttended, to: e.target.value })}
               />
             </div>
@@ -392,7 +414,10 @@ const EventEvaluationForm: React.FC<{
 const EvaluationSummaryTable: React.FC<{
   event: EventData;
   updateEvaluationSummary: (criteria: string, rating: keyof EvaluationRatings, value: number) => void;
-}> = ({ event, updateEvaluationSummary }) => (
+  newCriteria: string;
+  setNewCriteria: (value: string) => void;
+  addNewCriteria: () => void;
+}> = ({ event, updateEvaluationSummary, newCriteria, setNewCriteria, addNewCriteria }) => (
   <div className="card bg-base-100 border-2">
     <div className="card-body">
       <h2 className="card-title text-primary">Evaluation Summary</h2>
@@ -434,6 +459,18 @@ const EvaluationSummaryTable: React.FC<{
           </tbody>
         </table>
       </div>
+      <div className="flex items-center mt-4">
+        <input
+          type="text"
+          className="input input-bordered flex-grow mr-2"
+          value={newCriteria}
+          onChange={(e) => setNewCriteria(e.target.value)}
+          placeholder="New criteria"
+        />
+        <button className="btn btn-primary" onClick={addNewCriteria}>
+          Add Criteria
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -443,28 +480,7 @@ const EventAssessmentForm: React.FC<{
   updateAssessment: (field: keyof Assessment, value: any) => void;
   updateCriteria: (criteria: string, field: keyof AssessmentCriteria, value: any) => void;
   calculateAverageRating: (criteria: string) => number;
-  updateComments: (comments: Comment[]) => void;
-}> = ({ event, updateAssessment, updateCriteria, calculateAverageRating, updateComments }) => {
-  const addComment = () => {
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      text: "",
-    };
-    updateComments([...event.assessment.comments, newComment]);
-  };
-
-  const removeComment = (id: string) => {
-    const updatedComments = event.assessment.comments.filter((comment) => comment.id !== id);
-    updateComments(updatedComments);
-  };
-
-  const updateCommentText = (id: string, text: string) => {
-    const updatedComments = event.assessment.comments.map((comment) =>
-      comment.id === id ? { ...comment, text } : comment
-    );
-    updateComments(updatedComments);
-  };
-
+}> = ({ event, updateAssessment, updateCriteria, calculateAverageRating }) => {
   return (
     <div className="card bg-base-100 border-2">
       <div className="card-body">
@@ -486,7 +502,7 @@ const EventAssessmentForm: React.FC<{
                   <tr key={criteria}>
                     <td>{criteria}</td>
                     <td>
-                      <p>{averageRating}</p>
+                      <p>{value.rating.toFixed(1)}</p>
                     </td>
                     <td>
                       <input
@@ -510,31 +526,69 @@ const EventAssessmentForm: React.FC<{
             </tbody>
           </table>
         </div>
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">
-              Comments and Suggestions of Participants, Members, and Attendees (Verbatim)
-            </span>
-          </label>
-          <div className="space-y-2">
-            {event.assessment.comments.map((comment) => (
-              <div key={comment.id} className="flex items-center space-x-2">
-                <textarea
-                  className="textarea textarea-bordered flex-grow"
-                  value={comment.text}
-                  onChange={(e) => updateCommentText(comment.id, e.target.value)}
-                  placeholder="Enter comment or suggestion"
-                ></textarea>
-                <button className="btn btn-square btn-sm" onClick={() => removeComment(comment.id)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
-            <button className="btn btn-primary btn-sm" onClick={addComment}>
-              <Plus size={16} className="mr-2" /> Add Comment
-            </button>
-          </div>
+      </div>
+    </div>
+  );
+};
+
+const CommentsForm: React.FC<{
+  comments: Comment[];
+  updateComments: (comments: Comment[]) => void;
+}> = ({ comments, updateComments }) => {
+  const addComment = () => {
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      text: "",
+    };
+    updateComments([...comments, newComment]);
+  };
+
+  const removeComment = (id: string) => {
+    const updatedComments = comments.filter((comment) => comment.id !== id);
+    updateComments(updatedComments);
+  };
+
+  const updateCommentText = (id: string, text: string) => {
+    const updatedComments = comments.map((comment) => (comment.id === id ? { ...comment, text } : comment));
+    updateComments(updatedComments);
+  };
+
+  return (
+    <div className="card bg-base-100 border-2">
+      <div className="card-body">
+        <h2 className="card-title text-primary">Comments and Suggestions</h2>
+        <div className="space-y-2">
+          {comments.map((comment) => (
+            <div key={comment.id} className="flex items-center space-x-2">
+              <textarea
+                className="textarea textarea-bordered flex-grow"
+                value={comment.text}
+                onChange={(e) => updateCommentText(comment.id, e.target.value)}
+                placeholder="Enter comment or suggestion"
+              ></textarea>
+              <button className="btn btn-square btn-sm" onClick={() => removeComment(comment.id)}>
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
+          <button className="btn btn-primary btn-sm" onClick={addComment}>
+            <Plus size={16} className="mr-2" /> Add Comment
+          </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const SponsorForm: React.FC<{
+  sponsorName: string;
+  sponsorshipTypes: string[];
+  updateEvent: (field: keyof EventData, value: any) => void;
+}> = ({ sponsorName, sponsorshipTypes, updateEvent }) => {
+  return (
+    <div className="card bg-base-100 border-2">
+      <div className="card-body">
+        <h2 className="card-title text-primary">Sponsor Information</h2>
         <div className="form-control">
           <label className="label">
             <span className="label-text">Sponsor's Name</span>
@@ -542,8 +596,8 @@ const EventAssessmentForm: React.FC<{
           <input
             type="text"
             className="input input-bordered"
-            value={event.assessment.sponsorName}
-            onChange={(e) => updateAssessment("sponsorName", e.target.value)}
+            value={sponsorName}
+            onChange={(e) => updateEvent("sponsorName", e.target.value)}
           />
         </div>
         <div className="form-control">
@@ -557,12 +611,12 @@ const EventAssessmentForm: React.FC<{
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={event.assessment.sponsorshipTypes.includes(type)}
+                  checked={sponsorshipTypes.includes(type)}
                   onChange={(e) => {
                     const updatedTypes = e.target.checked
-                      ? [...event.assessment.sponsorshipTypes, type]
-                      : event.assessment.sponsorshipTypes.filter((t) => t !== type);
-                    updateAssessment("sponsorshipTypes", updatedTypes);
+                      ? [...sponsorshipTypes, type]
+                      : sponsorshipTypes.filter((t) => t !== type);
+                    updateEvent("sponsorshipTypes", updatedTypes);
                   }}
                 />
               </label>

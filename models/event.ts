@@ -1,12 +1,12 @@
 import { Schema, model, models } from "mongoose";
 
-const EvaluationSummarySchema = new Schema(
+const EvaluationRatingSchema = new Schema(
   {
-    5: { type: Number, default: 0 },
-    4: { type: Number, default: 0 },
-    3: { type: Number, default: 0 },
-    2: { type: Number, default: 0 },
     1: { type: Number, default: 0 },
+    2: { type: Number, default: 0 },
+    3: { type: Number, default: 0 },
+    4: { type: Number, default: 0 },
+    5: { type: Number, default: 0 },
   },
   { _id: false }
 );
@@ -22,6 +22,7 @@ const AssessmentCriteriaSchema = new Schema(
 
 const EventSchema = new Schema({
   title: { type: String },
+  eReserveNumber: { type: String },
   date: { type: Date },
   venue: { type: String },
   adviser: { type: String },
@@ -36,31 +37,18 @@ const EventSchema = new Schema({
   totalParticipants: { type: Number },
   totalRespondents: { type: Number },
   evaluationSummary: {
-    "Pre-event Publicity": { type: EvaluationSummarySchema },
-    Objectives: { type: EvaluationSummarySchema },
-    "Program Flow": { type: EvaluationSummarySchema },
-    "Organizers/Facilitators": { type: EvaluationSummarySchema },
-    "Venue/Online Platform": { type: EvaluationSummarySchema },
-    "Time Allotment": { type: EvaluationSummarySchema },
-    "Registration/Attendance": { type: EvaluationSummarySchema },
-    Overall: { type: EvaluationSummarySchema },
+    type: Map,
+    of: EvaluationRatingSchema,
   },
   assessment: {
     criteria: {
-      "DISSEMINATION OF INFORMATION": { type: AssessmentCriteriaSchema },
-      "PREPARATION TIME": { type: AssessmentCriteriaSchema },
-      "THEME RELEVANCE": { type: AssessmentCriteriaSchema },
-      VENUE: { type: AssessmentCriteriaSchema },
-      "TIME SCHEDULE": { type: AssessmentCriteriaSchema },
-      "PROGRAM FLOW": { type: AssessmentCriteriaSchema },
-      HOSTS: { type: AssessmentCriteriaSchema },
-      "SOCC ASSISTANCE": { type: AssessmentCriteriaSchema },
-      "OVERALL QUALITY OF THE EVENT": { type: AssessmentCriteriaSchema },
+      type: Map,
+      of: AssessmentCriteriaSchema,
     },
-    comments: [{ id: { type: String }, text: { type: String } }],
-    sponsorName: { type: String },
-    sponsorshipTypes: [{ type: String }],
   },
+  comments: [{ id: { type: String }, text: { type: String } }],
+  sponsorName: { type: String },
+  sponsorshipTypes: [{ type: String }],
 });
 
 const Event = models.Event || model("Event", EventSchema);
