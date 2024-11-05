@@ -45,6 +45,7 @@ export async function PUT(
       comments: body.comments,
       sponsorName: body.sponsorName,
       sponsorshipTypes: body.sponsorshipTypes,
+      files: body.files,
     };
 
     const updatedEvent = await Event.findByIdAndUpdate(

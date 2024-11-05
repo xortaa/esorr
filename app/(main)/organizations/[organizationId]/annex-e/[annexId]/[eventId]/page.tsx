@@ -53,6 +53,12 @@ interface EventData {
   comments: Comment[];
   sponsorName: string;
   sponsorshipTypes: string[];
+  files: string[];
+}
+
+interface FileToUpload {
+  file: File;
+  fileType: string;
 }
 
 const defaultEvaluationRatings: EvaluationRatings = {
@@ -86,8 +92,10 @@ const EventDetails = () => {
     comments: [],
     sponsorName: "",
     sponsorshipTypes: [],
+    files: [],
   });
   const [newCriteria, setNewCriteria] = useState("");
+  const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
 
   useEffect(() => {
     fetchEventDetails();
@@ -99,12 +107,11 @@ const EventDetails = () => {
         `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`
       );
       const data = response.data;
-      // Format the date to yyyy-MM-dd
       const formattedDate = data.date ? new Date(data.date).toISOString().split("T")[0] : null;
       setEvent((prevEvent) => ({
         ...prevEvent,
         ...data,
-        date: formattedDate, // Use the formatted date
+        date: formattedDate,
         evaluationSummary: data.evaluationSummary || {},
         assessment: {
           ...prevEvent.assessment,
@@ -114,6 +121,7 @@ const EventDetails = () => {
         comments: data.comments || [],
         sponsorName: data.sponsorName || "",
         sponsorshipTypes: data.sponsorshipTypes || [],
+        files: data.files || [],
       }));
     } catch (error) {
       console.error("Error fetching event details:", error);
@@ -208,7 +216,6 @@ const EventDetails = () => {
     const averageRating = calculateAverageRating(criteria);
     updateCriteria(criteria, "rating", averageRating);
 
-    // Force a re-render of the EventAssessmentForm
     setEvent((prev) => ({
       ...prev,
       assessment: {
@@ -226,11 +233,43 @@ const EventDetails = () => {
 
   const handleSave = async () => {
     try {
+      // Upload files
+      const uploadedFiles = await Promise.all(
+        filesToUpload.map(async (fileToUpload) => {
+          const formData = new FormData();
+          formData.append("file", fileToUpload.file);
+
+          const response = await fetch("/api/upload-image", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) throw new Error("Upload failed");
+
+          const data = await response.json();
+          return data.url;
+        })
+      );
+
+      // Update event with new file URLs
+      const updatedEvent = {
+        ...event,
+        files: [...event.files, ...uploadedFiles],
+      };
+
+      // Save event data
       await axios.put(
         `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
-        event
+        updatedEvent
       );
-      console.log(event);
+
+      // Clear filesToUpload after successful save
+      setFilesToUpload([]);
+
+      // Update local state
+      setEvent(updatedEvent);
+
+      console.log("Event saved successfully:", updatedEvent);
     } catch (error) {
       console.error("Error updating event:", error);
     }
@@ -238,6 +277,7 @@ const EventDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold ty">{event.title}</h2>
       <h1 className="text-3xl font-bold mb-6 text-center text-primary">Event Details</h1>
       <div className="space-y-8">
         <EventEvaluationForm event={event} updateEvent={updateEvent} />
@@ -260,6 +300,7 @@ const EventDetails = () => {
           sponsorshipTypes={event.sponsorshipTypes}
           updateEvent={updateEvent}
         />
+        <FileUploadForm files={event.files} filesToUpload={filesToUpload} setFilesToUpload={setFilesToUpload} />
         <div className="flex justify-between">
           <Link href={`/organizations/${organizationId}/annex-e/${annexId}`} className="btn btn-secondary">
             Back to List
@@ -622,6 +663,90 @@ const SponsorForm: React.FC<{
               </label>
             ))}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FileUploadForm: React.FC<{
+  files: string[];
+  filesToUpload: FileToUpload[];
+  setFilesToUpload: React.Dispatch<React.SetStateAction<FileToUpload[]>>;
+}> = ({ files, filesToUpload, setFilesToUpload }) => {
+  const [uploadStatus, setUploadStatus] = useState<{ [key: string]: string }>({});
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFilesToUpload((prev) => [...prev, { file, fileType }]);
+    setUploadStatus((prev) => ({ ...prev, [fileType]: "selected" }));
+  };
+
+  const getStatusColor = (fileType: string) => {
+    switch (uploadStatus[fileType]) {
+      case "selected":
+        return "text-warning";
+      default:
+        return "text-muted-foreground";
+    }
+  };
+
+  return (
+    <div className="card bg-base-100 border-2">
+      <div className="card-body">
+        <h2 className="card-title text-primary">Required Attachments</h2>
+        <div className="space-y-4">
+          <div className="grid gap-4">
+            <p className="text-slate-500">
+              Note: The expense report and receipts should be accomplished in the Annex-E2 of E-SORR
+            </p>
+            {["saaf", "evaluationTally", "writeup", "eventPictures", "terminalReport"].map((fileType) => (
+              <div key={fileType} className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">{fileType.charAt(0).toUpperCase() + fileType.slice(1)}</span>
+                </label>
+                <input
+                  type="file"
+                  className="file-input file-input-bordered w-full"
+                  onChange={(e) => handleFileSelect(e, fileType)}
+                  accept={fileType === "eventPictures" ? ".jpg,.jpeg,.png" : ".pdf,.doc,.docx,.xls,.xlsx"}
+                />
+                <span className={`text-sm mt-1 ${getStatusColor(fileType)}`}>
+                  {uploadStatus[fileType] === "selected" && "File selected (will be uploaded on save)"}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {files.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Previously Uploaded Files:</h3>
+              <ul className="list-disc list-inside space-y-1">
+                {files.map((file, index) => (
+                  <li key={index} className="text-sm">
+                    <a href={file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      {file.split("/").pop()}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {filesToUpload.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Files to be uploaded:</h3>
+              <ul className="list-disc list-inside space-y-1">
+                {filesToUpload.map((file, index) => (
+                  <li key={index} className="text-sm">
+                    {file.file.name} ({file.fileType})
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
