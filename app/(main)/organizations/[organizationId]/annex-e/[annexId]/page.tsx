@@ -332,6 +332,8 @@ const OrganizationOperationalAssessmentForm = () => {
     </>
   );
 
+  const isSubmitDisabled = !newEvent.title || !newEvent.eReserveNo || newEvent.categories.length === 0;
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-4 text-center">Organization Operational Assessment Form</h1>
@@ -385,7 +387,7 @@ const OrganizationOperationalAssessmentForm = () => {
               </div>
             </div>
             <div className="flex justify-end">
-              <button className="btn btn-primary" onClick={submitEvent}>
+              <button className="btn btn-primary" onClick={submitEvent} disabled={isSubmitDisabled}>
                 Submit
               </button>
             </div>
