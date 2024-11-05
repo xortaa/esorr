@@ -126,6 +126,8 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [localOutflow, setLocalOutflow] = useState<Outflow | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const isReceiptSaveDisabled =
+    !currentOutflow?.establishment || !currentOutflow?.date || currentOutflow?.items.length === 0;
 
   useEffect(() => {
     fetchOutflows();
@@ -155,21 +157,21 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
- const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   if (e.target.files && e.target.files[0]) {
-     const file = e.target.files[0];
-     setSelectedFile(file);
-     setPreviewUrl(URL.createObjectURL(file));
-     setCurrentOutflow({
-       _id: "",
-       establishment: "",
-       date: "",
-       items: [],
-       image: "",
-       totalCost: 0,
-     });
-   }
- };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setCurrentOutflow({
+        _id: "",
+        establishment: "",
+        date: "",
+        items: [],
+        image: "",
+        totalCost: 0,
+      });
+    }
+  };
 
   const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -436,6 +438,7 @@ export default function AnnexE2FinancialLiquidationReport() {
     setLocalOutflow(outflow);
     setCurrentOutflow(outflow);
     setIsEditing(true);
+    setPreviewUrl(outflow.image);
   };
 
   const cancelOutflow = () => {
@@ -784,7 +787,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                       <button
                         className={`btn btn-primary ${isLoading ? "loading" : ""}`}
                         onClick={saveOutflow}
-                        disabled={isLoading}
+                        disabled={isLoading || isReceiptSaveDisabled}
                       >
                         {isLoading ? "Saving..." : isEditing ? "Update Receipt" : "Save Receipt"}
                       </button>
