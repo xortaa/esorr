@@ -6,7 +6,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexE = await AnnexE.find({ organizationId: params.organizationId });
+    const annexE = await AnnexE.find({ organization: params.organizationId });
     return NextResponse.json(annexE, { status: 200 });
   } catch (error) {
     console.error(error);

@@ -6,11 +6,10 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexL = await AnnexL.find({ organizationId: params.organizationId });
+    const annexL = await AnnexL.find({ organization: params.organizationId });
     return NextResponse.json(annexL, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 };
-  
