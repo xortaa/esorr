@@ -597,7 +597,7 @@ const MyDocument = () => {
         </Text>
         <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Certified by:</Text>
         <Image src="/assets/signature.png" style={{ width: 200, height: 50 }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>Name of Local COMELEC representative</Text>
+        <Text style={{ fontFamily: "Arial Narrow  Bold" }}>Name of Local COMELEC representative</Text>
         <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>Position </Text>
 
         {/* Annex Title */}

@@ -2,7 +2,7 @@
 
 // Update the path to the correct location of the fonts module
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render, Image } from "@react-pdf/renderer";
 import { Underline } from "lucide-react";
 
 // Register Times New Roman and Arial Narrow fonts
@@ -259,8 +259,28 @@ const MyDocument = () => {
 
         {/* Title Section */}
 
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ width: "50%" }}>
+            <Image src="/assets/UST.png" style={{ width: 100, height: 100, marginLeft: 20 }} />
+          </View>
+          <View style={{ width: "50%", textAlign: "right", paddingRight: 40 }}>
+            <Text
+              style={{
+                fontFamily: "Arial Narrow Bold",
+                fontSize: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              University of Santo Tomas
+            </Text>
+            <Text style={{ fontSize: 14 }}>Office for Student Affairs</Text>
+          </View>
+        </View>
+
         {/* Table for Beginning Table */}
-        <View style={styles.table}>
+        <View style={[styles.table, { marginTop: 10 }]}>
           {/* Header Row */}
           <View style={styles.tableRow}>
             <Text style={[styles.tableCell, { width: "50%", borderBottomWidth: 1, borderRightWidth: 1 }]}>
