@@ -1,16 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
+import axios from "axios";
 
 interface Event {
-  id: string;
+  _id: string;
   title: string;
-  eReserveNo: string;
-  categories: string[];
+  eReserveNumber?: string;
+  date?: string;
+  venue?: string;
+  adviser?: string;
+  timeAttended?: { from: string; to: string };
+  speakerName?: string;
+  speakerTopic?: string;
+  speakerAffiliation?: string;
+  speakerPosition?: string;
+  totalParticipants?: number;
+  totalRespondents?: number;
+  evaluationSummary?: {
+    [key: string]: {
+      5: number;
+      4: number;
+      3: number;
+      2: number;
+      1: number;
+    };
+  };
+  assessment?: {
+    criteria: {
+      [key: string]: {
+        rating: number;
+        analysis: string;
+        recommendation: string;
+      };
+    };
+    comments: { id: string; text: string }[];
+    sponsorName: string;
+    sponsorshipTypes: string[];
+  };
 }
 
 interface Category {
@@ -19,9 +50,52 @@ interface Category {
   description?: string;
 }
 
+interface OperationalAssessment {
+  _id: string;
+  v01: { event: Event }[];
+  v02: { event: Event }[];
+  v03: { event: Event }[];
+  v04: { event: Event }[];
+  v05: { event: Event }[];
+  v06: { event: Event }[];
+  v07: { event: Event }[];
+  v08: { event: Event }[];
+  v09: { event: Event }[];
+  s1: { event: Event }[];
+  s2: { event: Event }[];
+  s3: { event: Event }[];
+  e1: { event: Event }[];
+  e2: { event: Event }[];
+  e3: { event: Event }[];
+  a1: { event: Event }[];
+  a2: { event: Event }[];
+  a3: { event: Event }[];
+  l1: { event: Event }[];
+  l2: { event: Event }[];
+  l3: { event: Event }[];
+  sdg1: { event: Event }[];
+  sdg2: { event: Event }[];
+  sdg3: { event: Event }[];
+  sdg4: { event: Event }[];
+  sdg5: { event: Event }[];
+  sdg6: { event: Event }[];
+  sdg7: { event: Event }[];
+  sdg8: { event: Event }[];
+  sdg9: { event: Event }[];
+  sdg10: { event: Event }[];
+  sdg11: { event: Event }[];
+  sdg12: { event: Event }[];
+  sdg13: { event: Event }[];
+  sdg14: { event: Event }[];
+  sdg15: { event: Event }[];
+  sdg16: { event: Event }[];
+  sdg17: { event: Event }[];
+}
+
 const OrganizationOperationalAssessmentForm = () => {
   const currentPath = usePathname();
-  const [events, setEvents] = useState<Event[]>([]);
+  const { organizationId, annexId } = useParams();
+  const [operationalAssessment, setOperationalAssessment] = useState<OperationalAssessment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -31,54 +105,54 @@ const OrganizationOperationalAssessmentForm = () => {
 
   const strategicAreas: Category[] = [
     {
-      id: "V01",
+      id: "v01",
       title: "Thomasian Identity",
       description:
         "To form servant leaders who espouse Thomasian ideals and values as they collaborate with the University in the fulfillment of her mission and actively take part in nation building.",
     },
     {
-      id: "V02",
+      id: "v02",
       title: "Leadership and Governance",
       description:
         "To fully actualize a proactive, systematic, and mission-oriented University leadership and governance in order to be recognized as a premiere institution of Learning in Asia.",
     },
     {
-      id: "V03",
+      id: "v03",
       title: "Teaching and Learning",
       description: "To be a world-class institution of higher learning.",
     },
     {
-      id: "V04",
+      id: "v04",
       title: "Research and Innovation",
       description:
         "To become an internationally acknowledged expert in pioneering and innovative research in the arts and humanities, social science, business management and education, health and allied sciences, science and technology, and the sacred sciences.",
     },
     {
-      id: "V05",
+      id: "v05",
       title: "Community Development and Advocacy",
       description:
         "To become a vibrant community of evangelizers actively engaged in social transformation through advocacy and ministry.",
     },
     {
-      id: "V06",
+      id: "v06",
       title: "Student Welfare and Services",
       description:
         "To promote and ensure student academic achievement and life success through responsive and empirical-based services of global standards.",
     },
     {
-      id: "V07",
+      id: "v07",
       title: "Public Presence",
       description:
         "To be an institution of preeminent influence in the global community by taking a proactive stance in social, cultural, and moral advocacies and assuming a lead role in national and international policy formulation.",
     },
     {
-      id: "V08",
+      id: "v08",
       title: "Resource Management",
       description:
         "To provide a conducive learning and working environment with state-of-the-art facilities and resources in a self-sustainable University through the engagement of a professional Thomasian workforce who meets international standards and adapts to global change.",
     },
     {
-      id: "V09",
+      id: "v09",
       title: "Internationalization",
       description:
         "To promote internationalization and integrate it into the institution's strategic plans and initiatives for the purpose of preparing students for a productive engagement in the global arena of ideas and work.",
@@ -144,16 +218,33 @@ const OrganizationOperationalAssessmentForm = () => {
     ...strategicAreas,
     ...sealIndicators.flatMap((category, index) =>
       category.indicators.map((indicator, i) => ({
-        id: `SEAL-${index}-${i}`,
+        id: `${category.category.charAt(0).toLowerCase()}${i + 1}`,
         title: `${category.category} - ${indicator.split(":")[0]}`,
         description: indicator.split(":")[1].trim(),
       }))
     ),
     ...projectDirections.map((direction, index) => ({
-      id: `PD-${index}`,
+      id: `sdg${index + 1}`,
       title: direction,
     })),
   ];
+
+  useEffect(() => {
+    fetchOperationalAssessment();
+  }, []);
+
+  const fetchOperationalAssessment = async () => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment`);
+      if (response.data && response.data._id) {
+        setOperationalAssessment(response.data);
+      } else {
+        console.error("Operational assessment data is missing or invalid");
+      }
+    } catch (error) {
+      console.error("Error fetching operational assessment:", error);
+    }
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -173,47 +264,75 @@ const OrganizationOperationalAssessmentForm = () => {
     }));
   };
 
-  const submitEvent = () => {
-    if (newEvent.title && newEvent.eReserveNo && newEvent.categories.length > 0) {
-      setEvents((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          title: newEvent.title,
-          eReserveNo: newEvent.eReserveNo,
-          categories: newEvent.categories,
-        },
-      ]);
-      closeModal();
+  const submitEvent = async () => {
+    if (newEvent.title && newEvent.eReserveNo && newEvent.categories.length > 0 && operationalAssessment) {
+      try {
+        const response = await axios.post(
+          `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${operationalAssessment._id}/event`,
+          {
+            title: newEvent.title,
+            eReserveNumber: newEvent.eReserveNo,
+            categories: newEvent.categories,
+          }
+        );
+        console.log({ title: newEvent.title, eReserveNumber: newEvent.eReserveNo, categories: newEvent.categories });
+
+        if (response.status === 201) {
+          await fetchOperationalAssessment();
+          closeModal();
+        } else {
+          throw new Error("Failed to create event");
+        }
+      } catch (error) {
+        console.error("Error creating event:", error);
+      }
     }
   };
 
-  const removeEvent = (eventId: string, category: string) => {
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId ? { ...event, categories: event.categories.filter((cat) => cat !== category) } : event
-      )
-    );
+  const removeEvent = async (eventId: string, category: string) => {
+    if (operationalAssessment) {
+      try {
+        const response = await axios.delete(
+          `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${operationalAssessment._id}/event/${eventId}`,
+          { params: { category } }
+        );
+
+        if (response.status === 200) {
+          await fetchOperationalAssessment();
+        } else {
+          throw new Error("Failed to delete event");
+        }
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      }
+    }
   };
 
   const getEventsForCategory = (categoryId: string) => {
-    return events.filter((event) => event.categories.includes(categoryId));
+    if (!operationalAssessment) return [];
+    const category = operationalAssessment[categoryId as keyof OperationalAssessment];
+    if (Array.isArray(category)) {
+      return category.map((item) => item.event);
+    }
+    return [];
   };
 
   const renderEventList = (categoryId: string) => (
     <>
-      {getEventsForCategory(categoryId).map((event) => (
-        <div key={event.id} className="my-2">
-          <Link href={`${currentPath}/${event.id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
-            {event.title} (e-ReSERVe No: {event.eReserveNo})
+      {getEventsForCategory(categoryId).map((event: Event) => (
+        <div key={event._id} className="my-2">
+          <Link href={`${currentPath}/${event._id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+            {event.title} {event.eReserveNumber && `(e-ReSERVe No: ${event.eReserveNumber})`}
           </Link>
-          <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event.id, categoryId)}>
+          <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event._id, categoryId)}>
             <Trash2 size={12} />
           </button>
         </div>
       ))}
     </>
   );
+
+  const isSubmitDisabled = !newEvent.title || !newEvent.eReserveNo || newEvent.categories.length === 0;
 
   return (
     <PageWrapper>
@@ -268,7 +387,7 @@ const OrganizationOperationalAssessmentForm = () => {
               </div>
             </div>
             <div className="flex justify-end">
-              <button className="btn btn-primary" onClick={submitEvent}>
+              <button className="btn btn-primary" onClick={submitEvent} disabled={isSubmitDisabled}>
                 Submit
               </button>
             </div>
@@ -276,7 +395,6 @@ const OrganizationOperationalAssessmentForm = () => {
         </div>
       )}
 
-      {/* Strategic Directional Areas Table */}
       <div className="overflow-x-auto mb-8">
         <table className="table table-zebra w-full">
           <thead>
@@ -289,7 +407,7 @@ const OrganizationOperationalAssessmentForm = () => {
           <tbody>
             {strategicAreas.map((area) => (
               <tr key={area.id}>
-                <td className="font-bold">{area.id}</td>
+                <td className="font-bold">{area.id.toUpperCase()}</td>
                 <td>
                   <span className="font-bold">{area.title}. </span>
                   {area.description}
@@ -301,7 +419,6 @@ const OrganizationOperationalAssessmentForm = () => {
         </table>
       </div>
 
-      {/* SEAL of Thomasian Education Table */}
       <div className="overflow-x-auto mb-8">
         <table className="table table-zebra w-full">
           <thead>
@@ -323,7 +440,7 @@ const OrganizationOperationalAssessmentForm = () => {
                     </td>
                   )}
                   <td>{indicator}</td>
-                  <td>{renderEventList(`SEAL-${index}-${i}`)}</td>
+                  <td>{renderEventList(`${category.category.charAt(0).toLowerCase()}${i + 1}`)}</td>
                 </tr>
               ))
             )}
@@ -331,7 +448,6 @@ const OrganizationOperationalAssessmentForm = () => {
         </table>
       </div>
 
-      {/* Project Direction Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
@@ -344,7 +460,7 @@ const OrganizationOperationalAssessmentForm = () => {
             {projectDirections.map((direction, index) => (
               <tr key={index}>
                 <td>{direction}</td>
-                <td>{renderEventList(`PD-${index}`)}</td>
+                <td>{renderEventList(`sdg${index + 1}`)}</td>
               </tr>
             ))}
           </tbody>

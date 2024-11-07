@@ -81,8 +81,41 @@ export async function DELETE(
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
 
+    const oldTotalCost = outflow.totalCost;
     outflow.items = outflow.items.filter((item: any) => item._id.toString() !== itemId);
+    outflow.totalCost = outflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
     await outflow.save();
+
+    // Update FinancialReport if totalCost has changed
+    if (oldTotalCost !== outflow.totalCost) {
+      const annexE2 = await AnnexE2.findById(annexId);
+      if (annexE2) {
+        const annexE1 = await AnnexE1.findOne({
+          academicYear: annexE2.academicYear,
+        });
+
+        if (annexE1) {
+          const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id });
+          if (financialReport) {
+            const transactionIndex = financialReport.transactions.findIndex(
+              (t) =>
+                t.type === "outflow" && t.date.toISOString() === outflow.date.toISOString() && t.amount === oldTotalCost
+            );
+
+            if (transactionIndex !== -1) {
+              financialReport.transactions[transactionIndex].amount = outflow.totalCost;
+              financialReport.transactions[transactionIndex].description = outflow.items
+                .map((item) => item.description)
+                .join(", ");
+            }
+
+            // Recalculate the financial report
+            recalculateFinancialReport(financialReport);
+            await financialReport.save();
+          }
+        }
+      }
+    }
 
     return NextResponse.json({ message: "Item deleted successfully" });
   } catch (error) {

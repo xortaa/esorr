@@ -25,6 +25,7 @@ import AnnexL from "@/models/annex-l";
 import FinancialReport from "@/models/financial-report";
 import { MonthData, Transaction, FinancialReportData } from "@/types";
 import Pasoc from "@/models/pasoc";
+import OperationalAssessment from "@/models/operational-assessment";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
@@ -161,6 +162,50 @@ export async function POST(req: NextRequest) {
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+
+    const newOperationalAssessment = await OperationalAssessment.create({
+      annexE: newAnnexE._id,
+      v01: [],
+      v02: [],
+      v03: [],
+      v04: [],
+      v05: [],
+      v06: [],
+      v07: [],
+      v08: [],
+      v09: [],
+      s1: [],
+      s2: [],
+      s3: [],
+      e1: [],
+      e2: [],
+      e3: [],
+      a1: [],
+      a2: [],
+      a3: [],
+      l1: [],
+      l2: [],
+      l3: [],
+      sdg1: [],
+      sdg2: [],
+      sdg3: [],
+      sdg4: [],
+      sdg5: [],
+      sdg6: [],
+      sdg7: [],
+      sdg8: [],
+      sdg9: [],
+      sdg10: [],
+      sdg11: [],
+      sdg12: [],
+      sdg13: [],
+      sdg14: [],
+      sdg15: [],
+      sdg16: [],
+      sdg17: [],
+    });
+
+    await newAnnexE.updateOne({ operationalAssessment: newOperationalAssessment._id });
 
     const months = [
       "june",

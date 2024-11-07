@@ -1,9 +1,12 @@
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\[outflowId]\route.ts
+
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
 import AnnexE1 from "@/models/annex-e1";
 import Outflow from "@/models/outflow";
 import FinancialReport from "@/models/financial-report";
+import Event from "@/models/event";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
 export async function GET(
@@ -12,7 +15,7 @@ export async function GET(
 ) {
   try {
     await connectToDatabase();
-    const outflow = await Outflow.findById(params.outflowId);
+    const outflow = await Outflow.findById(params.outflowId).populate("event", "title eReserveNumber");
     if (!outflow) {
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
@@ -29,13 +32,24 @@ export async function PUT(
   try {
     await connectToDatabase();
     const body = await request.json();
+    const { event: newEventId, ...outflowData } = body;
 
     const originalOutflow = await Outflow.findById(params.outflowId);
     if (!originalOutflow) {
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
 
-    const updatedOutflow = await Outflow.findByIdAndUpdate(params.outflowId, body, { new: true });
+    // If the event has changed, update both the old and new events
+    if (originalOutflow.event.toString() !== newEventId) {
+      await Event.findByIdAndUpdate(originalOutflow.event, { $pull: { outflows: originalOutflow._id } });
+      await Event.findByIdAndUpdate(newEventId, { $push: { outflows: originalOutflow._id } });
+    }
+
+    const updatedOutflow = await Outflow.findByIdAndUpdate(
+      params.outflowId,
+      { $set: { ...outflowData, event: newEventId } },
+      { new: true }
+    );
     if (!updatedOutflow) {
       return NextResponse.json({ error: "Outflow not found" }, { status: 404 });
     }
@@ -72,8 +86,10 @@ export async function PUT(
         date: new Date(updatedOutflow.date),
         amount: updatedOutflow.totalCost,
         type: "outflow",
-        category: updatedOutflow.establishment,
-        description: updatedOutflow.items.map((item) => item.description).join(", "),
+        category: updatedOutflow.items[0].category,
+        description: updatedOutflow.items[0].description,
+        establishment: updatedOutflow.establishment,
+        items: updatedOutflow.items,
       };
     }
 
@@ -122,6 +138,9 @@ export async function DELETE(
       }
     }
 
+    // Remove the outflow from the associated event
+    await Event.findByIdAndUpdate(deletedOutflow.event, { $pull: { outflows: deletedOutflow._id } });
+
     await Outflow.findByIdAndDelete(params.outflowId);
     await AnnexE2.findByIdAndUpdate(params.annexId, {
       $pull: { outflow: params.outflowId },
@@ -160,4 +179,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-
