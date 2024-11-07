@@ -1,8 +1,11 @@
+//C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\route.ts
+
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
 import AnnexE1 from "@/models/annex-e1";
 import Outflow from "@/models/outflow";
+import Event from "@/models/event";
 import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
@@ -23,14 +26,25 @@ export async function POST(request: Request, { params }: { params: { organizatio
   try {
     await connectToDatabase();
     const body = await request.json();
-    const newOutflow = new Outflow(body);
+    const { event: eventId, ...outflowData } = body;
+
+    // Create the new outflow
+    const newOutflow = new Outflow({ ...outflowData, event: eventId });
     await newOutflow.save();
 
+    // Update the associated event
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+    event.outflows.push(newOutflow._id);
+    await event.save();
+
+    // Update AnnexE2
     const annex = await AnnexE2.findById(params.annexId);
     if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
-
     annex.outflow.push(newOutflow._id);
     await annex.save();
 

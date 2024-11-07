@@ -17,11 +17,18 @@ import {
   ShoppingBag,
   Edit,
   X,
+  CalendarDays,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { uploadImage } from "@/utils/storage";
 import { parseISO, isValid, format } from "date-fns";
+
+interface Event {
+  _id: string;
+  title: string;
+  eReserveNumber: string;
+}
 
 interface OutflowItem {
   _id: string;
@@ -39,6 +46,7 @@ interface Outflow {
   items: OutflowItem[];
   image: string;
   totalCost: number;
+  event: string; // Add this line
 }
 
 interface Inflow {
@@ -96,7 +104,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   const params = useParams();
   const organizationId = params.organizationId as string;
   const annexId = params.annexId as string;
-
+  const operationalAssessmentId = params.operationalAssessmentId as string;
   const [activeTab, setActiveTab] = useState<"outflow" | "inflow">("outflow");
   const [outflows, setOutflows] = useState<Outflow[]>([]);
   const [currentOutflow, setCurrentOutflow] = useState<Outflow | null>(null);
@@ -126,13 +134,30 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [localOutflow, setLocalOutflow] = useState<Outflow | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
   const isReceiptSaveDisabled =
     !currentOutflow?.establishment || !currentOutflow?.date || currentOutflow?.items.length === 0;
 
   useEffect(() => {
     fetchOutflows();
     fetchInflows();
+    fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const academicYearResponse = await axios.get(
+        `/api/annexes/${organizationId}/annex-e2/${annexId}/get-academic-year`
+      );
+      const academicYear = academicYearResponse.data.academicYear;
+
+      const eventResponse = await axios.get(`/api/${organizationId}/${academicYear}/get-events-for-academic-year`);
+      setEvents(eventResponse.data);
+      console.log("Events:", eventResponse.data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
 
   const fetchOutflows = async () => {
     try {
@@ -169,11 +194,12 @@ export default function AnnexE2FinancialLiquidationReport() {
         items: [],
         image: "",
         totalCost: 0,
+        event: "",
       });
     }
   };
 
-  const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOutflowDescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (localOutflow) {
       setLocalOutflow({ ...localOutflow, [name]: value });
@@ -278,53 +304,56 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-  const saveOutflow = async () => {
-    if (currentOutflow && selectedFile) {
-      setIsLoading(true);
-      try {
-        // Upload image to Google Cloud Storage
-        const imageUrl = await uploadImage(selectedFile);
+   const saveOutflow = async () => {
+     if (currentOutflow) {
+       setIsLoading(true);
+       try {
+         let imageUrl = currentOutflow.image;
+         if (selectedFile) {
+           imageUrl = await uploadImage(selectedFile);
+         }
 
-        const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
-        const outflowData = {
-          establishment: currentOutflow.establishment,
-          date: currentOutflow.date,
-          items: currentOutflow.items.map(({ _id, ...item }) => item),
-          image: imageUrl,
-          totalCost,
-        };
+         const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+         const outflowData = {
+           establishment: currentOutflow.establishment,
+           date: currentOutflow.date,
+           items: currentOutflow.items.map(({ _id, ...item }) => item),
+           image: imageUrl,
+           totalCost,
+           event: currentOutflow.event,
+         };
 
-        let response;
-        if (isEditing) {
-          response = await axios.put(
-            `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
-            outflowData
-          );
-        } else {
-          response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
-        }
+         let response;
+         if (isEditing) {
+           response = await axios.put(
+             `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
+             outflowData
+           );
+         } else {
+           response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
+         }
 
-        if (response.status === 200 || response.status === 201) {
-          if (isEditing) {
-            setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
-          } else {
-            setOutflows([...outflows, response.data]);
-          }
-          setCurrentOutflow(null);
-          setSelectedFile(null);
-          setPreviewUrl(null);
-          setIsEditing(false);
-          console.log("Outflow saved successfully");
-        } else {
-          throw new Error("Failed to save outflow");
-        }
-      } catch (error) {
-        console.error("Error saving outflow:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+         if (response.status === 200 || response.status === 201) {
+           if (isEditing) {
+             setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
+           } else {
+             setOutflows([...outflows, response.data]);
+           }
+           setCurrentOutflow(null);
+           setSelectedFile(null);
+           setPreviewUrl(null);
+           setIsEditing(false);
+           console.log("Outflow saved successfully");
+         } else {
+           throw new Error("Failed to save outflow");
+         }
+       } catch (error) {
+         console.error("Error saving outflow:", error);
+       } finally {
+         setIsLoading(false);
+       }
+     }
+   };
 
   const handleInflowChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -543,6 +572,27 @@ export default function AnnexE2FinancialLiquidationReport() {
                               className="input input-bordered w-full"
                               required
                             />
+                          </div>
+                          <div className="form-control">
+                            <label className="label">
+                              <span className="label-text flex items-center">
+                                <CalendarDays className="mr-2" /> Event
+                              </span>
+                            </label>
+                            <select
+                              name="event"
+                              value={currentOutflow.event}
+                              onChange={handleOutflowDescriptionChange}
+                              className="select select-bordered w-full"
+                              required
+                            >
+                              <option value="">Select an event</option>
+                              {events.map((event) => (
+                                <option key={event._id} value={event._id}>
+                                  {event.title} (E-Reserve: {event.eReserveNumber})
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
 

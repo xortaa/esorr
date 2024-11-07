@@ -14,6 +14,7 @@ const OutflowSchema = new Schema({
   items: [OutflowItemSchema],
   totalCost: Number,
   image: String,
+  event: { type: Schema.Types.ObjectId, ref: "Event" },
 });
 
 const Outflow = models.Outflow || model("Outflow", OutflowSchema);

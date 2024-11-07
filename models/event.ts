@@ -21,6 +21,8 @@ const AssessmentCriteriaSchema = new Schema(
 );
 
 const EventSchema = new Schema({
+  academicYear: String,
+  organization: { type: Schema.Types.ObjectId, ref: "Organization" },
   title: { type: String },
   eReserveNumber: { type: String },
   date: { type: Date },
@@ -50,6 +52,10 @@ const EventSchema = new Schema({
   sponsorName: { type: String },
   sponsorshipTypes: [{ type: String }],
   files: [String],
+  outflows: {
+    type: [Schema.Types.ObjectId],
+    ref: "Outflow",
+  },
 });
 
 const Event = models.Event || model("Event", EventSchema);

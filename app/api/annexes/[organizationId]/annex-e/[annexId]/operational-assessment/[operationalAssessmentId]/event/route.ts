@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import OperationalAssessment from "@/models/operational-assessment";
 import Event from "@/models/event";
+import AnnexE from "@/models/annex-e";
 
 export const POST = async (
   req: NextRequest,
@@ -16,13 +17,19 @@ export const POST = async (
     const { operationalAssessmentId } = params;
     const { categories, ...eventData } = body;
 
+    const annexE = await AnnexE.findOne({ operationalAssessments: operationalAssessmentId }).select(
+      "organization academicYear"
+    );
+
+    const newEventData = { ...eventData, organization: annexE.organization, academicYear: annexE.academicYear };
+
     const operationalAssessment = await OperationalAssessment.findById(operationalAssessmentId);
 
     if (!operationalAssessment) {
       return NextResponse.json({ error: "Operational assessment not found" }, { status: 404 });
     }
 
-    const newEvent = await Event.create(eventData);
+    const newEvent = await Event.create(newEventData);
 
     categories.forEach((category: string) => {
       if (!operationalAssessment[category]) {
