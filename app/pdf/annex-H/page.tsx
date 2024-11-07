@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={[styles.page]}>
+      <Page style={styles.page} size="LEGAL" orientation="portrait">
         {/* Header */}
 
         <View fixed style={styles.header}>
@@ -327,6 +327,7 @@ const MyDocument = () => {
 // Footer component
 const Footer = () => (
   <View fixed style={styles.footer}>
+    <Text style={{textAlign: "right", color:"#000"}}>UST:S030-00-FO113</Text>
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );
