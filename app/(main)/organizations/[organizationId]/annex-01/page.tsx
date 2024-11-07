@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ChevronDown, ChevronUp, Plus, FileText, Send, Download, PenTool } from "lucide-react";
+import { Plus, FileText, Send, Download, PenTool } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import Annex01SignatureButton from "@/components/annexPDF/annex01SignatureButton";
 
@@ -14,22 +14,25 @@ type Annex01 = {
 
 export default function Annex01Manager({ params }: { params: { organizationId: string } }) {
   const [annexList, setAnnexList] = useState<Annex01[]>([]);
-  const [expandedAnnex, setExpandedAnnex] = useState<string | null>(null);
   const [newAcademicYear, setNewAcademicYear] = useState<string>(
     `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
   );
   const [isCreatingAnnex, setIsCreatingAnnex] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchAnnexes();
   }, []);
 
   const fetchAnnexes = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get(`/api/annexes/${params.organizationId}/annex-01`);
       setAnnexList(response.data);
     } catch (error) {
       console.error("Error fetching annexes:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,10 +46,6 @@ export default function Annex01Manager({ params }: { params: { organizationId: s
     } catch (error) {
       console.error("Error creating annex:", error);
     }
-  };
-
-  const toggleExpand = (id: string) => {
-    setExpandedAnnex(expandedAnnex === id ? null : id);
   };
 
   const submitAnnexForReview = async (id: string) => {
@@ -106,23 +105,28 @@ export default function Annex01Manager({ params }: { params: { organizationId: s
         </div>
       )}
 
-      <div className="space-y-4">
-        {annexList.map((annex) => (
-          <AnnexCard
-            key={annex._id}
-            annex={annex}
-            expandedAnnex={expandedAnnex}
-            toggleExpand={toggleExpand}
-            submitAnnexForReview={submitAnnexForReview}
-            addSignature={addSignature}
-            downloadPDF={downloadPDF}
-          />
-        ))}
-      </div>
-      {annexList.length === 0 && (
-        <div className="text-center text-gray-500 mt-8">
-          <p>No Rules of Procedure for Recognition Annex created yet.</p>
-          <p>Click the button above to create one.</p>
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center mt-8">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="mt-4 text-gray-500">Loading your annexes...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {annexList.map((annex) => (
+            <AnnexCard
+              key={annex._id}
+              annex={annex}
+              submitAnnexForReview={submitAnnexForReview}
+              addSignature={addSignature}
+              downloadPDF={downloadPDF}
+            />
+          ))}
+          {annexList.length === 0 && (
+            <div className="text-center text-gray-500 mt-8">
+              <p>No Rules of Procedure for Recognition Annex created yet.</p>
+              <p>Click the button above to create one.</p>
+            </div>
+          )}
         </div>
       )}
     </PageWrapper>
@@ -131,21 +135,12 @@ export default function Annex01Manager({ params }: { params: { organizationId: s
 
 interface AnnexCardProps {
   annex: Annex01;
-  expandedAnnex: string | null;
-  toggleExpand: (id: string) => void;
   submitAnnexForReview: (id: string) => void;
   addSignature: (id: string) => void;
   downloadPDF: (id: string) => void;
 }
 
-function AnnexCard({
-  annex,
-  expandedAnnex,
-  toggleExpand,
-  submitAnnexForReview,
-  addSignature,
-  downloadPDF,
-}: AnnexCardProps) {
+function AnnexCard({ annex, submitAnnexForReview, addSignature, downloadPDF }: AnnexCardProps) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -157,36 +152,33 @@ function AnnexCard({
           <div className="flex items-center space-x-2">
             <Annex01SignatureButton />
             <button className="btn btn-ghost btn-sm" onClick={() => addSignature(annex._id)}>
-              <PenTool className="h-4 w-4" />
-              <span className="ml-2">Add Signature</span>
+              <PenTool className="h-4 w-4 mr-2" />
+              Add Signature
             </button>
             <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
-              <Download className="h-4 w-4" />
-              <span className="ml-2">Download PDF</span>
-            </button>
-            <button className="btn btn-ghost btn-circle" onClick={() => toggleExpand(annex._id)}>
-              {expandedAnnex === annex._id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
             </button>
           </div>
         </div>
-        {expandedAnnex === annex._id && (
-          <div className="mt-4 space-y-4">
-            <div className="flex items-center space-x-4">
-              <label className="font-medium">Status:</label>
-              <span>{annex.isSubmitted ? "Submitted" : "Not Submitted"}</span>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <button
-                className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
-                onClick={() => submitAnnexForReview(annex._id)}
-                disabled={annex.isSubmitted}
-              >
-                <Send className="mr-2 h-4 w-4" />
-                Submit for Review
-              </button>
-            </div>
+        <div className="mt-4 space-y-4">
+          <div className="flex items-center space-x-4">
+            <label className="font-medium">Status:</label>
+            <span className={annex.isSubmitted ? "text-green-600" : "text-yellow-600"}>
+              {annex.isSubmitted ? "Submitted" : "Not Submitted"}
+            </span>
           </div>
-        )}
+          <div className="flex justify-end space-x-2">
+            <button
+              className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
+              onClick={() => submitAnnexForReview(annex._id)}
+              disabled={annex.isSubmitted}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Submit for Review
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
