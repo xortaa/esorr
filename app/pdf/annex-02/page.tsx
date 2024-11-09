@@ -203,9 +203,11 @@ const styles = StyleSheet.create({
   },
 
   signatureSection: {
-    marginTop: 20,
+    flexDirection: "row",
+    width: "100%",
+    paddingTop: 40,
     textAlign: "left",
-    marginBottom: 40,
+    fontSize: 9,
   },
   signatureLine: {
     borderTopWidth: 1,
@@ -215,14 +217,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   signatureText: {
-    textAlign: "left",
+    flexDirection: "column",
+    width: "50%",
+    marginRight: 110,
   },
   signatureDetails: {
     marginTop: 10,
-    flexDirection: "row",
     textAlign: "left",
-    justifyContent: "space-between",
-    width: "100%",
   },
 });
 
@@ -230,15 +231,24 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={styles.page} size={"A4"}>
+      <Page style={styles.page} size={"LEGAL"}>
         {/* Header */}
         <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
+          <View fixed style={{ flexDirection: "row" }}>
+            <View style={{ width: "80%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
+                STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
+              </Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right", fontFamily: "Arial Narrow Bold" }}>
+                ANNEX 02
+              </Text>
+            </View>
+          </View>
 
           <Text
-            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            style={{ fontSize: 8, textAlign: "right" }}
             render={({ pageNumber, totalPages }) => `Page | ${pageNumber}`}
           />
 
@@ -549,34 +559,29 @@ const MyDocument = () => {
 
         {/* FOR COLLEGE-BASED STUDENT ORGANIZATION (REMOVE IF NOT APPLICABLE) */}
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            <Text
-              style={{
-                borderTopWidth: 1,
-              }}
-            >
-              Signature over Printed Name of Adviser
-            </Text>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
+            <Text style={{ borderTopWidth: 1 }}>Signature over Printed Name of Adviser</Text>
+          </View>
+          <View style={styles.signatureText}>
             <Text style={{ borderTopWidth: 1 }}>Signature over Printed Name of Co-Adviser</Text>
           </View>
         </View>
 
-        <View style={styles.signatureDetails}>
-          <Text
-            style={{
-              borderTopWidth: 1,
-              fontSize: 9,
-              marginTop: 60,
-            }}
-          >
-            Signature over Printed Name <Br></Br>
-            <Text style={{ fontFamily: "Arial Narrow Bold", fontSize: 12 }}>SWDC Coordinator</Text>
-          </Text>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
+            <Text style={{ borderTopWidth: 1 }}>
+              Signature over Printed Name <Br></Br>
+              <Text style={[styles.signatureText, { fontFamily: "Arial Narrow Bold", fontSize: 12 }]}>
+                SWDC Coordinator
+              </Text>
+            </Text>
+          </View>
+          <View style={styles.signatureText}></View>
         </View>
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
             <Text
               style={{
                 borderTopWidth: 1,
@@ -585,6 +590,8 @@ const MyDocument = () => {
               Signature over Printed Name<Br></Br>
               <Text style={{ fontFamily: "Arial Narrow Bold", fontSize: 12 }}>Dean/Director</Text>
             </Text>
+          </View>
+          <View style={styles.signatureText}>
             <Text style={{ borderTopWidth: 1 }}>
               Signature over Printed Name<Br></Br>
               <Text style={{ fontFamily: "Arial Narrow Bold", fontSize: 12, paddingRight: 30 }}>Regent</Text>
@@ -594,8 +601,8 @@ const MyDocument = () => {
 
         {/*  WITH CENTRAL ORGANIZATION (Please delete/remove if not applicable) */}
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
             <Text
               style={{
                 borderTopWidth: 1,
@@ -604,6 +611,9 @@ const MyDocument = () => {
               Signature over Printed Name of<Br></Br>
               Central Organization President
             </Text>
+          </View>
+
+          <View style={styles.signatureText}>
             <Text style={{ borderTopWidth: 1 }}>
               Signature over Printed Name<Br></Br>
               Central Organization Adviser
@@ -613,8 +623,8 @@ const MyDocument = () => {
 
         {/* FOR UNIVERSITY-WIDE STUDENT ORGANIZATION (Please delete/remove if not applicable) */}
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
             <Text
               style={{
                 borderTopWidth: 1,
@@ -622,14 +632,16 @@ const MyDocument = () => {
             >
               Signature over Printed Name of Adviser
             </Text>
+          </View>
+          <View style={styles.signatureText}>
             <Text style={{ borderTopWidth: 1 }}>Signature over Printed Name of Co-Adviser</Text>
           </View>
         </View>
 
         {/* FOR STUDENT RELIGIOUS ORGANIZATION (Please delete/remove if not applicable) */}
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
             <Text
               style={{
                 borderTopWidth: 1,
@@ -638,6 +650,8 @@ const MyDocument = () => {
               Signature over Printed Name of<Br></Br>
               Central Organization President
             </Text>
+          </View>
+          <View style={styles.signatureText}>
             <Text style={{ borderTopWidth: 1 }}>
               Signature over Printed Name<Br></Br>
               Central Organization Adviser
@@ -645,8 +659,8 @@ const MyDocument = () => {
           </View>
         </View>
 
-        <View style={{ flexDirection: "row", width: "100%", paddingTop: 40, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
+        <View style={styles.signatureSection}>
+          <View style={styles.signatureText}>
             <Text
               style={{
                 borderTopWidth: 1,
@@ -655,6 +669,7 @@ const MyDocument = () => {
               Director, Center for Campus Ministry
             </Text>
           </View>
+          <View style={styles.signatureText}></View>
         </View>
 
         <Footer />

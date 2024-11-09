@@ -235,12 +235,21 @@ const MyDocument = () => {
       <Page size="LEGAL" style={styles.page}>
         {/* Header */}
         <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
+          <View fixed style={{ flexDirection: "row" }}>
+            <View style={{ width: "80%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
+                STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
+              </Text>
+            </View>
+            <View style={{ width: "20%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right", fontFamily: "Arial Narrow Bold" }}>
+                ANNEX 01
+              </Text>
+            </View>
+          </View>
 
           <Text
-            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            style={{ fontSize: 8, textAlign: "right" }}
             render={({ pageNumber, totalPages }) => `Page | ${pageNumber}`}
           />
 
@@ -258,7 +267,7 @@ const MyDocument = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.subheading}>The Roles of Procedure for Recognition of Student Organizations</Text>
+          <Text style={styles.subheading}>The Rules of Procedure for Recognition of Student Organizations</Text>
         </View>
         <View style={styles.sectionTableRow}>
           <Text style={styles.sectionCellHeader}>Section 1.</Text>
