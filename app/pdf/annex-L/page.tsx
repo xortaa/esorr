@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Page, Text, View, Document, StyleSheet, pdf, Font, PDFViewer, render } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, Image, PDFViewer, render } from "@react-pdf/renderer";
 
 // Register Times New Roman and Arial Narrow fonts
 Font.register({
@@ -231,91 +231,129 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-    <Page style={styles.page} size="LEGAL" orientation="portrait">
+      <Page style={styles.page} size="LEGAL" orientation="portrait">
         {/* Header */}
 
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
             STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
           </Text>
+         
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>ANNEX L</Text>
 
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
-            ANNEX L
-          </Text>
-
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
-          Commitment to Submit the Post Event Evaluation on Time
+            Commitment to Submit the Post Event Evaluation on Time
           </Text>
           <Text style={{ fontSize: 8, textAlign: "right" }}>AY 2024-2025</Text>
         </View>
 
         {/* Content */}
         <View style={styles.section}>
-            <Text style={{ fontSize: 16, fontFamily: "Arial Narrow Bold", textAlign: "center", textDecoration: "underline" }}>
+          <Text
+            style={{ fontSize: 16, fontFamily: "Arial Narrow Bold", textAlign: "center", textDecoration: "underline" }}
+          >
             COMMITMENT TO SUBMIT THE POST EVENT EVALUATION {"\n"}
             OF EACH COMPLETED ACTIVITY ON TIME
-                {"\n"}
-                {"\n"}
-            </Text>
-        </View>
-        
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>Date: //*Month/Day/Year fetch sa code date today?*/</Text>
-        </View>
-      
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>__________________________________</Text>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>Officer-In-Charge, Office for Student Affairs</Text>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>University of Santo Tomas {"\n"}</Text>
+            {"\n"}
+            {"\n"}
+          </Text>
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "left"}}>Dear ___________________:</Text>
-        </View>    
-
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>We, the officers of NAME OF ORGANIZATION, commit to submit a post event evaluation of each completed
-                activity on time to the Office for Student Affairs through the Student Organizations Coordinating Council Office.
-                {"\n"}
-                {"\n"}
-                It is the utmost responsibility of the officers to create a culture of excellence and implement best practices, systems,
-                and standards in the organization as well as to contribute to the fulfillment of the mission, vision, and goals of the
-                University.
-                {"\n"}
-                {"\n"}
-                </Text>
-        </View>
-
-       
-        <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>Signed:</Text>
+          <Text style={{ fontSize: "11", textAlign: "left" }}>Date: //*Month/Day/Year fetch sa code date today?*/</Text>
         </View>
 
         <View style={styles.section}>
-                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
-                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>(Officer In-Charge in Post Events Documentation/Evaluation) {"\n"}{"\n"}</Text>
-               
+          <Text style={{ fontSize: "11", textAlign: "left" }}>__________________________________</Text>
+          <Text style={{ fontSize: "11", textAlign: "left" }}>Officer-In-Charge, Office for Student Affairs</Text>
+          <Text style={{ fontSize: "11", textAlign: "left" }}>University of Santo Tomas {"\n"}</Text>
         </View>
 
         <View style={styles.section}>
-        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME  </Text>
-                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Secretary {"\n"}</Text>
-               
+          <Text style={{ fontSize: "11", textAlign: "left" }}>Dear ___________________:</Text>
         </View>
 
         <View style={styles.section}>
-        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME </Text>
-                <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>President {"\n"}</Text>
-                
+          <Text style={{ fontSize: "11", textAlign: "justify" }}>
+            We, the officers of NAME OF ORGANIZATION, commit to submit a post event evaluation of each completed
+            activity on time to the Office for Student Affairs through the Student Organizations Coordinating Council
+            Office.
+            {"\n"}
+            {"\n"}
+            It is the utmost responsibility of the officers to create a culture of excellence and implement best
+            practices, systems, and standards in the organization as well as to contribute to the fulfillment of the
+            mission, vision, and goals of the University.
+            {"\n"}
+            {"\n"}
+          </Text>
         </View>
 
-    <View style={styles.section}>
-                <Text style={{ fontSize:"11", textAlign: "justify"}}>{"\n"}Attested by:</Text>
+        <View style={styles.section}>
+          <Text style={{ fontSize: "11", textAlign: "justify" }}>Signed:</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text
+            style={{
+              fontSize: "11",
+              fontFamily: "Arial Narrow Bold",
+              textAlign: "justify",
+              textDecoration: "underline",
+            }}
+          >
+            FIRST NAME M.I. SURNAME{" "}
+          </Text>
+          <Text style={{ fontSize: "11", fontFamily: "Arial Narrow", textAlign: "justify" }}>
+            (Officer In-Charge in Post Events Documentation/Evaluation) {"\n"}
+            {"\n"}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text
+            style={{
+              fontSize: "11",
+              fontFamily: "Arial Narrow Bold",
+              textAlign: "justify",
+              textDecoration: "underline",
+            }}
+          >
+            FIRST NAME M.I. SURNAME{" "}
+          </Text>
+          <Text style={{ fontSize: "11", fontFamily: "Arial Narrow", textAlign: "justify" }}>Secretary {"\n"}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text
+            style={{
+              fontSize: "11",
+              fontFamily: "Arial Narrow Bold",
+              textAlign: "justify",
+              textDecoration: "underline",
+            }}
+          >
+            FIRST NAME M.I. SURNAME{" "}
+          </Text>
+          <Text style={{ fontSize: "11", fontFamily: "Arial Narrow", textAlign: "justify" }}>President {"\n"}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={{ fontSize: "11", textAlign: "justify" }}>{"\n"}Attested by:</Text>
         </View>
         <View style={styles.section}>
-        <Text style={{ fontSize:"11", fontFamily: "Arial Narrow Bold", textAlign: "justify", textDecoration: "underline"}}>FIRST NAME M.I. SURNAME  </Text>
-               <Text style={{ fontSize:"11", fontFamily: "Arial Narrow", textAlign: "justify"}}>Organization Adviser </Text>
-               
+          <Text
+            style={{
+              fontSize: "11",
+              fontFamily: "Arial Narrow Bold",
+              textAlign: "justify",
+              textDecoration: "underline",
+            }}
+          >
+            FIRST NAME M.I. SURNAME{" "}
+          </Text>
+          <Text style={{ fontSize: "11", fontFamily: "Arial Narrow", textAlign: "justify" }}>
+            Organization Adviser{" "}
+          </Text>
         </View>
 
         <Footer />
@@ -327,7 +365,7 @@ const MyDocument = () => {
 // Footer component
 const Footer = () => (
   <View fixed style={styles.footer}>
-    <Text style={{textAlign: "right", color:"#000"}}>UST:S030-00-FO117</Text>
+    <Text style={{ textAlign: "right", color: "#000" }}>UST:S030-00-FO117</Text>
     <Text>All rights reserved by the Office for Student Affairs</Text>
   </View>
 );

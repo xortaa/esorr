@@ -6,6 +6,7 @@ import User from "@/models/user";
 import bcrypt from "bcryptjs";
 import { encode, decode } from "next-auth/jwt";
 import { DefaultSession, DefaultUser } from "next-auth";
+import Organization from "@/models/organization";
 
 declare module "next-auth" {
   export interface Profile {
@@ -16,12 +17,29 @@ declare module "next-auth" {
       _id: string;
       role: string;
       isSetup: boolean;
+      positions?: {
+        organization: {
+          _id: string;
+          name: string;
+        };
+        position: string;
+        _id: string;
+      }[];
     } & DefaultSession["user"];
   }
+
   export interface Account {
     role: string;
     _id: string;
     isSetup: boolean;
+    positions?: {
+      organization: {
+        _id: string;
+        name: string;
+      };
+      position: string;
+      _id: string;
+    }[];
   }
 }
 
@@ -30,6 +48,14 @@ declare module "next-auth/jwt" {
     role: string;
     _id: string;
     isSetup: boolean;
+    positions?: {
+      organization: {
+        _id: string;
+        name: string;
+      };
+      position: string;
+      _id: string;
+    }[];
   }
 }
 
@@ -96,6 +122,9 @@ export const options: NextAuthOptions = {
           account._id = existingUser._id.toString();
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
+          if (existingUser.positions) {
+            account.positions = existingUser.positions;
+          }
           return true;
         }
       } catch (error) {
@@ -104,11 +133,28 @@ export const options: NextAuthOptions = {
       }
     },
     async session({ session, token }) {
+      await dbConnect();
+
       if (token._id) {
         session.user._id = token._id.toString();
       }
       session.user.role = token.role;
       session.user.isSetup = token.isSetup;
+      session.user.positions = token.positions;
+
+      // Populate organization details in positions
+      if (session.user.positions) {
+        for (const position of session.user.positions) {
+          const organization = await Organization.findById(position.organization._id).select("name");
+          if (organization) {
+            position.organization = {
+              _id: organization._id.toString(),
+              name: organization.name,
+            };
+          }
+        }
+      }
+
       return session;
     },
     async jwt({ token, account, user }) {
@@ -116,11 +162,27 @@ export const options: NextAuthOptions = {
         token.role = account.role;
         token._id = account._id;
         token.isSetup = account.isSetup;
+        token.positions = account.positions;
       } else if (user) {
         token.role = (user as any).role;
         token._id = (user as any)._id.toString();
         token.isSetup = (user as any).isSetup;
+        token.positions = (user as any).positions;
       }
+
+      // Populate organization details in positions
+      if (token.positions) {
+        for (const position of token.positions) {
+          const organization = await Organization.findById(position.organization).select("name");
+          if (organization) {
+            position.organization = {
+              _id: organization._id.toString(),
+              name: organization.name,
+            };
+          }
+        }
+      }
+
       return token;
     },
     async redirect({ url, baseUrl }) {
