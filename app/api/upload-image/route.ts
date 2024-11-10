@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Storage } from "@google-cloud/storage";
+import { v4 as uuidv4 } from "uuid";
 
 const storageClient = new Storage({
   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -20,8 +21,11 @@ export async function POST(request: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
+    // Generate a unique filename using uuid
+    const uniqueFilename = `${uuidv4()}-${file.name}`;
+
     // Upload to Google Cloud Storage
-    const blob = bucket.file(file.name);
+    const blob = bucket.file(uniqueFilename);
     await new Promise((resolve, reject) => {
       const blobStream = blob.createWriteStream({
         resumable: false,
@@ -35,7 +39,7 @@ export async function POST(request: NextRequest) {
       blobStream.end(buffer);
     });
 
-    const publicUrl = `https://storage.googleapis.com/${bucketName}/${file.name}`;
+    const publicUrl = `https://storage.googleapis.com/${bucketName}/${uniqueFilename}`;
     return NextResponse.json({ url: publicUrl }, { status: 200 });
   } catch (error) {
     console.error("Error uploading file:", error);
