@@ -311,14 +311,18 @@ export default function EnhancedAnnexLManager() {
   };
 
   const openSignatureModal = async (annex: AnnexL) => {
-    setSelectedAnnex(annex);
-    setIsModalOpen(true);
     try {
-      const blob = await generatePDFBlob(annex);
+      setIsLoading(true);
+      const updatedAnnex = await fetchUpdatedAnnex(annex._id);
+      setSelectedAnnex(updatedAnnex);
+      setIsModalOpen(true);
+      const blob = await generatePDFBlob(updatedAnnex);
       setPdfBlob(blob);
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+      console.error("Error opening signature modal:", error);
+      alert("Failed to open signature modal. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -337,16 +341,28 @@ export default function EnhancedAnnexLManager() {
 
   const generatePDF = async (annex: AnnexL) => {
     try {
-      const blob = await generatePDFBlob(annex);
+      setIsLoading(true);
+      const updatedAnnex = await fetchUpdatedAnnex(annex._id);
+      const blob = await generatePDFBlob(updatedAnnex);
       const url = URL.createObjectURL(blob);
       console.log("PDF URL created:", url);
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const fetchUpdatedAnnex = async (annexId: string): Promise<AnnexL> => {
+    if (!organizationId) {
+      throw new Error("Organization ID is not available");
+    }
+    const response = await axios.get(`/api/annexes/${organizationId}/annex-l/${annexId}`);
+    return response.data;
+  };
+  
   const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -383,6 +399,7 @@ export default function EnhancedAnnexLManager() {
     formData.append("position", selectedSignaturePosition);
 
     try {
+      setIsLoading(true);
       const response = await fetch("/api/upload-signature", {
         method: "POST",
         body: formData,
@@ -418,6 +435,8 @@ export default function EnhancedAnnexLManager() {
     } catch (error) {
       console.error("Error adding signature:", error);
       alert(`Error adding signature: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
     }
 
     setSignatureFile(null);
@@ -439,7 +458,7 @@ export default function EnhancedAnnexLManager() {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
           <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="mt-4 text-gray-500">Loading your annexes...</p>
+          <p className="mt-4 text-gray-500">Loading...</p>
         </div>
       ) : (
         <div className="space-y-4">

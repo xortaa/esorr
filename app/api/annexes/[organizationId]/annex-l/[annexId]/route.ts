@@ -1,3 +1,4 @@
+//C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-l\[annexId]\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexL from "@/models/annex-l";
@@ -9,8 +10,10 @@ export async function GET(request: NextRequest, { params }: { params: { organiza
 
     const annex = await AnnexL.findOne({
       _id: annexId,
-      "organization._id": organizationId,
-    }).populate("organization");
+    })
+    
+      .populate("organization")
+      .lean(); // Add .lean() here
 
     if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
