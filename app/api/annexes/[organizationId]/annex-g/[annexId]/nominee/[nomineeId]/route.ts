@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-g\[annexId]\nominee\[nomineeId]\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Nominee from "@/models/nominee";
