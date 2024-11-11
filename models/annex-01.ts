@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\models\annex-01.ts
 import { Schema, model, models } from "mongoose";
 
 const Annex01Schema = new Schema({
@@ -12,6 +13,12 @@ const Annex01Schema = new Schema({
   isSubmitted: {
     type: Boolean,
     default: false,
+  },
+  president: {
+    name: String,
+    position: String,
+    signatureUrl: String,
+    dateSigned: Date,
   },
 });
 
