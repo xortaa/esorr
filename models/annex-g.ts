@@ -1,5 +1,12 @@
 import { Schema, model, models } from "mongoose";
 
+const SignatureSchema = new Schema({
+  name: String,
+  position: String,
+  signatureUrl: String,
+  dateSigned: Date,
+});
+
 const AnnexGSchema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
@@ -17,6 +24,7 @@ const AnnexGSchema = new Schema({
     type: [Schema.Types.ObjectId],
     ref: "Nominee",
   },
+  presidentSignature: SignatureSchema,
 });
 
 const AnnexG = models.AnnexG || model("AnnexG", AnnexGSchema);

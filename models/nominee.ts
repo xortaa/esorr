@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\models\nominee.ts
 import { Schema, model, models } from "mongoose";
 
 const nomineeSchema = new Schema({
