@@ -6,7 +6,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexD = await AnnexD.findById(params.annexId);
+    const annexD = await AnnexD.findById(params.annexId).populate("organization");
     return NextResponse.json(annexD, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -16,10 +16,10 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
 
 export const PATCH = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
   await connectToDatabase();
-  const description = await req.json();
+  const data = await req.json();
 
   try {
-    const updatedAnnexD = await AnnexD.findByIdAndUpdate(params.annexId, description, { new: true });
+    const updatedAnnexD = await AnnexD.findByIdAndUpdate(params.annexId, data, { new: true });
     return NextResponse.json(updatedAnnexD, { status: 200 });
   } catch (error) {
     console.error(error);

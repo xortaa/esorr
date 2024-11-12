@@ -1,26 +1,30 @@
-import { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 
-const AnnexDSchema = new Schema({
+const AnnexDSchema = new mongoose.Schema({
   organization: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Organization",
-  },
-  logo: {
-    type: String,
-  },
-  description: {
-    type: String,
   },
   academicYear: {
     type: String,
-    required: true,
   },
   isSubmitted: {
     type: Boolean,
     default: false,
   },
+  description: {
+    type: String,
+  },
+  secretary: {
+    name: String,
+    position: String,
+    signatureUrl: String,
+    signatureDate: Date,
+  },
+  letterhead: {
+    type: String,
+  },
 });
 
-const AnnexD = models.AnnexD || model("AnnexD", AnnexDSchema);
-
+const AnnexD = mongoose.models.AnnexD || mongoose.model("AnnexD", AnnexDSchema);
 export default AnnexD;
