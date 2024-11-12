@@ -110,10 +110,22 @@ export default function ActivitiesFormCreator() {
     const newTerms = [...terms];
     if (field === "actualDateAccomplished" && typeof value === "string") {
       newTerms[termIndex].activities[activityIndex][field] = value ? new Date(value).toISOString().split("T")[0] : "";
+    } else if (field === "postEventEvaluation" && typeof value === "string") {
+      const rating = parseFloat(value);
+      newTerms[termIndex].activities[activityIndex][field] = value;
+      newTerms[termIndex].activities[activityIndex].interpretation = getInterpretation(rating);
     } else {
       newTerms[termIndex].activities[activityIndex][field] = value as never;
     }
     setTerms(newTerms);
+  };
+
+  const getInterpretation = (rating: number): string => {
+    if (rating >= 4.5) return "EXCELLENT";
+    if (rating >= 3.5) return "VERY GOOD";
+    if (rating >= 2.5) return "GOOD";
+    if (rating >= 1.5) return "FAIR";
+    return "NEEDS IMPROVEMENT";
   };
 
   const toggleActivityOpen = (termIndex: number, activityIndex: number) => {
@@ -220,7 +232,6 @@ export default function ActivitiesFormCreator() {
                             onChange={(e) =>
                               updateActivity(termIndex, activityIndex, "keyUnitActivity", e.target.value)
                             }
-                            required
                           />
                         </div>
                         <div className="form-control">
@@ -236,7 +247,6 @@ export default function ActivitiesFormCreator() {
                               updateActivity(termIndex, activityIndex, "targetDateRange", e.target.value)
                             }
                             placeholder="e.g., August 2023 - October 2024"
-                            required
                           />
                         </div>
                         <div className="form-control">
@@ -257,32 +267,36 @@ export default function ActivitiesFormCreator() {
                           <label className="label" htmlFor={`postEventEvaluation-${activity.id}`}>
                             <span className="label-text">Post Event Evaluation (Mean Rating)</span>
                           </label>
-                          <select
+                          <input
+                            type="number"
                             id={`postEventEvaluation-${activity.id}`}
-                            className="select select-bordered w-full"
+                            className="input input-bordered w-full"
                             value={activity.postEventEvaluation}
-                            onChange={(e) =>
-                              updateActivity(termIndex, activityIndex, "postEventEvaluation", e.target.value)
-                            }
-                          >
-                            <option value="">Select a rating</option>
-                            {[1, 2, 3, 4, 5].map((rating) => (
-                              <option key={rating} value={rating.toString()}>
-                                {rating}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value);
+                              if (value <= 5) {
+                                updateActivity(termIndex, activityIndex, "postEventEvaluation", value.toString());
+                              } else {
+                                // If the value is greater than 5, set it to 5
+                                updateActivity(termIndex, activityIndex, "postEventEvaluation", "5");
+                              }
+                            }}
+                            min="0"
+                            max="5"
+                            step="0.001"
+                          />
                         </div>
                         <div className="form-control">
                           <label className="label" htmlFor={`interpretation-${activity.id}`}>
                             <span className="label-text">Interpretation</span>
                           </label>
-                          <textarea
+                          <input
+                            type="text"
                             id={`interpretation-${activity.id}`}
-                            className="textarea textarea-bordered h-24"
+                            className="input input-bordered w-full"
                             value={activity.interpretation}
-                            onChange={(e) => updateActivity(termIndex, activityIndex, "interpretation", e.target.value)}
-                          ></textarea>
+                            readOnly
+                          />
                         </div>
                         <button
                           type="button"
