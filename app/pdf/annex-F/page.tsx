@@ -322,12 +322,8 @@ const MyDocument = () => {
           </Text>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Recruitment 101 (USO) / Organization Fair (CBO){" "}
-            </Text>
-            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              August 2024 - October 2024 (USO) CBO - depending on Academic unit
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
+            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ width: "33.3%", borderRightWidth: 1 }}> </Text>
@@ -342,9 +338,7 @@ const MyDocument = () => {
           </View>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Recruitment 101 (USO) / Organization Fair (CBO){" "}
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
@@ -360,9 +354,7 @@ const MyDocument = () => {
           </View>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>2</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              General Assembly{" "}
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
@@ -391,9 +383,7 @@ const MyDocument = () => {
           </Text>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Recruitment 101 (USO) / Organization Fair (CBO){" "}
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
@@ -409,9 +399,7 @@ const MyDocument = () => {
           </View>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Recruitment 101 (USO) / Organization Fair (CBO){" "}
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
@@ -427,9 +415,7 @@ const MyDocument = () => {
           </View>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Recruitment 101 (USO) / Organization Fair (CBO){" "}
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
@@ -458,12 +444,8 @@ const MyDocument = () => {
           </Text>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Day 0{" "}
-            </Text>
-            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Jun 3, 2024
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
+            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ width: "33.3%", borderRightWidth: 1 }}> </Text>
@@ -478,13 +460,8 @@ const MyDocument = () => {
           </View>
           <View style={{ flexDirection: "row", borderTop: 1 }}>
             <Text style={{ width: "5%", borderRightWidth: 1, paddingHorizontal: 2 }}>1</Text>
-            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              Attendance in SOCC LTW
-            </Text>
-            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}>
-              {" "}
-              July 3-5, 2024
-            </Text>
+            <Text style={{ width: "35%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}></Text>
+            <Text style={{ width: "30%", textAlign: "center", borderRightWidth: 1, paddingHorizontal: 10 }}> </Text>
             <View style={{ flexDirection: "column", width: "50%", fontSize: 15, textAlign: "center" }}>
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ width: "33.3%", borderRightWidth: 1 }}> </Text>
@@ -513,12 +490,12 @@ const MyDocument = () => {
               <Text style={{ backgroundColor: "black" }}>Prepared by:</Text>
             </Text>
             <View style={{ flexDirection: "column" }}>
-              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ marginTop: 40, textAlign: "center" }}></Text>
               <Text style={{ borderTopWidth: 1 }}> Signature of over Printed Name of Outgoing President</Text>
             </View>
 
             <View style={{ flexDirection: "column" }}>
-              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ marginTop: 40, textAlign: "center" }}></Text>
               <Text style={{ borderTopWidth: 1 }}> Signature of over Printed Name of Incoming President</Text>
             </View>
 
@@ -534,7 +511,7 @@ const MyDocument = () => {
             </Text>
 
             <View style={{ flexDirection: "column" }}>
-              <Text style={{ marginTop: 40, textAlign: "center" }}>My name is</Text>
+              <Text style={{ marginTop: 40, textAlign: "center" }}></Text>
               <Text style={{ borderTopWidth: 1 }}> Signature of over Current Organization Adviser</Text>
             </View>
           </View>
