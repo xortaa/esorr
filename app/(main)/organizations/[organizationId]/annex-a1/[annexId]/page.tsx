@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { UserPlus, X, Trash2, Search, FilePenLine, Eye, PenTool, List, Grid, MoreVertical } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
 import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity, Affiliation, Program } from "@/types";
@@ -13,18 +12,13 @@ export default function OfficerManager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-6"
-      >
+      <div className="mb-6">
         <h1 className="text-3xl font-bold">ANNEX A-1 OFFICER'S INFORMATION SHEET DASHBOARD</h1>
         <p className="text-sm text-slate-500">
           Manage and create officer information sheets for student organizations. Use the table below to view existing
           officer information sheets.
         </p>
-      </motion.div>
+      </div>
       <OfficersTable organizationId={organizationId} annexId={annexId} />
     </PageWrapper>
   );
@@ -109,12 +103,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
         </thead>
         <tbody>
           {filteredOfficers.map((officer) => (
-            <motion.tr
-              key={officer._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <tr key={officer._id}>
               <td>
                 <div className="flex items-center space-x-3">
                   <div className="avatar">
@@ -160,7 +149,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
                   </button>
                 </div>
               </td>
-            </motion.tr>
+            </tr>
           ))}
         </tbody>
       </table>
@@ -170,14 +159,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
   const renderCardView = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredOfficers.map((officer) => (
-        <motion.div
-          key={officer._id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="card bg-base-100 shadow-xl"
-        >
+        <div key={officer._id} className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <div className="flex items-center gap-4 mb-4">
               <div className="avatar">
@@ -224,18 +206,13 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
               </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="container mx-auto px-4 py-8"
-    >
+    <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <CreateOfficerModal
           organizationId={organizationId}
@@ -305,7 +282,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -585,366 +562,355 @@ function CreateOfficerModal({
         <UserPlus />
         Add Officer
       </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-            >
-              <form onSubmit={handleSubmit}>
-                <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-bold">Add a new officer</h2>
-                  <button className="btn btn-ghost" onClick={handleClose} type="button">
-                    <X />
-                  </button>
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <form onSubmit={handleSubmit}>
+              <div className="flex justify-between items-center">
+                <h2 className="text-3xl font-bold">Add a new officer</h2>
+                <button className="btn btn-ghost" onClick={handleClose} type="button">
+                  <X />
+                </button>
+              </div>
+              <p className="text-sm text-slate-500">Enter the details below for the officer to be added</p>
+              <div className="space-y-6">
+                <div className="mb-6">
+                  <label className="label mb-1">Officer's 1x1 Picture</label>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file-input file-input-bordered w-full"
+                  />
+                  {newOfficer.image && (
+                    <div className="mt-2">
+                      <img src={newOfficer.image} alt="Officer's 1x1 Picture" className="w-32 h-32 object-cover" />
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-slate-500">Enter the details below for the officer to be added</p>
-                <div className="space-y-6">
-                  <div className="mb-6">
-                    <label className="label mb-1">Officer's 1x1 Picture</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <div className="w-full">
+                    <label className="label mb-1">FIRST NAME</label>
                     <input
-                      type="file"
-                      name="image"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="file-input file-input-bordered w-full"
+                      name="firstName"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="JUAN MIGUEL"
+                      value={newOfficer.firstName}
+                      onChange={handleInputChange}
                     />
-                    {newOfficer.image && (
-                      <div className="mt-2">
-                        <img src={newOfficer.image} alt="Officer's 1x1 Picture" className="w-32 h-32 object-cover" />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">MIDDLE NAME</label>
+                    <input
+                      name="middleName"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="GONZALEZ"
+                      value={newOfficer.middleName}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">LAST NAME</label>
+                    <input
+                      name="lastName"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="DELA CRUZ"
+                      value={newOfficer.lastName}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">RELIGION</label>
+                    <input
+                      name="religion"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="CATHOLIC"
+                      value={newOfficer.religion}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">CITIZENSHIP</label>
+                    <input
+                      name="citizenship"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="FILIPINO"
+                      value={newOfficer.citizenship}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">GENDER</label>
+                    <div className="flex gap-4">
+                      <label className="label cursor-pointer">
+                        <input
+                          type="radio"
+                          name="gender"
+                          className="radio radio-primary"
+                          value="MALE"
+                          checked={newOfficer.gender === "MALE"}
+                          onChange={handleInputChange}
+                        />
+                        <span className="label-text ml-2">MALE</span>
+                      </label>
+                      <label className="label cursor-pointer">
+                        <input
+                          type="radio"
+                          name="gender"
+                          className="radio radio-primary"
+                          value="FEMALE"
+                          checked={newOfficer.gender === "FEMALE"}
+                          onChange={handleInputChange}
+                        />
+                        <span className="label-text ml-2">FEMALE</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="w-full">
+                    <label className="label mb-1">POSITION</label>
+                    <input
+                      name="position"
+                      className="input input-bordered w-full uppercase"
+                      placeholder="EXTERNAL VICE PRESIDENT"
+                      value={newOfficer.position}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">COLLEGE / AFFILIATION</label>
+                    <div className="relative w-full">
+                      <input
+                        type="text"
+                        className="input input-bordered w-full pr-10 uppercase"
+                        placeholder="Search for affiliation..."
+                        value={searchTerm}
+                        onChange={handleAffiliationInputChange}
+                        onFocus={handleAffiliationInputFocus}
+                        onBlur={handleInputBlur}
+                        disabled={affiliationOptionsLoading}
+                        required
+                      />
+                      {searchTerm && (
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                          onClick={() => {
+                            setSearchTerm("");
+                            setSelectedAffiliation(null);
+                            setNewOfficer({ ...newOfficer, affiliation: "" });
+                          }}
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      )}
+                      {isDropdownOpen && filteredAffiliations.length > 0 && (
+                        <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {filteredAffiliations.map((affiliation) => (
+                            <li
+                              key={affiliation._id}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleSelectAffiliation(affiliation)}
+                            >
+                              {affiliation.name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    {affiliationOptionsLoading && (
+                      <div className="text-center mt-2">
+                        <span className="loading loading-dots loading-md"></span>
                       </div>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    <div className="w-full">
-                      <label className="label mb-1">FIRST NAME</label>
+                  <div className="w-full">
+                    <label className="label mb-1">PROGRAM / MAJOR</label>
+                    <div className="relative w-full">
                       <input
-                        name="firstName"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="JUAN MIGUEL"
-                        value={newOfficer.firstName}
-                        onChange={handleInputChange}
+                        type="text"
+                        className="input input-bordered w-full pr-10 uppercase"
+                        placeholder="Search for program..."
+                        value={programSearchTerm}
+                        onChange={handleProgramInputChange}
+                        onFocus={handleProgramInputFocus}
+                        onBlur={handleInputBlur}
+                        disabled={!selectedAffiliation || programOptionsLoading}
+                        required
                       />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">MIDDLE NAME</label>
-                      <input
-                        name="middleName"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="GONZALEZ"
-                        value={newOfficer.middleName}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">LAST NAME</label>
-                      <input
-                        name="lastName"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="DELA CRUZ"
-                        value={newOfficer.lastName}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">RELIGION</label>
-                      <input
-                        name="religion"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="CATHOLIC"
-                        value={newOfficer.religion}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">CITIZENSHIP</label>
-                      <input
-                        name="citizenship"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="FILIPINO"
-                        value={newOfficer.citizenship}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">GENDER</label>
-                      <div className="flex gap-4">
-                        <label className="label cursor-pointer">
-                          <input
-                            type="radio"
-                            name="gender"
-                            className="radio radio-primary"
-                            value="MALE"
-                            checked={newOfficer.gender === "MALE"}
-                            onChange={handleInputChange}
-                          />
-                          <span className="label-text ml-2">MALE</span>
-                        </label>
-                        <label className="label cursor-pointer">
-                          <input
-                            type="radio"
-                            name="gender"
-                            className="radio radio-primary"
-                            value="FEMALE"
-                            checked={newOfficer.gender === "FEMALE"}
-                            onChange={handleInputChange}
-                          />
-                          <span className="label-text ml-2">FEMALE</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="w-full">
-                      <label className="label mb-1">POSITION</label>
-                      <input
-                        name="position"
-                        className="input input-bordered w-full uppercase"
-                        placeholder="EXTERNAL VICE PRESIDENT"
-                        value={newOfficer.position}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">COLLEGE / AFFILIATION</label>
-                      <div className="relative w-full">
-                        <input
-                          type="text"
-                          className="input input-bordered w-full pr-10 uppercase"
-                          placeholder="Search for affiliation..."
-                          value={searchTerm}
-                          onChange={handleAffiliationInputChange}
-                          onFocus={handleAffiliationInputFocus}
-                          onBlur={handleInputBlur}
-                          disabled={affiliationOptionsLoading}
-                          required
-                        />
-                        {searchTerm && (
-                          <button
-                            type="button"
-                            className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                            onClick={() => {
-                              setSearchTerm("");
-                              setSelectedAffiliation(null);
-                              setNewOfficer({ ...newOfficer, affiliation: "" });
-                            }}
-                          >
-                            <X className="h-5 w-5" />
-                          </button>
-                        )}
-                        {isDropdownOpen && filteredAffiliations.length > 0 && (
-                          <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {filteredAffiliations.map((affiliation) => (
-                              <li
-                                key={affiliation._id}
-                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleSelectAffiliation(affiliation)}
-                              >
-                                {affiliation.name}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                      {affiliationOptionsLoading && (
-                        <div className="text-center mt-2">
-                          <span className="loading loading-dots loading-md"></span>
-                        </div>
+                      {programSearchTerm && (
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                          onClick={() => {
+                            setProgramSearchTerm("");
+                            setSelectedProgram(null);
+                            setNewOfficer({ ...newOfficer, program: "" });
+                          }}
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      )}
+                      {isProgramDropdownOpen && filteredPrograms.length > 0 && (
+                        <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {filteredPrograms.map((program) => (
+                            <li
+                              key={program._id}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleSelectProgram(program)}
+                            >
+                              {program.name}
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </div>
-                    <div className="w-full">
-                      <label className="label mb-1">PROGRAM / MAJOR</label>
-                      <div className="relative w-full">
-                        <input
-                          type="text"
-                          className="input input-bordered w-full pr-10 uppercase"
-                          placeholder="Search for program..."
-                          value={programSearchTerm}
-                          onChange={handleProgramInputChange}
-                          onFocus={handleProgramInputFocus}
-                          onBlur={handleInputBlur}
-                          disabled={!selectedAffiliation || programOptionsLoading}
-                          required
-                        />
-                        {programSearchTerm && (
-                          <button
-                            type="button"
-                            className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                            onClick={() => {
-                              setProgramSearchTerm("");
-                              setSelectedProgram(null);
-                              setNewOfficer({ ...newOfficer, program: "" });
-                            }}
-                          >
-                            <X className="h-5 w-5" />
-                          </button>
-                        )}
-                        {isProgramDropdownOpen && filteredPrograms.length > 0 && (
-                          <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {filteredPrograms.map((program) => (
-                              <li
-                                key={program._id}
-                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                onClick={() => handleSelectProgram(program)}
-                              >
-                                {program.name}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                    {programOptionsLoading && (
+                      <div className="text-center mt-2">
+                        <span className="loading loading-dots loading-md"></span>
                       </div>
-                      {programOptionsLoading && (
-                        <div className="text-center mt-2">
-                          <span className="loading loading-dots loading-md"></span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">MOBILE NUMBER</label>
-                      <input
-                        name="mobileNumber"
-                        className="input input-bordered w-full"
-                        placeholder="+63 XXX XXX XXXX"
-                        value={newOfficer.mobileNumber}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">RESIDENCE</label>
-                      <input
-                        name="residence"
-                        className="input input-bordered w-full"
-                        placeholder="Full address"
-                        value={newOfficer.residence}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">EMAIL</label>
-                      <input
-                        name="email"
-                        type="email"
-                        className="input input-bordered w-full"
-                        placeholder="example@email.com"
-                        value={newOfficer.email}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="label mb-1">FACEBOOK</label>
-                      <input
-                        name="facebook"
-                        className="input input-bordered w-full"
-                        placeholder="Facebook profile URL or username"
-                        value={newOfficer.facebook}
-                        onChange={handleInputChange}
-                      />
-                    </div>
+                    )}
                   </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
-                    {newOfficer.educationalBackground.map((edu, index) => (
-                      <div key={index} className="mb-4 p-4 border rounded">
-                        <h4 className="font-semibold mb-2">{edu.level}</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <div>
-                            <label className="label mb-1">Name of Institution</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.nameAndLocation.split(" - ")[0]}
-                              onChange={(e) => handleEducationChange(index, "name", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Location</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.nameAndLocation.split(" - ")[1]}
-                              onChange={(e) => handleEducationChange(index, "location", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Year of Graduation</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.yearOfGraduation}
-                              onChange={(e) => handleEducationChange(index, "yearOfGraduation", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Organization/Club/Society</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.organization}
-                              onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Position</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={edu.position}
-                              onChange={(e) => handleEducationChange(index, "position", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="w-full">
+                    <label className="label mb-1">MOBILE NUMBER</label>
+                    <input
+                      name="mobileNumber"
+                      className="input input-bordered w-full"
+                      placeholder="+63 XXX XXX XXXX"
+                      value={newOfficer.mobileNumber}
+                      onChange={handleInputChange}
+                    />
                   </div>
-
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
-                    {newOfficer.recordOfExtraCurricularActivities.map((activity, index) => (
-                      <div key={index} className="mb-4 p-4 border rounded">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <div>
-                            <label className="label mb-1">Name of Organization</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={activity.nameOfOrganization}
-                              onChange={(e) => handleExtraCurricularChange(index, "nameOfOrganization", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Position</label>
-                            <input
-                              className="input input-bordered w-full"
-                              value={activity.position}
-                              onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="label mb-1">Inclusive Dates</label>
-                            <input
-                              className="input input-bordered w-full"
-                              placeholder="e.g. 2022-2023"
-                              value={activity.inclusiveDates}
-                              onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="w-full">
+                    <label className="label mb-1">RESIDENCE</label>
+                    <input
+                      name="residence"
+                      className="input input-bordered w-full"
+                      placeholder="Full address"
+                      value={newOfficer.residence}
+                      onChange={handleInputChange}
+                    />
                   </div>
-
-                  <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
-                    ADD OFFICER
-                  </button>
+                  <div className="w-full">
+                    <label className="label mb-1">EMAIL</label>
+                    <input
+                      name="email"
+                      type="email"
+                      className="input input-bordered w-full"
+                      placeholder="example@email.com"
+                      value={newOfficer.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="label mb-1">FACEBOOK</label>
+                    <input
+                      name="facebook"
+                      className="input input-bordered w-full"
+                      placeholder="Facebook profile URL or username"
+                      value={newOfficer.facebook}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
+                  {newOfficer.educationalBackground.map((edu, index) => (
+                    <div key={index} className="mb-4 p-4 border rounded">
+                      <h4 className="font-semibold mb-2">{edu.level}</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="label mb-1">Name of Institution</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={edu.nameAndLocation.split(" - ")[0]}
+                            onChange={(e) => handleEducationChange(index, "name", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Location</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={edu.nameAndLocation.split(" - ")[1]}
+                            onChange={(e) => handleEducationChange(index, "location", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Year of Graduation</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={edu.yearOfGraduation}
+                            onChange={(e) => handleEducationChange(index, "yearOfGraduation", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Organization/Club/Society</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={edu.organization}
+                            onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Position</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={edu.position}
+                            onChange={(e) => handleEducationChange(index, "position", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
+                  {newOfficer.recordOfExtraCurricularActivities.map((activity, index) => (
+                    <div key={index} className="mb-4 p-4 border rounded">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                          <label className="label mb-1">Name of Organization</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={activity.nameOfOrganization}
+                            onChange={(e) => handleExtraCurricularChange(index, "nameOfOrganization", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Position</label>
+                          <input
+                            className="input input-bordered w-full"
+                            value={activity.position}
+                            onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="label mb-1">Inclusive Dates</label>
+                          <input
+                            className="input input-bordered w-full"
+                            placeholder="e.g. 2022-2023"
+                            value={activity.inclusiveDates}
+                            onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
+                  ADD OFFICER
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -1156,357 +1122,345 @@ function EditOfficerModal({
   );
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
-        >
-          <form onSubmit={handleSubmit}>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-3xl font-bold">Edit Officer Details</h2>
-              <button className="btn btn-ghost" onClick={() => setOfficer(null)} type="button">
-                <X />
-              </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <form onSubmit={handleSubmit}>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-3xl font-bold">Edit Officer Details</h2>
+            <button className="btn btn-ghost" onClick={() => setOfficer(null)} type="button">
+              <X />
+            </button>
+          </div>
+          <p className="text-sm text-slate-500 mb-6">Edit the details below for the officer</p>
+          <div className="space-y-6">
+            <div className="mb-6">
+              <label className="label mb-1">Officer's 1x1 Picture</label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="file-input file-input-bordered w-full"
+              />
+              {editedOfficer.image && (
+                <div className="mt-2">
+                  <img src={editedOfficer.image} alt="Officer's 1x1 Picture" className="w-32 h-32 object-cover" />
+                </div>
+              )}
             </div>
-            <p className="text-sm text-slate-500 mb-6">Edit the details below for the officer</p>
-            <div className="space-y-6">
-              <div className="mb-6">
-                <label className="label mb-1">Officer's 1x1 Picture</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="w-full">
+                <label className="label mb-1">FIRST NAME</label>
                 <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="file-input file-input-bordered w-full"
+                  name="firstName"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="JUAN MIGUEL"
+                  value={editedOfficer.firstName}
+                  onChange={handleInputChange}
                 />
-                {editedOfficer.image && (
-                  <div className="mt-2">
-                    <img src={editedOfficer.image} alt="Officer's 1x1 Picture" className="w-32 h-32 object-cover" />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">MIDDLE NAME</label>
+                <input
+                  name="middleName"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="GONZALEZ"
+                  value={editedOfficer.middleName}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">LAST NAME</label>
+                <input
+                  name="lastName"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="DELA CRUZ"
+                  value={editedOfficer.lastName}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">RELIGION</label>
+                <input
+                  name="religion"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="CATHOLIC"
+                  value={editedOfficer.religion}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">CITIZENSHIP</label>
+                <input
+                  name="citizenship"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="FILIPINO"
+                  value={editedOfficer.citizenship}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">GENDER</label>
+                <div className="flex gap-4">
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="radio radio-primary"
+                      value="MALE"
+                      checked={editedOfficer.gender === "MALE"}
+                      onChange={handleInputChange}
+                    />
+                    <span className="label-text ml-2">MALE</span>
+                  </label>
+                  <label className="label cursor-pointer">
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="radio radio-primary"
+                      value="FEMALE"
+                      checked={editedOfficer.gender === "FEMALE"}
+                      onChange={handleInputChange}
+                    />
+                    <span className="label-text ml-2">FEMALE</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="w-full">
+                <label className="label mb-1">POSITION</label>
+                <input
+                  name="position"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="EXTERNAL VICE PRESIDENT"
+                  value={editedOfficer.position}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">COLLEGE / AFFILIATION</label>
+                <div className="relative w-full">
+                  <input
+                    type="text"
+                    className="input input-bordered w-full pr-10 uppercase"
+                    placeholder="Search for affiliation..."
+                    value={affiliationSearchTerm}
+                    onChange={handleAffiliationInputChange}
+                    onFocus={() => setIsAffiliationDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setIsAffiliationDropdownOpen(false), 200)}
+                    disabled={affiliationOptionsLoading}
+                    required
+                  />
+                  {affiliationSearchTerm && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={() => {
+                        setAffiliationSearchTerm("");
+                        setSelectedAffiliation(null);
+                        setEditedOfficer({ ...editedOfficer, affiliation: "" });
+                      }}
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  )}
+                  {isAffiliationDropdownOpen && filteredAffiliations.length > 0 && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {filteredAffiliations.map((affiliation) => (
+                        <li
+                          key={affiliation._id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSelectAffiliation(affiliation)}
+                        >
+                          {affiliation.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {affiliationOptionsLoading && (
+                  <div className="text-center mt-2">
+                    <span className="loading loading-dots loading-md"></span>
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="w-full">
-                  <label className="label mb-1">FIRST NAME</label>
+
+              <div className="w-full">
+                <label className="label mb-1">PROGRAM / MAJOR</label>
+                <div className="relative w-full">
                   <input
-                    name="firstName"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="JUAN MIGUEL"
-                    value={editedOfficer.firstName}
-                    onChange={handleInputChange}
+                    type="text"
+                    className="input input-bordered w-full pr-10 uppercase"
+                    placeholder="Search for program..."
+                    value={programSearchTerm}
+                    onChange={handleProgramInputChange}
+                    onFocus={() => setIsProgramDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setIsProgramDropdownOpen(false), 200)}
+                    disabled={!selectedAffiliation || programOptionsLoading}
+                    required
                   />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">MIDDLE NAME</label>
-                  <input
-                    name="middleName"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="GONZALEZ"
-                    value={editedOfficer.middleName}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">LAST NAME</label>
-                  <input
-                    name="lastName"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="DELA CRUZ"
-                    value={editedOfficer.lastName}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">RELIGION</label>
-                  <input
-                    name="religion"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="CATHOLIC"
-                    value={editedOfficer.religion}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">CITIZENSHIP</label>
-                  <input
-                    name="citizenship"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="FILIPINO"
-                    value={editedOfficer.citizenship}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">GENDER</label>
-                  <div className="flex gap-4">
-                    <label className="label cursor-pointer">
-                      <input
-                        type="radio"
-                        name="gender"
-                        className="radio radio-primary"
-                        value="MALE"
-                        checked={editedOfficer.gender === "MALE"}
-                        onChange={handleInputChange}
-                      />
-                      <span className="label-text ml-2">MALE</span>
-                    </label>
-                    <label className="label cursor-pointer">
-                      <input
-                        type="radio"
-                        name="gender"
-                        className="radio radio-primary"
-                        value="FEMALE"
-                        checked={editedOfficer.gender === "FEMALE"}
-                        onChange={handleInputChange}
-                      />
-                      <span className="label-text ml-2">FEMALE</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="w-full">
-                  <label className="label mb-1">POSITION</label>
-                  <input
-                    name="position"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="EXTERNAL VICE PRESIDENT"
-                    value={editedOfficer.position}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">COLLEGE / AFFILIATION</label>
-                  <div className="relative w-full">
-                    <input
-                      type="text"
-                      className="input input-bordered w-full pr-10 uppercase"
-                      placeholder="Search for affiliation..."
-                      value={affiliationSearchTerm}
-                      onChange={handleAffiliationInputChange}
-                      onFocus={() => setIsAffiliationDropdownOpen(true)}
-                      onBlur={() => setTimeout(() => setIsAffiliationDropdownOpen(false), 200)}
-                      disabled={affiliationOptionsLoading}
-                      required
-                    />
-                    {affiliationSearchTerm && (
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                        onClick={() => {
-                          setAffiliationSearchTerm("");
-                          setSelectedAffiliation(null);
-                          setEditedOfficer({ ...editedOfficer, affiliation: "" });
-                        }}
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    )}
-                    {isAffiliationDropdownOpen && filteredAffiliations.length > 0 && (
-                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {filteredAffiliations.map((affiliation) => (
-                          <li
-                            key={affiliation._id}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleSelectAffiliation(affiliation)}
-                          >
-                            {affiliation.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  {affiliationOptionsLoading && (
-                    <div className="text-center mt-2">
-                      <span className="loading loading-dots loading-md"></span>
-                    </div>
+                  {programSearchTerm && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={() => {
+                        setProgramSearchTerm("");
+                        setSelectedProgram(null);
+                        setEditedOfficer({ ...editedOfficer, program: "" });
+                      }}
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  )}
+                  {isProgramDropdownOpen && filteredPrograms.length > 0 && (
+                    <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {filteredPrograms.map((program) => (
+                        <li
+                          key={program._id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSelectProgram(program)}
+                        >
+                          {program.name}
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-
-                <div className="w-full">
-                  <label className="label mb-1">PROGRAM / MAJOR</label>
-                  <div className="relative w-full">
-                    <input
-                      type="text"
-                      className="input input-bordered w-full pr-10 uppercase"
-                      placeholder="Search for program..."
-                      value={programSearchTerm}
-                      onChange={handleProgramInputChange}
-                      onFocus={() => setIsProgramDropdownOpen(true)}
-                      onBlur={() => setTimeout(() => setIsProgramDropdownOpen(false), 200)}
-                      disabled={!selectedAffiliation || programOptionsLoading}
-                      required
-                    />
-                    {programSearchTerm && (
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                        onClick={() => {
-                          setProgramSearchTerm("");
-                          setSelectedProgram(null);
-                          setEditedOfficer({ ...editedOfficer, program: "" });
-                        }}
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    )}
-                    {isProgramDropdownOpen && filteredPrograms.length > 0 && (
-                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {filteredPrograms.map((program) => (
-                          <li
-                            key={program._id}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleSelectProgram(program)}
-                          >
-                            {program.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                {programOptionsLoading && (
+                  <div className="text-center mt-2">
+                    <span className="loading loading-dots loading-md"></span>
                   </div>
-                  {programOptionsLoading && (
-                    <div className="text-center mt-2">
-                      <span className="loading loading-dots loading-md"></span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full">
-                  <label className="label mb-1">MOBILE NUMBER</label>
-                  <input
-                    name="mobileNumber"
-                    className="input input-bordered w-full"
-                    placeholder="+63 XXX XXX XXXX"
-                    value={editedOfficer.mobileNumber}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">RESIDENCE</label>
-                  <input
-                    name="residence"
-                    className="input input-bordered w-full uppercase"
-                    placeholder="Full address"
-                    value={editedOfficer.residence}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">EMAIL</label>
-                  <input
-                    name="email"
-                    type="email"
-                    className="input input-bordered w-full"
-                    placeholder="example@email.com"
-                    value={editedOfficer.email}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="label mb-1">FACEBOOK</label>
-                  <input
-                    name="facebook"
-                    className="input input-bordered w-full"
-                    placeholder="Facebook profile URL or username"
-                    value={editedOfficer.facebook}
-                    onChange={handleInputChange}
-                  />
-                </div>
+                )}
               </div>
 
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
-                {editedOfficer.educationalBackground.map((edu, index) => (
-                  <div key={index} className="mb-4 p-4 border rounded">
-                    <h4 className="font-semibold mb-2">{edu.level}</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div>
-                        <label className="label mb-1">Name and Location of Institution</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={edu.nameAndLocation}
-                          onChange={(e) => handleEducationChange(index, "nameAndLocation", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="label mb-1">Year of Graduation</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={edu.yearOfGraduation}
-                          onChange={(e) => handleEducationChange(index, "yearOfGraduation", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="label mb-1">Organization/Club/Society</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={edu.organization}
-                          onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="label mb-1">Position</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={edu.position}
-                          onChange={(e) => handleEducationChange(index, "position", e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="w-full">
+                <label className="label mb-1">MOBILE NUMBER</label>
+                <input
+                  name="mobileNumber"
+                  className="input input-bordered w-full"
+                  placeholder="+63 XXX XXX XXXX"
+                  value={editedOfficer.mobileNumber}
+                  onChange={handleInputChange}
+                />
               </div>
-
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
-                {editedOfficer.recordOfExtraCurricularActivities.map((activity, index) => (
-                  <div key={index} className="mb-4 p-4 border rounded">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <div>
-                        <label className="label mb-1">Name of Organization</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={activity.nameOfOrganization}
-                          onChange={(e) => handleExtraCurricularChange(index, "nameOfOrganization", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="label mb-1">Position</label>
-                        <input
-                          className="input input-bordered w-full"
-                          value={activity.position}
-                          onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="label mb-1">Inclusive Dates</label>
-                        <input
-                          className="input input-bordered w-full"
-                          placeholder="e.g. 2022-2023"
-                          value={activity.inclusiveDates}
-                          onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="w-full">
+                <label className="label mb-1">RESIDENCE</label>
+                <input
+                  name="residence"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="Full address"
+                  value={editedOfficer.residence}
+                  onChange={handleInputChange}
+                />
               </div>
-
-              <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
-                UPDATE OFFICER
-              </button>
+              <div className="w-full">
+                <label className="label mb-1">EMAIL</label>
+                <input
+                  name="email"
+                  type="email"
+                  className="input input-bordered w-full"
+                  placeholder="example@email.com"
+                  value={editedOfficer.email}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">FACEBOOK</label>
+                <input
+                  name="facebook"
+                  className="input input-bordered w-full"
+                  placeholder="Facebook profile URL or username"
+                  value={editedOfficer.facebook}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-          </form>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Educational Background</h3>
+              {editedOfficer.educationalBackground.map((edu, index) => (
+                <div key={index} className="mb-4 p-4 border rounded">
+                  <h4 className="font-semibold mb-2">{edu.level}</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="label mb-1">Name and Location of Institution</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.nameAndLocation}
+                        onChange={(e) => handleEducationChange(index, "nameAndLocation", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Year of Graduation</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.yearOfGraduation}
+                        onChange={(e) => handleEducationChange(index, "yearOfGraduation", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Organization/Club/Society</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.organization}
+                        onChange={(e) => handleEducationChange(index, "organization", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Position</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={edu.position}
+                        onChange={(e) => handleEducationChange(index, "position", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Record of Extra-Curricular Activities</h3>
+              {editedOfficer.recordOfExtraCurricularActivities.map((activity, index) => (
+                <div key={index} className="mb-4 p-4 border rounded">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div>
+                      <label className="label mb-1">Name of Organization</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={activity.nameOfOrganization}
+                        onChange={(e) => handleExtraCurricularChange(index, "nameOfOrganization", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Position</label>
+                      <input
+                        className="input input-bordered w-full"
+                        value={activity.position}
+                        onChange={(e) => handleExtraCurricularChange(index, "position", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="label mb-1">Inclusive Dates</label>
+                      <input
+                        className="input input-bordered w-full"
+                        placeholder="e.g. 2022-2023"
+                        value={activity.inclusiveDates}
+                        onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
+              UPDATE OFFICER
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
