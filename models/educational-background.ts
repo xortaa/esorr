@@ -6,10 +6,7 @@ const EducationalBackgroundModel = new Schema(
       type: String,
       enum: ["Secondary", "College", "Special Training"],
     },
-    name: {
-      type: String,
-    },
-    location: {
+    nameAndLocation: { 
       type: String,
     },
     year_of_graduation: {
