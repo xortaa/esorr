@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
         if (!token.isSetup) {
           return NextResponse.redirect(new URL("/rso-setup", req.url));
         }
-        return NextResponse.redirect(new URL(`/organizations/${token._id}`, req.url));
+        return NextResponse.redirect(new URL(`/organizations/`, req.url));
       } else if (token.role === "SOCC") {
         if (!token.isSetup) {
           return NextResponse.redirect(new URL("/socc-setup", req.url));
