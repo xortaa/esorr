@@ -81,14 +81,12 @@ const officerSchema = new Schema({
   image: {
     type: String,
   },
-  status: {
-    type: String,
-    enum: ["COMPLETE", "INCOMPLETE"],
-  },
-  academicYear: { 
+  academicYear: {
     type: String,
   },
-  
+  signature: {
+    type: String,
+  },
 });
 
 const Officer = models.Officer || model("Officer", officerSchema);
