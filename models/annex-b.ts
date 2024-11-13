@@ -42,13 +42,11 @@ interface IAnnexB extends Document {
     name: string;
     position: string;
     signatureUrl: string;
-    signatureDate: Date;
   };
   adviser: {
     name: string;
     position: string;
     signatureUrl: string;
-    signatureDate: Date;
   };
   updateMemberCounts: () => Promise<void>;
 }

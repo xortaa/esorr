@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: { organization
   try {
     await connectToDatabase();
 
-    const annexB = await AnnexB.findById(params.annexId).populate("members");
+    const annexB = await AnnexB.findById(params.annexId).populate("organization members");
 
     if (!annexB) {
       return NextResponse.json({ error: "Annex B not found" }, { status: 404 });
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { organization
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
     await connectToDatabase();
 

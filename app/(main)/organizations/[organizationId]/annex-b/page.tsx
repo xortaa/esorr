@@ -49,14 +49,26 @@ type AnnexB = {
     name: string;
     position: string;
     signatureUrl: string;
-    signatureDate?: Date;
   };
   adviser?: {
     name: string;
     position: string;
     signatureUrl: string;
-    signatureDate?: Date;
   };
+};
+
+type UserPosition = {
+  role: string;
+  organizationName: string;
+};
+
+type Positions = {
+  organization: {
+    _id: string;
+    name: string;
+  };
+  position: string;
+  _id: string;
 };
 
 type SignaturePosition = "secretary" | "adviser";
@@ -267,15 +279,6 @@ const NumofOfficers = ({ indexNum, facInstName, yearData }) => {
 };
 
 const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return "______________";
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   return (
     <Document>
       <Page style={styles.page} size="LEGAL">
@@ -533,10 +536,15 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
             ) : (
               <View style={{ borderTopWidth: 1, width: "100%" }} />
             )}
-            <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>
-              SIGNATURE OVER PRINTED NAME OF SECRETARY
-            </Text>
-            <Text style={{ marginTop: 5 }}>Date: {formatDate(annex.secretary?.signatureDate)}</Text>
+            {annex.secretary?.name ? (
+              <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>
+                {annex.secretary.name.toUpperCase()}
+              </Text>
+            ) : (
+              <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>
+                SIGNATURE OVER PRINTED NAME OF SECRETARY
+              </Text>
+            )}
           </View>
 
           <View style={{ width: "45%" }}>
@@ -545,10 +553,13 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
             ) : (
               <View style={{ borderTopWidth: 1, width: "100%" }} />
             )}
-            <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>
-              SIGNATURE OVER PRINTED NAME OF ADVISER
-            </Text>
-            <Text style={{ marginTop: 5 }}>Date: {formatDate(annex.adviser?.signatureDate)}</Text>
+            {annex.adviser?.name ? (
+              <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>{annex.adviser.name.toUpperCase()}</Text>
+            ) : (
+              <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 5 }}>
+                SIGNATURE OVER PRINTED NAME OF ADVISER
+              </Text>
+            )}
           </View>
         </View>
 
@@ -635,6 +646,7 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
   const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
   const signatureRef = useRef<SignatureCanvas>(null);
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
+  const [selectedUserPosition, setSelectedUserPosition] = useState<UserPosition | null>(null);
 
   useEffect(() => {
     fetchAnnexes();
@@ -726,8 +738,8 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
   };
 
   const handleSubmitSignature = async () => {
-    if (!selectedSignaturePosition || !selectedAnnex) {
-      alert("Please select a signature position");
+    if (!selectedUserPosition || !selectedAnnex || !selectedSignaturePosition) {
+      alert("Please select a role, an annex, and a signature position");
       return;
     }
 
@@ -765,9 +777,8 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-b/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
           name: session?.user?.name || "",
-          position: selectedSignaturePosition,
+          position: selectedUserPosition.role,
           signatureUrl: url,
-          signatureDate: new Date(),
         },
       });
 
@@ -775,9 +786,13 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
         const updatedAnnex = updateResponse.data;
         setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
         setSelectedAnnex(updatedAnnex);
+
         const newBlob = await generatePDFBlob(updatedAnnex);
         setPdfBlob(newBlob);
+
         alert("Signature added successfully");
+      } else {
+        throw new Error("Failed to update Annex");
       }
     } catch (error) {
       console.error("Error adding signature:", error);
@@ -787,6 +802,7 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
       setSignatureFile(null);
       setSignaturePreview(null);
       setSelectedSignaturePosition("");
+      setSelectedUserPosition(null);
       if (signatureRef.current) {
         signatureRef.current.clear();
       }
@@ -850,6 +866,25 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
                     </PDFViewer>
                   </div>
                   <div className="flex flex-col space-y-4">
+                    <select
+                      className="select select-bordered w-full"
+                      value={
+                        selectedUserPosition
+                          ? `${selectedUserPosition.role}-${selectedUserPosition.organizationName}`
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const [role, organizationName] = e.target.value.split("-");
+                        setSelectedUserPosition({ role, organizationName });
+                      }}
+                    >
+                      <option value="">Select your role</option>
+                      {session?.user?.positions?.map((userPosition: Positions, index: number) => (
+                        <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
+                          {userPosition.position} - {userPosition.organization.name}
+                        </option>
+                      ))}
+                    </select>
                     <select
                       className="select select-bordered w-full"
                       value={selectedSignaturePosition}
