@@ -19,12 +19,29 @@ const MemberModel = new Schema({
   program: {
     type: String,
   },
+  yearLevel: {
+    type: Number,
+  },
   startYear: {
     type: Number,
   },
   status: {
     type: String,
     enum: ["COMPLETE", "INCOMPLETE"],
+  },
+  isOfficer: {
+    type: Boolean,
+    default: false,
+  },
+  isNewMember: {
+    type: Boolean,
+    default: true,
+  },
+  age: {
+    type: Number,
+  },
+  gender: {
+    type: String,
   },
 });
 

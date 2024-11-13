@@ -28,10 +28,14 @@ import Pasoc from "@/models/pasoc";
 import OperationalAssessment from "@/models/operational-assessment";
 
 export async function POST(req: NextRequest) {
+  console.log("Starting RSO setup process");
   await connectToDatabase();
+  console.log("Database connection established");
 
   try {
     const body = await req.json();
+    console.log("Received request body:", body);
+
     const {
       name,
       logo,
@@ -52,6 +56,7 @@ export async function POST(req: NextRequest) {
       academicYearOfLastRecognition,
     } = body;
 
+    // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
     if (!logo) return NextResponse.json({ error: "Missing organization logo" }, { status: 400 });
     if (typeof isNotUniversityWide !== "boolean")
@@ -73,7 +78,8 @@ export async function POST(req: NextRequest) {
     }
 
     const finalAffiliation = isNotUniversityWide ? affiliation : "University Wide";
-    // create organization
+
+    console.log("Creating new organization");
     const newOrganization = await Organization.create({
       name,
       logo: logoUrl,
@@ -98,21 +104,26 @@ export async function POST(req: NextRequest) {
       annexK: [],
       annexL: [],
     });
-    // Debugging: Log the new organization
-    console.log("New Organization:", newOrganization);
+    console.log("New organization created:", newOrganization);
 
-    // create all annexes
+    // Create all annexes
+    console.log("Creating annexes");
 
+    console.log("Creating Annex01");
     const newAnnex01 = await Annex01.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("Annex01 created:", newAnnex01);
 
+    console.log("Creating Annex02");
     const newAnnex02 = await Annex02.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("Annex02 created:", newAnnex02);
 
+    console.log("Creating AnnexA");
     const newAnnexA = await AnnexA.create({
       organization: newOrganization._id,
       academicYearOfLastRecognition,
@@ -129,39 +140,64 @@ export async function POST(req: NextRequest) {
       startingBalance,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexA created:", newAnnexA);
 
+    console.log("Creating AnnexA1");
     const newAnnexA1 = await AnnexA1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexA1 created:", newAnnexA1);
 
+    console.log("Creating AnnexB");
     const newAnnexB = await AnnexB.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      members: [],
+      numberOfOfficers: 0,
+      maleMembersBelow18: 0,
+      maleMembers18To20: 0,
+      maleMembers21AndAbove: 0,
+      femaleMembersBelow18: 0,
+      femaleMembers18To20: 0,
+      femaleMembers21AndAbove: 0,
+      memberDistribution: {},
+      totalMembers: 0,
+      totalOfficersAndMembers: 0,
     });
+    console.log("AnnexB created:", newAnnexB);
 
+    console.log("Creating AnnexC");
     const newAnnexC = await AnnexC.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexC created:", newAnnexC);
 
+    console.log("Creating AnnexC1");
     const newAnnexC1 = await AnnexC1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
       articlesOfAssociation: null,
     });
+    console.log("AnnexC1 created:", newAnnexC1);
 
+    console.log("Creating AnnexD");
     const newAnnexD = await AnnexD.create({
       description: "",
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexD created:", newAnnexD);
 
+    console.log("Creating AnnexE");
     const newAnnexE = await AnnexE.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexE created:", newAnnexE);
 
+    console.log("Creating OperationalAssessment");
     const newOperationalAssessment = await OperationalAssessment.create({
       annexE: newAnnexE._id,
       v01: [],
@@ -203,7 +239,9 @@ export async function POST(req: NextRequest) {
       sdg16: [],
       sdg17: [],
     });
+    console.log("OperationalAssessment created:", newOperationalAssessment);
 
+    console.log("Updating AnnexE with OperationalAssessment");
     await newAnnexE.updateOne({ operationalAssessment: newOperationalAssessment._id });
 
     const months = [
@@ -221,8 +259,9 @@ export async function POST(req: NextRequest) {
       "may",
     ] as const;
 
+    console.log("Preparing FinancialReportData");
     const financialReportData: FinancialReportData = {
-      annexE1: null, // This will be set after creation
+      annexE1: null,
       academicYear: currentAcademicYear,
       startingBalance: startingBalance,
       transactions: [],
@@ -252,32 +291,39 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    // Set June's starting balance
     financialReportData.june.startingBalance = startingBalance;
     financialReportData.june.endingBalance = startingBalance;
 
+    console.log("Creating FinancialReport");
     const newFinancialReport = await FinancialReport.create(financialReportData);
+    console.log("FinancialReport created:", newFinancialReport);
 
-    console.log("New Financial Report:", newFinancialReport);
-
+    console.log("Creating AnnexE1");
     const newAnnexE1 = await AnnexE1.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
       financialReport: newFinancialReport._id,
     });
+    console.log("AnnexE1 created:", newAnnexE1);
 
+    console.log("Updating FinancialReport with AnnexE1");
     await newFinancialReport.updateOne({ annexE1: newAnnexE1._id });
 
+    console.log("Creating AnnexE2");
     const newAnnexE2 = await AnnexE2.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexE2 created:", newAnnexE2);
 
+    console.log("Creating AnnexE3");
     const newAnnexE3 = await AnnexE3.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexE3 created:", newAnnexE3);
 
+    console.log("Creating Pasoc");
     const newPasoc = await Pasoc.create({
       annexe3: newAnnexE3._id,
       servantLeadership: {
@@ -317,39 +363,54 @@ export async function POST(req: NextRequest) {
       },
       furtherComments: "",
     });
+    console.log("Pasoc created:", newPasoc);
 
+    console.log("Updating AnnexE3 with Pasoc");
     await newAnnexE3.updateOne({ pasoc: newPasoc._id });
 
+    console.log("Creating AnnexF");
     const newAnnexF = await AnnexF.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexF created:", newAnnexF);
 
+    console.log("Creating AnnexG");
     const newAnnexG = await AnnexG.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexG created:", newAnnexG);
 
+    console.log("Creating AnnexH");
     const newAnnexH = await AnnexH.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexH created:", newAnnexH);
 
+    console.log("Creating AnnexI");
     const newAnnexI = await AnnexI.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexI created:", newAnnexI);
 
+    console.log("Creating AnnexJ");
     const newAnnexJ = await AnnexJ.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexJ created:", newAnnexJ);
 
+    console.log("Creating AnnexK");
     const newAnnexK = await AnnexK.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
     });
+    console.log("AnnexK created:", newAnnexK);
 
+    console.log("Creating AnnexL");
     const newAnnexL = await AnnexL.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
@@ -359,31 +420,9 @@ export async function POST(req: NextRequest) {
       president: null,
       adviser: null,
     });
+    console.log("AnnexL created:", newAnnexL);
 
-    // Debugging: Log the annexes
-    console.log("Annexes created:", {
-      newAnnex01,
-      newAnnex02,
-      newAnnexA,
-      newAnnexA1,
-      newAnnexB,
-      newAnnexC,
-      newAnnexC1,
-      newAnnexD,
-      newAnnexE,
-      newAnnexE1,
-      newAnnexE2,
-      newAnnexE3,
-      newAnnexF,
-      newAnnexG,
-      newAnnexH,
-      newAnnexI,
-      newAnnexJ,
-      newAnnexK,
-      newAnnexL,
-    });
-
-    // Ensure all annex fields are initialized
+    console.log("Initializing annex fields in organization");
     if (!newOrganization.annex01) newOrganization.annex01 = [];
     if (!newOrganization.annex02) newOrganization.annex02 = [];
     if (!newOrganization.annexA) newOrganization.annexA = [];
@@ -404,7 +443,7 @@ export async function POST(req: NextRequest) {
     if (!newOrganization.annexK) newOrganization.annexK = [];
     if (!newOrganization.annexL) newOrganization.annexL = [];
 
-    // add the annex to the organization
+    console.log("Adding annexes to organization");
     newOrganization.annex01.push(newAnnex01._id);
     newOrganization.annex02.push(newAnnex02._id);
     newOrganization.annexA.push(newAnnexA._id);
@@ -425,9 +464,12 @@ export async function POST(req: NextRequest) {
     newOrganization.annexK.push(newAnnexK._id);
     newOrganization.annexL.push(newAnnexL._id);
 
+    console.log("Saving updated organization");
     await newOrganization.save();
+    console.log("Organization saved successfully");
 
     if (signatoryRequests.length > 0) {
+      console.log("Creating signatory requests");
       await Promise.all(
         signatoryRequests.map(async (request: any) => {
           return await SignatoryRequest.create({
@@ -438,23 +480,27 @@ export async function POST(req: NextRequest) {
           });
         })
       );
+      console.log("Signatory requests created");
     }
 
+    console.log("Finding current user");
     const currentUser = await User.findOne({ role: "RSO", email });
     if (!currentUser) {
+      console.log("User not found");
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    console.log("Current user found:", currentUser);
 
-    // Update the user's organizations and positions
+    console.log("Updating user's organizations and positions");
     const existingPositionIndex = currentUser.positions.findIndex(
       (pos) => pos.organization.toString() === newOrganization._id.toString()
     );
 
     if (existingPositionIndex !== -1) {
-      // Update the existing position
+      console.log("Updating existing position");
       currentUser.positions[existingPositionIndex].position = "RSO-SIGNATORY";
     } else {
-      // Add a new position
+      console.log("Adding new position");
       currentUser.positions.push({
         organization: newOrganization._id,
         position: "OFFICIAL EMAIL",
@@ -464,8 +510,11 @@ export async function POST(req: NextRequest) {
     currentUser.organizations.push(newOrganization._id);
     currentUser.isSetup = true;
 
+    console.log("Saving updated user");
     await currentUser.save();
+    console.log("User saved successfully");
 
+    console.log("RSO setup process completed successfully");
     return NextResponse.json(
       {
         message: "RSO setup successful",

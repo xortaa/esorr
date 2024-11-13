@@ -1,10 +1,26 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Trash2, Search, FilePenLine, UserPlus, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import { motion } from "framer-motion";
-import { Member } from "@/types";
 import { useParams } from "next/navigation";
+
+type Member = {
+  _id: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  studentNumber: string;
+  program: string;
+  startYear: number;
+  yearLevel: number;
+  status: string;
+  isOfficer: boolean;
+  isNewMember: boolean;
+  age: number;
+  gender: string;
+};
 
 const AnnexBMembersDashboard = () => {
   const { organizationId, annexId } = useParams();
@@ -18,6 +34,11 @@ const AnnexBMembersDashboard = () => {
     studentNumber: "",
     program: "",
     startYear: 0,
+    yearLevel: 1,
+    isOfficer: false,
+    isNewMember: true,
+    age: 0,
+    gender: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -63,7 +84,16 @@ const AnnexBMembersDashboard = () => {
   };
 
   const checkCompleteness = (member: Partial<Member>): boolean => {
-    const requiredFields = ["lastName", "firstName", "studentNumber", "program", "startYear"];
+    const requiredFields = [
+      "lastName",
+      "firstName",
+      "studentNumber",
+      "program",
+      "startYear",
+      "yearLevel",
+      "age",
+      "gender",
+    ];
     return requiredFields.every((field) => member[field] && member[field] !== "");
   };
 
@@ -92,6 +122,11 @@ const AnnexBMembersDashboard = () => {
         studentNumber: "",
         program: "",
         startYear: 0,
+        yearLevel: 1,
+        isOfficer: false,
+        isNewMember: true,
+        age: 0,
+        gender: "",
       });
       setIsModalOpen(false);
     } catch (error) {
@@ -182,8 +217,9 @@ const AnnexBMembersDashboard = () => {
                 <th>Name</th>
                 <th>Student Number</th>
                 <th>Program</th>
-                <th>Start Year</th>
-                <th>Status</th>
+                <th>Position Level</th>
+                <th>Membership</th>
+                <th>Completion Status</th>
                 <th className="text-right">Actions</th>
               </tr>
             </thead>
@@ -200,7 +236,8 @@ const AnnexBMembersDashboard = () => {
                   </td>
                   <td>{member.studentNumber}</td>
                   <td>{member.program}</td>
-                  <td>{member.startYear}</td>
+                  <td>{member.isOfficer ? "Officer" : "Member"}</td>
+                  <td>{member.isNewMember ? "New" : "Renewing"}</td>
                   <td>
                     <span
                       className={`badge ${
@@ -297,7 +334,15 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: name === "startYear" ? parseInt(value) : value });
+    setFormData({
+      ...formData,
+      [name]: name === "startYear" || name === "yearLevel" || name === "age" ? parseInt(value) : value,
+    });
+  };
+
+  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value === "true" });
   };
 
   return (
@@ -316,7 +361,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
             </label>
             <input
               name="lastName"
-              className="input input-bordered w-full uppercase"
+              className="input input-bordered w-full"
               placeholder="DELA CRUZ"
               value={formData.lastName}
               onChange={handleInputChange}
@@ -328,7 +373,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
             </label>
             <input
               name="firstName"
-              className="input input-bordered w-full uppercase"
+              className="input input-bordered w-full"
               placeholder="JUAN MIGUEL"
               value={formData.firstName}
               onChange={handleInputChange}
@@ -340,7 +385,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
             </label>
             <input
               name="middleName"
-              className="input input-bordered w-full uppercase"
+              className="input input-bordered w-full"
               placeholder="GONZALEZ"
               value={formData.middleName}
               onChange={handleInputChange}
@@ -352,7 +397,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
             </label>
             <input
               name="studentNumber"
-              className="input input-bordered w-full uppercase"
+              className="input input-bordered w-full"
               placeholder="2021148086"
               value={formData.studentNumber}
               onChange={handleInputChange}
@@ -380,15 +425,123 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
           </div>
           <div className="form-control">
             <label className="label">
+              <span className="label-text">YEAR LEVEL</span>
+            </label>
+            <select
+              name="yearLevel"
+              className="select select-bordered w-full"
+              value={formData.yearLevel}
+              onChange={handleInputChange}
+            >
+              <option value={0} disabled>
+                SELECT
+              </option>
+              {[1, 2, 3, 4, 5].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-control">
+            <label className="label">
               <span className="label-text">PROGRAM</span>
             </label>
             <input
               name="program"
-              className="input input-bordered w-full uppercase"
+              className="input input-bordered w-full"
               placeholder="BS FOOD TECHNOLOGY"
               value={formData.program}
               onChange={handleInputChange}
             />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">AGE</span>
+            </label>
+            <input
+              name="age"
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="18"
+              value={formData.age}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">GENDER</span>
+            </label>
+            <select
+              name="gender"
+              className="select select-bordered w-full"
+              value={formData.gender}
+              onChange={handleInputChange}
+            >
+              <option value="" disabled>
+                SELECT
+              </option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">OFFICER STATUS</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name="isOfficer"
+                  className="radio"
+                  value="true"
+                  checked={formData.isOfficer === true}
+                  onChange={handleRadioChange}
+                />
+                <span className="label-text ml-2">Officer</span>
+              </label>
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name="isOfficer"
+                  className="radio"
+                  value="false"
+                  checked={formData.isOfficer === false}
+                  onChange={handleRadioChange}
+                />
+                <span className="label-text ml-2">Not an Officer</span>
+              </label>
+            </div>
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">MEMBERSHIP STATUS</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name="isNewMember"
+                  className="radio"
+                  value="true"
+                  checked={formData.isNewMember === true}
+                  onChange={handleRadioChange}
+                />
+                <span className="label-text ml-2">New Member</span>
+              </label>
+              <label className="label cursor-pointer">
+                <input
+                  type="radio"
+                  name="isNewMember"
+                  className="radio"
+                  value="false"
+                  checked={formData.isNewMember === false}
+                  onChange={handleRadioChange}
+                />
+                <span className="label-text ml-2">Renewing Member</span>
+              </label>
+            </div>
           </div>
           <button type="submit" className="btn btn-primary w-full font-bold mt-6 hover:shadow-lg text-white">
             {isEditing ? "UPDATE MEMBER" : "ADD MEMBER"}
