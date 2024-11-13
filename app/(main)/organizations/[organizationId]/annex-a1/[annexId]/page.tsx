@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UserPlus, X, Trash2, Search, FilePenLine, Eye, PenTool, List, Grid, MoreVertical } from "lucide-react";
+import { UserPlus, X, Trash2, Search, FilePenLine, Eye, PenTool } from "lucide-react";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
 import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity, Affiliation, Program } from "@/types";
 import { uploadImage } from "@/utils/storage";
-
 export default function OfficerManager({ params }: { params: { organizationId: string; annexId: string } }) {
   const { organizationId, annexId } = params;
 
@@ -30,22 +29,10 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
   const [editingOfficer, setEditingOfficer] = useState<Officer | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [officerToDelete, setOfficerToDelete] = useState<Officer | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "card">(
-    (localStorage.getItem("officersViewMode") as "table" | "card") || "table"
-  );
 
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("officersViewMode") as "table" | "card";
-    if (savedViewMode) {
-      setViewMode(savedViewMode);
-    }
-
     fetchOfficers();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("officersViewMode", viewMode);
-  }, [viewMode]);
 
   const fetchOfficers = async () => {
     try {
@@ -90,127 +77,6 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
     setDeleteModalOpen(false);
   };
 
-  const renderTableView = () => (
-    <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
-      <table className="table w-full">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Status</th>
-            <th className="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredOfficers.map((officer) => (
-            <tr key={officer._id}>
-              <td>
-                <div className="flex items-center space-x-3">
-                  <div className="avatar">
-                    <div className="mask mask-squircle w-12 h-12">
-                      <img
-                        src={officer.image || "/assets/user-placeholder.png"}
-                        alt={`Avatar of ${officer.firstName} ${officer.lastName}`}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-bold">{`${officer.firstName} ${officer.lastName}`}</div>
-                  </div>
-                </div>
-              </td>
-              <td>{officer.position}</td>
-              <td>
-                <span
-                  className={`badge ${
-                    officer.status === "COMPLETE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {officer.status}
-                </span>
-              </td>
-              <td className="text-right">
-                <div className="flex justify-end space-x-2">
-                  <button className="btn btn-xs bg-blue-100 text-blue-800" onClick={() => handleEditOfficer(officer)}>
-                    <FilePenLine size={16} />
-                    Edit
-                  </button>
-                  <button className="btn btn-xs btn-primary" onClick={() => handleAddSignature(officer._id)}>
-                    <PenTool size={16} />
-                    Add Signature
-                  </button>
-                  <button className="btn btn-ghost btn-xs">
-                    <Eye size={16} />
-                    Preview PDF
-                  </button>
-                  <button className="btn btn-xs text-error bg-red-100" onClick={() => openDeleteModal(officer)}>
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
-  const renderCardView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredOfficers.map((officer) => (
-        <div key={officer._id} className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="avatar">
-                <div className="w-16 h-16 rounded-full">
-                  <img
-                    src={officer.image || "/assets/user-placeholder.png"}
-                    alt={`Avatar of ${officer.firstName} ${officer.lastName}`}
-                  />
-                </div>
-              </div>
-              <div>
-                <h2 className="card-title">{`${officer.firstName} ${officer.lastName}`}</h2>
-                <p className="text-sm opacity-70">{officer.position}</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium">Status:</span>
-              <span
-                className={`badge ${
-                  officer.status === "COMPLETE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                }`}
-              >
-                {officer.status}
-              </span>
-            </div>
-            <div className="card-actions justify-between items-center mb-2">
-              <button className="btn bg-blue-100 text-blue-800 btn-sm" onClick={() => handleEditOfficer(officer)}>
-                <FilePenLine size={18} />
-                Edit
-              </button>
-              <button className="btn btn-ghost btn-sm">
-                <Eye size={18} />
-                Preview PDF
-              </button>
-            </div>
-            <div className="card-actions justify-between items-center">
-              <button className="btn btn-ghost btn-sm bg-red-100 text-error" onClick={() => openDeleteModal(officer)}>
-                <Trash2 size={18} />
-                Delete
-              </button>
-              <button className="btn btn-primary btn-sm" onClick={() => handleAddSignature(officer._id)}>
-                <PenTool size={18} />
-                Add Signature
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -220,35 +86,80 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
           officers={officers}
           setOfficers={setOfficers}
         />
-        <div className="flex items-center gap-4">
-          <button
-            className={`btn btn-ghost ${viewMode === "table" ? "btn-active" : ""}`}
-            onClick={() => setViewMode("table")}
-          >
-            <List size={16} />
-            Table View
-          </button>
-          <button
-            className={`btn btn-ghost ${viewMode === "card" ? "btn-active" : ""}`}
-            onClick={() => setViewMode("card")}
-          >
-            <Grid size={16} />
-            Grid View
-          </button>
-
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search Officer"
-              className="input input-bordered pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          </div>
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search Officer"
+            className="input input-bordered pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
         </div>
       </div>
-      {viewMode === "table" ? renderTableView() : renderCardView()}
+      <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOfficers.map((officer) => (
+              <tr key={officer._id}>
+                <td>
+                  <div className="flex items-center space-x-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src={officer.image || "/assets/user-placeholder.png"}
+                          alt={`Avatar of ${officer.firstName} ${officer.lastName}`}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-bold">{`${officer.firstName} ${officer.lastName}`}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{officer.position}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      officer.status === "COMPLETE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {officer.status}
+                  </span>
+                </td>
+                <td className="text-right">
+                  <div className="flex justify-end space-x-2">
+                    <button className="btn btn-xs bg-blue-100 text-blue-800" onClick={() => handleEditOfficer(officer)}>
+                      <FilePenLine size={16} />
+                      Edit
+                    </button>
+                    <button className="btn btn-xs btn-primary" onClick={() => handleAddSignature(officer._id)}>
+                      <PenTool size={16} />
+                      Add Signature
+                    </button>
+                    <button className="btn btn-ghost btn-xs">
+                      <Eye size={16} />
+                      Preview PDF
+                    </button>
+                    <button className="btn btn-xs text-error bg-red-100" onClick={() => openDeleteModal(officer)}>
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {editingOfficer && (
         <EditOfficerModal
           officer={editingOfficer}
