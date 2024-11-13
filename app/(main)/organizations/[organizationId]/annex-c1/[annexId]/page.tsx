@@ -647,13 +647,13 @@ export default function ArticlesOfAssociationCreator() {
                           </p>
                         ))}
                         {section.subsections.map((subsection) => (
-                          <div key={subsection.number} className="ml-20 mb-2">
+                          <div key={subsection.number} className="ml-24 mb-2">
                             <h5 className="text-md font-medium mb-1">
                               {subsection.number}: {subsection.title}
                             </h5>
                             <p className="mb-1">{subsection.paragraph}</p>
                             {subsection.letteredParagraphs.map((lp) => (
-                              <p key={lp.letter} className="ml-4 mb-1">
+                              <p key={lp.letter} className="ml-8 mb-1">
                                 <span className="mr-2">{lp.letter}.</span>
                                 <span className="ml-4">{lp.paragraph}</span>
                               </p>
