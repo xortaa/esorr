@@ -125,15 +125,30 @@ const RSOSetupPage = () => {
 
       const response = await axios.post("/api/rso-setup", submitData, {
         headers: { "Content-Type": "application/json" },
+        timeout: 60000, // Increase timeout to 60 seconds
       });
 
       if (response.status === 201) {
         alert("Organization created successfully!");
         router.push("/organizations");
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
       console.error("Error creating organization:", error);
-      setError("An error occurred while creating the organization. Please try again.");
+      if (axios.isAxiosError(error)) {
+        if (error.code === "ECONNABORTED") {
+          setError("The request timed out. Please try again.");
+        } else if (error.response) {
+          setError(`Server error: ${error.response.data.error || "Unknown error"}`);
+        } else if (error.request) {
+          setError("No response received from server. Please check your internet connection and try again.");
+        } else {
+          setError(`Error: ${error.message}`);
+        }
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }

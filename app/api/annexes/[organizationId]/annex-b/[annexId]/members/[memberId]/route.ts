@@ -37,6 +37,11 @@ export async function PUT(
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
+    const annexB = await AnnexB.findById(params.annexId);
+    if (annexB) {
+      await annexB.updateMemberCounts();
+    }
+
     return NextResponse.json(updatedMember);
   } catch (error) {
     console.error("Error updating member:", error);
@@ -57,8 +62,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Remove member from AnnexB
-    await AnnexB.findByIdAndUpdate(params.annexId, { $pull: { members: params.memberId } });
+    const annexB = await AnnexB.findByIdAndUpdate(params.annexId, { $pull: { members: params.memberId } });
+    if (annexB) {
+      await annexB.updateMemberCounts();
+    }
 
     return NextResponse.json({ message: "Member deleted successfully" });
   } catch (error) {

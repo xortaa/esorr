@@ -37,6 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
 
     annexB.members.push(newMember._id);
     await annexB.save();
+    await annexB.updateMemberCounts();
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (error) {
