@@ -1,5 +1,17 @@
 import { Schema, model, models } from "mongoose";
 
+const SignatureSchema = new Schema({
+  name: {
+    type: String,
+  },
+  position: {
+    type: String,
+  },
+  signatureUrl: {
+    type: String,
+  },
+});
+
 const AnnexC1Schema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
@@ -18,6 +30,37 @@ const AnnexC1Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "ArticlesOfAssociation",
     default: null,
+  },
+  pdf: {
+    type: String,
+    default: null,
+  },
+  president: {
+    type: SignatureSchema,
+  },
+  vicePresident: {
+    type: SignatureSchema,
+  },
+  secretary: {
+    type: SignatureSchema,
+  },
+  treasurer: {
+    type: SignatureSchema,
+  },
+  auditor: {
+    type: SignatureSchema,
+  },
+  peaceRelationsOfficer: {
+    type: SignatureSchema,
+  },
+  adviser: {
+    type: SignatureSchema,
+  },
+  comelecRepresentative: {
+    type: SignatureSchema,
+  },
+  dateSubmitted: {
+    type: Date,
   },
 });
 
