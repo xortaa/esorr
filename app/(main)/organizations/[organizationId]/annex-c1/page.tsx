@@ -639,67 +639,108 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
       </Text>
 
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        <Image
+          src={annex.president?.signatureUrl || "/assets/signature.png"}
+          style={{ width: 200, height: 50, marginHorizontal: "auto" }}
+        />
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.president?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>President</Text> (NAME OF ORGANIZATION) 2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>President</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        <Image
+          src={annex.vicePresident?.signatureUrl || "/assets/signature.png"}
+          style={{ width: 200, height: 50, marginHorizontal: "auto" }}
+        />
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>
+          {annex.vicePresident?.name || "First name M.I. Last Name"}
+        </Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Vice President</Text> (NAME OF ORGANIZATION) 2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Vice President</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        {annex.secretary?.signatureUrl ? (
+          <Image src={annex.secretary.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        ) : (
+          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        )}
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.secretary?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Secretary</Text> (NAME OF ORGANIZATION) 2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Secretary</Text> {annex.organization.name} {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        {annex.treasurer?.signatureUrl ? (
+          <Image src={annex.treasurer.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        ) : (
+          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        )}
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.treasurer?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Treasurer</Text> (NAME OF ORGANIZATION) 2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Treasurer</Text> {annex.organization.name} {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        {annex.auditor?.signatureUrl ? (
+          <Image src={annex.auditor.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        ) : (
+          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        )}
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.auditor?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Auditor</Text> (NAME OF ORGANIZATION) 2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Auditor</Text> {annex.organization.name} {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src="/assets/signature.png" style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>First name M.I. Last Name</Text>
+        {annex.peaceRelationsOfficer?.signatureUrl ? (
+          <Image src={annex.peaceRelationsOfficer.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        ) : (
+          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        )}
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.peaceRelationsOfficer?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Peace Relations Officer</Text> (NAME OF ORGANIZATION)
-          2023-2024
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Peace Relations Officer</Text> {annex.organization.name} {annex.academicYear}
         </Text>
       </View>
-
+      
       <Text style={{ marginTop: 10 }}>
         Done in the University of Santo Tomas, Philippines, Month Day, Year (CURRENT DATE)
       </Text>
-
+      
       <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Attested by:</Text>
-
-      <Image src="/assets/signature.png" style={{ width: 200, height: 50 }} />
-      <Text style={{ fontFamily: "Arial Narrow Bold" }}>Complete Name of Organization Adviser</Text>
-      <Text style={{}}>
-        <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>Adviser, </Text>Name of Org
+      
+      {annex.adviser?.signatureUrl ? (
+        <Image src={annex.adviser.signatureUrl} style={{ width: 200, height: 50 }} />
+      ) : (
+        <View style={{ width: 200, height: 50 }} />
+      )}
+      <Text style={{ fontFamily: "Arial Narrow Bold" }}>
+        {annex.adviser?.name || "Complete Name of Organization Adviser"}
       </Text>
       <Text style={{}}>
-        <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>A.Y. </Text>2021-2024
+        <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>Adviser, </Text>
+        {annex.organization.name || "Name of Org"}
+      </Text>
+      <Text style={{}}>
+        <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>A.Y. </Text>
+        {annex.academicYear || "2021-2024"}
       </Text>
       <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Certified by:</Text>
-      <Image src="/assets/signature.png" style={{ width: 200, height: 50 }} />
-      <Text style={{ fontFamily: "Arial Narrow Bold" }}>Name of Local COMELEC representative</Text>
-      <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>Position </Text>
+      {annex.comelecRepresentative?.signatureUrl ? (
+        <Image src={annex.comelecRepresentative.signatureUrl} style={{ width: 200, height: 50 }} />
+      ) : (
+        <View style={{ width: 200, height: 50 }} />
+      )}
+      <Text style={{ fontFamily: "Arial Narrow Bold" }}>
+        {annex.comelecRepresentative?.name || "Name of Local COMELEC representative"}
+      </Text>
+      <Text style={{ fontFamily: "Arial Narrow Bold Italic" }}>
+        {annex.comelecRepresentative?.position || "Position"}
+      </Text>
 
       {/* Annex Title */}
       <View fixed style={styles.footer}>
