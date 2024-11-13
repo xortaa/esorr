@@ -60,11 +60,6 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
     setEditingOfficer(officer);
   };
 
-  const handleAddSignature = (officerId: string) => {
-    // Implement signature functionality here
-    console.log(`Add signature for officer ${officerId}`);
-  };
-
   const openDeleteModal = (officer: Officer) => {
     setOfficerToDelete(officer);
     setDeleteModalOpen(true);
@@ -103,7 +98,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
             <tr>
               <th>Name</th>
               <th>Position</th>
-              <th>Status</th>
+              <th>Completion Status</th>
               <th className="text-right">Actions</th>
             </tr>
           </thead>
@@ -121,7 +116,7 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
                       </div>
                     </div>
                     <div>
-                      <div className="font-bold">{`${officer.firstName} ${officer.lastName}`}</div>
+                      <div className="font-bold">{`${officer.firstName} ${officer.middleName} ${officer.lastName}`}</div>
                     </div>
                   </div>
                 </td>
@@ -140,14 +135,6 @@ function OfficersTable({ organizationId, annexId }: { organizationId: string; an
                     <button className="btn btn-xs bg-blue-100 text-blue-800" onClick={() => handleEditOfficer(officer)}>
                       <FilePenLine size={16} />
                       Edit
-                    </button>
-                    <button className="btn btn-xs btn-primary" onClick={() => handleAddSignature(officer._id)}>
-                      <PenTool size={16} />
-                      Add Signature
-                    </button>
-                    <button className="btn btn-ghost btn-xs">
-                      <Eye size={16} />
-                      Preview PDF
                     </button>
                     <button className="btn btn-xs text-error bg-red-100" onClick={() => openDeleteModal(officer)}>
                       <Trash2 size={16} />
