@@ -104,69 +104,62 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
-    paddingBottom: 80,
-    paddingRight: 80,
-    paddingLeft: 80,
+    paddingBottom: 65,
+    paddingHorizontal: 35,
     fontSize: 11,
     fontFamily: "Arial Narrow",
-    overflow: "hidden",
   },
   header: {
-    borderTopWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
     borderBottomWidth: 1,
-    marginBottom: 15,
+    borderBottomColor: "#000",
+    paddingBottom: 5,
   },
-  footer: {
-    position: "absolute",
-    bottom: 20,
-    left: 40,
-    right: 40,
-    textAlign: "center",
-    fontSize: 10,
-    color: "gray",
-  },
-  section: {
-    marginBottom: 15,
-  },
-  heading: {
-    fontSize: 18,
-    fontWeight: "heavy",
-    textAlign: "center",
-    marginBottom: 5,
-    fontFamily: "Times-Bold",
-  },
-  subheading: {
-    fontSize: 16,
-    fontWeight: "heavy",
-    marginBottom: 5,
-    textAlign: "left",
-    textDecoration: "underline",
-    fontFamily: "Arial Narrow Bold",
-  },
-  subSubHeading: {
-    fontSize: 12,
+  headerLeft: {
+    fontSize: 8,
     fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 5,
+    fontFamily: "Times-Roman",
+  },
+  headerRight: {
+    fontSize: 8,
+    textAlign: "right",
+  },
+  title: {
+    fontSize: 16,
     fontFamily: "Arial Narrow Bold",
-  },
-  text: {
-    fontSize: 11,
+    textAlign: "center",
     marginBottom: 5,
   },
-  listItem: {
+  subtitle: {
     fontSize: 11,
-    marginLeft: 25,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  organizationName: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  label: {
+    fontFamily: "Arial Narrow Bold",
+    marginRight: 5,
+  },
+  value: {
+    fontFamily: "Arial Narrow",
+    textDecoration: "underline",
+  },
+  privacyNotice: {
+    fontFamily: "Arial Narrow Bold",
     marginBottom: 5,
-    lineHeight: 1.5,
+  },
+  privacyText: {
+    textAlign: "justify",
+    marginBottom: 15,
   },
   table: {
-    display: "flex",
-    width: "100%",
-    borderStyle: "solid",
     borderWidth: 1,
     borderColor: "#000",
-    marginBottom: 10,
   },
   tableRow: {
     flexDirection: "row",
@@ -175,15 +168,24 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     padding: 5,
-    fontSize: 11,
-    textAlign: "left",
     borderRightWidth: 1,
     borderRightColor: "#000",
   },
   tableCellHeader: {
-    backgroundColor: "#d3d3d3",
-    fontWeight: "bold",
+    backgroundColor: "#000",
+    color: "#fff",
+  },
+  tableCellCenter: {
+    textAlign: "center",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 20,
+    left: 35,
+    right: 35,
+    textAlign: "center",
     fontSize: 10,
+    color: "gray",
   },
   signatureSection: {
     flexDirection: "row",
@@ -199,7 +201,70 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 5,
   },
+  memberDistributionTable: {
+    borderWidth: 1,
+    borderColor: "#000",
+  },
+  memberDistributionRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000",
+  },
+  memberDistributionCell: {
+    padding: 5,
+    borderRightWidth: 1,
+    borderRightColor: "#000",
+  },
+  memberDistributionHeaderCell: {
+    backgroundColor: "#f0f0f0",
+    padding: 5,
+    borderRightWidth: 1,
+    borderRightColor: "#000",
+    fontFamily: "Arial Narrow Bold",
+  },
+  yearLevelCell: {
+    width: "13%",
+    borderRightWidth: 1,
+    borderRightColor: "#000",
+  },
+  newOldCell: {
+    width: "50%",
+    borderRightWidth: 1,
+    borderRightColor: "#000",
+    padding: 2,
+  },
 });
+
+const NumofOfficers = ({ indexNum, facInstName, yearData }) => {
+  return (
+    <View style={{ width: "100%", flexDirection: "row", borderTopWidth: 1 }}>
+      <View style={{ flexDirection: "column", width: "35%" }}>
+        <Text
+          style={{
+            fontSize: 10,
+            paddingLeft: 2,
+            paddingTop: 4,
+            paddingHorizontal: 5,
+          }}
+        >
+          {indexNum}.<Text style={{ textAlign: "left" }}> {facInstName}</Text>
+        </Text>
+      </View>
+      <View style={{ flexDirection: "column", textAlign: "center", width: "65%", borderLeftWidth: 1 }}>
+        <View style={{ flexDirection: "row" }}>
+          {["firstYear", "secondYear", "thirdYear", "fourthYear", "fifthYear"].map((year, index) => (
+            <View key={year} style={{ width: "20%", borderRightWidth: index < 4 ? 1 : 0, flexDirection: "row" }}>
+              <Text style={{ width: "50%", borderRightWidth: 1, paddingVertical: 10, textAlign: "center" }}>
+                {yearData[year].new}
+              </Text>
+              <Text style={{ width: "50%", paddingVertical: 10, textAlign: "center" }}>{yearData[year].old}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
   const formatDate = (date: Date | undefined) => {
@@ -214,183 +279,251 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
   return (
     <Document>
       <Page style={styles.page} size="LEGAL">
-        <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
-          <Text style={{ fontSize: 11, textAlign: "right" }}>Page | 1</Text>
-          <Text style={{ fontSize: 8, textAlign: "right" }}>List of Members</Text>
-          <Text style={{ fontSize: 8, textAlign: "right" }}>AY {annex.academicYear}</Text>
+        <View style={styles.header}>
+          <Text style={styles.headerLeft}>STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS</Text>
+          <View>
+            <Text style={{ fontSize: 11, textAlign: "right" }}>Page | 1</Text>
+            <Text style={styles.headerRight}>List of Members</Text>
+            <Text style={styles.headerRight}>AY {annex.academicYear}</Text>
+          </View>
         </View>
 
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 16, fontFamily: "Arial Narrow Bold", textAlign: "center" }}>LIST OF MEMBERS</Text>
-          <Text style={{ textAlign: "center" }}>(as of AY {annex.academicYear})</Text>
+        <Text style={styles.title}>LIST OF MEMBERS</Text>
+        <Text style={styles.subtitle}>(as of AY {annex.academicYear})</Text>
+
+        <View style={styles.organizationName}>
+          <Text style={styles.label}>NAME OF ORGANIZATION</Text>
+          <Text style={styles.value}>{annex.organization.name}</Text>
         </View>
 
-        <View style={{ marginBottom: 10 }}>
-          <Text style={{ fontFamily: "Arial Narrow Bold" }}>NAME OF ORGANIZATION</Text>
-          <Text style={{ fontFamily: "Arial Narrow", textDecoration: "underline" }}>{annex.organization.name}</Text>
-        </View>
+        <Text style={styles.privacyNotice}>
+          OSA's Privacy Notice on the Documentary Requirements for Recognition of Student Organizations
+        </Text>
+        <Text style={styles.privacyText}>
+          The Office for Student Affairs (OSA) gathers personal data of bonafide students of the University through the
+          documentary requirements on Application for Recognition of Student Organizations. The personal data, photos,
+          and membership/officership information form part of the student organizations' data bank. Data is stored
+          online in a secure and safe server of the OSA, while the equivalent hard copy is kept on file and properly
+          secured in a filing cabinet. The OSA administrators, staff in charge of student organizations, and OSA
+          reviewers are the persons permitted to access the files of student organizations. These documents are not
+          shared with any party outside the University unless the disclosure of such information is compelled by
+          operation of law or as requested by external auditors, i.e., PACUCOA, AUN-QA, ISO, etc. These online files and
+          hard copies are retained at the OSA/University Archives facility.
+        </Text>
 
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontFamily: "Arial Narrow Bold" }}>
-            OSA's Privacy Notice on the Documentary Requirements for Recognition of Student Organizations
-          </Text>
-          <Text style={{ marginTop: 5, textAlign: "justify" }}>
-            The Office for Student Affairs (OSA) gathers personal data of bonafide students of the University through
-            the documentary requirements on Application for Recognition of Student Organizations. The personal data,
-            photos, and membership/officership information form part of the student organizations' data bank. Data is
-            stored online in a secure and safe server of the OSA, while the equivalent hard copy is kept on file and
-            properly secured in a filing cabinet. The OSA administrators, staff in charge of student organizations, and
-            OSA reviewers are the persons permitted to access the files of student organizations. These documents are
-            not shared with any party outside the University unless the disclosure of such information is compelled by
-            operation of law or as requested by external auditors, i.e., PACUCOA, AUN-QA, ISO, etc. These online files
-            and hard copies are retained at the OSA/University Archives facility.
-          </Text>
-        </View>
-
-        <View style={[styles.table, { marginBottom: 0 }]}>
+        <View style={styles.table}>
           <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "30%", borderBottomWidth: 1 }]}>
+            <View style={[styles.tableCell, { width: "35%" }]}>
               <Text>Number of Officers</Text>
             </View>
-            <View style={[styles.tableCell, { width: "70%", borderLeftWidth: 1, borderBottomWidth: 1 }]}>
+            <View style={[styles.tableCell, { width: "65%" }]}>
               <Text>{annex.numberOfOfficers}</Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.table}>
-          <View style={[styles.tableRow, { borderBottomWidth: 0 }]}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
-              <Text>Age and Gender{"\n"}Distribution of Members</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1 }]}>
-              <Text style={{ textAlign: "center" }}>Total No. of Male members</Text>
-            </View>
+          <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: "35%" }]}>
-              <Text style={{ textAlign: "center" }}>Total No. of Female members</Text>
+              <Text>Age and Gender Distribution of Members</Text>
+            </View>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>Total No. of Male members</Text>
+            </View>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>Total No. of Female members</Text>
             </View>
           </View>
 
-          <View style={[styles.tableRow, { borderTopWidth: 1 }]}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
+          <View style={styles.tableRow}>
+            <View style={[styles.tableCell, { width: "35%" }]}>
               <Text>Below 18</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1, textAlign: "center" }]}>
-              <Text>{annex.maleMembersBelow18}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.maleMembersBelow18}</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", textAlign: "center" }]}>
-              <Text>{annex.femaleMembersBelow18}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.femaleMembersBelow18}</Text>
             </View>
           </View>
 
           <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
+            <View style={[styles.tableCell, { width: "35%" }]}>
               <Text>18 to 20</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1, textAlign: "center" }]}>
-              <Text>{annex.maleMembers18To20}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.maleMembers18To20}</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", textAlign: "center" }]}>
-              <Text>{annex.femaleMembers18To20}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.femaleMembers18To20}</Text>
             </View>
           </View>
 
           <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
+            <View style={[styles.tableCell, { width: "35%" }]}>
               <Text>21 and above</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1, textAlign: "center" }]}>
-              <Text>{annex.maleMembers21AndAbove}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.maleMembers21AndAbove}</Text>
             </View>
-            <View style={[styles.tableCell, { width: "35%", textAlign: "center" }]}>
-              <Text>{annex.femaleMembers21AndAbove}</Text>
+            <View style={[styles.tableCell, { width: "32.5%" }]}>
+              <Text style={styles.tableCellCenter}>{annex.femaleMembers21AndAbove}</Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
-              <Text>
-                Distribution of Members{"\n"}According to Faculty /{"\n"}College / Institute / School{"\n"}and Year
-                Level
-              </Text>
-            </View>
-            <View style={[styles.tableCell, { width: "70%" }]}>
-              <View style={[styles.tableRow, { borderTopWidth: 0 }]}>
-                <View
-                  style={[
-                    styles.tableCell,
-                    { width: "40%", backgroundColor: "#000", color: "#fff", borderRightWidth: 1 },
-                  ]}
-                >
-                  <Text>FACULTY / COLLEGE / INSTITUTE{"\n"}/ SCHOOL UNIVERSITY-WIDE</Text>
+          <View style={{ flexDirection: "row", width: "100%", borderTop: 1, textAlign: "left" }}>
+            <Text style={{ padding: 5, width: "25%", borderRightWidth: 1 }}>
+              Distribution of Members According to Faculty / College / Institute / School and Year Level
+            </Text>
+
+            <View style={{ width: "75%", flexDirection: "column" }}>
+              <View style={{ flexDirection: "row", textAlign: "center" }}>
+                <View style={{ flexDirection: "column", textAlign: "center", width: "35%" }}>
+                  <Text
+                    style={{
+                      padding: 10,
+                      borderRightWidth: 1,
+                      fontFamily: "Arial Narrow Bold",
+                      backgroundColor: "black",
+                      color: "white",
+                    }}
+                  >
+                    INSTITUTE / SCHOOL
+                  </Text>
+                  {annex.organization.affiliation ? (
+                    <Text style={{ textDecoration: "underline", padding: 6 }}>{annex.organization.affiliation}</Text>
+                  ) : (
+                    <Text style={{ textDecoration: "underline", fontSize: 7, padding: 6 }}>____________________</Text>
+                  )}
                 </View>
-                <View style={[styles.tableCell, { width: "60%" }]}>
-                  <Text style={{ textAlign: "center" }}>YEAR LEVEL</Text>
-                  <View style={{ flexDirection: "row" }}>
-                    {[1, 2, 3, 4, 5].map((year, index) => (
-                      <View
-                        key={index}
-                        style={[
-                          styles.tableCell,
-                          { width: "20%", borderTopWidth: 1, ...(index < 4 && { borderRightWidth: 1 }) },
-                        ]}
-                      >
-                        <Text style={{ textAlign: "center" }}>{year}</Text>
-                      </View>
-                    ))}
+                <View style={{ flexDirection: "column", textAlign: "center", width: "65%", borderLeftWidth: 1 }}>
+                  <Text style={{}}>YEAR LEVEL</Text>
+                  <View style={{ flexDirection: "row", borderTopWidth: 1 }}>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>1</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>2</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>3</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>4</Text>
+                    <Text style={{ width: "20%", padding: 13 }}>5</Text>
                   </View>
                 </View>
               </View>
+              <View style={{ width: "100%", flexDirection: "row", textAlign: "center", borderTopWidth: 1 }}>
+                <View style={{ flexDirection: "column", textAlign: "center", width: "35%" }}>
+                  <Text
+                    style={{
+                      padding: 13,
 
-              {Object.entries(annex.memberDistribution).map(([program, years], index) => (
-                <View key={index} style={[styles.tableRow, { borderTopWidth: 1 }]}>
-                  <View style={[styles.tableCell, { width: "40%", borderRightWidth: 1 }]}>
-                    <Text>{program}</Text>
-                  </View>
-                  <View style={[styles.tableCell, { width: "60%" }]}>
-                    <View style={{ flexDirection: "row" }}>
-                      {Object.values(years).map((year, yearIndex) => (
-                        <View
-                          key={yearIndex}
-                          style={[styles.tableCell, { width: "20%", ...(yearIndex < 4 && { borderRightWidth: 1 }) }]}
-                        >
-                          <Text style={{ textAlign: "center" }}>
-                            N: {year.new}
-                            {"\n"}
-                            O: {year.old}
-                          </Text>
-                        </View>
-                      ))}
+                      fontSize: 10,
+                    }}
+                  >
+                    Write Program and Major
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "column", textAlign: "center", width: "65%", borderLeftWidth: 1 }}>
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ width: "20%", borderRightWidth: 1, flexDirection: "row" }}>
+                      <Text style={{ width: "50%", borderRightWidth: 1 }}>
+                        N{"\n"}e{"\n"}w
+                      </Text>
+                      <Text style={{ width: "50%" }}>
+                        O{"\n"}l{"\n"}d
+                      </Text>
+                    </View>
+                    <View style={{ width: "20%", borderRightWidth: 1, flexDirection: "row" }}>
+                      <Text style={{ width: "50%", borderRightWidth: 1 }}>
+                        N{"\n"}e{"\n"}w
+                      </Text>
+                      <Text style={{ width: "50%" }}>
+                        O{"\n"}l{"\n"}d
+                      </Text>
+                    </View>
+                    <View style={{ width: "20%", borderRightWidth: 1, flexDirection: "row" }}>
+                      <Text style={{ width: "50%", borderRightWidth: 1 }}>
+                        N{"\n"}e{"\n"}w
+                      </Text>
+                      <Text style={{ width: "50%" }}>
+                        O{"\n"}l{"\n"}d
+                      </Text>
+                    </View>
+                    <View style={{ width: "20%", borderRightWidth: 1, flexDirection: "row" }}>
+                      <Text style={{ width: "50%", borderRightWidth: 1 }}>
+                        N{"\n"}e{"\n"}w
+                      </Text>
+                      <Text style={{ width: "50%" }}>
+                        O{"\n"}l{"\n"}d
+                      </Text>
+                    </View>
+                    <View style={{ width: "20%", flexDirection: "row" }}>
+                      <Text style={{ width: "50%", borderRightWidth: 1 }}>
+                        N{"\n"}e{"\n"}w
+                      </Text>
+                      <Text style={{ width: "50%" }}>
+                        O{"\n"}l{"\n"}d
+                      </Text>
                     </View>
                   </View>
                 </View>
-              ))}
+              </View>
+              {/* Inputs */}
+              <View>
+                {Object.entries(annex.memberDistribution).map(([program, years], index) => (
+                  <NumofOfficers key={index} indexNum={`${index + 1}`} facInstName={program} yearData={years} />
+                ))}
+              </View>
             </View>
+          </View>
+
+          <View style={{ flexDirection: "row", width: "100%", borderTop: 1 }}>
+            <Text
+              style={{
+                padding: 5,
+                width: "51.4%",
+                borderRightWidth: 1,
+                fontFamily: "Arial Narrow Bold",
+                textAlign: "right",
+              }}
+            >
+              Total Number of MEMBERS
+            </Text>
+
+            <View style={{ width: "48.6%", flexDirection: "column" }}>
+              <View style={{ flexDirection: "row", textAlign: "center" }}>
+                {["firstYear", "secondYear", "thirdYear", "fourthYear", "fifthYear"].map((year, index) => {
+                  const totalNew = Object.values(annex.memberDistribution).reduce(
+                    (sum, program) => sum + program[year].new,
+                    0
+                  );
+                  const totalOld = Object.values(annex.memberDistribution).reduce(
+                    (sum, program) => sum + program[year].old,
+                    0
+                  );
+                  return (
+                    <View
+                      key={year}
+                      style={{ width: "20%", borderRightWidth: index < 4 ? 1 : 0, flexDirection: "row" }}
+                    >
+                      <Text style={{ width: "50%", borderRightWidth: 1, paddingVertical: 10, textAlign: "center" }}>
+                        {totalNew}
+                      </Text>
+                      <Text style={{ width: "50%", paddingVertical: 10, textAlign: "center" }}>{totalOld}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row", width: "100%", borderTop: 1, alignItems: "center" }}>
+            <Text style={{ padding: 5, width: "50%" }}></Text>
+            <Text style={{ textAlign: "right", padding: 5, width: "50%", fontFamily: "Arial Narrow Bold" }}>
+              {" "}
+              Total Number of Officers and Members:{" "}
+              <Text style={{ textDecoration: "underline", fontFamily: "Arial Narrow" }}>
+                {annex.totalOfficersAndMembers}
+              </Text>{" "}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "30%", borderRightWidth: 1 }]}>
-              <Text style={{ fontFamily: "Arial Narrow Bold" }}>Total Number of MEMBERS</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "70%" }]}>
-              <Text>{annex.totalMembers}</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={{ marginTop: 10, borderWidth: 1, padding: 5 }}>
-          <Text style={{ textAlign: "right", fontFamily: "Arial Narrow Bold" }}>
-            Total Number of Officers and Members: {annex.totalOfficersAndMembers}
-          </Text>
-        </View>
-
+        {/* signatories */}
         <Text style={{ fontFamily: "Times-Bold", marginTop: 20 }}>Certified By:</Text>
 
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 30 }}>
@@ -426,13 +559,13 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
       </Page>
 
       <Page style={styles.page} size="LEGAL">
-        <View fixed style={styles.header}>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left" }}>
-            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
-          </Text>
-          <Text style={{ fontSize: 11, textAlign: "right" }}>Page | 2</Text>
-          <Text style={{ fontSize: 8, textAlign: "right" }}>List of Members</Text>
-          <Text style={{ fontSize: 8, textAlign: "right" }}>AY {annex.academicYear}</Text>
+        <View style={styles.header}>
+          <Text style={styles.headerLeft}>STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS</Text>
+          <View>
+            <Text style={{ fontSize: 11, textAlign: "right" }}>Page | 2</Text>
+            <Text style={styles.headerRight}>List of Members</Text>
+            <Text style={styles.headerRight}>AY {annex.academicYear}</Text>
+          </View>
         </View>
 
         <Text style={{ marginBottom: 10 }}>LIST OF MEMBERS FOR AY {annex.academicYear}</Text>
