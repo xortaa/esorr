@@ -481,7 +481,7 @@ export default function ArticlesOfAssociationCreator() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
                   {currentSection.image ? (
-                    <div className="relative w-full h-48 mb-2">
+                    <div className="relative w-48 h-48 mb-2">
                       <Image
                         src={currentSection.image}
                         alt="Section image"
@@ -614,7 +614,7 @@ export default function ArticlesOfAssociationCreator() {
                           </div>
                         </div>
                         {section.image && (
-                          <div className="relative w-full h-48 mb-2 ml-20">
+                          <div className="mx-auto relative w-48 h-48 mb-2 ml-20">
                             <Image
                               src={section.image}
                               alt={`Image for Section ${section.number}`}
