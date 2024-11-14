@@ -97,7 +97,9 @@ type MonthlyReport = {
 
 type AnnexE2 = {
   _id: string;
-  organization: string;
+  organization: {
+    name: string;
+  };
   academicYear: string;
   isSubmitted: boolean;
   january: MonthlyReport;
@@ -546,11 +548,44 @@ const styles = StyleSheet.create({
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
-const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academicYear: string }> = ({
-  monthlyReport,
-  month,
-  academicYear,
-}) => {
+const MyDocument: React.FC<{
+  organization: string;
+  monthlyReport: MonthlyReport;
+  month: string;
+  academicYear: string;
+}> = ({ organization, monthlyReport, month, academicYear }) => {
+
+  const categories = [
+    { numeral: "I", name: "Food Expense" },
+    { numeral: "II", name: "Transportation" },
+    { numeral: "III", name: "Office Supplies" },
+    { numeral: "IV", name: "Physical Arrangement" },
+    { numeral: "V", name: "Documentation" },
+    { numeral: "VI", name: "Promotions" },
+    { numeral: "VII", name: "Professional Fee/ Honoraria/ Token" },
+    { numeral: "VIII", name: "Awards and Prizes" },
+    { numeral: "IX", name: "Publication" },
+    { numeral: "X", name: "Rentals" },
+    { numeral: "XI", name: "Equipment" },
+    { numeral: "XII", name: "Costumes" },
+    { numeral: "XIII", name: "Membership Kits" },
+    { numeral: "XIV", name: "Registration Fees" },
+    { numeral: "XV", name: "Cash Donations or Sponsorship to Other Organizations" },
+    { numeral: "XVI", name: "Miscellaneous Expense" },
+  ];
+
+  const foodExpenses = monthlyReport.outflows.flatMap((outflow) =>
+    outflow.items
+      .filter((item) => item.category === "I. Food Expense")
+      .map((item) => ({
+        ...item,
+        date: outflow.date,
+        establishment: outflow.establishment,
+      }))
+  );
+  const totalFoodExpense = foodExpenses.reduce((total, item) => total + item.cost * item.quantity, 0);
+
+
   return (
     <Document>
       <Page style={styles.page} size="LEGAL" orientation="landscape">
@@ -559,7 +594,7 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
             Student Organizations Recognition Requirements Annex E-2 Page{" "}
             <Text render={({ pageNumber, totalPages }) => `${pageNumber}`} /> of Financial Report Liquidation Report AY
-            2024-2025
+            {academicYear}
           </Text>
         </View>
 
@@ -571,11 +606,11 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
             <EmphasizedText>UNIVERSITY OF SANTO TOMAS</EmphasizedText>
           </Text>
-          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>Name of Organization/Council</Text>
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>{organization}</Text>
           {"\n"}
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "center" }}>
             <EmphasizedText>Liquidation Report</EmphasizedText> {"\n"}
-            <EmphasizedText> As of (MONTH)</EmphasizedText> {"\n"}
+            <EmphasizedText> As of {month}</EmphasizedText> {"\n"}
             (Date covered)
           </Text>
         </View>
@@ -592,70 +627,142 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
           </View>
 
           {/* Table Rows */}
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Organization Fund / Beginning Balance")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Membership Fee")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Registration Fee")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Merchandise Selling")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Subsidy: Student Activity Fund (For LSC & CBO Only)")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Subsidy: Community Service Fund")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Subsidy: University-Wide Student Organization Fund (For USO Only)")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Subsidy: Local Student Council Fund (For LSC Only)")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Cash Sponsorships")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Interest Income")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
+          {monthlyReport.inflows
+            .filter((inflow) => inflow.category === "Other Income")
+            .map((inflow) => (
+              <View style={styles.tableRow} key={inflow._id}>
+                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
+                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
+                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+              </View>
+            ))}
+
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Organization Fund / Beginning Balance</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
+            <Text style={styles.tableCellSOF}>Total Inflows</Text>
+            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalInflow}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Membership Fee</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
+            <Text style={styles.tableCellSOF}>Total Outflows</Text>
+            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalOutflow}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Registration Fee</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Merchandise Selling</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Subsidy: Student Activity Fund (For LSC & CBO Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Subsidy: Community Service Fund </Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Subsidy: University-Wide Student Organization Fund (For USO Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Subsidy: Local Student Council Fund (For LSC Only)</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Cash Sponsorships</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate}> </Text>
-            <Text style={styles.tableCellSOF}>Interest Income</Text>
-            <Text style={styles.tableLastCell}>₱ </Text>
+            <Text style={styles.tableCellSOF}>Net Cash Flow</Text>
+            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalInflow - monthlyReport.totalOutflow}</Text>
           </View>
 
           <View style={styles.tableRow}>
@@ -664,7 +771,7 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>TOTAL RECEIPTS</Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>₱. 00 </Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>₱ {monthlyReport.totalInflow}</Text>
           </View>
         </View>
 
@@ -683,277 +790,48 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
           </View>
 
           {/* Table Rows */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> I. Food Expense </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> 10/10/24 </Text>
-            <Text style={styles.tableCellDesc}> Jollibee Yum Burger </Text>
-            <Text style={styles.tableCellPay}> Jollibee </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> JB1095248702 </Text>
-            <Text style={styles.tableCellCost}> 100 </Text>
-            <Text style={styles.tableCellUnit}> 10 </Text>
-            <Text style={styles.tableCellTotalPhP}> 10000 </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 10000 </Text>
-          </View>
+          {/* based on the outflow item category */}
+          {categories.map((category) => {
+            const items = monthlyReport.outflows.flatMap((outflow) =>
+              outflow.items
+                .filter((item) => item.category === `${category.numeral}. ${category.name}`)
+                .map((item) => ({
+                  ...item,
+                  date: outflow.date,
+                  establishment: outflow.establishment,
+                }))
+            );
 
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> II. Transportation </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
+            const totalCost = items.reduce((total, item) => total + item.cost * item.quantity, 0);
 
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> III. Office Supplies </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> IV. Physical Arrangement </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> V. Documentation </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VI. Promotions </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VII. Professional Fee/ Honoraria/ Token </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> VIII. Awards and Prizes </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> IX. Publication </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> X. Rentals </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XI. Equipment </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XII. Costumes </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XIII. Membership Kits </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XIV. Registration Fees </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XV. Cash Donations or Sponsorship to Other Organizations </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
-
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}> XVI. Miscellaneous Expense </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCellDate2}> </Text>
-            <Text style={styles.tableCellDesc}> </Text>
-            <Text style={styles.tableCellPay}> </Text>
-            <Text style={styles.tableCellBlank}> </Text>
-            <Text style={styles.tableCellRef}> </Text>
-            <Text style={styles.tableCellCost}> </Text>
-            <Text style={styles.tableCellUnit}> </Text>
-            <Text style={styles.tableCellTotalPhP}> </Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P 0.00 </Text>
-          </View>
+            return (
+              items.length > 0 && (
+                <React.Fragment key={category.name}>
+                  <View style={styles.tableRow}>
+                    <Text style={styles.tableCell}>
+                      {" "}
+                      {category.numeral}. {category.name}{" "}
+                    </Text>
+                  </View>
+                  {items.map((item, index) => (
+                    <View style={styles.tableRow} key={index}>
+                      <Text style={styles.tableCellDate2}>{new Date(item.date).toLocaleDateString()}</Text>
+                      <Text style={styles.tableCellDesc}>{item.description}</Text>
+                      <Text style={styles.tableCellPay}>{item.establishment}</Text>
+                      <Text style={styles.tableCellBlank}> </Text>
+                      <Text style={styles.tableCellRef}>{item.serialNumber}</Text>
+                      <Text style={styles.tableCellCost}>{item.cost}</Text>
+                      <Text style={styles.tableCellUnit}>{item.quantity}</Text>
+                      <Text style={styles.tableCellTotalPhP}>{item.cost * item.quantity}</Text>
+                    </View>
+                  ))}
+                  <View style={styles.tableRow}>
+                    <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P {totalCost.toFixed(2)}</Text>
+                  </View>
+                </React.Fragment>
+              )
+            );
+          })}
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate2}> </Text>
             <Text style={styles.tableCellTotalExp}>TOTAL EXPENSES </Text>
@@ -962,7 +840,9 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>P 0.00 </Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
+              P {monthlyReport.totalOutflow.toFixed(2)}
+            </Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={[styles.tableCellDate2, { flex: 0.65 }]}> </Text>
@@ -972,7 +852,9 @@ const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academ
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
-            <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>P 0.00 </Text>
+            <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
+              P {monthlyReport.totalInflow - monthlyReport.totalOutflow}
+            </Text>
           </View>
         </View>
 
@@ -1118,7 +1000,24 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
 
   const generatePDFBlob = async (annex: AnnexE2, month: string) => {
     const monthlyReport = annex[month.toLowerCase() as keyof AnnexE2] as MonthlyReport;
-    const doc = <MyDocument monthlyReport={monthlyReport} month={month} academicYear={annex.academicYear} />;
+    console.log(
+      "organization",
+      annex.organization.name,
+      "monthlyReport",
+      monthlyReport,
+      "month",
+      month,
+      "academicYear",
+      annex.academicYear
+    );
+    const doc = (
+      <MyDocument
+        organization={annex.organization.name}
+        monthlyReport={monthlyReport}
+        month={month}
+        academicYear={annex.academicYear}
+      />
+    );
     const asPdf = pdf(doc);
     const blob = await asPdf.toBlob();
     return blob;
@@ -1306,7 +1205,6 @@ function AnnexCard({ annex, downloadPDF, openSignatureModal, editAnnex }: AnnexC
             {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
         </div>
-        <p className="text-sm text-gray-600">Organization: {annex.organization}</p>
         {isExpanded && (
           <div className="mt-4 space-y-2">
             {months.map((month) => (
@@ -1394,6 +1292,7 @@ function SignatureModal({
             {pdfBlob && (
               <PDFViewer width="100%" height="100%">
                 <MyDocument
+                  organization={annex?.organization.name}
                   monthlyReport={annex?.[month.toLowerCase() as keyof AnnexE2] as MonthlyReport}
                   month={month}
                   academicYear={annex?.academicYear || ""}
