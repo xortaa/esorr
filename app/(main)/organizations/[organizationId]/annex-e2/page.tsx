@@ -574,6 +574,31 @@ const MyDocument: React.FC<{
     { numeral: "XVI", name: "Miscellaneous Expense" },
   ];
 
+  const inflows = monthlyReport?.inflows ?? [];
+  const outflows = monthlyReport?.outflows ?? [];
+  const totalInflow = monthlyReport?.totalInflow ?? 0;
+  const totalOutflow = monthlyReport?.totalOutflow ?? 0;
+
+  const renderSignature = (role: keyof MonthlyReport, title: string) => {
+    const signature = monthlyReport?.[role] as Signature | undefined;
+    return (
+      <View style={styles.signatureDetails}>
+        {signature?.signatureUrl ? (
+          <View>
+            <Image src={signature.signatureUrl} style={styles.signatureImage} />
+            <Text>{signature.name}</Text>
+            <Text>{title}</Text>
+          </View>
+        ) : (
+          <Text>
+            ___________________________________ {"\n"}
+            {title}
+          </Text>
+        )}
+      </View>
+    );
+  };
+
   return (
     <Document>
       <Page style={styles.page} size="LEGAL" orientation="landscape">
@@ -581,7 +606,7 @@ const MyDocument: React.FC<{
         <View fixed style={styles.header}>
           <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>
             Student Organizations Recognition Requirements Annex E-2 Page{" "}
-            <Text render={({ pageNumber, totalPages }) => `${pageNumber}`} /> of Financial Report Liquidation Report AY
+            <Text render={({ pageNumber }) => `${pageNumber}`} /> of Financial Report Liquidation Report AY
             {academicYear}
           </Text>
         </View>
@@ -615,142 +640,36 @@ const MyDocument: React.FC<{
           </View>
 
           {/* Table Rows */}
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Organization Fund / Beginning Balance")
-            .map((inflow) => (
+          {inflows.length > 0 ? (
+            inflows.map((inflow) => (
               <View style={styles.tableRow} key={inflow._id}>
                 <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
                 <Text style={styles.tableCellSOF}>{inflow.category}</Text>
                 <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
               </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Membership Fee")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Registration Fee")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Merchandise Selling")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Subsidy: Student Activity Fund (For LSC & CBO Only)")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Subsidy: Community Service Fund")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Subsidy: University-Wide Student Organization Fund (For USO Only)")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Subsidy: CSC/SOCC Fund (For CSC & SOCC Only)")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Subsidy: Local Student Council Fund (For LSC Only)")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Cash Sponsorships")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Interest Income")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
-
-          {monthlyReport.inflows
-            .filter((inflow) => inflow.category === "Other Income")
-            .map((inflow) => (
-              <View style={styles.tableRow} key={inflow._id}>
-                <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
-                <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
-              </View>
-            ))}
+            ))
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { textAlign: "center" }]}>No inflows for this period</Text>
+            </View>
+          )}
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Inflows</Text>
-            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalInflow}</Text>
+            <Text style={styles.tableLastCell}>₱ {totalInflow || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Outflows</Text>
-            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalOutflow}</Text>
+            <Text style={styles.tableLastCell}>₱ {totalOutflow || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Net Cash Flow</Text>
-            <Text style={styles.tableLastCell}>₱ {monthlyReport.totalInflow - monthlyReport.totalOutflow}</Text>
+            <Text style={styles.tableLastCell}>₱ {(totalInflow || 0) - (totalOutflow || 0)}</Text>
           </View>
 
           <View style={styles.tableRow}>
@@ -759,7 +678,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>TOTAL RECEIPTS</Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>₱ {monthlyReport.totalInflow}</Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>₱ {totalInflow || 0}</Text>
           </View>
         </View>
 
@@ -778,10 +697,9 @@ const MyDocument: React.FC<{
           </View>
 
           {/* Table Rows */}
-          {/* based on the outflow item category */}
-          {categories.map((category) => {
-            const items =
-              monthlyReport.outflows?.flatMap((outflow) =>
+          {outflows.length > 0 ? (
+            categories.map((category) => {
+              const items = outflows.flatMap((outflow) =>
                 (outflow.items || [])
                   .filter((item) => item.category === `${category.numeral}. ${category.name}`)
                   .map((item) => ({
@@ -789,12 +707,11 @@ const MyDocument: React.FC<{
                     date: outflow.date,
                     establishment: outflow.establishment,
                   }))
-              ) || [];
+              );
 
-            const totalCost = items.reduce((total, item) => total + (item.cost || 0) * (item.quantity || 0), 0);
+              const totalCost = items.reduce((total, item) => total + (item.cost || 0) * (item.quantity || 0), 0);
 
-            return (
-              items.length > 0 && (
+              return items.length > 0 ? (
                 <React.Fragment key={category.name}>
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCell}>
@@ -817,9 +734,14 @@ const MyDocument: React.FC<{
                     <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P {totalCost.toFixed(2)}</Text>
                   </View>
                 </React.Fragment>
-              )
-            );
-          })}
+              ) : null;
+            })
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableCell, { textAlign: "center" }]}>No outflows for this period</Text>
+            </View>
+          )}
+
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate2}> </Text>
             <Text style={styles.tableCellTotalExp}>TOTAL EXPENSES </Text>
@@ -828,9 +750,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
-              P {monthlyReport.totalOutflow.toFixed(2)}
-            </Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>P {(totalOutflow || 0).toFixed(2)}</Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={[styles.tableCellDate2, { flex: 0.65 }]}> </Text>
@@ -841,7 +761,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
-              P {monthlyReport.totalInflow - monthlyReport.totalOutflow}
+              P {(totalInflow || 0) - (totalOutflow || 0)}
             </Text>
           </View>
         </View>
@@ -854,32 +774,8 @@ const MyDocument: React.FC<{
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.treasurer?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.treasurer.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.treasurer.name}</Text>
-                <Text>Treasurer</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Treasurer
-              </Text>
-            )}
-            {monthlyReport.auditor?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.auditor.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.auditor.name}</Text>
-                <Text>Auditor</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Auditor
-              </Text>
-            )}
-          </View>
+          {renderSignature("treasurer", "Treasurer")}
+          {renderSignature("auditor", "Auditor")}
         </View>
 
         <View style={{ flexDirection: "row", width: "42%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
@@ -887,80 +783,19 @@ const MyDocument: React.FC<{
             <Text>Approved by:</Text>
           </View>
         </View>
-
+        
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.president?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.president.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.president.name}</Text>
-                <Text>President</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                President
-              </Text>
-            )}
-          </View>
+          {renderSignature("president", "President")}
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.soccCorporateTreasurer?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.soccCorporateTreasurer.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.soccCorporateTreasurer.name}</Text>
-                <Text>SOCC Corporate Treasurer</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                SOCC Corporate Treasurer
-              </Text>
-            )}
-            {monthlyReport.soccVPAuditAndLogistics?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.soccVPAuditAndLogistics.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.soccVPAuditAndLogistics.name}</Text>
-                <Text>SOCC VP Audit and Logistics</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                SOCC VP Audit and Logistics
-              </Text>
-            )}
-          </View>
+          {renderSignature("soccCorporateTreasurer", "SOCC Corporate Treasurer")}
+          {renderSignature("soccVPAuditAndLogistics", "SOCC VP Audit and Logistics")}
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.adviser?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.adviser.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.adviser.name}</Text>
-                <Text>Adviser</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Adviser
-              </Text>
-            )}
-            {monthlyReport.coAdviser?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.coAdviser.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.coAdviser.name}</Text>
-                <Text>Co-Adviser</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Co-Adviser
-              </Text>
-            )}
-          </View>
+          {renderSignature("adviser", "Adviser")}
+          {renderSignature("coAdviser", "Co-Adviser")}
         </View>
 
         <View style={{ flexDirection: "row", width: "42%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
@@ -970,49 +805,12 @@ const MyDocument: React.FC<{
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.swdCoordinator?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.swdCoordinator.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.swdCoordinator.name}</Text>
-                <Text>SWD Coordinator</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                SWD Coordinator
-              </Text>
-            )}
-          </View>
+          {renderSignature("swdCoordinator", "SWD Coordinator")}
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
-          <View style={styles.signatureDetails}>
-            {monthlyReport.dean?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.dean.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.dean.name}</Text>
-                <Text>Dean</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Dean
-              </Text>
-            )}
-            {monthlyReport.regent?.signatureUrl ? (
-              <>
-                <Image src={monthlyReport.regent.signatureUrl} style={styles.signatureImage} />
-                <Text>{monthlyReport.regent.name}</Text>
-                <Text>Regent</Text>
-              </>
-            ) : (
-              <Text>
-                ___________________________________ {"\n"}
-                Regent
-              </Text>
-            )}
-          </View>
+          {renderSignature("dean", "Dean")}
+          {renderSignature("regent", "Regent")}
         </View>
 
         <View fixed style={styles.footer}>
@@ -1061,7 +859,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
     const doc = (
       <MyDocument
         organization={annex.organization.name}
-        monthlyReport={monthlyReport}
+        monthlyReport={annex[month.toLowerCase() as keyof AnnexE2] as MonthlyReport | undefined | null}
         month={month}
         academicYear={annex.academicYear}
       />
