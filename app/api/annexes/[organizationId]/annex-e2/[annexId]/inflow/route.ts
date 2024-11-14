@@ -98,8 +98,15 @@ export async function POST(request: Request, { params }: { params: { organizatio
     // Recalculate the entire financial report
     recalculateFinancialReport(financialReport);
 
-    await financialReport.save();
+    monthNames.forEach((month) => {
+      if (annex[month]) {
+        annex[month].startingBalance = financialReport[month].startingBalance;
+        annex[month].endingBalance = financialReport[month].endingBalance;
+      }
+    });
 
+    await Promise.all([financialReport.save(), annex.save()]);
+    
     return NextResponse.json(newInflow, { status: 201 });
   } catch (error) {
     console.error("Error creating inflow:", error);

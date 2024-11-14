@@ -37,7 +37,15 @@ const MonthlyReportSchema = new Schema({
     type: Number,
     default: 0,
   },
-})
+  startingBalance: {
+    type: Number,
+    default: 0,
+  },
+  endingBalance: {
+    type: Number,
+    default: 0,
+  },
+});
 
 const AnnexE2Schema = new Schema({
   organization: {

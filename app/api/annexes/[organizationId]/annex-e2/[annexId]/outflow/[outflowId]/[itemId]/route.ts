@@ -1,4 +1,3 @@
-// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\[outflowId]\[itemId]\route.ts
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
@@ -77,7 +76,16 @@ export async function PUT(
 
             // Recalculate the financial report
             recalculateFinancialReport(financialReport);
-            await financialReport.save();
+
+            // Update AnnexE2 with recalculated balances
+            monthNames.forEach((monthName) => {
+              if (annexE2[monthName]) {
+                annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+                annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+              }
+            });
+
+            await Promise.all([financialReport.save(), annexE2.save()]);
           }
         }
       }
@@ -139,7 +147,16 @@ export async function DELETE(
 
             // Recalculate the financial report
             recalculateFinancialReport(financialReport);
-            await financialReport.save();
+
+            // Update AnnexE2 with recalculated balances
+            monthNames.forEach((monthName) => {
+              if (annexE2[monthName]) {
+                annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+                annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+              }
+            });
+
+            await Promise.all([financialReport.save(), annexE2.save()]);
           }
         }
       }

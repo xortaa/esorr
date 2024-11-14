@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";

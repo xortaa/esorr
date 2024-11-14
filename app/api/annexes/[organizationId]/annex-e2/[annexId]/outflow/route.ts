@@ -71,11 +71,10 @@ export async function POST(request: Request, { params }: { params: { organizatio
 
     const month = monthNames[new Date(newOutflow.date).getMonth()];
     if (!annex[month]) {
-      annex[month] = { outflows: [], totalOutflow: 0 };
+      annex[month] = { outflows: [], totalOutflow: 0, startingBalance: 0, endingBalance: 0 };
     }
     annex[month].outflows.push(newOutflow._id);
     annex[month].totalOutflow = (annex[month].totalOutflow || 0) + newOutflow.totalCost;
-    await annex.save();
 
     // Find the associated AnnexE1 and FinancialReport
     const annexE1 = await AnnexE1.findOne({
@@ -105,7 +104,15 @@ export async function POST(request: Request, { params }: { params: { organizatio
     // Recalculate the entire financial report
     recalculateFinancialReport(financialReport);
 
-    await financialReport.save();
+    // Update AnnexE2 with the recalculated balances
+    monthNames.forEach((monthName) => {
+      if (annex[monthName]) {
+        annex[monthName].startingBalance = financialReport[monthName].startingBalance;
+        annex[monthName].endingBalance = financialReport[monthName].endingBalance;
+      }
+    });
+
+    await Promise.all([financialReport.save(), annex.save()]);
 
     return NextResponse.json(newOutflow, { status: 201 });
   } catch (error) {

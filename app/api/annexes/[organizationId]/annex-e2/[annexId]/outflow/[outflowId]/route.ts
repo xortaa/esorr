@@ -86,7 +86,7 @@ export async function PUT(
 
       // Add to new month
       if (!annexE2[newMonth]) {
-        annexE2[newMonth] = { outflows: [], totalOutflow: 0 };
+        annexE2[newMonth] = { outflows: [], totalOutflow: 0, startingBalance: 0, endingBalance: 0 };
       }
       annexE2[newMonth].outflows.push(updatedOutflow._id);
       annexE2[newMonth].totalOutflow += updatedOutflow.totalCost;
@@ -94,8 +94,6 @@ export async function PUT(
       // Update total outflow for the month
       annexE2[newMonth].totalOutflow += updatedOutflow.totalCost - originalOutflow.totalCost;
     }
-
-    await annexE2.save();
 
     const annexE1 = await AnnexE1.findOne({
       academicYear: annexE2.academicYear,
@@ -133,7 +131,15 @@ export async function PUT(
     // Recalculate the entire financial report
     recalculateFinancialReport(financialReport);
 
-    await financialReport.save();
+    // Update AnnexE2 with recalculated balances
+    monthNames.forEach((monthName) => {
+      if (annexE2[monthName]) {
+        annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+        annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+      }
+    });
+
+    await Promise.all([financialReport.save(), annexE2.save()]);
 
     return NextResponse.json(updatedOutflow);
   } catch (error) {
@@ -187,7 +193,6 @@ export async function DELETE(
       if (annexE2[month] && annexE2[month].outflows) {
         annexE2[month].outflows = annexE2[month].outflows.filter((id) => id.toString() !== params.outflowId);
         annexE2[month].totalOutflow -= deletedOutflow.totalCost;
-        await annexE2.save();
       }
 
       const annexE1 = await AnnexE1.findOne({
@@ -209,7 +214,16 @@ export async function DELETE(
 
           // Recalculate the financial report
           recalculateFinancialReport(financialReport);
-          await financialReport.save();
+
+          // Update AnnexE2 with recalculated balances
+          monthNames.forEach((monthName) => {
+            if (annexE2[monthName]) {
+              annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+              annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+            }
+          });
+
+          await Promise.all([financialReport.save(), annexE2.save()]);
         }
       }
     }

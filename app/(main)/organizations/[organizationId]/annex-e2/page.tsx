@@ -94,6 +94,8 @@ type MonthlyReport = {
   regent?: Signature;
   totalInflow: number;
   totalOutflow: number;
+  beginningBalance: number;
+  endingBalance: number;
 };
 
 type AnnexE2 = {
@@ -761,7 +763,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
-              P {(totalInflow || 0) - (totalOutflow || 0)}
+              P {(totalInflow || 0) - (totalOutflow || 0)} / P {monthlyReport?.endingBalance || 0}
             </Text>
           </View>
         </View>
@@ -783,7 +785,7 @@ const MyDocument: React.FC<{
             <Text>Approved by:</Text>
           </View>
         </View>
-        
+
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           {renderSignature("president", "President")}
         </View>
