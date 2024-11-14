@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FileText, Edit, Send, Download, PenTool, Upload, X } from "lucide-react";
+import { FileText, Edit, Send, Download, PenTool, Upload, X, Trash2 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react-pdf/renderer";
@@ -315,6 +315,7 @@ type AnnexC1 = {
     signatureUrl: string;
   };
   dateSubmitted: Date;
+  pdf?: string;
 };
 
 type SignaturePosition =
@@ -822,12 +823,17 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
     }
   };
 
+
   const generatePDFBlob = async (annex: AnnexC1) => {
-    const fullAnnex = await fetchSingleAnnex(annex._id);
-    const doc = <MyDocument annex={fullAnnex} />;
-    const asPdf = pdf(doc);
-    const blob = await asPdf.toBlob();
-    return blob;
+    if (annex.pdf) {
+      const response = await fetch(annex.pdf);
+      return await response.blob();
+    } else {
+      const fullAnnex = await fetchSingleAnnex(annex._id);
+      const doc = <MyDocument annex={fullAnnex} />;
+      const asPdf = pdf(doc);
+      return await asPdf.toBlob();
+    }
   };
 
   const downloadPDF = async (id: string) => {
@@ -942,6 +948,80 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
     }
   };
 
+  const handleUploadArticlesOfAssociation = async (id: string, file: File) => {
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadResponse = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const { url } = await uploadResponse.json();
+
+      const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-c1/${id}`, {
+        pdf: url,
+      });
+
+      if (updateResponse.data) {
+        setAnnexList(annexList.map((annex) => (annex._id === id ? updateResponse.data : annex)));
+        alert("Articles of Association PDF uploaded successfully");
+      } else {
+        throw new Error("Failed to update Annex C1");
+      }
+    } catch (error) {
+      console.error("Error uploading Articles of Association:", error);
+      alert(`Error uploading Articles of Association: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveArticlesOfAssociation = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const annex = annexList.find((a) => a._id === id);
+      if (!annex || !annex.pdf) {
+        throw new Error("No Articles of Association PDF found");
+      }
+
+      const fileName = annex.pdf.split("/").pop();
+      if (!fileName) {
+        throw new Error("Invalid file name");
+      }
+
+      await fetch("/api/delete-file", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileName }),
+      });
+
+      const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-c1/${id}`, {
+        pdf: null,
+      });
+
+      if (updateResponse.data) {
+        setAnnexList(annexList.map((annex) => (annex._id === id ? updateResponse.data : annex)));
+        alert("Articles of Association PDF removed successfully");
+      } else {
+        throw new Error("Failed to update Annex C1");
+      }
+    } catch (error) {
+      console.error("Error removing Articles of Association:", error);
+      alert(`Error removing Articles of Association: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-6">ANNEX C-1 Articles of Association</h1>
@@ -960,6 +1040,8 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
               submitAnnexForReview={submitAnnexForReview}
               openSignatureModal={openSignatureModal}
               downloadPDF={downloadPDF}
+              handleUploadArticlesOfAssociation={handleUploadArticlesOfAssociation}
+              handleRemoveArticlesOfAssociation={handleRemoveArticlesOfAssociation}
             />
           ))}
         </div>
@@ -1086,9 +1168,20 @@ interface AnnexCardProps {
   submitAnnexForReview: (id: string) => void;
   openSignatureModal: (annex: AnnexC1) => void;
   downloadPDF: (id: string) => void;
+  handleUploadArticlesOfAssociation: (id: string, file: File) => Promise<void>;
+  handleRemoveArticlesOfAssociation: (id: string) => Promise<void>;
 }
 
-function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal, downloadPDF }: AnnexCardProps) {
+
+function AnnexCard({
+  annex,
+  editAnnex,
+  submitAnnexForReview,
+  openSignatureModal,
+  downloadPDF,
+  handleUploadArticlesOfAssociation,
+  handleRemoveArticlesOfAssociation,
+}: AnnexCardProps) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -1099,13 +1192,20 @@ function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal,
           </div>
           <div className="flex items-center space-x-2">
             <button
-              className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
+              className={`btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200 ${
+                annex.pdf ? "btn-disabled" : ""
+              }`}
               onClick={() => editAnnex(annex._id)}
+              disabled={!!annex.pdf}
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Articles
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
+            <button
+              className={`btn btn-ghost btn-sm ${annex.pdf ? "btn-disabled" : ""}`}
+              onClick={() => openSignatureModal(annex)}
+              disabled={!!annex.pdf}
+            >
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
             </button>
@@ -1113,6 +1213,34 @@ function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal,
               <Download className="h-4 w-4 mr-2" />
               Download PDF
             </button>
+            {annex.pdf ? (
+              <button
+                className="btn btn-ghost btn-sm text-red-500"
+                onClick={() => handleRemoveArticlesOfAssociation(annex._id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Remove PDF
+              </button>
+            ) : (
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleUploadArticlesOfAssociation(annex._id, file);
+                    }
+                  }}
+                  className="hidden"
+                  id={`upload-pdf-${annex._id}`}
+                />
+                <label htmlFor={`upload-pdf-${annex._id}`} className="btn btn-ghost btn-sm">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload PDF
+                </label>
+              </div>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">

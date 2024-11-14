@@ -40,6 +40,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
       "peaceRelationsOfficer",
       "adviser",
       "comelecRepresentative",
+      "pdf",
     ];
 
     // Filter out any fields that are not allowed
