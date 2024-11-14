@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FileText, Edit, Send, Download, PenTool, Upload, X } from "lucide-react";
+import { FileText, Edit, Send, Download, PenTool, Upload, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react-pdf/renderer";
@@ -45,13 +45,43 @@ Font.register({
   src: "/fonts/arialnarrow_bolditalic.ttf",
 });
 
-type AnnexE2 = {
+type Signature = {
+  name: string;
+  position: string;
+  signatureUrl: string;
+};
+
+type Inflow = {
   _id: string;
-  academicYear: string;
-  isSubmitted: boolean;
-  organization: {
-    name: string;
-  };
+  category: string;
+  date: Date;
+  amount: number;
+  payingParticipants: number;
+  totalMembers: number;
+  merchandiseSales: number;
+};
+
+type OutflowItem = {
+  category: string;
+  description: string;
+  cost: number;
+  quantity: number;
+  serialNumber: string;
+};
+
+type Outflow = {
+  _id: string;
+  establishment: string;
+  date: Date;
+  items: OutflowItem[];
+  totalCost: number;
+  image: string;
+  event: string;
+};
+
+type MonthlyReport = {
+  inflows: Inflow[];
+  outflows: Outflow[];
   treasurer?: Signature;
   auditor?: Signature;
   president?: Signature;
@@ -61,24 +91,30 @@ type AnnexE2 = {
   swdCoordinator?: Signature;
   dean?: Signature;
   regent?: Signature;
+  totalInflow: number;
+  totalOutflow: number;
 };
 
-type Signature = {
-  name: string;
-  position: string;
-  signatureUrl: string;
+type AnnexE2 = {
+  _id: string;
+  organization: string;
+  academicYear: string;
+  isSubmitted: boolean;
+  january: MonthlyReport;
+  february: MonthlyReport;
+  march: MonthlyReport;
+  april: MonthlyReport;
+  may: MonthlyReport;
+  june: MonthlyReport;
+  july: MonthlyReport;
+  august: MonthlyReport;
+  september: MonthlyReport;
+  october: MonthlyReport;
+  november: MonthlyReport;
+  december: MonthlyReport;
 };
 
-type SignaturePosition =
-  | "treasurer"
-  | "auditor"
-  | "president"
-  | "soccCorporateTreasurer"
-  | "soccVPAuditAndLogistics"
-  | "adviser"
-  | "swdCoordinator"
-  | "dean"
-  | "regent";
+type SignaturePosition = keyof MonthlyReport;
 
 type UserPosition = {
   role: string;
@@ -510,7 +546,11 @@ const styles = StyleSheet.create({
 
 const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narrow Bold" }}>{children}</Text>;
 
-const MyDocument: React.FC<{ annex: AnnexE2 }> = ({ annex }) => {
+const MyDocument: React.FC<{ monthlyReport: MonthlyReport; month: string; academicYear: string }> = ({
+  monthlyReport,
+  month,
+  academicYear,
+}) => {
   return (
     <Document>
       <Page style={styles.page} size="LEGAL" orientation="landscape">
@@ -1049,6 +1089,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
   const [annexList, setAnnexList] = useState<AnnexE2[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAnnex, setSelectedAnnex] = useState<AnnexE2 | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
@@ -1075,48 +1116,17 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
     }
   };
 
-  const editAnnex = (id: string) => {
-    router.push(`${currentPath}/${id}`);
-  };
-
-  const submitAnnexForReview = async (id: string) => {
-    try {
-      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-e2/${id}`, {
-        isSubmitted: true,
-      });
-      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
-    } catch (error) {
-      console.error("Error submitting annex:", error);
-    }
-  };
-
-  const fetchSingleAnnex = async (id: string) => {
-    try {
-      const response = await axios.get(`/api/annexes/${params.organizationId}/annex-e2/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching single annex:", error);
-      throw error;
-    }
-  };
-
-  const generatePDFBlob = async (annex: AnnexE2) => {
-    const fullAnnex = await fetchSingleAnnex(annex._id);
-    const doc = <MyDocument annex={fullAnnex} />;
+  const generatePDFBlob = async (annex: AnnexE2, month: string) => {
+    const monthlyReport = annex[month.toLowerCase() as keyof AnnexE2] as MonthlyReport;
+    const doc = <MyDocument monthlyReport={monthlyReport} month={month} academicYear={annex.academicYear} />;
     const asPdf = pdf(doc);
     const blob = await asPdf.toBlob();
     return blob;
   };
 
-  const downloadPDF = async (id: string) => {
-    const annex = annexList.find((a) => a._id === id);
-    if (!annex) {
-      console.error("Annex not found");
-      return;
-    }
-
+  const downloadPDF = async (annex: AnnexE2, month: string) => {
     try {
-      const blob = await generatePDFBlob(annex);
+      const blob = await generatePDFBlob(annex, month);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
@@ -1124,33 +1134,25 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
     }
   };
 
-  const openSignatureModal = async (annex: AnnexE2) => {
+  const openSignatureModal = async (annex: AnnexE2, month: string) => {
     try {
-      const fullAnnex = await fetchSingleAnnex(annex._id);
-      setSelectedAnnex(fullAnnex);
+      setSelectedAnnex(annex);
+      setSelectedMonth(month);
       setIsModalOpen(true);
-      const blob = await generatePDFBlob(fullAnnex);
+      const blob = await generatePDFBlob(annex, month);
       setPdfBlob(blob);
     } catch (error) {
       console.error("Error opening signature modal:", error);
     }
   };
 
-  const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSignatureFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSignaturePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const editAnnex = (id: string) => {
+    router.push(`${currentPath}/${id}`);
   };
 
   const handleSubmitSignature = async () => {
-    if (!selectedAnnex || !selectedSignaturePosition || !selectedUserPosition) {
-      alert("Please select an annex, a signature position, and your role");
+    if (!selectedAnnex || !selectedMonth || !selectedSignaturePosition || !selectedUserPosition) {
+      alert("Please select an annex, month, signature position, and your role");
       return;
     }
 
@@ -1169,6 +1171,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
     const formData = new FormData();
     formData.append("file", signatureData);
     formData.append("annexId", selectedAnnex._id);
+    formData.append("month", selectedMonth);
     formData.append("position", selectedSignaturePosition);
 
     try {
@@ -1186,7 +1189,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
       const { url } = await response.json();
 
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-e2/${selectedAnnex._id}`, {
-        [selectedSignaturePosition]: {
+        [`${selectedMonth.toLowerCase()}.${selectedSignaturePosition}`]: {
           name: session?.user?.name || "",
           position: selectedUserPosition.role,
           signatureUrl: url,
@@ -1198,7 +1201,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
         setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
         setSelectedAnnex(updatedAnnex);
 
-        const newBlob = await generatePDFBlob(updatedAnnex);
+        const newBlob = await generatePDFBlob(updatedAnnex, selectedMonth);
         setPdfBlob(newBlob);
 
         alert("Signature added successfully");
@@ -1234,10 +1237,9 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
             <AnnexCard
               key={annex._id}
               annex={annex}
-              editAnnex={editAnnex}
-              submitAnnexForReview={submitAnnexForReview}
-              openSignatureModal={openSignatureModal}
               downloadPDF={downloadPDF}
+              openSignatureModal={openSignatureModal}
+              editAnnex={editAnnex}
             />
           ))}
           {annexList.length === 0 && (
@@ -1249,174 +1251,253 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
         </div>
       )}
 
-      {isModalOpen && selectedAnnex && pdfBlob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
-          <div className="relative w-auto max-w-7xl mx-auto my-6">
-            <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
-              <div className="flex items-start justify-between p-5 border-b border-solid rounded-t">
-                <h3 className="text-2xl font-semibold">Add Signature to Annex E-2</h3>
-                <button
-                  className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <span className="bg-transparent text-black h-6 w-6 text-2xl block outline-none focus:outline-none">
-                    ×
-                  </span>
-                </button>
-              </div>
-              <div className="relative p-6 flex-auto">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-[600px] overflow-auto">
-                    <PDFViewer width="100%" height="100%">
-                      <MyDocument annex={selectedAnnex} />
-                    </PDFViewer>
-                  </div>
-                  <div className="flex flex-col space-y-4">
-                    <select
-                      className="select select-bordered w-full"
-                      value={
-                        selectedUserPosition
-                          ? `${selectedUserPosition.role}-${selectedUserPosition.organizationName}`
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const [role, organizationName] = e.target.value.split("-");
-                        setSelectedUserPosition({ role, organizationName });
-                      }}
-                    >
-                      <option value="">Select your role</option>
-                      {session?.user?.positions?.map((userPosition: any, index: number) => (
-                        <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
-                          {userPosition.position} - {userPosition.organization.name}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="select select-bordered w-full"
-                      value={selectedSignaturePosition}
-                      onChange={(e) => setSelectedSignaturePosition(e.target.value as SignaturePosition)}
-                    >
-                      <option value="">Select signature position</option>
-                      <option value="treasurer">Treasurer</option>
-                      <option value="auditor">Auditor</option>
-                      <option value="president">President</option>
-                      <option value="soccCorporateTreasurer">SOCC Corporate Treasurer</option>
-                      <option value="soccVPAuditAndLogistics">SOCC VP Audit and Logistics</option>
-                      <option value="adviser">Adviser</option>
-                      <option value="swdCoordinator">SWD Coordinator</option>
-                      <option value="dean">Dean/Director</option>
-                      <option value="regent">Regent</option>
-                    </select>
-                    <div className="border p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold mb-2">Draw Your Signature</h4>
-                      <div className="border p-2 mb-2">
-                        <SignatureCanvas
-                          ref={signatureRef}
-                          canvasProps={{ width: 500, height: 200, className: "signature-canvas" }}
-                        />
-                      </div>
-                      <button className="btn btn-outline w-full" onClick={() => signatureRef.current?.clear()}>
-                        Clear Signature
-                      </button>
-                    </div>
-                    <div className="text-center text-lg font-semibold">OR</div>
-                    <div className="border p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold mb-2">Upload Your Signature</h4>
-                      {signaturePreview ? (
-                        <div className="relative">
-                          <img src={signaturePreview} alt="Signature Preview" className="max-w-full h-auto" />
-                          <button
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                            onClick={() => {
-                              setSignatureFile(null);
-                              setSignaturePreview(null);
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleSignatureUpload}
-                            className="hidden"
-                            id="signature-upload"
-                          />
-                          <label htmlFor="signature-upload" className="btn btn-outline btn-primary w-full">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Signature
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                    <button className="btn btn-primary" onClick={handleSubmitSignature}>
-                      Submit Signature
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <SignatureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        annex={selectedAnnex}
+        month={selectedMonth}
+        pdfBlob={pdfBlob}
+        selectedSignaturePosition={selectedSignaturePosition}
+        setSelectedSignaturePosition={setSelectedSignaturePosition}
+        signatureFile={signatureFile}
+        setSignatureFile={setSignatureFile}
+        signaturePreview={signaturePreview}
+        setSignaturePreview={setSignaturePreview}
+        signatureRef={signatureRef}
+        selectedUserPosition={selectedUserPosition}
+        setSelectedUserPosition={setSelectedUserPosition}
+        handleSubmitSignature={handleSubmitSignature}
+        session={session}
+      />
     </PageWrapper>
   );
 }
 
 interface AnnexCardProps {
   annex: AnnexE2;
+  downloadPDF: (annex: AnnexE2, month: string) => void;
+  openSignatureModal: (annex: AnnexE2, month: string) => void;
   editAnnex: (id: string) => void;
-  submitAnnexForReview: (id: string) => void;
-  openSignatureModal: (annex: AnnexE2) => void;
-  downloadPDF: (id: string) => void;
 }
 
-function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal, downloadPDF }: AnnexCardProps) {
+function AnnexCard({ annex, downloadPDF, openSignatureModal, editAnnex }: AnnexCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
+    <div className="card bg-base-100 shadow-sm border border-gray-200">
+      <div className="card-body p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-primary" />
-            <h2 className="card-title">Financial Report Liquidation Report Annex for AY {annex.academicYear}</h2>
+          <h2 className="card-title text-lg">Financial Report for AY {annex.academicYear}</h2>
+          <button className="btn btn-ghost btn-sm" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </button>
+        </div>
+        <p className="text-sm text-gray-600">Organization: {annex.organization}</p>
+        {isExpanded && (
+          <div className="mt-4 space-y-2">
+            {months.map((month) => (
+              <div key={month} className="flex items-center justify-between py-2 border-b border-gray-100">
+                <span className="font-medium">{month}</span>
+                <div className="space-x-2">
+                  <button className="btn btn-xs" onClick={() => downloadPDF(annex, month)}>
+                    <Download size={14} />
+                  </button>
+                  <button className="btn btn-xs" onClick={() => openSignatureModal(annex, month)}>
+                    <PenTool size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center space-x-2">
-            <button
-              className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
-              onClick={() => editAnnex(annex._id)}
-            >
-              <Edit className="h-4 w-4 mr-2" />
+        )}
+        <div className="card-actions justify-between items-center mt-4">
+          <span className={`badge ${annex.isSubmitted ? "badge-success" : "badge-warning"}`}>
+            {annex.isSubmitted ? "Submitted" : "Not Submitted"}
+          </span>
+          <div className="space-x-2">
+            <button className="btn btn-primary btn-sm" onClick={() => editAnnex(annex._id)}>
+              <Edit size={14} className="mr-1" />
               Edit Liquidation Report
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
-              <PenTool className="h-4 w-4 mr-2" />
-              Add Signature
-            </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
+            {!annex.isSubmitted && (
+              <button className="btn btn-secondary btn-sm">
+                <Send size={14} className="mr-1" />
+                Submit for Review
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface SignatureModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  annex: AnnexE2 | null;
+  month: string;
+  pdfBlob: Blob | null;
+  selectedSignaturePosition: SignaturePosition | "";
+  setSelectedSignaturePosition: React.Dispatch<React.SetStateAction<SignaturePosition | "">>;
+  signatureFile: File | null;
+  setSignatureFile: React.Dispatch<React.SetStateAction<File | null>>;
+  signaturePreview: string | null;
+  setSignaturePreview: React.Dispatch<React.SetStateAction<string | null>>;
+  signatureRef: React.RefObject<SignatureCanvas>;
+  selectedUserPosition: UserPosition | null;
+  setSelectedUserPosition: React.Dispatch<React.SetStateAction<UserPosition | null>>;
+  handleSubmitSignature: () => Promise<void>;
+  session: any;
+}
+
+function SignatureModal({
+  isOpen,
+  onClose,
+  annex,
+  month,
+  pdfBlob,
+  selectedSignaturePosition,
+  setSelectedSignaturePosition,
+  signatureFile,
+  setSignatureFile,
+  signaturePreview,
+  setSignaturePreview,
+  signatureRef,
+  selectedUserPosition,
+  setSelectedUserPosition,
+  handleSubmitSignature,
+  session,
+}: SignatureModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-4xl">
+        <h2 className="text-xl font-bold mb-4">Add Signature to {month} Report</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="h-[500px] overflow-auto border">
+            {pdfBlob && (
+              <PDFViewer width="100%" height="100%">
+                <MyDocument
+                  monthlyReport={annex?.[month.toLowerCase() as keyof AnnexE2] as MonthlyReport}
+                  month={month}
+                  academicYear={annex?.academicYear || ""}
+                />
+              </PDFViewer>
+            )}
+          </div>
+          <div className="flex flex-col space-y-4">
+            <select
+              className="select select-bordered w-full"
+              value={
+                selectedUserPosition ? `${selectedUserPosition.role}-${selectedUserPosition.organizationName}` : ""
+              }
+              onChange={(e) => {
+                const [role, organizationName] = e.target.value.split("-");
+                setSelectedUserPosition({ role, organizationName });
+              }}
+            >
+              <option value="">Select your role</option>
+              {session?.user?.positions?.map((userPosition: any, index: number) => (
+                <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
+                  {userPosition.position} - {userPosition.organization.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="select select-bordered w-full"
+              value={selectedSignaturePosition}
+              onChange={(e) => setSelectedSignaturePosition(e.target.value as SignaturePosition)}
+            >
+              <option value="">Select signature position</option>
+              <option value="treasurer">Treasurer</option>
+              <option value="auditor">Auditor</option>
+              <option value="president">President</option>
+              <option value="soccCorporateTreasurer">SOCC Corporate Treasurer</option>
+              <option value="soccVPAuditAndLogistics">SOCC VP Audit and Logistics</option>
+              <option value="adviser">Adviser</option>
+              <option value="swdCoordinator">SWD Coordinator</option>
+              <option value="dean">Dean/Director</option>
+              <option value="regent">Regent</option>
+            </select>
+            <div className="border p-4 rounded-lg">
+              <h4 className="text-sm font-semibold mb-2">Draw Your Signature</h4>
+              <div className="border p-2 mb-2">
+                <SignatureCanvas
+                  ref={signatureRef}
+                  canvasProps={{ width: 300, height: 150, className: "signature-canvas" }}
+                />
+              </div>
+              <button className="btn btn-sm btn-outline w-full" onClick={() => signatureRef.current?.clear()}>
+                Clear Signature
+              </button>
+            </div>
+            <div className="text-center text-sm font-semibold">OR</div>
+            <div className="border p-4 rounded-lg">
+              <h4 className="text-sm font-semibold mb-2">Upload Your Signature</h4>
+              {signaturePreview ? (
+                <div className="relative">
+                  <img src={signaturePreview} alt="Signature Preview" className="max-w-full h-auto" />
+                  <button
+                    className="btn btn-circle btn-xs absolute top-0 right-0 bg-red-500 text-white"
+                    onClick={() => {
+                      setSignatureFile(null);
+                      setSignaturePreview(null);
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSignatureFile(file);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setSignaturePreview(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="hidden"
+                    id="signature-upload"
+                  />
+                  <label htmlFor="signature-upload" className="btn btn-sm btn-outline w-full">
+                    <Upload size={14} className="mr-2" />
+                    Upload Signature
+                  </label>
+                </div>
+              )}
+            </div>
+            <button className="btn btn-primary" onClick={handleSubmitSignature}>
+              Submit Signature
             </button>
           </div>
         </div>
-        <div className="mt-4 space-y-4">
-          <div className="flex items-center space-x-4">
-            <label className="font-medium">Status:</label>
-            <span className={annex.isSubmitted ? "text-green-600" : "text-yellow-600"}>
-              {annex.isSubmitted ? "Submitted" : "Not Submitted"}
-            </span>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
-              onClick={() => submitAnnexForReview(annex._id)}
-              disabled={annex.isSubmitted}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Submit for Review
-            </button>
-          </div>
+        <div className="mt-4 flex justify-end">
+          <button className="btn btn-sm" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </div>
