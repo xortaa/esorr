@@ -88,6 +88,7 @@ type MonthlyReport = {
   soccCorporateTreasurer?: Signature;
   soccVPAuditAndLogistics?: Signature;
   adviser?: Signature;
+  coAdviser?: Signature;
   swdCoordinator?: Signature;
   dean?: Signature;
   regent?: Signature;
@@ -554,7 +555,6 @@ const MyDocument: React.FC<{
   month: string;
   academicYear: string;
 }> = ({ organization, monthlyReport, month, academicYear }) => {
-
   const categories = [
     { numeral: "I", name: "Food Expense" },
     { numeral: "II", name: "Transportation" },
@@ -573,18 +573,6 @@ const MyDocument: React.FC<{
     { numeral: "XV", name: "Cash Donations or Sponsorship to Other Organizations" },
     { numeral: "XVI", name: "Miscellaneous Expense" },
   ];
-
-  const foodExpenses = monthlyReport.outflows.flatMap((outflow) =>
-    outflow.items
-      .filter((item) => item.category === "I. Food Expense")
-      .map((item) => ({
-        ...item,
-        date: outflow.date,
-        establishment: outflow.establishment,
-      }))
-  );
-  const totalFoodExpense = foodExpenses.reduce((total, item) => total + item.cost * item.quantity, 0);
-
 
   return (
     <Document>
@@ -792,25 +780,25 @@ const MyDocument: React.FC<{
           {/* Table Rows */}
           {/* based on the outflow item category */}
           {categories.map((category) => {
-            const items = monthlyReport.outflows.flatMap((outflow) =>
-              outflow.items
-                .filter((item) => item.category === `${category.numeral}. ${category.name}`)
-                .map((item) => ({
-                  ...item,
-                  date: outflow.date,
-                  establishment: outflow.establishment,
-                }))
-            );
+            const items =
+              monthlyReport.outflows?.flatMap((outflow) =>
+                (outflow.items || [])
+                  .filter((item) => item.category === `${category.numeral}. ${category.name}`)
+                  .map((item) => ({
+                    ...item,
+                    date: outflow.date,
+                    establishment: outflow.establishment,
+                  }))
+              ) || [];
 
-            const totalCost = items.reduce((total, item) => total + item.cost * item.quantity, 0);
+            const totalCost = items.reduce((total, item) => total + (item.cost || 0) * (item.quantity || 0), 0);
 
             return (
               items.length > 0 && (
                 <React.Fragment key={category.name}>
                   <View style={styles.tableRow}>
                     <Text style={styles.tableCell}>
-                      {" "}
-                      {category.numeral}. {category.name}{" "}
+                      {category.numeral}. {category.name}
                     </Text>
                   </View>
                   {items.map((item, index) => (
@@ -822,7 +810,7 @@ const MyDocument: React.FC<{
                       <Text style={styles.tableCellRef}>{item.serialNumber}</Text>
                       <Text style={styles.tableCellCost}>{item.cost}</Text>
                       <Text style={styles.tableCellUnit}>{item.quantity}</Text>
-                      <Text style={styles.tableCellTotalPhP}>{item.cost * item.quantity}</Text>
+                      <Text style={styles.tableCellTotalPhP}>{(item.cost || 0) * (item.quantity || 0)}</Text>
                     </View>
                   ))}
                   <View style={styles.tableRow}>
@@ -867,16 +855,30 @@ const MyDocument: React.FC<{
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              Treasurer
-            </Text>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              Auditor
-            </Text>
+            {monthlyReport.treasurer?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.treasurer.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.treasurer.name}</Text>
+                <Text>Treasurer</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Treasurer
+              </Text>
+            )}
+            {monthlyReport.auditor?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.auditor.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.auditor.name}</Text>
+                <Text>Auditor</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Auditor
+              </Text>
+            )}
           </View>
         </View>
 
@@ -888,41 +890,76 @@ const MyDocument: React.FC<{
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              President
-            </Text>
+            {monthlyReport.president?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.president.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.president.name}</Text>
+                <Text>President</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                President
+              </Text>
+            )}
           </View>
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              SOCC Corporate Treasurer
-            </Text>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              SOCC VP Audit and Logistics
-            </Text>
+            {monthlyReport.soccCorporateTreasurer?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.soccCorporateTreasurer.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.soccCorporateTreasurer.name}</Text>
+                <Text>SOCC Corporate Treasurer</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                SOCC Corporate Treasurer
+              </Text>
+            )}
+            {monthlyReport.soccVPAuditAndLogistics?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.soccVPAuditAndLogistics.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.soccVPAuditAndLogistics.name}</Text>
+                <Text>SOCC VP Audit and Logistics</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                SOCC VP Audit and Logistics
+              </Text>
+            )}
           </View>
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              Adviser
-            </Text>
-            <Text>
-              (Signature over printed name; date) {"\n"}
-              ___________________________________ {"\n"}
-              Adviser
-            </Text>
+            {monthlyReport.adviser?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.adviser.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.adviser.name}</Text>
+                <Text>Adviser</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Adviser
+              </Text>
+            )}
+            {monthlyReport.coAdviser?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.coAdviser.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.coAdviser.name}</Text>
+                <Text>Co-Adviser</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Co-Adviser
+              </Text>
+            )}
           </View>
         </View>
 
@@ -934,26 +971,47 @@ const MyDocument: React.FC<{
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (SWD Coordinator's Name) {"\n"}
-              ___________________________________ {"\n"}
-              SWD Coordinator
-            </Text>
+            {monthlyReport.swdCoordinator?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.swdCoordinator.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.swdCoordinator.name}</Text>
+                <Text>SWD Coordinator</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                SWD Coordinator
+              </Text>
+            )}
           </View>
         </View>
 
         <View style={{ flexDirection: "row", width: "50%", paddingTop: 20, textAlign: "left", fontSize: 9 }}>
           <View style={styles.signatureDetails}>
-            <Text>
-              (Dean's Name) {"\n"}
-              ___________________________________ {"\n"}
-              Dean/Director
-            </Text>
-            <Text>
-              (Regent's Name) {"\n"}
-              ___________________________________ {"\n"}
-              Regent
-            </Text>
+            {monthlyReport.dean?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.dean.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.dean.name}</Text>
+                <Text>Dean</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Dean
+              </Text>
+            )}
+            {monthlyReport.regent?.signatureUrl ? (
+              <>
+                <Image src={monthlyReport.regent.signatureUrl} style={styles.signatureImage} />
+                <Text>{monthlyReport.regent.name}</Text>
+                <Text>Regent</Text>
+              </>
+            ) : (
+              <Text>
+                ___________________________________ {"\n"}
+                Regent
+              </Text>
+            )}
           </View>
         </View>
 
@@ -1000,16 +1058,6 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
 
   const generatePDFBlob = async (annex: AnnexE2, month: string) => {
     const monthlyReport = annex[month.toLowerCase() as keyof AnnexE2] as MonthlyReport;
-    console.log(
-      "organization",
-      annex.organization.name,
-      "monthlyReport",
-      monthlyReport,
-      "month",
-      month,
-      "academicYear",
-      annex.academicYear
-    );
     const doc = (
       <MyDocument
         organization={annex.organization.name}

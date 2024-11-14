@@ -51,3 +51,36 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 };
+
+export const PATCH = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
+  await connectToDatabase();
+
+  try {
+    const body = await req.json();
+    const annexE2 = await AnnexE2.findById(params.annexId);
+
+    if (!annexE2) {
+      return NextResponse.json({ error: "Annex E2 not found" }, { status: 404 });
+    }
+
+    // Update the annex with the new data
+    Object.keys(body).forEach((key) => {
+      if (key.includes(".")) {
+        const [month, field] = key.split(".");
+        if (!annexE2[month]) {
+          annexE2[month] = {};
+        }
+        annexE2[month][field] = body[key];
+      } else {
+        annexE2[key] = body[key];
+      }
+    });
+
+    await annexE2.save();
+
+    return NextResponse.json(annexE2, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+  }
+};

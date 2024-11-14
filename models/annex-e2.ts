@@ -25,6 +25,7 @@ const MonthlyReportSchema = new Schema({
   soccCorporateTreasurer: SignatureSchema,
   soccVPAuditAndLogistics: SignatureSchema,
   adviser: SignatureSchema,
+  coAdviser: SignatureSchema,
   swdCoordinator: SignatureSchema,
   dean: SignatureSchema,
   regent: SignatureSchema,
