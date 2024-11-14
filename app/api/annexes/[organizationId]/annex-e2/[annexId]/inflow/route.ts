@@ -6,15 +6,40 @@ import Inflow from "@/models/inflow";
 import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
+const monthNames = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
+
 export async function GET(request: Request, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
     await connectToDatabase();
-    const annex = await AnnexE2.findById(params.annexId).populate("inflow");
+    const annex = await AnnexE2.findById(params.annexId);
     if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
-    return NextResponse.json(annex.inflow);
+
+    const allInflows = [];
+    for (const month of monthNames) {
+      if (annex[month] && annex[month].inflows && annex[month].inflows.length > 0) {
+        await annex.populate(`${month}.inflows`);
+        allInflows.push(...annex[month].inflows);
+      }
+    }
+
+    return NextResponse.json(allInflows);
   } catch (error) {
+    console.error("Error fetching inflows:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -31,7 +56,17 @@ export async function POST(request: Request, { params }: { params: { organizatio
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
 
-    annex.inflow.push(newInflow._id);
+    // Get the month from the inflow date
+    const inflowDate = new Date(newInflow.date);
+    const monthName = monthNames[inflowDate.getMonth()];
+
+    // Push the new inflow to the specific month's report
+    if (!annex[monthName]) {
+      annex[monthName] = { inflows: [] };
+    }
+    annex[monthName].inflows.push(newInflow._id);
+    annex[monthName].totalInflow = (annex[monthName].totalInflow || 0) + newInflow.amount;
+
     await annex.save();
 
     // Find the associated AnnexE1 and FinancialReport

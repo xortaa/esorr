@@ -209,13 +209,14 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
+  
   const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (editingItem && localOutflow) {
+    if (editingItem && currentOutflow) {
       const updatedItem = { ...editingItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value };
       setEditingItem(updatedItem);
-      const updatedItems = localOutflow.items.map((item) => (item._id === editingItem._id ? updatedItem : item));
-      setLocalOutflow({ ...localOutflow, items: updatedItems });
+      const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? updatedItem : item));
+      setCurrentOutflow({ ...currentOutflow, items: updatedItems });
     } else {
       setNewItem({ ...newItem, [name]: name === "cost" || name === "quantity" ? Number(value) : value });
     }
@@ -240,13 +241,14 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-  const updateItem = () => {
-    if (localOutflow && editingItem) {
-      const updatedItems = localOutflow.items.map((item) => (item._id === editingItem._id ? editingItem : item));
-      setLocalOutflow({ ...localOutflow, items: updatedItems });
-      setEditingItem(null);
-    }
-  };
+ const updateItem = () => {
+   if (currentOutflow && editingItem) {
+     const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? editingItem : item));
+     setCurrentOutflow({ ...currentOutflow, items: updatedItems });
+     setEditingItem(null);
+   }
+ };
+
 
   const deleteItem = (itemId: string) => {
     if (localOutflow) {

@@ -1,3 +1,4 @@
+// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\[outflowId]\[itemId]\route.ts
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
@@ -5,6 +6,21 @@ import AnnexE1 from "@/models/annex-e1";
 import Outflow from "@/models/outflow";
 import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
+
+const monthNames = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
 
 export async function PUT(
   request: Request,
@@ -30,10 +46,16 @@ export async function PUT(
     outflow.totalCost = outflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
     await outflow.save();
 
-    // Update FinancialReport if totalCost has changed
+    // Update AnnexE2 and FinancialReport if totalCost has changed
     if (oldTotalCost !== outflow.totalCost) {
       const annexE2 = await AnnexE2.findById(annexId);
       if (annexE2) {
+        const month = monthNames[new Date(outflow.date).getMonth()];
+        if (annexE2[month]) {
+          annexE2[month].totalOutflow += outflow.totalCost - oldTotalCost;
+          await annexE2.save();
+        }
+
         const annexE1 = await AnnexE1.findOne({
           academicYear: annexE2.academicYear,
         });
@@ -86,10 +108,16 @@ export async function DELETE(
     outflow.totalCost = outflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
     await outflow.save();
 
-    // Update FinancialReport if totalCost has changed
+    // Update AnnexE2 and FinancialReport if totalCost has changed
     if (oldTotalCost !== outflow.totalCost) {
       const annexE2 = await AnnexE2.findById(annexId);
       if (annexE2) {
+        const month = monthNames[new Date(outflow.date).getMonth()];
+        if (annexE2[month]) {
+          annexE2[month].totalOutflow += outflow.totalCost - oldTotalCost;
+          await annexE2.save();
+        }
+
         const annexE1 = await AnnexE1.findOne({
           academicYear: annexE2.academicYear,
         });

@@ -6,6 +6,21 @@ import Inflow from "@/models/inflow";
 import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
+const monthNames = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
+
 export async function PUT(
   request: Request,
   { params }: { params: { organizationId: string; annexId: string; inflowId: string } }
@@ -31,6 +46,29 @@ export async function PUT(
     if (!annexE2) {
       return NextResponse.json({ error: "AnnexE2 not found" }, { status: 404 });
     }
+
+    // Determine the original and new months
+    const originalMonth = monthNames[new Date(originalInflow.date).getMonth()];
+    const newMonth = monthNames[new Date(updatedInflow.date).getMonth()];
+
+    // Update the AnnexE2 document
+    if (originalMonth !== newMonth) {
+      // Remove from original month
+      annexE2[originalMonth].inflows = annexE2[originalMonth].inflows.filter((id) => id.toString() !== params.inflowId);
+      annexE2[originalMonth].totalInflow -= originalInflow.amount;
+
+      // Add to new month
+      if (!annexE2[newMonth]) {
+        annexE2[newMonth] = { inflows: [], totalInflow: 0 };
+      }
+      annexE2[newMonth].inflows.push(updatedInflow._id);
+      annexE2[newMonth].totalInflow += updatedInflow.amount;
+    } else {
+      // Update total inflow for the month
+      annexE2[newMonth].totalInflow += updatedInflow.amount - originalInflow.amount;
+    }
+
+    await annexE2.save();
 
     const annexE1 = await AnnexE1.findOne({
       academicYear: annexE2.academicYear,
@@ -62,6 +100,9 @@ export async function PUT(
         type: "inflow",
         category: updatedInflow.category,
         description: updatedInflow.description || "",
+        payingParticipants: updatedInflow.payingParticipants,
+        totalMembers: updatedInflow.totalMembers,
+        merchandiseSales: updatedInflow.merchandiseSales,
       };
     } else {
       // If the transaction is not found, add it as a new transaction
@@ -71,6 +112,9 @@ export async function PUT(
         type: "inflow",
         category: updatedInflow.category,
         description: updatedInflow.description || "",
+        payingParticipants: updatedInflow.payingParticipants,
+        totalMembers: updatedInflow.totalMembers,
+        merchandiseSales: updatedInflow.merchandiseSales,
       });
     }
 
@@ -82,23 +126,6 @@ export async function PUT(
     return NextResponse.json(updatedInflow);
   } catch (error) {
     console.error("Error updating inflow:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
-
-// Existing GET and DELETE routes remain unchanged
-export async function GET(
-  request: Request,
-  { params }: { params: { organizationId: string; annexId: string; inflowId: string } }
-) {
-  try {
-    await connectToDatabase();
-    const inflow = await Inflow.findById(params.inflowId);
-    if (!inflow) {
-      return NextResponse.json({ error: "Inflow not found" }, { status: 404 });
-    }
-    return NextResponse.json(inflow);
-  } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -122,15 +149,20 @@ export async function DELETE(
       return NextResponse.json({ error: "Inflow not found" }, { status: 404 });
     }
 
-    // Remove the inflow from AnnexE2
-    await AnnexE2.findByIdAndUpdate(params.annexId, {
-      $pull: { inflow: params.inflowId },
-    });
-
     // Find the associated AnnexE2 and AnnexE1
     const annexE2 = await AnnexE2.findById(params.annexId);
     if (!annexE2) {
       return NextResponse.json({ error: "AnnexE2 not found" }, { status: 404 });
+    }
+
+    // Determine the month of the deleted inflow
+    const month = monthNames[new Date(deletedInflow.date).getMonth()];
+
+    // Remove the inflow from AnnexE2 and update totalInflow
+    if (annexE2[month] && annexE2[month].inflows) {
+      annexE2[month].inflows = annexE2[month].inflows.filter((id) => id.toString() !== params.inflowId);
+      annexE2[month].totalInflow -= deletedInflow.amount;
+      await annexE2.save();
     }
 
     const annexE1 = await AnnexE1.findOne({
@@ -152,8 +184,8 @@ export async function DELETE(
       (t) =>
         !(
           t.type === "inflow" &&
-          t.date.toISOString() === inflowToDelete.date.toISOString() &&
-          t.amount === inflowToDelete.amount
+          t.date.toISOString() === deletedInflow.date.toISOString() &&
+          t.amount === deletedInflow.amount
         )
     );
 
@@ -165,6 +197,22 @@ export async function DELETE(
     return NextResponse.json({ message: "Inflow deleted successfully" });
   } catch (error) {
     console.error("Error deleting inflow:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+export async function GET(
+  request: Request,
+  { params }: { params: { organizationId: string; annexId: string; inflowId: string } }
+) {
+  try {
+    await connectToDatabase();
+    const inflow = await Inflow.findById(params.inflowId);
+    if (!inflow) {
+      return NextResponse.json({ error: "Inflow not found" }, { status: 404 });
+    }
+    return NextResponse.json(inflow);
+  } catch (error) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
