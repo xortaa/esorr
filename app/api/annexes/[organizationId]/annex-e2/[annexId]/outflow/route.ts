@@ -1,5 +1,3 @@
-//C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\route.ts
-
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
@@ -9,15 +7,40 @@ import Event from "@/models/event";
 import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
+const monthNames = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
+
 export async function GET(request: Request, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
     await connectToDatabase();
-    const annex = await AnnexE2.findById(params.annexId).populate("outflow");
+    const annex = await AnnexE2.findById(params.annexId);
     if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
-    return NextResponse.json(annex.outflow);
+
+    const allOutflows = [];
+    for (const month of monthNames) {
+      if (annex[month] && annex[month].outflows && annex[month].outflows.length > 0) {
+        await annex.populate(`${month}.outflows`);
+        allOutflows.push(...annex[month].outflows);
+      }
+    }
+
+    return NextResponse.json(allOutflows);
   } catch (error) {
+    console.error("Error fetching outflows:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -45,8 +68,13 @@ export async function POST(request: Request, { params }: { params: { organizatio
     if (!annex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
-    annex.outflow.push(newOutflow._id);
-    await annex.save();
+
+    const month = monthNames[new Date(newOutflow.date).getMonth()];
+    if (!annex[month]) {
+      annex[month] = { outflows: [], totalOutflow: 0, startingBalance: 0, endingBalance: 0 };
+    }
+    annex[month].outflows.push(newOutflow._id);
+    annex[month].totalOutflow = (annex[month].totalOutflow || 0) + newOutflow.totalCost;
 
     // Find the associated AnnexE1 and FinancialReport
     const annexE1 = await AnnexE1.findOne({
@@ -76,7 +104,15 @@ export async function POST(request: Request, { params }: { params: { organizatio
     // Recalculate the entire financial report
     recalculateFinancialReport(financialReport);
 
-    await financialReport.save();
+    // Update AnnexE2 with the recalculated balances
+    monthNames.forEach((monthName) => {
+      if (annex[monthName]) {
+        annex[monthName].startingBalance = financialReport[monthName].startingBalance;
+        annex[monthName].endingBalance = financialReport[monthName].endingBalance;
+      }
+    });
+
+    await Promise.all([financialReport.save(), annex.save()]);
 
     return NextResponse.json(newOutflow, { status: 201 });
   } catch (error) {

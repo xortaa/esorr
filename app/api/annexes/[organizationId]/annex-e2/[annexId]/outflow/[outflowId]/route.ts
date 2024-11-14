@@ -1,5 +1,3 @@
-// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-e2\[annexId]\outflow\[outflowId]\route.ts
-
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
@@ -8,6 +6,21 @@ import Outflow from "@/models/outflow";
 import FinancialReport from "@/models/financial-report";
 import Event from "@/models/event";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
+
+const monthNames = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
 
 export async function GET(
   request: Request,
@@ -60,6 +73,28 @@ export async function PUT(
       return NextResponse.json({ error: "AnnexE2 not found" }, { status: 404 });
     }
 
+    const originalMonth = monthNames[new Date(originalOutflow.date).getMonth()];
+    const newMonth = monthNames[new Date(updatedOutflow.date).getMonth()];
+
+    // Update AnnexE2
+    if (originalMonth !== newMonth) {
+      // Remove from original month
+      annexE2[originalMonth].outflows = annexE2[originalMonth].outflows.filter(
+        (id) => id.toString() !== params.outflowId
+      );
+      annexE2[originalMonth].totalOutflow -= originalOutflow.totalCost;
+
+      // Add to new month
+      if (!annexE2[newMonth]) {
+        annexE2[newMonth] = { outflows: [], totalOutflow: 0, startingBalance: 0, endingBalance: 0 };
+      }
+      annexE2[newMonth].outflows.push(updatedOutflow._id);
+      annexE2[newMonth].totalOutflow += updatedOutflow.totalCost;
+    } else {
+      // Update total outflow for the month
+      annexE2[newMonth].totalOutflow += updatedOutflow.totalCost - originalOutflow.totalCost;
+    }
+
     const annexE1 = await AnnexE1.findOne({
       academicYear: annexE2.academicYear,
     });
@@ -96,7 +131,15 @@ export async function PUT(
     // Recalculate the entire financial report
     recalculateFinancialReport(financialReport);
 
-    await financialReport.save();
+    // Update AnnexE2 with recalculated balances
+    monthNames.forEach((monthName) => {
+      if (annexE2[monthName]) {
+        annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+        annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+      }
+    });
+
+    await Promise.all([financialReport.save(), annexE2.save()]);
 
     return NextResponse.json(updatedOutflow);
   } catch (error) {
@@ -142,13 +185,16 @@ export async function DELETE(
     await Event.findByIdAndUpdate(deletedOutflow.event, { $pull: { outflows: deletedOutflow._id } });
 
     await Outflow.findByIdAndDelete(params.outflowId);
-    await AnnexE2.findByIdAndUpdate(params.annexId, {
-      $pull: { outflow: params.outflowId },
-    });
 
-    // Update FinancialReport
+    // Update AnnexE2
     const annexE2 = await AnnexE2.findById(params.annexId);
     if (annexE2) {
+      const month = monthNames[new Date(deletedOutflow.date).getMonth()];
+      if (annexE2[month] && annexE2[month].outflows) {
+        annexE2[month].outflows = annexE2[month].outflows.filter((id) => id.toString() !== params.outflowId);
+        annexE2[month].totalOutflow -= deletedOutflow.totalCost;
+      }
+
       const annexE1 = await AnnexE1.findOne({
         academicYear: annexE2.academicYear,
       });
@@ -168,7 +214,16 @@ export async function DELETE(
 
           // Recalculate the financial report
           recalculateFinancialReport(financialReport);
-          await financialReport.save();
+
+          // Update AnnexE2 with recalculated balances
+          monthNames.forEach((monthName) => {
+            if (annexE2[monthName]) {
+              annexE2[monthName].startingBalance = financialReport[monthName].startingBalance;
+              annexE2[monthName].endingBalance = financialReport[monthName].endingBalance;
+            }
+          });
+
+          await Promise.all([financialReport.save(), annexE2.save()]);
         }
       }
     }
