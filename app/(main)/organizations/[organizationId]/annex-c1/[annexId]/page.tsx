@@ -384,19 +384,35 @@ export default function ArticlesOfAssociationCreator() {
                   Article {article.order}: {article.title || "Untitled"}
                 </button>
                 {article.sections.map((section) => (
-                  <button
-                    key={section.number}
-                    className={`w-full text-left pl-6 py-1 text-sm rounded transition duration-200 ${
-                      currentSection === section ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100"
-                    }`}
-                    onClick={() => {
-                      setCurrentArticle(article);
-                      setCurrentSection(section);
-                      setCurrentSubsection(null);
-                    }}
-                  >
-                    Section {section.number}
-                  </button>
+                  <div key={section.number}>
+                    <button
+                      className={`w-full text-left pl-6 py-1 text-sm rounded transition duration-200 ${
+                        currentSection === section ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100"
+                      }`}
+                      onClick={() => {
+                        setCurrentArticle(article);
+                        setCurrentSection(section);
+                        setCurrentSubsection(null);
+                      }}
+                    >
+                      Section {section.number}
+                    </button>
+                    {section.subsections.map((subsection) => (
+                      <button
+                        key={subsection.number}
+                        className={`w-full text-left pl-10 py-1 text-xs rounded transition duration-200 ${
+                          currentSubsection === subsection ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100"
+                        }`}
+                        onClick={() => {
+                          setCurrentArticle(article);
+                          setCurrentSection(section);
+                          setCurrentSubsection(subsection);
+                        }}
+                      >
+                        Subsection {subsection.number}
+                      </button>
+                    ))}
+                  </div>
                 ))}
               </div>
             ))}
@@ -481,7 +497,7 @@ export default function ArticlesOfAssociationCreator() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
                   {currentSection.image ? (
-                    <div className="relative w-full h-48 mb-2">
+                    <div className="relative w-48 h-48 mb-2">
                       <Image
                         src={currentSection.image}
                         alt="Section image"
@@ -614,7 +630,7 @@ export default function ArticlesOfAssociationCreator() {
                           </div>
                         </div>
                         {section.image && (
-                          <div className="relative w-full h-48 mb-2 ml-20">
+                          <div className="mx-auto relative w-48 h-48 mb-2">
                             <Image
                               src={section.image}
                               alt={`Image for Section ${section.number}`}
@@ -625,19 +641,21 @@ export default function ArticlesOfAssociationCreator() {
                           </div>
                         )}
                         {section.letteredParagraphs.map((lp) => (
-                          <p key={lp.letter} className="ml-20 mb-1">
-                            {lp.letter}. {lp.paragraph}
+                          <p key={lp.letter} className="ml-24 mb-1">
+                            <span className="mr-2">{lp.letter}.</span>
+                            <span className="ml-4">{lp.paragraph}</span>
                           </p>
                         ))}
                         {section.subsections.map((subsection) => (
-                          <div key={subsection.number} className="ml-20 mb-2">
+                          <div key={subsection.number} className="ml-24 mb-2">
                             <h5 className="text-md font-medium mb-1">
                               {subsection.number}: {subsection.title}
                             </h5>
                             <p className="mb-1">{subsection.paragraph}</p>
                             {subsection.letteredParagraphs.map((lp) => (
-                              <p key={lp.letter} className="ml-4 mb-1">
-                                {lp.letter}. {lp.paragraph}
+                              <p key={lp.letter} className="ml-8 mb-1">
+                                <span className="mr-2">{lp.letter}.</span>
+                                <span className="ml-4">{lp.paragraph}</span>
                               </p>
                             ))}
                           </div>
