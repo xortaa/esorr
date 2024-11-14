@@ -116,18 +116,15 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
-    paddingBottom: 65,
-    paddingHorizontal: 35,
+    paddingBottom: 80,
+    paddingHorizontal: 80,
     fontSize: 11,
     fontFamily: "Arial Narrow",
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
+    borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderBottomColor: "#000",
-    paddingBottom: 5,
+    marginBottom: 15,
   },
   headerLeft: {
     fontSize: 8,
@@ -282,13 +279,19 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
   return (
     <Document>
       <Page style={styles.page} size="LEGAL">
-        <View style={styles.header}>
-          <Text style={styles.headerLeft}>STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS</Text>
-          <View>
-            <Text style={{ fontSize: 11, textAlign: "right" }}>Page | 1</Text>
-            <Text style={styles.headerRight}>List of Members</Text>
-            <Text style={styles.headerRight}>AY {annex.academicYear}</Text>
-          </View>
+        <View fixed style={styles.header}>
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "left", fontFamily: "Times-Roman" }}>
+            STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
+          </Text>
+
+          <Text
+            style={{ fontSize: 11, fontWeight: "bold", textAlign: "right" }}
+            render={({ pageNumber, totalPages }) => `Page | ${pageNumber}`}
+          />
+
+          <Text style={{ fontSize: 8, fontWeight: "bold", textAlign: "right" }}>List of Members</Text>
+
+          <Text style={{ fontSize: 8, textAlign: "right" }}>AY {annex.academicYear}</Text>
         </View>
 
         <Text style={styles.title}>LIST OF MEMBERS</Text>
@@ -316,66 +319,87 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
 
         <View style={styles.table}>
           <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "35%" }]}>
+            <View style={[styles.tableCell, { width: "25%" }]}>
               <Text>Number of Officers</Text>
             </View>
-            <View style={[styles.tableCell, { width: "65%" }]}>
+            <View style={[styles.tableCell, { width: "75%", borderRightWidth: 0 }]}>
               <Text>{annex.numberOfOfficers}</Text>
             </View>
           </View>
 
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "35%" }]}>
-              <Text>Age and Gender Distribution of Members</Text>
+          <View style={{ flexDirection: "row", width: "100%" }}>
+            <View
+              style={{
+                width: "25%",
+                borderRightWidth: 1,
+                display: "flex",
+              }}
+            >
+              <Text
+                style={{
+                  paddingTop: 15,
+                  paddingHorizontal: 5,
+                  paddingBottom: 5,
+                  fontSize: 10,
+                }}
+              >
+                Age and Gender {"\n"}Distribution of Members
+              </Text>
             </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>Total No. of Male members</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>Total No. of Female members</Text>
-            </View>
-          </View>
 
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "35%" }]}>
-              <Text>Below 18</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.maleMembersBelow18}</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.femaleMembersBelow18}</Text>
-            </View>
-          </View>
-
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "35%" }]}>
-              <Text>18 to 20</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.maleMembers18To20}</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.femaleMembers18To20}</Text>
-            </View>
-          </View>
-
-          <View style={styles.tableRow}>
-            <View style={[styles.tableCell, { width: "35%" }]}>
-              <Text>21 and above</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.maleMembers21AndAbove}</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "32.5%" }]}>
-              <Text style={styles.tableCellCenter}>{annex.femaleMembers21AndAbove}</Text>
+            <View style={{ width: "75%", flexDirection: "column" }}>
+              <View style={{ width: "100%", flexDirection: "row", textAlign: "center" }}>
+                <Text style={{ width: "20%", borderRightWidth: 1 }}></Text>
+                <Text style={{ width: "40%", borderRightWidth: 1 }}>Total No. of Male members</Text>
+                <Text style={{ width: "40%" }}>Total No. of Female members</Text>
+              </View>
+              <View style={{ width: "100%", flexDirection: "row", textAlign: "center", borderTop: 1 }}>
+                <Text style={{ width: "20%", borderRightWidth: 1, paddingHorizontal: 5, textAlign: "left" }}>
+                  Below 18
+                </Text>
+                <Text style={{ width: "40%", borderRightWidth: 1, paddingHorizontal: 5 }}>
+                  {" "}
+                  {annex.maleMembersBelow18}{" "}
+                </Text>
+                <Text style={{ width: "40%", paddingHorizontal: 5 }}> {annex.femaleMembersBelow18} </Text>
+              </View>
+              <View style={{ width: "100%", flexDirection: "row", textAlign: "center", borderTop: 1 }}>
+                <Text style={{ width: "20%", borderRightWidth: 1, paddingHorizontal: 5, textAlign: "left" }}>
+                  18 to 20
+                </Text>
+                <Text style={{ width: "40%", borderRightWidth: 1, paddingHorizontal: 5 }}>
+                  {" "}
+                  {annex.maleMembers18To20}{" "}
+                </Text>
+                <Text style={{ width: "40%", paddingHorizontal: 5 }}> {annex.femaleMembersBelow18} </Text>
+              </View>
+              <View style={{ width: "100%", flexDirection: "row", textAlign: "center", borderTop: 1 }}>
+                <Text style={{ width: "20%", borderRightWidth: 1, paddingHorizontal: 5, textAlign: "left" }}>
+                  21 and above
+                </Text>
+                <Text style={{ width: "40%", borderRightWidth: 1, paddingHorizontal: 5 }}>
+                  {" "}
+                  {annex.maleMembers21AndAbove}{" "}
+                </Text>
+                <Text style={{ width: "40%", paddingHorizontal: 5 }}> {annex.femaleMembersBelow18} </Text>
+              </View>
             </View>
           </View>
 
           <View style={{ flexDirection: "row", width: "100%", borderTop: 1, textAlign: "left" }}>
-            <Text style={{ padding: 5, width: "25%", borderRightWidth: 1 }}>
-              Distribution of Members According to Faculty / College / Institute / School and Year Level
-            </Text>
+            <View
+              style={{
+                width: "25%",
+                borderRightWidth: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ padding: 5 }}>
+                Distribution of Members According to Faculty / College / Institute / School and Year Level
+              </Text>
+            </View>
 
             <View style={{ width: "75%", flexDirection: "column" }}>
               <View style={{ flexDirection: "row", textAlign: "center" }}>
@@ -400,11 +424,11 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
                 <View style={{ flexDirection: "column", textAlign: "center", width: "65%", borderLeftWidth: 1 }}>
                   <Text style={{}}>YEAR LEVEL</Text>
                   <View style={{ flexDirection: "row", borderTopWidth: 1 }}>
-                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>1</Text>
-                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>2</Text>
-                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>3</Text>
-                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 13 }}>4</Text>
-                    <Text style={{ width: "20%", padding: 13 }}>5</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 16 }}>1</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 16 }}>2</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 16 }}>3</Text>
+                    <Text style={{ width: "20%", borderRightWidth: 1, padding: 16 }}>4</Text>
+                    <Text style={{ width: "20%", padding: 16 }}>5</Text>
                   </View>
                 </View>
               </View>
@@ -412,9 +436,7 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
                 <View style={{ flexDirection: "column", textAlign: "center", width: "35%" }}>
                   <Text
                     style={{
-                      padding: 13,
-
-                      fontSize: 10,
+                      padding: 10,
                     }}
                   >
                     Write Program and Major
@@ -581,46 +603,78 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
 
         <Text style={{ marginBottom: 10 }}>LIST OF MEMBERS FOR AY {annex.academicYear}</Text>
 
-        <View style={styles.table}>
-          <View style={[styles.tableRow, { backgroundColor: "#f0f0f0" }]}>
-            <View style={[styles.tableCell, { width: "5%", borderRightWidth: 1 }]}>
-              <Text>No.</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1 }]}>
-              <Text>Name</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "20%", borderRightWidth: 1 }]}>
-              <Text>Student Number</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "25%", borderRightWidth: 1 }]}>
-              <Text>Program</Text>
-            </View>
-            <View style={[styles.tableCell, { width: "15%" }]}>
-              <Text>Status</Text>
+        <View style={{ borderWidth: 1, textAlign: "center" }}>
+          <View style={{ flexDirection: "row", width: "100%", fontFamily: "Arial Narrow Bold" }}>
+            <Text style={{ borderRightWidth: 1, width: "5%", paddingVertical: 15 }}> </Text>
+            <Text style={{ borderRightWidth: 1, width: "25%", paddingVertical: 15 }}> Name </Text>
+            <Text style={{ borderRightWidth: 1, width: "20%", paddingVertical: 15 }}> Student Number</Text>
+            <Text style={{ borderRightWidth: 1, width: "25%", paddingVertical: 15 }}> Program </Text>
+            <Text style={{ width: "25%", paddingVertical: 15 }}>
+              {" "}
+              Membership Status as of A.Y. {annex.academicYear}{" "}
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", width: "100%", borderTopWidth: 1 }}>
+            <Text style={{ borderRightWidth: 1, width: "5%" }}> </Text>
+            <Text style={{ borderRightWidth: 1, width: "25%" }}> </Text>
+            <Text style={{ borderRightWidth: 1, width: "20%" }}> </Text>
+            <Text style={{ borderRightWidth: 1, width: "25%" }}> </Text>
+            <View style={{ width: "25%", flexDirection: "row" }}>
+              <View style={{ width: "50%", borderRightWidth: 1 }}>
+                <Text>
+                  {" "}
+                  <Text style={{ fontFamily: "Boxed" }}> 0 </Text> Old{" "}
+                </Text>
+              </View>
+              <View style={{ width: "50%" }}>
+                <Text>
+                  <Text style={{ fontFamily: "Boxed" }}> 0 </Text> New{" "}
+                </Text>
+              </View>
             </View>
           </View>
 
           {annex.members.map((member, index) => (
-            <View key={index} style={styles.tableRow}>
-              <View style={[styles.tableCell, { width: "5%", borderRightWidth: 1 }]}>
-                <Text>{index + 1}</Text>
-              </View>
-              <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1 }]}>
-                <Text>{`${member.lastName}, ${member.firstName} ${member.middleName}`}</Text>
-              </View>
-              <View style={[styles.tableCell, { width: "20%", borderRightWidth: 1 }]}>
-                <Text>{member.studentNumber}</Text>
-              </View>
-              <View style={[styles.tableCell, { width: "25%", borderRightWidth: 1 }]}>
-                <Text>{member.program}</Text>
-              </View>
-              <View style={[styles.tableCell, { width: "15%" }]}>
-                <Text>
-                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "0" : "O"}</Text> New{" "}
-                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "O" : "0"}</Text> Old
-                </Text>
+            <View style={{ flexDirection: "row", width: "100%", borderTopWidth: 1 }}>
+              <Text style={{ borderRightWidth: 1, width: "5%" }}>{index + 1}</Text>
+              <Text style={{ borderRightWidth: 1, width: "25%", fontSize: 9, textAlign: "left", padding: 2 }}>
+                {`${member.lastName}, ${member.firstName} ${member.middleName}`}{" "}
+              </Text>
+              <Text style={{ borderRightWidth: 1, width: "20%" }}>{member.studentNumber} </Text>
+              <Text style={{ borderRightWidth: 1, width: "25%", fontFamily: "Arial Narrow Bold", fontSize: 8 }}>
+                {member.program}{" "}
+              </Text>
+              <View style={{ width: "25%", flexDirection: "row" }}>
+                <View style={{ width: "50%", borderRightWidth: 1 }}>
+                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "0" : "O"}</Text>
+                </View>
+                <View style={{ width: "50%" }}>
+                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "O" : "0"}</Text>
+                </View>
               </View>
             </View>
+
+            // <View key={index} style={styles.tableRow}>
+            //   <View style={[styles.tableCell, { width: "5%", borderRightWidth: 1 }]}>
+            //     <Text>{index + 1}</Text>
+            //   </View>
+            //   <View style={[styles.tableCell, { width: "35%", borderRightWidth: 1 }]}>
+            //     <Text>{`${member.lastName}, ${member.firstName} ${member.middleName}`}</Text>
+            //   </View>
+            //   <View style={[styles.tableCell, { width: "20%", borderRightWidth: 1 }]}>
+            //     <Text>{member.studentNumber}</Text>
+            //   </View>
+            //   <View style={[styles.tableCell, { width: "25%", borderRightWidth: 1 }]}>
+            //     <Text>{member.program}</Text>
+            //   </View>
+            //   <View style={[styles.tableCell, { width: "15%" }]}>
+            //     <Text>
+            //       <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "0" : "O"}</Text> New{" "}
+            //       <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "O" : "0"}</Text> Old
+            //     </Text>
+            //   </View>
+            // </View>
           ))}
         </View>
 
