@@ -22,6 +22,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   }
 };
 
+
 export const PATCH = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
   await connectToDatabase();
 
@@ -52,6 +53,11 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
     // If there's nothing to update, return an error
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+    }
+
+    // If isSubmitted is being set to true, add the current date
+    if (updateData.isSubmitted === true) {
+      updateData.dateSubmitted = new Date();
     }
 
     const updatedAnnexC1 = await AnnexC1.findByIdAndUpdate(

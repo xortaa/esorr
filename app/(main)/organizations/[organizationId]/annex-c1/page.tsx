@@ -314,6 +314,7 @@ type AnnexC1 = {
     position: string;
     signatureUrl: string;
   };
+  dateSubmitted: Date;
 };
 
 type SignaturePosition =
@@ -329,6 +330,12 @@ type SignaturePosition =
 type UserPosition = {
   role: string;
   organizationName: string;
+};
+
+const formatDate = (date: Date | undefined) => {
+  if (!date) return "";
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(date).toLocaleDateString("en-US", options);
 };
 
 const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
@@ -670,7 +677,8 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         )}
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.secretary?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Secretary</Text> {annex.organization.name} {annex.academicYear}
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Secretary</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
@@ -681,7 +689,8 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         )}
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.treasurer?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Treasurer</Text> {annex.organization.name} {annex.academicYear}
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Treasurer</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
@@ -692,27 +701,34 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         )}
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.auditor?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Auditor</Text> {annex.organization.name} {annex.academicYear}
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Auditor</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
         {annex.peaceRelationsOfficer?.signatureUrl ? (
-          <Image src={annex.peaceRelationsOfficer.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+          <Image
+            src={annex.peaceRelationsOfficer.signatureUrl}
+            style={{ width: 200, height: 50, marginHorizontal: "auto" }}
+          />
         ) : (
           <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         )}
-        <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.peaceRelationsOfficer?.name || "First name M.I. Last Name"}</Text>
+        <Text style={{ fontFamily: "Arial Narrow Bold" }}>
+          {annex.peaceRelationsOfficer?.name || "First name M.I. Last Name"}
+        </Text>
         <Text style={{}}>
-          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Peace Relations Officer</Text> {annex.organization.name} {annex.academicYear}
+          <Text style={{ fontFamily: "Arial Narrow Italic" }}>Peace Relations Officer</Text> {annex.organization.name}{" "}
+          {annex.academicYear}
         </Text>
       </View>
-      
+
       <Text style={{ marginTop: 10 }}>
-        Done in the University of Santo Tomas, Philippines, Month Day, Year (CURRENT DATE)
+        Done in the University of Santo Tomas, Philippines, {formatDate(annex.dateSubmitted)}
       </Text>
-      
+
       <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Attested by:</Text>
-      
+
       {annex.adviser?.signatureUrl ? (
         <Image src={annex.adviser.signatureUrl} style={{ width: 200, height: 50 }} />
       ) : (
