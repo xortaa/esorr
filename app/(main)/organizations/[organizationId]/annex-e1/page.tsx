@@ -49,7 +49,7 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
-    paddingBottom: 80,
+    paddingBottom: 40,
     paddingRight: 10,
     paddingLeft: 10,
     fontSize: 10,
@@ -535,11 +535,13 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%" }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
-                      <Text style={{ width: "25%" }}>{inflow.totalMembers || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {inflow.totalMembers || 0}
+                      </Text>
                     </View>
                   </View>
                 ))}
@@ -577,11 +579,13 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%" }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
-                      <Text style={{ width: "25%" }}>{inflow.payingParticipants || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {inflow.payingParticipants || 0}
+                      </Text>
                     </View>
                   </View>
                 ))}
@@ -618,11 +622,13 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%" }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
-                      <Text style={{ width: "25%" }}>{inflow.merchandiseSales || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {inflow.merchandiseSales || 0}
+                      </Text>
                     </View>
                   </View>
                 ))}
@@ -645,7 +651,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "40%" }}></Text>
               <Text style={{ width: "25%", textAlign: "right" }}>TOTAL COLLECTIONS</Text>
-              <Text style={{ width: "18%" }}>{totalCollections}</Text>
+              <Text style={{ width: "18%", textAlign: "right", paddingRight: 1 }}>{totalCollections}</Text>
               <Text style={{ width: "17%" }}></Text>
             </View>
           </View>
@@ -676,7 +682,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%" }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
                       <Text style={{ width: "25%" }}> </Text>
                       <Text style={{ width: "10%" }}> </Text>
                     </View>
@@ -713,7 +719,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyCSF.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%" }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -750,7 +756,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyUSOF.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%" }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -786,7 +792,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyCSCSOCC.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%" }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -822,7 +828,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyLSC.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                    <Text style={{ width: "25%" }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -845,7 +851,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "40%" }}></Text>
               <Text style={{ width: "25%", textAlign: "right" }}>TOTAL SUBSIDIES</Text>
-              <Text style={{ width: "18%", border: 1 }}>{totalSubsidies}</Text>
+              <Text style={{ width: "18%", border: 1, textAlign: "right", paddingRight: 1 }}> {totalSubsidies}</Text>
               <Text style={{ width: "17%" }}></Text>
             </View>
           </View>
@@ -870,7 +876,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {cashSponsorships.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                    <Text style={{ width: "25%" }}>{inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>{inflow.amount || 0}</Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -891,7 +897,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
           <View style={{ width: "70%", textAlign: "right" }}>
             <Text style={{ fontFamily: "Arial Narrow Bold" }}> TOTAL AMOUNT OF CASH SPONSORSHIP</Text>
           </View>
-          <Text style={{ width: "12.50%", border: 1 }}>{totalSponsorships}</Text>
+          <Text style={{ width: "12.50%", border: 1, textAlign: "right", paddingRight: 1 }}> {totalSponsorships}</Text>
           <Text style={{}}> </Text>
         </View>
         <View style={{ flexDirection: "row" }}>
@@ -938,8 +944,11 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
           <View style={{ width: "70%", textAlign: "right" }}>
             <Text style={{ fontFamily: "Arial Narrow Bold" }}> Total CASH DISBURSEMENTS </Text>
           </View>
-          <Text style={{ width: "12.50%", border: 2 }}></Text>
-          <Text style={{}}> {totalOutflows}</Text>
+          <Text style={{ width: "12.50%", border: 2, textAlign: "right", paddingRight: 1, paddingTop: 1 }}>
+            {" "}
+            {totalOutflows}
+          </Text>
+          <Text style={{}}> </Text>
         </View>
 
         <View style={{ flexDirection: "row" }}>
@@ -949,7 +958,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               <Text style={{ width: "40%" }}> </Text>
               <Text style={{ width: "25%" }}> </Text>
               <Text style={{ width: "18%", textAlign: "right" }}>Net CASH FLOW </Text>
-              <Text style={{ width: "17%", border: 2 }}>{totalInflows}</Text>
+              <Text style={{ width: "17%", border: 2, textAlign: "right", paddingRight: 1, paddingTop: 1 }}>
+                {" "}
+                {totalInflows}
+              </Text>
             </View>
           </View>
         </View>
@@ -1105,7 +1117,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>Treasurer</Text>
 
@@ -1118,7 +1130,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>President</Text>
 
@@ -1131,7 +1143,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>SOCC Corporate Treasurer</Text>
 
@@ -1143,7 +1155,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>Adviser</Text>
 
@@ -1156,7 +1168,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>SWD Coordinator</Text>
 
@@ -1168,7 +1180,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               </Text>
             </>
           ) : (
-            <Text style={{paddingTop: 20}}></Text>
+            <Text style={{ paddingTop: 20 }}></Text>
           )}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>Dean/Director</Text>
         </View>
