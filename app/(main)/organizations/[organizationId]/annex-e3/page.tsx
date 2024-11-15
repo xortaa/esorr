@@ -460,7 +460,7 @@ const MyDocument: React.FC<{ annex: AnnexE3 }> = ({ annex }) => (
       {/* PASOC 2 */}
       <CriteriaSection
         criteriaNum="2"
-        criteria={"Leadership and Governance"}
+        criteria={"Operational Assessment"}
         subcriteria={[
           {
             id: "2.1",
