@@ -36,25 +36,29 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("Received request body:", body);
 
-    const {
-      name,
-      logo,
-      socials,
-      signatoryRequests,
-      isNotUniversityWide,
-      affiliation,
-      email,
-      website,
-      category,
-      strategicDirectionalAreas,
-      mission,
-      vision,
-      description,
-      objectives,
-      startingBalance,
-      currentAcademicYear,
-      academicYearOfLastRecognition,
-    } = body;
+   const {
+     name,
+     logo,
+     socials,
+     facebookLink,
+     signatoryRequests,
+     isNotUniversityWide,
+     affiliation,
+     email,
+     website,
+     category,
+     strategicDirectionalAreas,
+     mission,
+     vision,
+     description,
+     objectives,
+     startingBalance,
+     currentAcademicYear,
+     academicYearOfLastRecognition,
+     levelOfRecognition,
+     isWithCentralOrganization,
+     isReligiousOrganization,
+   } = body;
 
     // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
@@ -84,6 +88,10 @@ export async function POST(req: NextRequest) {
       name,
       logo: logoUrl,
       affiliation,
+      facebookLink,
+      isWithCentralOrganization,
+      isReligiousOrganization,
+      levelOfRecognition,
       annex01: [],
       annex02: [],
       annexA: [],
@@ -120,6 +128,11 @@ export async function POST(req: NextRequest) {
     const newAnnex02 = await Annex02.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      levelOfRecognition,
+      facebookLink,
+      isWithCentralOrganization,
+      isReligiousOrganization,
+      affiliation
     });
     console.log("Annex02 created:", newAnnex02);
 

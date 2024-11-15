@@ -24,6 +24,10 @@ const OrganizationSchema = new Schema({
     type: String,
     required: true,
   },
+  facebookLink: String, 
+  isWithCentralOrganization: Boolean,
+  isReligiousOrganization: Boolean,
+  levelOfRecognition: String,
   status: {
     type: String,
     enum: ["Active", "Incomplete", "Inactive", "For Revision"],

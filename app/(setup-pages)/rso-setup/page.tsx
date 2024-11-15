@@ -272,18 +272,16 @@ const OrganizationSetupStep1 = ({
 }: OrganizationSetupStep1Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSDAreaDropdownOpen, setIsSDAreaDropdownOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
-
-  // Generate an array of years from current year to 5 years in the future
   const futureYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 6 }, (_, i) => currentYear + i);
   }, []);
 
-  // Generate an array of years from 5 years in the past to the current year
   const pastYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 6 }, (_, i) => currentYear - i);
@@ -297,26 +295,33 @@ const OrganizationSetupStep1 = ({
     }
   };
 
+  const handleAdditionalOrgTypeChange = (type: "isWithCentralOrganization" | "isReligiousOrganization") => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [type]: !prevData[type],
+    }));
+  };
+
   const filteredAffiliations = useMemo(() => {
+    if (searchTerm.trim() === "") {
+      return [];
+    }
     return affiliationOptions.filter((affiliation) =>
       affiliation.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [affiliationOptions, searchTerm]);
 
-  const handleSelectAffiliation = (affiliation: any) => {
+  const handleSelectAffiliation = (affiliation: Affiliation) => {
     setSelectedAffiliation(affiliation);
     setSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
   };
 
   const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
     setSelectedAffiliation(null);
-    setIsDropdownOpen(true);
-  };
-
-  const handleAffiliationInputFocus = () => {
-    setIsDropdownOpen(true);
+    setIsDropdownOpen(value.trim() !== "");
   };
 
   const handleInputBlur = () => {
@@ -341,28 +346,47 @@ const OrganizationSetupStep1 = ({
     setFormData({ ...formData, socials: newSocials });
   };
 
-const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-    const file = e.target.files[0];
-    setIsUploading(true);
-    try {
-      const imageUrl = await uploadImage(file);
-      setFormData({ ...formData, logo: imageUrl });
-      setImagePreview(imageUrl);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please try again.");
-    } finally {
-      setIsUploading(false);
+  const handleFacebookInputChange = (value: string) => {
+    setFormData({ ...formData, facebookLink: value });
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Check file type
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!allowedTypes.includes(file.type)) {
+        setLogoError("Logo must be a PNG, JPG, or JPEG file.");
+        return;
+      }
+
+      // Check file size (10MB = 10 * 1024 * 1024 bytes)
+      if (file.size > 10 * 1024 * 1024) {
+        setLogoError("Logo file size must not exceed 10MB.");
+        return;
+      }
+
+      setIsUploading(true);
+      setLogoError(null);
+      try {
+        const imageUrl = await uploadImage(file);
+        setFormData({ ...formData, logo: imageUrl });
+        setImagePreview(imageUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        setLogoError("Failed to upload image. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
     }
-  }
-};
+  };
 
- const handleRemoveLogo = () => {
-   setFormData({ ...formData, logo: null });
-   setImagePreview(null);
- };
-
+  const handleRemoveLogo = () => {
+    setFormData({ ...formData, logo: null });
+    setImagePreview(null);
+    setLogoError(null);
+  };
 
   const handleStrategicDirectionalAreaChange = (area: string) => {
     const currentAreas = formData.strategicDirectionalAreas || [];
@@ -382,11 +406,27 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleAcademicYearOfLastRecognitionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const startYear = parseInt(e.target.value);
-    const endYear = startYear + 1;
+    const value = e.target.value;
+    if (value === "not-recognized") {
+      setFormData((prevData) => ({
+        ...prevData,
+        academicYearOfLastRecognition: "Not yet recognized",
+        levelOfRecognition: "",
+      }));
+    } else {
+      const startYear = parseInt(value);
+      const endYear = startYear + 1;
+      setFormData((prevData) => ({
+        ...prevData,
+        academicYearOfLastRecognition: `${startYear}-${endYear}`,
+      }));
+    }
+  };
+
+  const handleLevelOfRecognitionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevData) => ({
       ...prevData,
-      academicYearOfLastRecognition: `${startYear}-${endYear}`,
+      levelOfRecognition: e.target.value,
     }));
   };
 
@@ -395,12 +435,13 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       formData.name.trim() !== "" &&
       formData.logo !== null &&
       (!isNotUniversityWide || selectedAffiliation !== null) &&
-      formData.website.trim() !== "" &&
       formData.category.trim() !== "" &&
       formData.strategicDirectionalAreas.length > 0 &&
       formData.startingBalance >= 0 &&
       formData.academicYearOfLastRecognition.trim() !== "" &&
-      formData.currentAcademicYear.trim() !== ""
+      formData.currentAcademicYear.trim() !== "" &&
+      formData.facebookLink.trim() !== "" &&
+      (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "")
     );
   };
 
@@ -410,7 +451,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       <form className="space-y-4">
         <div className="form-control">
           <label className="label" htmlFor="current-academic-year">
-            <span className="label-text">Current Academic Year</span>
+            <span className="label-text">Current Academic Year (Required)</span>
           </label>
           <select
             id="current-academic-year"
@@ -436,7 +477,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label" htmlFor="logo-upload">
-            <span className="label-text">Upload Organization Logo</span>
+            <span className="label-text">Upload Organization Logo (Required)</span>
           </label>
           {formData.logo ? (
             <div className="flex items-center space-x-4">
@@ -460,7 +501,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 type="file"
                 id="logo-upload"
                 className="file-input file-input-bordered w-full max-w-xs"
-                accept="image/*"
+                accept=".png,.jpg,.jpeg"
                 onChange={handleLogoUpload}
                 disabled={isUploading}
               />
@@ -471,15 +512,22 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
             type="file"
             id="logo-upload"
             className="hidden"
-            accept="image/*"
+            accept=".png,.jpg,.jpeg"
             onChange={handleLogoUpload}
             disabled={isUploading}
           />
+          {logoError && <p className="text-error text-sm mt-1">{logoError}</p>}
+          <label className="label">
+            <span className="label-text-alt text-info flex items-center">
+              <BadgeInfo className="w-4 h-4 mr-1" />
+              Logo must be a PNG, JPG, or JPEG file, max 10MB in size
+            </span>
+          </label>
         </div>
 
         <div className="form-control">
           <label className="label" htmlFor="org-name">
-            <span className="label-text">Organization Name</span>
+            <span className="label-text">Organization Name (Required)</span>
           </label>
           <input
             type="text"
@@ -494,7 +542,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Organization Type</span>
+            <span className="label-text">Organization Type (Required)</span>
           </label>
           <div className="flex space-x-2">
             <label className="label cursor-pointer justify-start space-x-2">
@@ -522,10 +570,42 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
           </div>
         </div>
 
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Additional Organization Type(s) (Optional)</span>
+          </label>
+          <div className="flex flex-col space-y-2">
+            <label className="label cursor-pointer justify-start space-x-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={formData.isWithCentralOrganization}
+                onChange={() => handleAdditionalOrgTypeChange("isWithCentralOrganization")}
+              />
+              <span className="label-text">With Central Organization</span>
+            </label>
+            <label className="label cursor-pointer justify-start space-x-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                checked={formData.isReligiousOrganization}
+                onChange={() => handleAdditionalOrgTypeChange("isReligiousOrganization")}
+              />
+              <span className="label-text">Religious Organization</span>
+            </label>
+          </div>
+          <label className="label">
+            <span className="label-text-alt text-info flex items-center">
+              <BadgeInfo className="w-4 h-4 mr-1" />
+              You can select multiple options or leave them unchecked if none apply
+            </span>
+          </label>
+        </div>
+
         {isNotUniversityWide && (
           <div className="form-control w-full">
             <label className="label" htmlFor="affiliation-search">
-              <span className="label-text">Search for your affiliation</span>
+              <span className="label-text">Search for your affiliation (Required)</span>
             </label>
             <div className="relative">
               <input
@@ -535,7 +615,6 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 placeholder="Search for your affiliation..."
                 value={searchTerm}
                 onChange={handleAffiliationInputChange}
-                onFocus={handleAffiliationInputFocus}
                 onBlur={handleInputBlur}
                 disabled={affiliationOptionsLoading}
                 required
@@ -593,7 +672,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label" htmlFor="org-category">
-            <span className="label-text">Student Organization Category</span>
+            <span className="label-text">Student Organization Category (Required)</span>
           </label>
           <select
             id="org-category"
@@ -613,7 +692,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Strategic Directional Areas</span>
+            <span className="label-text">Strategic Directional Areas (Required)</span>
           </label>
           <div className="dropdown">
             <label tabIndex={0} className="btn m-1" onClick={() => setIsSDAreaDropdownOpen(!isSDAreaDropdownOpen)}>
@@ -646,8 +725,23 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div className="form-control">
+          <label className="label" htmlFor="facebook-link">
+            <span className="label-text">Facebook Page Link</span>
+          </label>
+          <input
+            type="url"
+            id="facebook-link"
+            placeholder="https://www.facebook.com/yourorganization"
+            className="input input-bordered w-full"
+            value={formData.facebookLink}
+            onChange={(e) => handleFacebookInputChange(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-control">
           <label className="label">
-            <span className="label-text">Social Media Links (Optional)</span>
+            <span className="label-text">Additional Social Media Links (Optional)</span>
           </label>
           {formData.socials.map((link: string, index: number) => (
             <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
@@ -675,7 +769,7 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label" htmlFor="starting-balance">
-            <span className="label-text">Starting Balance</span>
+            <span className="label-text">Starting Balance (Required)</span>
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
@@ -695,16 +789,21 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         <div className="form-control">
           <label className="label" htmlFor="academic-year-of-last-recognition">
-            <span className="label-text">Academic Year of Last Recognition</span>
+            <span className="label-text">Academic Year of Last Recognition (Required)</span>
           </label>
           <select
             id="academic-year-of-last-recognition"
             className="select select-bordered w-full"
-            value={formData.academicYearOfLastRecognition.split("-")[0]}
+            value={
+              formData.academicYearOfLastRecognition === "Not yet recognized"
+                ? "not-recognized"
+                : formData.academicYearOfLastRecognition.split("-")[0]
+            }
             onChange={handleAcademicYearOfLastRecognitionChange}
             required
           >
             <option value="">Select academic year</option>
+            <option value="not-recognized">Not yet recognized</option>
             {pastYears.map((year) => (
               <option key={year} value={year.toString()}>
                 {year}-{year + 1}
@@ -714,20 +813,39 @@ const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
           <label className="label">
             <span className="label-text-alt text-info flex items-center">
               <BadgeInfo className="w-4 h-4 mr-1" />
-              Select the academic year of last recognition
+              Select the academic year of last recognition or "Not yet recognized" if this is your first time
             </span>
           </label>
         </div>
 
-        <div className="flex justify-end mt-6">
+        {formData.academicYearOfLastRecognition !== "Not yet recognized" && (
+          <div className="form-control">
+            <label className="label" htmlFor="level-of-recognition">
+              <span className="label-text">Level of Recognition (Required)</span>
+            </label>
+            <input
+              type="text"
+              id="level-of-recognition"
+              placeholder="Enter level of recognition"
+              className="input input-bordered w-full"
+              value={formData.levelOfRecognition}
+              onChange={handleLevelOfRecognitionChange}
+              required
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col justify-center mt-6 items-end gap-2">
           <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
             Next Step
           </button>
+          {!isFormValid() && <p className="text-info text-xs">Input required fields to enable button</p>}
         </div>
       </form>
     </div>
   );
 };
+
 
 const OrganizationSetupStep2 = ({
   prevStep,
@@ -740,18 +858,23 @@ const OrganizationSetupStep2 = ({
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
 }) => {
+  const [objectives, setObjectives] = useState<string[]>([]);
+
   const handleObjectiveChange = (index: number, value: string) => {
-    const newObjectives = [...formData.objectives];
+    const newObjectives = [...objectives];
     newObjectives[index] = value;
+    setObjectives(newObjectives);
     setFormData({ ...formData, objectives: newObjectives });
   };
 
   const handleAddObjective = () => {
-    setFormData({ ...formData, objectives: [...formData.objectives, ""] });
+    setObjectives([...objectives, ""]);
+    setFormData({ ...formData, objectives: [...objectives, ""] });
   };
 
   const handleRemoveObjective = (index: number) => {
-    const newObjectives = formData.objectives.filter((_: any, i: number) => i !== index);
+    const newObjectives = objectives.filter((_, i) => i !== index);
+    setObjectives(newObjectives);
     setFormData({ ...formData, objectives: newObjectives });
   };
 
@@ -807,25 +930,29 @@ const OrganizationSetupStep2 = ({
 
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Objectives (can be added/editted later if needed)</span>
+            <span className="label-text">Objectives (optional, can be added/edited later if needed)</span>
           </label>
-          {formData.objectives.map((objective: string, index: number) => (
-            <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
-              <textarea
-                placeholder="Enter an objective"
-                className="textarea textarea-bordered w-full"
-                value={objective}
-                onChange={(e) => handleObjectiveChange(index, e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn btn-ghost btn-square text-error"
-                onClick={() => handleRemoveObjective(index)}
-              >
-                <Minus />
-              </button>
-            </div>
-          ))}
+          {objectives.length > 0 ? (
+            objectives.map((objective, index) => (
+              <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
+                <textarea
+                  placeholder="Enter an objective"
+                  className="textarea textarea-bordered w-full"
+                  value={objective}
+                  onChange={(e) => handleObjectiveChange(index, e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-square text-error"
+                  onClick={() => handleRemoveObjective(index)}
+                >
+                  <Minus />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500 mb-2">No objectives added yet. Click the button below to add one.</p>
+          )}
           <button type="button" className="btn btn-outline btn-primary mt-2" onClick={handleAddObjective}>
             Add Objective
             <Plus className="ml-2" />
