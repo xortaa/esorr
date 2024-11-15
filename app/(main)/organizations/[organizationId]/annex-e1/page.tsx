@@ -1437,7 +1437,7 @@ export default function AnnexE1Manager({ params }: { params: { organizationId: s
                     >
                       <option value="">Select your role</option>
                       {session?.user?.positions?.map((position, index) => (
-                        <option key={index} value={position.position}>
+                        <option key={index} value={`${position.position}-${position.organization.name}`}>
                           {position.position} - {position.organization.name}
                         </option>
                       ))}
@@ -1455,40 +1455,59 @@ export default function AnnexE1Manager({ params }: { params: { organizationId: s
                       <option value="swdCoordinator">SWD Coordinator</option>
                       <option value="dean">Dean/Director</option>
                     </select>
-                    <div className="border-2 border-dashed border-gray-300 p-4">
-                      <SignatureCanvas
-                        ref={signatureRef}
-                        canvasProps={{ className: "signature-canvas" }}
-                        backgroundColor="white"
-                      />
-                    </div>
-                    <div className="flex justify-between">
-                      <button className="btn btn-secondary" onClick={() => signatureRef.current?.clear()}>
+                    <div className="border p-4 rounded-lg">
+                      <h4 className="text-lg font-semibold mb-2">Draw Your Signature</h4>
+                      <div className="border p-2 mb-2">
+                        <SignatureCanvas
+                          ref={signatureRef}
+                          canvasProps={{ width: 500, height: 200, className: "signature-canvas" }}
+                          backgroundColor="white"
+                        />
+                      </div>
+                      <button className="btn btn-outline w-full" onClick={() => signatureRef.current?.clear()}>
                         Clear Signature
                       </button>
-                      <label className="btn btn-secondary">
-                        Upload Signature
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setSignatureFile(file);
-                              const reader = new FileReader();
-                              reader.onload = (e) => setSignaturePreview(e.target?.result as string);
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                        />
-                      </label>
                     </div>
-                    {signaturePreview && (
-                      <div className="mt-4">
-                        <img src={signaturePreview} alt="Signature Preview" className="max-w-full h-auto" />
-                      </div>
-                    )}
+                    <div className="text-center text-lg font-semibold">OR</div>
+                    <div className="border p-4 rounded-lg">
+                      <h4 className="text-lg font-semibold mb-2">Upload Your Signature</h4>
+                      {signaturePreview ? (
+                        <div className="relative">
+                          <img src={signaturePreview} alt="Signature Preview" className="max-w-full h-auto" />
+                          <button
+                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                            onClick={() => {
+                              setSignatureFile(null);
+                              setSignaturePreview(null);
+                            }}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setSignatureFile(file);
+                                const reader = new FileReader();
+                                reader.onload = (e) => setSignaturePreview(e.target?.result as string);
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                            id="signature-upload"
+                          />
+                          <label htmlFor="signature-upload" className="btn btn-outline btn-primary w-full">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Upload Signature
+                          </label>
+                        </div>
+                      )}
+                    </div>
                     <button className="btn btn-primary" onClick={handleSubmitSignature}>
                       Submit Signature
                     </button>
