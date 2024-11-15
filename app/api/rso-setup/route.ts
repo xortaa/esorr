@@ -268,31 +268,28 @@ export async function POST(req: NextRequest) {
       totalIncome: 0,
       totalExpenses: 0,
       endingBalance: startingBalance,
-      june: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      july: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      august: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      september: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      october: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      november: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      december: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      january: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      february: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      march: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      april: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
-      may: { startingBalance: 0, endingBalance: 0, totalIncome: 0, totalExpenses: 0 },
+      june: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      july: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      august: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      september: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      october: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      november: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      december: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      january: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      february: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      march: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      april: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      may: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
     };
 
     months.forEach((month) => {
       financialReportData[month] = {
-        startingBalance: 0,
-        endingBalance: 0,
+        startingBalance: startingBalance,
+        endingBalance: startingBalance,
         totalIncome: 0,
         totalExpenses: 0,
       };
     });
-
-    financialReportData.june.startingBalance = startingBalance;
-    financialReportData.june.endingBalance = startingBalance;
 
     console.log("Creating FinancialReport");
     const newFinancialReport = await FinancialReport.create(financialReportData);
