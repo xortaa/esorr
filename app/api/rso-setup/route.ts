@@ -23,7 +23,6 @@ import AnnexJ from "@/models/annex-j";
 import AnnexK from "@/models/annex-k";
 import AnnexL from "@/models/annex-l";
 import FinancialReport from "@/models/financial-report";
-import { MonthData, Transaction, FinancialReportData } from "@/types";
 import Pasoc from "@/models/pasoc";
 import OperationalAssessment from "@/models/operational-assessment";
 
@@ -275,7 +274,7 @@ export async function POST(req: NextRequest) {
     ] as const;
 
     console.log("Preparing FinancialReportData");
-    const financialReportData: FinancialReportData = {
+    const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
       startingBalance: startingBalance,

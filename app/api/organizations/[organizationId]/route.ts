@@ -1,13 +1,12 @@
 import Organizations from "@/models/organization";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import { Organization} from "@/types";
 
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();
 
   try {
-    const organization: Organization | null = await Organizations.findById(params.organizationId);
+    const organization = await Organizations.findById(params.organizationId);
     if (!organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
@@ -24,7 +23,7 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
   const organizationInput = await req.json();
 
   try {
-    const updatedOrganization: Organization = await Organizations.findByIdAndUpdate(
+    const updatedOrganization = await Organizations.findByIdAndUpdate(
       params.organizationId,
       organizationInput,
       { new: true }
@@ -40,7 +39,7 @@ export const DELETE = async (req: NextRequest, { params }: { params: { organizat
   await connectToDatabase();
 
   try {
-    const organization: Organization | null = await Organizations.findByIdAndDelete(params.organizationId);
+    const organization = await Organizations.findByIdAndDelete(params.organizationId);
     if (!organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
