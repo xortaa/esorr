@@ -10,16 +10,27 @@ const Annex01Schema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   president: {
     name: String,
     position: String,
     signatureUrl: String,
     dateSigned: Date,
   },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  status: {
+    type: String,
+    enum: ["Not Started", "In Progress", "For Review", "Approved"],
+    default: "Not Started",
+  },
+  dateSubmitted: Date, 
+  lastModified: Date,
 });
 
 const Annex01 = models.Annex01 || model("Annex01", Annex01Schema);

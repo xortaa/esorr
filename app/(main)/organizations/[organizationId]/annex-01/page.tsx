@@ -199,7 +199,6 @@ const styles = StyleSheet.create({
 type Annex01 = {
   _id: string;
   academicYear: string;
-  isSubmitted: boolean;
   organization: {
     _id: string;
     name: string;
@@ -210,6 +209,11 @@ type Annex01 = {
     signatureUrl: string;
     dateSigned: Date;
   };
+  soccRemarks: string;
+  osaRemarks: string;
+  status: "Not Started" | "In Progress" | "For Review" | "Approved";
+  dateSubmitted: Date;
+  lastModified: Date;
 };
 
 type MyDocumentProps = {
@@ -611,8 +615,10 @@ export default function EnhancedAnnex01Manager() {
 
   const submitAnnexForReview = async (id: string) => {
     try {
+      console.log("hey")
       const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
-        isSubmitted: true,
+        status: "For Review",
+        dateSubmitted: new Date(),
       });
       setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
     } catch (error) {
@@ -763,6 +769,30 @@ export default function EnhancedAnnex01Manager() {
     setSignaturePreview(null);
   };
 
+  const updateAnnexStatus = async (id: string, newStatus: Annex01["status"]) => {
+    try {
+      const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
+        status: newStatus,
+      });
+      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+    } catch (error) {
+      console.error("Error updating annex status:", error);
+    }
+  };
+
+  
+  const updateRemarks = async (id: string, type: "socc" | "osa", remarks: string) => {
+    try {
+      const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
+        [`${type}Remarks`]: remarks,
+      });
+      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+    } catch (error) {
+      console.error("Error updating remarks:", error);
+    }
+  };
+
+
   return (
     <PageWrapper>
       <h1 className="text-2xl font-bold mb-6">ANNEX 01 Rules of Procedure for Recognition</h1>
@@ -813,6 +843,8 @@ export default function EnhancedAnnex01Manager() {
               submitAnnexForReview={submitAnnexForReview}
               openSignatureModal={openSignatureModal}
               generatePDF={generatePDF}
+              updateAnnexStatus={updateAnnexStatus}
+              updateRemarks={updateRemarks}
             />
           ))}
           {annexList.length === 0 && (
@@ -934,47 +966,101 @@ interface AnnexCardProps {
   submitAnnexForReview: (id: string) => void;
   openSignatureModal: (annex: Annex01) => void;
   generatePDF: (annex: Annex01) => void;
+  updateAnnexStatus: (id: string, newStatus: Annex01["status"]) => void;
+  updateRemarks: (id: string, type: "socc" | "osa", remarks: string) => void;
 }
 
-function AnnexCard({ annex, submitAnnexForReview, openSignatureModal, generatePDF }: AnnexCardProps) {
-  return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-primary" />
-            <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
-              <PenTool className="h-4 w-4 mr-2" />
-              Add Signature
-            </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </button>
-          </div>
-        </div>
-        <div className="mt-4 space-y-4">
-          <div className="flex items-center space-x-4">
-            <label className="font-medium">Status:</label>
-            <span className={annex.isSubmitted ? "text-green-600" : "text-yellow-600"}>
-              {annex.isSubmitted ? "Submitted" : "Not Submitted"}
-            </span>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button
-              className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
-              onClick={() => submitAnnexForReview(annex._id)}
-              disabled={annex.isSubmitted}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Submit for Review
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+ function AnnexCard({
+   annex,
+   submitAnnexForReview,
+   openSignatureModal,
+   generatePDF,
+   updateAnnexStatus,
+   updateRemarks,
+ }: AnnexCardProps) {
+   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
+   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+
+   return (
+     <div className="card bg-base-100 shadow-xl">
+       <div className="card-body">
+         <div className="flex items-center justify-between">
+           <div className="flex items-center">
+             <FileText className="mr-2 h-5 w-5 text-primary" />
+             <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
+           </div>
+           <div className="flex items-center space-x-2">
+             <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
+               <PenTool className="h-4 w-4 mr-2" />
+               Add Signature
+             </button>
+             <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
+               <Download className="h-4 w-4 mr-2" />
+               Download PDF
+             </button>
+           </div>
+         </div>
+         <div className="mt-4 space-y-4">
+           <div className="flex items-center space-x-4">
+             <label className="font-medium">Status:</label>
+             <span
+               className={`${
+                 annex.status === "Approved"
+                   ? "text-green-600"
+                   : annex.status === "For Review"
+                   ? "text-yellow-600"
+                   : annex.status === "In Progress"
+                   ? "text-blue-600"
+                   : "text-red-600"
+               }`}
+             >
+               {annex.status}
+             </span>
+           </div>
+           <div className="space-y-2">
+             <div>
+               <label className="font-medium">SOCC Remarks:</label>
+               <textarea
+                 className="textarea textarea-bordered w-full"
+                 value={soccRemarks}
+                 onChange={(e) => setSoccRemarks(e.target.value)}
+               />
+               <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "socc", soccRemarks)}>
+                 Submit SOCC Remark
+               </button>
+             </div>
+             <div>
+               <label className="font-medium">OSA Remarks:</label>
+               <textarea
+                 className="textarea textarea-bordered w-full"
+                 value={osaRemarks}
+                 onChange={(e) => setOsaRemarks(e.target.value)}
+               />
+               <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "osa", osaRemarks)}>
+                 Submit OSA Remark
+               </button>
+             </div>
+           </div>
+           <div className="flex justify-end space-x-2">
+             <button className="btn btn-primary" onClick={() => updateAnnexStatus(annex._id, "Approved")}>
+               Approve
+             </button>
+             <button className="btn btn-secondary" onClick={() => updateAnnexStatus(annex._id, "In Progress")}>
+               Disapprove
+             </button>
+             <button className="btn btn-primary" onClick={() => submitAnnexForReview(annex._id)}>
+               <Send className="mr-2 h-4 w-4" />
+               Submit for Review
+             </button>
+           </div>
+           {annex.dateSubmitted && (
+             <div className="text-sm text-gray-500">
+               Date Submitted: {new Date(annex.dateSubmitted).toLocaleString()}
+             </div>
+           )}
+           <div className="text-sm text-gray-500">Last Modified: {new Date(annex.lastModified).toLocaleString()}</div>
+         </div>
+       </div>
+     </div>
+   );
+ }
