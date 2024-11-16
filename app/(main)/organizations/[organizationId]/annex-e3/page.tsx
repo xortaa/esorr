@@ -691,7 +691,7 @@ const MyDocument: React.FC<{ annex: AnnexE3 }> = ({ annex }) => (
                 <Image src={annex.secretary.signatureUrl} style={{ width: 150, height: 50, textAlign: "center" }} />
                 <Text style={{ textAlign: "center" }}>{annex.secretary.name}</Text>
                 <Text style={{ textAlign: "center" }}>{annex.secretary.position}</Text>
-                <Text>
+                <Text style={{ textAlign: "center" }}>
                   Date Signed:{" "}
                   {annex.secretary.dateSigned
                     ? new Date(annex.secretary.dateSigned).toDateString()
@@ -712,7 +712,7 @@ const MyDocument: React.FC<{ annex: AnnexE3 }> = ({ annex }) => (
                 <Image src={annex.president.signatureUrl} style={{ width: 150, height: 50, textAlign: "center" }} />
                 <Text style={{ textAlign: "center" }}>{annex.president.name}</Text>
                 <Text style={{ textAlign: "center" }}>{annex.president.position}</Text>
-                <Text>
+                <Text style={{ textAlign: "center" }}>
                   Date Signed:{" "}
                   {annex.president.dateSigned
                     ? new Date(annex.president.dateSigned).toDateString()
@@ -733,7 +733,7 @@ const MyDocument: React.FC<{ annex: AnnexE3 }> = ({ annex }) => (
                 <Image src={annex.adviser.signatureUrl} style={{ width: 150, height: 50, textAlign: "center" }} />
                 <Text style={{ textAlign: "center" }}>{annex.adviser.name}</Text>
                 <Text style={{ textAlign: "center" }}>{annex.adviser.position}</Text>
-                <Text>
+                <Text style={{ textAlign: "center" }}>
                   Date Signed:{" "}
                   {annex.adviser.dateSigned ? new Date(annex.adviser.dateSigned).toDateString() : "________________"}
                 </Text>
