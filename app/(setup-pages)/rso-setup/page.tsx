@@ -32,7 +32,7 @@ const RSOSetupPage = () => {
     startingBalance: 0,
     academicYearOfLastRecognition: "",
     currentAcademicYear: "",
-    facebookLink: "",
+    facebook: "",
     isWithCentralOrganization: false,
     isReligiousOrganization: false,
     levelOfRecognition: "",
@@ -91,7 +91,7 @@ const RSOSetupPage = () => {
       setError("Organization description is required.");
       return false;
     }
-    if (!formData.facebookLink) {
+    if (!formData.facebook) {
       setError("Facebook link is required.");
       return false;
     }
@@ -130,7 +130,7 @@ const RSOSetupPage = () => {
         startingBalance: formData.startingBalance,
         currentAcademicYear: formData.currentAcademicYear,
         academicYearOfLastRecognition: formData.academicYearOfLastRecognition,
-        facebookLink: formData.facebookLink,
+        facebook: formData.facebook,
         isWithCentralOrganization: formData.isWithCentralOrganization,
         isReligiousOrganization: formData.isReligiousOrganization,
         levelOfRecognition: formData.levelOfRecognition,
@@ -360,7 +360,7 @@ const OrganizationSetupStep1 = ({
   };
 
   const handleFacebookInputChange = (value: string) => {
-    setFormData({ ...formData, facebookLink: value });
+    setFormData({ ...formData, facebook: value });
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -453,7 +453,7 @@ const OrganizationSetupStep1 = ({
       formData.startingBalance >= 0 &&
       formData.academicYearOfLastRecognition.trim() !== "" &&
       formData.currentAcademicYear.trim() !== "" &&
-      formData.facebookLink.trim() !== "" &&
+      formData.facebook.trim() !== "" &&
       (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "")
     );
   };
@@ -738,15 +738,15 @@ const OrganizationSetupStep1 = ({
         </div>
 
         <div className="form-control">
-          <label className="label" htmlFor="facebook-link">
-            <span className="label-text">Facebook Page Link</span>
+          <label className="label" htmlFor="facebook">
+            <span className="label-text">Facebook Page Name</span>
           </label>
           <input
             type="url"
-            id="facebook-link"
-            placeholder="https://www.facebook.com/yourorganization"
+            id="facebook"
+            placeholder=""
             className="input input-bordered w-full"
-            value={formData.facebookLink}
+            value={formData.facebook}
             onChange={(e) => handleFacebookInputChange(e.target.value)}
             required
           />
@@ -1155,7 +1155,7 @@ function OrganizationSetupStep4({
       {renderField("Website", formData.website)}
       {renderField("Category", formData.category)}
       {renderField("Strategic Directional Areas", formData.strategicDirectionalAreas)}
-      {renderField("Facebook Link", formData.facebookLink)}
+      {renderField("Facebook Link", formData.facebook)}
 
       <section className="mb-4">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Additional Social Media Links</h3>

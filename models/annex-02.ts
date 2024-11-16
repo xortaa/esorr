@@ -20,7 +20,7 @@ const Annex02Schema = new Schema({
     default: false,
   },
   levelOfRecognition: String,
-  facebookLink: String,
+  facebook: String,
   isWithCentralOrganization: Boolean,
   isReligiousOrganization: Boolean,
   affiliation: String,
@@ -51,6 +51,7 @@ const Annex02Schema = new Schema({
   centralOrganizationPresident: SignatureSchema,
   centralOrganizationAdviser: SignatureSchema,
   director: SignatureSchema,
+  officialEmail: String,
 });
 
 const Annex02 = models.Annex02 || model("Annex02", Annex02Schema);

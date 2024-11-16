@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
      name,
      logo,
      socials,
-     facebookLink,
+     facebook,
      signatoryRequests,
      isNotUniversityWide,
      affiliation,
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
     if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
-    if (!facebookLink) return NextResponse.json({ error: "Missing organization Facebook link" }, { status: 400 });
+    if (!facebook) return NextResponse.json({ error: "Missing organization Facebook link" }, { status: 400 });
     if (isNaN(startingBalance)) {
       return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
     }
@@ -88,10 +88,11 @@ export async function POST(req: NextRequest) {
       name,
       logo: logoUrl,
       affiliation,
-      facebookLink,
+      facebook,
       isWithCentralOrganization,
       isReligiousOrganization,
       levelOfRecognition,
+      officialEmail: email,
       annex01: [],
       annex02: [],
       annexA: [],
@@ -129,10 +130,11 @@ export async function POST(req: NextRequest) {
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
       levelOfRecognition,
-      facebookLink,
+      facebook,
       isWithCentralOrganization,
       isReligiousOrganization,
-      affiliation
+      affiliation,
+      officialEmail: email,
     });
     console.log("Annex02 created:", newAnnex02);
 
