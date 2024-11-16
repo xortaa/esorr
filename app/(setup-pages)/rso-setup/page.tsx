@@ -32,6 +32,10 @@ const RSOSetupPage = () => {
     startingBalance: 0,
     academicYearOfLastRecognition: "",
     currentAcademicYear: "",
+    facebookLink: "",
+    isWithCentralOrganization: false,
+    isReligiousOrganization: false,
+    levelOfRecognition: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,10 +71,6 @@ const RSOSetupPage = () => {
       setError("Please select an affiliation for non-university-wide organizations.");
       return false;
     }
-    if (!formData.website) {
-      setError("Organization website is required.");
-      return false;
-    }
     if (!formData.category) {
       setError("Organization category is required.");
       return false;
@@ -91,6 +91,15 @@ const RSOSetupPage = () => {
       setError("Organization description is required.");
       return false;
     }
+    if (!formData.facebookLink) {
+      setError("Facebook link is required.");
+      return false;
+    }
+    if (formData.academicYearOfLastRecognition !== "Not yet recognized" && !formData.levelOfRecognition) {
+      setError("Level of recognition is required if organization is recognized.");
+      return false;
+    }
+
     return true;
   };
 
@@ -121,6 +130,10 @@ const RSOSetupPage = () => {
         startingBalance: formData.startingBalance,
         currentAcademicYear: formData.currentAcademicYear,
         academicYearOfLastRecognition: formData.academicYearOfLastRecognition,
+        facebookLink: formData.facebookLink,
+        isWithCentralOrganization: formData.isWithCentralOrganization,
+        isReligiousOrganization: formData.isReligiousOrganization,
+        levelOfRecognition: formData.levelOfRecognition,
       };
 
       const response = await axios.post("/api/rso-setup", submitData, {
@@ -846,7 +859,6 @@ const OrganizationSetupStep1 = ({
   );
 };
 
-
 const OrganizationSetupStep2 = ({
   prevStep,
   nextStep,
@@ -1103,18 +1115,20 @@ interface OrganizationSetupStep4Props {
   selectedAffiliation: Affiliation | null;
 }
 
-const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
+function OrganizationSetupStep4({
   prevStep,
   formData,
   handleSubmit,
   isSubmitting,
   isNotUniversityWide,
   selectedAffiliation,
-}) => {
-  const renderField = (label: string, value: string | string[]) => (
+}: OrganizationSetupStep4Props) {
+  const renderField = (label: string, value: string | string[] | boolean) => (
     <section className="mb-4">
       <h3 className="text-lg font-semibold mb-2 text-gray-700">{label}</h3>
-      <p className="text-base">{Array.isArray(value) ? value.join(", ") : value || "N/A"}</p>
+      <p className="text-base">
+        {Array.isArray(value) ? value.join(", ") : typeof value === "boolean" ? (value ? "Yes" : "No") : value || "N/A"}
+      </p>
     </section>
   );
 
@@ -1134,13 +1148,17 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
       </section>
 
       {renderField("Organization Name", formData.name)}
+      {renderField("Organization Type", isNotUniversityWide ? "College-Based" : "University-Wide")}
       {renderField("Affiliation", isNotUniversityWide ? selectedAffiliation?.name || "N/A" : "University Wide")}
+      {renderField("With Central Organization", formData.isWithCentralOrganization)}
+      {renderField("Religious Organization", formData.isReligiousOrganization)}
       {renderField("Website", formData.website)}
       {renderField("Category", formData.category)}
       {renderField("Strategic Directional Areas", formData.strategicDirectionalAreas)}
+      {renderField("Facebook Link", formData.facebookLink)}
 
       <section className="mb-4">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Social Media Links</h3>
+        <h3 className="text-lg font-semibold mb-2 text-gray-700">Additional Social Media Links</h3>
         {formData.socials.length > 0 ? (
           <ul className="list-disc pl-5">
             {formData.socials.map((social: string, index: number) => (
@@ -1161,6 +1179,8 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
       {renderField("Brief Description", formData.description)}
       {renderField("Starting Balance", `₱${formData.startingBalance.toFixed(2)}`)}
       {renderField("Academic Year of Last Recognition", formData.academicYearOfLastRecognition)}
+      {formData.academicYearOfLastRecognition !== "Not yet recognized" &&
+        renderField("Level of Recognition", formData.levelOfRecognition)}
 
       <section className="mb-4">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Objectives</h3>
@@ -1222,7 +1242,7 @@ const OrganizationSetupStep4: React.FC<OrganizationSetupStep4Props> = ({
       </div>
     </div>
   );
-};
+}
 
 const SetupStepper = ({ step }: { step: number }) => {
   return (

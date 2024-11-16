@@ -21,8 +21,8 @@ const Annex02Schema = new Schema({
   },
   levelOfRecognition: String,
   facebookLink: String,
-  isWitchCentralOrganization: Boolean,
-  isReligousOrganization: Boolean,
+  isWithCentralOrganization: Boolean,
+  isReligiousOrganization: Boolean,
   affiliation: String,
   submissionDate: Date,
   osaPetitionStatus: {
@@ -36,7 +36,7 @@ const Annex02Schema = new Schema({
   },
   osaOtherRemarks: {
     type: String,
-    default: "",
+    default: null,
   },
   osaDecisionDate: {
     type: Date,
@@ -44,7 +44,7 @@ const Annex02Schema = new Schema({
   },
   president: SignatureSchema,
   adviser: SignatureSchema,
-  coAdviser: SignatureSchema, 
+  coAdviser: SignatureSchema,
   swdcCoordinator: SignatureSchema,
   dean: SignatureSchema,
   regent: SignatureSchema,

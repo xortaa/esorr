@@ -66,11 +66,11 @@ export async function POST(req: NextRequest) {
     if (typeof isNotUniversityWide !== "boolean")
       return NextResponse.json({ error: "Invalid university-wide status" }, { status: 400 });
     if (!email) return NextResponse.json({ error: "Missing user email" }, { status: 400 });
-    if (!website) return NextResponse.json({ error: "Missing organization website" }, { status: 400 });
     if (!category) return NextResponse.json({ error: "Missing organization category" }, { status: 400 });
     if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
     if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
+    if (!facebookLink) return NextResponse.json({ error: "Missing organization Facebook link" }, { status: 400 });
     if (isNaN(startingBalance)) {
       return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
     }
