@@ -41,7 +41,7 @@ export const DELETE = async (req: NextRequest, { params }: { params: { affiliati
   await connectToDatabase();
 
   try {
-    const affiliation: Affiliation = await Affiliations.findByIdAndDelete(params.affiliationId);
+    const affiliation = await Affiliations.findByIdAndDelete(params.affiliationId);
     if (!affiliation) {
       return NextResponse.json({ error: "Affiliation not found" }, { status: 404 });
     }
