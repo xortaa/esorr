@@ -36,25 +36,29 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("Received request body:", body);
 
-    const {
-      name,
-      logo,
-      socials,
-      signatoryRequests,
-      isNotUniversityWide,
-      affiliation,
-      email,
-      website,
-      category,
-      strategicDirectionalAreas,
-      mission,
-      vision,
-      description,
-      objectives,
-      startingBalance,
-      currentAcademicYear,
-      academicYearOfLastRecognition,
-    } = body;
+   const {
+     name,
+     logo,
+     socials,
+     facebook,
+     signatoryRequests,
+     isNotUniversityWide,
+     affiliation,
+     email,
+     website,
+     category,
+     strategicDirectionalAreas,
+     mission,
+     vision,
+     description,
+     objectives,
+     startingBalance,
+     currentAcademicYear,
+     academicYearOfLastRecognition,
+     levelOfRecognition,
+     isWithCentralOrganization,
+     isReligiousOrganization,
+   } = body;
 
     // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
@@ -62,11 +66,11 @@ export async function POST(req: NextRequest) {
     if (typeof isNotUniversityWide !== "boolean")
       return NextResponse.json({ error: "Invalid university-wide status" }, { status: 400 });
     if (!email) return NextResponse.json({ error: "Missing user email" }, { status: 400 });
-    if (!website) return NextResponse.json({ error: "Missing organization website" }, { status: 400 });
     if (!category) return NextResponse.json({ error: "Missing organization category" }, { status: 400 });
     if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
     if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
     if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
+    if (!facebook) return NextResponse.json({ error: "Missing organization Facebook link" }, { status: 400 });
     if (isNaN(startingBalance)) {
       return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
     }
@@ -84,6 +88,11 @@ export async function POST(req: NextRequest) {
       name,
       logo: logoUrl,
       affiliation,
+      facebook,
+      isWithCentralOrganization,
+      isReligiousOrganization,
+      levelOfRecognition,
+      officialEmail: email,
       annex01: [],
       annex02: [],
       annexA: [],
@@ -120,6 +129,12 @@ export async function POST(req: NextRequest) {
     const newAnnex02 = await Annex02.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      levelOfRecognition,
+      facebook,
+      isWithCentralOrganization,
+      isReligiousOrganization,
+      affiliation,
+      officialEmail: email,
     });
     console.log("Annex02 created:", newAnnex02);
 
