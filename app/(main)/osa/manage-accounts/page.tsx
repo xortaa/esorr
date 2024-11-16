@@ -6,56 +6,21 @@ import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Affiliation } from "@/types";
-import { Organization } from "@/types";
-
-type Role = "SOCC" | "AU" | "RSO" | "RSO-SIGNATORY" | "SOCC-SIGNATORY";
-
-type Position = {
-  organization: {
-    name: string;
-  };
-  position: string;
-  _id: string;
-  isArchived: boolean;
-};
-
-type Account = {
-  _id: string;
-  email: string;
-  role: Role;
-  positions: Position[];
-  organizations: string[];
-  isArchived: boolean;
-  isSetup: boolean;
-  isExecutive: boolean;
-};
-
-type SignatoryRequest = {
-  _id: string;
-  email: string;
-  role: Role;
-  position: string;
-  organization: Organization;
-  isApproved: boolean;
-  submittedAt: string;
-  requestedBy: string;
-};
 
 export default function AccountsDashboard() {
-  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
+  const [affiliationOptions, setAffiliationOptions] = useState([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [signatoryRequests, setSignatoryRequests] = useState<SignatoryRequest[]>([]);
+  const [accounts, setAccounts] = useState([]);
+  const [signatoryRequests, setSignatoryRequests] = useState([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
-  const [filterRole, setFilterRole] = useState<"All" | Role>("All");
+  const [filterRole, setFilterRole] = useState("All");
   const [showArchived, setShowArchived] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [newAccount, setNewAccount] = useState({
     email: "",
-    role: "" as Role | "",
+    role: "",
     organization: "",
     position: "",
     affiliation: "",
@@ -181,7 +146,7 @@ export default function AccountsDashboard() {
     setTimeout(() => setIsDropdownOpen(false), 200);
   };
 
-  const handleSelectAffiliation = (affiliation: Affiliation) => {
+  const handleSelectAffiliation = (affiliation) => {
     setNewAccount({ ...newAccount, organization: affiliation.name });
     setAffiliationSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
@@ -251,7 +216,7 @@ export default function AccountsDashboard() {
             <select
               className="select select-bordered w-full"
               value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as "All" | Role)}
+              onChange={(e) => setFilterRole(e.target.value)}
             >
               <option value="All">All Roles</option>
               <option value="SOCC">SOCC</option>
@@ -412,7 +377,7 @@ export default function AccountsDashboard() {
                 <select
                   className="select select-bordered w-full"
                   value={newAccount.role}
-                  onChange={(e) => setNewAccount({ ...newAccount, role: e.target.value as Role })}
+                  onChange={(e) => setNewAccount({ ...newAccount, role: e.target.value })}
                   required
                 >
                   <option value="">Select a role</option>

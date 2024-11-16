@@ -4,20 +4,11 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { X, UserPlus, Trash2, FilePenLine, Search } from 'lucide-react';
 import axios from "axios";
 import SignatureCanvas from "react-signature-canvas";
-import { Officer, OfficerData, EducationalBackground, ExtraCurricularActivity, Affiliation, Program } from "@/types";
-import { uploadImage } from "@/utils/storage";
 import PageWrapper from "@/components/PageWrapper";
 
-interface OfficerModalProps {
-  officer?: Officer;
-  organizationId: string;
-  annexId: string;
-  onClose: () => void;
-  onSave: (officer: OfficerData) => void;
-}
 
-function OfficerModal({ officer, organizationId, annexId, onClose, onSave }: OfficerModalProps) {
-    const [editedOfficer, setEditedOfficer] = useState<OfficerData>(
+function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
+    const [editedOfficer, setEditedOfficer] = useState(
       officer || {
         firstName: "",
         middleName: "",
@@ -54,17 +45,17 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }: Off
     const [isChangingSignature, setIsChangingSignature] = useState(false);
     const [signatureMethod, setSignatureMethod] = useState<"draw" | "upload">("draw");
 
-    const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
+    const [affiliationOptions, setAffiliationOptions] = useState([]);
     const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
     const [affiliationSearchTerm, setAffiliationSearchTerm] = useState(editedOfficer.affiliation || "");
     const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
-    const [selectedAffiliation, setSelectedAffiliation] = useState<Affiliation | null>(null);
+    const [selectedAffiliation, setSelectedAffiliation] = useState(null);
 
-    const [programOptions, setProgramOptions] = useState<Program[]>([]);
+    const [programOptions, setProgramOptions] = useState([]);
     const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
     const [programSearchTerm, setProgramSearchTerm] = useState(editedOfficer.program || "");
     const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
-    const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+    const [selectedProgram, setSelectedProgram] = useState(null);
 
     const signatureRef = useRef<SignatureCanvas>(null);
 
@@ -143,13 +134,13 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }: Off
       });
     };
 
-    const handleEducationChange = (index: number, field: keyof EducationalBackground, value: string) => {
+    const handleEducationChange = (index: number, field: any, value: string) => {
       const updatedEducation = [...editedOfficer.educationalBackground];
       updatedEducation[index] = { ...updatedEducation[index], [field]: value };
       setEditedOfficer({ ...editedOfficer, educationalBackground: updatedEducation });
     };
 
-    const handleExtraCurricularChange = (index: number, field: keyof ExtraCurricularActivity, value: string) => {
+    const handleExtraCurricularChange = (index: number, field: any, value: string) => {
       const updatedActivities = [...editedOfficer.recordOfExtraCurricularActivities];
       updatedActivities[index] = { ...updatedActivities[index], [field]: value };
       setEditedOfficer({ ...editedOfficer, recordOfExtraCurricularActivities: updatedActivities });
@@ -163,7 +154,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }: Off
       setEditedOfficer({ ...editedOfficer, affiliation: value });
     };
 
-    const handleSelectAffiliation = async (affiliation: Affiliation) => {
+    const handleSelectAffiliation = async (affiliation) => {
       setSelectedAffiliation(affiliation);
       setAffiliationSearchTerm(affiliation.name);
       setIsAffiliationDropdownOpen(false);
@@ -190,7 +181,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }: Off
       setEditedOfficer({ ...editedOfficer, program: value });
     };
 
-    const handleSelectProgram = (program: Program) => {
+    const handleSelectProgram = (program) => {
       setSelectedProgram(program);
       setProgramSearchTerm(program.name);
       setIsProgramDropdownOpen(false);
@@ -713,12 +704,12 @@ function OfficerModalTrigger({ onOpenModal }: { onOpenModal: () => void }) {
 }
 
 export default function OfficersTable({ params }: { params: { organizationId: string; annexId: string } }) {
-  const [officers, setOfficers] = useState<Officer[]>([]);
+  const [officers, setOfficers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingOfficer, setEditingOfficer] = useState<Officer | null>(null);
+  const [editingOfficer, setEditingOfficer] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [officerToDelete, setOfficerToDelete] = useState<Officer | null>(null);
+  const [officerToDelete, setOfficerToDelete] = useState(null);
 
   useEffect(() => {
     fetchOfficers();
@@ -748,12 +739,12 @@ export default function OfficersTable({ params }: { params: { organizationId: st
     }
   };
 
-  const handleEditOfficer = (officer: Officer) => {
+  const handleEditOfficer = (officer) => {
     setEditingOfficer(officer);
     setIsModalOpen(true);
   };
 
-  const openDeleteModal = (officer: Officer) => {
+  const openDeleteModal = (officer) => {
     setOfficerToDelete(officer);
     setDeleteModalOpen(true);
   };
@@ -775,7 +766,7 @@ export default function OfficersTable({ params }: { params: { organizationId: st
     setEditingOfficer(null);
   };
 
-  const handleSaveOfficer = async (officerData: OfficerData) => {
+  const handleSaveOfficer = async (officerData) => {
     try {
       if (editingOfficer) {
         // Update existing officer

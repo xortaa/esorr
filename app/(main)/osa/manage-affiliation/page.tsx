@@ -16,10 +16,9 @@ import {
 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
-import { Affiliation, Program } from "@/types";
 
 export default function AffiliationManagement() {
-  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
+  const [affiliations, setAffiliations] = useState([]);
   const [newAffiliationName, setNewAffiliationName] = useState("");
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -84,7 +83,7 @@ export default function AffiliationManagement() {
     }
   };
 
-  const startEditing = (affiliation: Affiliation) => {
+  const startEditing = (affiliation) => {
     setEditingId(affiliation._id);
     setEditName(affiliation.name);
   };
@@ -153,7 +152,7 @@ export default function AffiliationManagement() {
     setExpandedAffiliationId(expandedAffiliationId === affiliationId ? null : affiliationId);
   };
 
-  const startEditingProgram = (program: Program) => {
+  const startEditingProgram = (program) => {
     setEditingProgramId(program._id);
     setEditProgramName(program.name);
   };

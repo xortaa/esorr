@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Affiliations from "@/models/affiliation";
-import { Affiliation } from "@/types";
 
 export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const affiliations: Affiliation[] = await Affiliations.find({ isArchived: false });
+    const affiliations = await Affiliations.find({ isArchived: false });
     return NextResponse.json(affiliations, { status: 200 });
   } catch (error) {
     console.error(error);

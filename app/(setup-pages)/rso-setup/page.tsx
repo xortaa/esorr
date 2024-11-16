@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
-import { Affiliation } from "@/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/utils/storage";
@@ -13,9 +12,9 @@ const RSOSetupPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
-  const [affiliationOptions, setAffiliationOptions] = useState<Affiliation[]>([]);
+  const [affiliationOptions, setAffiliationOptions] = useState([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(true);
-  const [selectedAffiliation, setSelectedAffiliation] = useState<Affiliation | null>(null);
+  const [selectedAffiliation, setSelectedAffiliation] = useState(null);
   const [isNotUniversityWide, setIsNotUniversityWide] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
@@ -244,10 +243,10 @@ const RSOSetupPage = () => {
 
 interface OrganizationSetupStep1Props {
   nextStep: () => void;
-  affiliationOptions: Affiliation[];
+  affiliationOptions;
   affiliationOptionsLoading: boolean;
-  selectedAffiliation: Affiliation | null;
-  setSelectedAffiliation: (affiliation: Affiliation | null) => void;
+  selectedAffiliation;
+  setSelectedAffiliation: (affiliation) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   isNotUniversityWide: boolean;
@@ -324,7 +323,7 @@ const OrganizationSetupStep1 = ({
     );
   }, [affiliationOptions, searchTerm]);
 
-  const handleSelectAffiliation = (affiliation: Affiliation) => {
+  const handleSelectAffiliation = (affiliation) => {
     setSelectedAffiliation(affiliation);
     setSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
@@ -1112,7 +1111,7 @@ interface OrganizationSetupStep4Props {
   handleSubmit: () => void;
   isSubmitting: boolean;
   isNotUniversityWide: boolean;
-  selectedAffiliation: Affiliation | null;
+  selectedAffiliation: any;
 }
 
 function OrganizationSetupStep4({
