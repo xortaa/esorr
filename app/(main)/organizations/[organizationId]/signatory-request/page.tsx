@@ -1,3 +1,5 @@
+
+//C:\Users\kercwin\code\dev\esorr\app\(main)\organizations\[organizationId]\page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,7 +14,6 @@ interface EmailRequest {
   email: string;
   position: string;
   submittedAt: string;
-  isExecutive: boolean;
   requestedBy: string;
 }
 
@@ -21,7 +22,6 @@ export default function SignatoryEmailRequestPage() {
   const [emailRequests, setEmailRequests] = useState<EmailRequest[]>([]);
   const [newEmail, setNewEmail] = useState("");
   const [newPosition, setNewPosition] = useState("");
-  const [isExecutive, setIsExecutive] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const { organizationId } = useParams();
@@ -54,12 +54,10 @@ export default function SignatoryEmailRequestPage() {
         email: newEmail,
         position: newPosition,
         requestedBy: session?.user.email,
-        isExecutive,
       });
       setEmailRequests([...emailRequests, response.data]);
       setNewEmail("");
       setNewPosition("");
-      setIsExecutive(false);
       setError("");
     } catch (error) {
       console.error("Error submitting email request:", error);
@@ -91,20 +89,7 @@ export default function SignatoryEmailRequestPage() {
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Submit New Request</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="form-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">Executive Officer</span>
-                <input
-                  type="checkbox"
-                  className="toggle toggle-primary"
-                  checked={isExecutive}
-                  onChange={(e) => setIsExecutive(e.target.checked)}
-                />
-              </label>
-              <p className="text-sm text-gray-500 mt-1">
-                Enable this if the account to be requested is an executive officer of the organization.
-              </p>
-            </div>
+            
             <div className="form-control">
               <label className="label" htmlFor="email">
                 <span className="label-text">Email</span>
@@ -162,7 +147,6 @@ export default function SignatoryEmailRequestPage() {
                   <tr>
                     <th>Email</th>
                     <th>Position</th>
-                    <th>Executive</th>
                     <th>Requested By</th>
                     <th>Submitted At</th>
                     <th>Actions</th>
@@ -173,7 +157,6 @@ export default function SignatoryEmailRequestPage() {
                     <tr key={request._id}>
                       <td>{request.email}</td>
                       <td>{request.position}</td>
-                      <td>{request.isExecutive ? "Yes" : "No"}</td>
                       <td>{request.requestedBy}</td>
                       <td>{new Date(request.submittedAt).toLocaleString()}</td>
                       <td>

@@ -21,6 +21,19 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
   try {
     const body = await req.json();
     const updatedAnnex = await Annex01.findByIdAndUpdate(params.annexId, body, { new: true });
+
+    if (updatedAnnex.status === "Not Started") {
+      updatedAnnex.status = "In Progress";
+      await updatedAnnex.save();
+    }
+
+    if (body.osaRemarks || body.soccRemarks || body.status || body.dateSubmitted || body.lastModified) {
+      // do nothing
+    } else {
+      updatedAnnex.lastModified = new Date();
+      await updatedAnnex.save();
+    }
+
     return NextResponse.json(updatedAnnex, { status: 200 });
   } catch (error) {
     console.error(error);

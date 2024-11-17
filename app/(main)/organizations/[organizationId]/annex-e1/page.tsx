@@ -395,6 +395,16 @@ type MonthData = {
   totalExpenses: number;
 };
 
+type Positions = {
+  organization?: {
+    _id: string;
+    name: string;
+  };
+  affiliation?: string;
+  position: string;
+  _id: string;
+};
+
 type SignaturePosition = "treasurer" | "president" | "soccCorporateTreasurer" | "adviser" | "swdCoordinator" | "dean";
 
 const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, annexE2 }) => {
@@ -1354,7 +1364,7 @@ export default function AnnexE1Manager({ params }: { params: { organizationId: s
 
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-e1/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserRole,
           signatureUrl: url,
           dateSigned: new Date(),
@@ -1448,11 +1458,14 @@ export default function AnnexE1Manager({ params }: { params: { organizationId: s
                       onChange={(e) => setSelectedUserRole(e.target.value)}
                     >
                       <option value="">Select your role</option>
-                      {session?.user?.positions?.map((position, index) => (
-                        <option key={index} value={`${position.position}-${position.organization.name}`}>
-                          {position.position} - {position.organization.name}
-                        </option>
-                      ))}
+                      {session?.user?.positions?.map((userPosition: Positions, index: number) => {
+                        const name = userPosition.organization?.name || userPosition.affiliation;
+                        return (
+                          <option key={index} value={`${userPosition.position}-${name}`}>
+                            {userPosition.position} - {name}
+                          </option>
+                        );
+                      })}
                     </select>
                     <select
                       className="select select-bordered w-full"

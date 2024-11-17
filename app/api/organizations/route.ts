@@ -6,6 +6,7 @@ export const GET = async (req: NextRequest) => {
 
   try {
     const organizations = await Organizations.find({});
+    const organizations = await Organizations.find({});
     return NextResponse.json(organizations, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -16,6 +17,7 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   await connectToDatabase();
 
+  const organizationInput = await req.json();
   const organizationInput = await req.json();
 
   try {

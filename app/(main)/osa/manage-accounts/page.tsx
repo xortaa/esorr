@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
@@ -23,7 +22,6 @@ export default function AccountsDashboard() {
     role: "",
     organization: "",
     position: "",
-    affiliation: "",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
@@ -31,7 +29,6 @@ export default function AccountsDashboard() {
   useEffect(() => {
     fetchAccounts();
     fetchSignatoryRequests();
-    fetchAffiliations();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
@@ -53,18 +50,6 @@ export default function AccountsDashboard() {
       }
     } catch (error) {
       console.error("Error fetching signatory requests:", error);
-    }
-  };
-
-  const fetchAffiliations = async () => {
-    try {
-      setAffiliationOptionsLoading(true);
-      const { data } = await axios.get("/api/affiliations");
-      setAffiliationOptions(data);
-    } catch (error) {
-      console.error("Error fetching affiliations:", error);
-    } finally {
-      setAffiliationOptionsLoading(false);
     }
   };
 
@@ -92,9 +77,7 @@ export default function AccountsDashboard() {
 
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
-    if (newAccount.role === "SOCC-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
     if (newAccount.role === "RSO-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
-    if (newAccount.role === "AU" && !newAccount.affiliation) return true;
     return false;
   };
 
@@ -113,7 +96,7 @@ export default function AccountsDashboard() {
     try {
       const response = await axios.patch(`/api/signatory-request/${requestId}`);
       if (response.status === 200) {
-        fetchSignatoryRequests();
+        setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
         fetchAccounts();
       }
     } catch (error) {
@@ -121,14 +104,14 @@ export default function AccountsDashboard() {
     }
   };
 
-  const handleDeleteSignatoryRequest = async (requestId: string) => {
+  const handleRejectSignatoryRequest = async (requestId: string) => {
     try {
       const response = await axios.delete(`/api/signatory-request/${requestId}`);
       if (response.status === 200) {
         setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
       }
     } catch (error) {
-      console.error("Error deleting signatory request:", error);
+      console.error("Error rejecting signatory request:", error);
     }
   };
 
@@ -163,18 +146,18 @@ export default function AccountsDashboard() {
         requestedBy: session?.user?.email,
       };
 
-      if (newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") {
+      if (newAccount.role === "RSO-SIGNATORY") {
         accountData.positions = [{ organization: newAccount.organization, position: newAccount.position }];
       }
 
-      if (newAccount.role === "AU") {
-        accountData.affiliation = newAccount.affiliation;
+      if (newAccount.role === "SOCC") {
+        accountData.affiliation = "SOCC";
       }
 
       const response = await axios.post("/api/users", accountData);
       if (response.status === 201) {
         setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-        setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
+        setNewAccount({ email: "", role: "", organization: "", position: "" });
         setIsCreatingAccount(false);
       }
     } catch (error) {
@@ -184,7 +167,7 @@ export default function AccountsDashboard() {
 
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
-    setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
+    setNewAccount({ email: "", role: "", organization: "", position: "" });
     setAffiliationSearchTerm("");
   };
 
@@ -195,12 +178,7 @@ export default function AccountsDashboard() {
 
   return (
     <PageWrapper>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white shadow-lg rounded-lg p-6 mb-8"
-      >
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Accounts Dashboard</h1>
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex-1">
@@ -219,11 +197,11 @@ export default function AccountsDashboard() {
               onChange={(e) => setFilterRole(e.target.value)}
             >
               <option value="All">All Roles</option>
+              <option value="OSA">OSA</option>
               <option value="SOCC">SOCC</option>
               <option value="AU">AU</option>
               <option value="RSO">RSO</option>
               <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
-              <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
             </select>
           </div>
           <div className="flex-1">
@@ -287,19 +265,17 @@ export default function AccountsDashboard() {
                       <td className="py-3 px-4">{request.requestedBy}</td>
                       <td className="py-3 px-4">{formatDateTime(request.submittedAt)}</td>
                       <td className="py-3 px-4">
-                        {!request.isApproved && (
-                          <button
-                            className="btn btn-success btn-xs mr-2"
-                            onClick={() => handleApproveSignatoryRequest(request._id)}
-                          >
-                            <Check className="h-4 w-4" />
-                          </button>
-                        )}
                         <button
-                          className="btn btn-ghost btn-xs"
-                          onClick={() => handleDeleteSignatoryRequest(request._id)}
+                          className="btn btn-success btn-xs mr-2"
+                          onClick={() => handleApproveSignatoryRequest(request._id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Check className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="btn btn-error btn-xs"
+                          onClick={() => handleRejectSignatoryRequest(request._id)}
+                        >
+                          <X className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
@@ -319,7 +295,7 @@ export default function AccountsDashboard() {
                   <tr>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
-                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organizations and Positions</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Affiliations and Positions</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
                   </tr>
                 </thead>
@@ -330,9 +306,9 @@ export default function AccountsDashboard() {
                       <td className="py-3 px-4">{account.role}</td>
                       <td className="py-3 px-4">
                         <ul>
-                          {account.positions.map((pos) => (
-                            <li key={pos._id}>
-                              {pos.organization?.name}: {pos.position}
+                          {account.positions.map((pos, index) => (
+                            <li key={pos._id || index}>
+                              {pos.affiliation || pos.organization?.name}: {pos.position}
                             </li>
                           ))}
                         </ul>
@@ -351,7 +327,7 @@ export default function AccountsDashboard() {
             </div>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {isCreatingAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -381,14 +357,14 @@ export default function AccountsDashboard() {
                   required
                 >
                   <option value="">Select a role</option>
+                  <option value="OSA">OSA</option>
                   <option value="SOCC">SOCC</option>
                   <option value="AU">AU</option>
                   <option value="RSO">RSO</option>
                   <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
-                  <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
                 </select>
               </div>
-              {(newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") && (
+              {newAccount.role === "RSO-SIGNATORY" && (
                 <>
                   <div>
                     <label className="label">
@@ -436,20 +412,6 @@ export default function AccountsDashboard() {
                     />
                   </div>
                 </>
-              )}
-              {newAccount.role === "AU" && (
-                <div>
-                  <label className="label">
-                    <span className="label-text text-gray-700">Affiliation</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={newAccount.affiliation}
-                    onChange={(e) => setNewAccount({ ...newAccount, affiliation: e.target.value })}
-                    required
-                  />
-                </div>
               )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>

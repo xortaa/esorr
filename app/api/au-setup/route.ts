@@ -6,28 +6,24 @@ export async function POST(req: NextRequest) {
   await connectToDatabase();
 
   try {
-    const formData = await req.formData();
-    const prefix = formData.get("prefix") as string;
-    const suffix = formData.get("suffix") as string;
-    const firstName = formData.get("firstName") as string;
-    const middleName = formData.get("middleName") as string;
-    const lastName = formData.get("lastName") as string;
-    const position = formData.get("position") as string;
-    const email = formData.get("email") as string;
+    const data = await req.json();
+    const { email, fullName, position, affiliation } = data;
 
-    if (!firstName || !lastName || !position || !email) {
+    if (!email || !fullName || !position || !affiliation) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const updatedUser = await User.findOneAndUpdate(
       { email },
       {
-        prefix,
-        suffix,
-        firstName,
-        middleName,
-        lastName,
-        position,
+        fullName,
+        affiliation,
+        $push: {
+          positions: {
+            position,
+            affiliation,
+          },
+        },
         isSetup: true,
       },
       { new: true }
