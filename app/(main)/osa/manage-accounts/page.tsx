@@ -52,7 +52,6 @@ export default function AccountsDashboard() {
     role: "",
     organization: "",
     position: "",
-    affiliation: "",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
@@ -60,7 +59,6 @@ export default function AccountsDashboard() {
   useEffect(() => {
     fetchAccounts();
     fetchSignatoryRequests();
-    fetchAffiliations();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
@@ -82,18 +80,6 @@ export default function AccountsDashboard() {
       }
     } catch (error) {
       console.error("Error fetching signatory requests:", error);
-    }
-  };
-
-  const fetchAffiliations = async () => {
-    try {
-      setAffiliationOptionsLoading(true);
-      const { data } = await axios.get("/api/affiliations");
-      setAffiliationOptions(data);
-    } catch (error) {
-      console.error("Error fetching affiliations:", error);
-    } finally {
-      setAffiliationOptionsLoading(false);
     }
   };
 
@@ -122,7 +108,6 @@ export default function AccountsDashboard() {
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
     if (newAccount.role === "RSO-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
-    if (newAccount.role === "AU" && !newAccount.affiliation) return true;
     return false;
   };
 
@@ -195,20 +180,14 @@ export default function AccountsDashboard() {
         accountData.positions = [{ organization: newAccount.organization, position: newAccount.position }];
       }
 
-      if (newAccount.role === "AU") {
-        accountData.affiliation = newAccount.affiliation;
-        accountData.positions = [{ affiliation: newAccount.affiliation, position: newAccount.position }];
-      }
-
       if (newAccount.role === "SOCC") {
         accountData.affiliation = "SOCC";
-        accountData.positions = [{ affiliation: "SOCC", position: newAccount.position }];
       }
 
       const response = await axios.post("/api/users", accountData);
       if (response.status === 201) {
         setAccounts((prevAccounts) => [...prevAccounts, response.data]);
-        setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
+        setNewAccount({ email: "", role: "", organization: "", position: "" });
         setIsCreatingAccount(false);
       }
     } catch (error) {
@@ -218,7 +197,7 @@ export default function AccountsDashboard() {
 
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
-    setNewAccount({ email: "", role: "", organization: "", position: "", affiliation: "" });
+    setNewAccount({ email: "", role: "", organization: "", position: "" });
     setAffiliationSearchTerm("");
   };
 
@@ -463,34 +442,6 @@ export default function AccountsDashboard() {
                     />
                   </div>
                 </>
-              )}
-              {(newAccount.role === "AU" || newAccount.role === "SOCC") && (
-                <div>
-                  <label className="label">
-                    <span className="label-text text-gray-700">Position</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={newAccount.position}
-                    onChange={(e) => setNewAccount({ ...newAccount, position: e.target.value })}
-                    required
-                  />
-                </div>
-              )}
-              {newAccount.role === "AU" && (
-                <div>
-                  <label className="label">
-                    <span className="label-text text-gray-700">Affiliation</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={newAccount.affiliation}
-                    onChange={(e) => setNewAccount({ ...newAccount, affiliation: e.target.value })}
-                    required
-                  />
-                </div>
               )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>

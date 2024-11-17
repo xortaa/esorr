@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 interface FormData {
   fullName: string;
   position: string;
+  affiliation: string;
 }
 
 const AUSetupPage = () => {
@@ -16,6 +17,7 @@ const AUSetupPage = () => {
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     position: "",
+    affiliation: "",
   });
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -86,7 +88,7 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
   };
 
   const isFormValid = () => {
-    return formData.fullName && formData.position;
+    return formData.fullName && formData.position && formData.affiliation;
   };
 
   return (
@@ -137,6 +139,21 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
               placeholder="e.g., Dean, Department Head, Professor"
             />
           </div>
+          <div>
+            <label htmlFor="affiliation" className="label">
+              Affiliation
+            </label>
+            <input
+              type="text"
+              id="affiliation"
+              name="affiliation"
+              className="input input-bordered w-full"
+              required
+              value={formData.affiliation}
+              onChange={handleInputChange}
+              placeholder="e.g., College of Engineering, School of Business"
+            />
+          </div>
         </div>
 
         <div className="flex justify-end mt-6">
@@ -173,6 +190,12 @@ const AUSetupStep2 = ({
           Position
         </h3>
         <p className="text-lg">{formData.position}</p>
+      </section>
+      <section aria-labelledby="affiliation">
+        <h3 id="affiliation" className="text-xl font-semibold mb-2 text-gray-700">
+          Affiliation
+        </h3>
+        <p className="text-lg">{formData.affiliation}</p>
       </section>
 
       <div className="flex justify-between mt-8">
