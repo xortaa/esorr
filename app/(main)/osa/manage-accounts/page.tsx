@@ -120,7 +120,6 @@ export default function AccountsDashboard() {
 
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
-    if (newAccount.role === "SOCC-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
     if (newAccount.role === "RSO-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
     if (newAccount.role === "AU" && !newAccount.affiliation) return true;
     return false;
@@ -191,12 +190,16 @@ export default function AccountsDashboard() {
         requestedBy: session?.user?.email,
       };
 
-      if (newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") {
+      if (newAccount.role === "RSO-SIGNATORY") {
         accountData.positions = [{ organization: newAccount.organization, position: newAccount.position }];
       }
 
       if (newAccount.role === "AU") {
         accountData.affiliation = newAccount.affiliation;
+      }
+
+      if (newAccount.role === "SOCC") {
+        accountData.affiliation = "SOCC";
       }
 
       const response = await axios.post("/api/users", accountData);
@@ -251,7 +254,6 @@ export default function AccountsDashboard() {
               <option value="AU">AU</option>
               <option value="RSO">RSO</option>
               <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
-              <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
             </select>
           </div>
           <div className="flex-1">
@@ -411,10 +413,9 @@ export default function AccountsDashboard() {
                   <option value="AU">AU</option>
                   <option value="RSO">RSO</option>
                   <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
-                  <option value="SOCC-SIGNATORY">SOCC-SIGNATORY</option>
                 </select>
               </div>
-              {(newAccount.role === "SOCC-SIGNATORY" || newAccount.role === "RSO-SIGNATORY") && (
+              {newAccount.role === "RSO-SIGNATORY" && (
                 <>
                   <div>
                     <label className="label">

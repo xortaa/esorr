@@ -1,16 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check } from "lucide-react";
-import axios from "axios";
+import { CornerDownLeft, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
-const SOCCSetupPage = () => {
+interface FormData {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  position: string;
+}
+
+const positions = [
+  "President and CEO",
+  "Executive Vice President",
+  "Corporate Secretary",
+  "Corporate Treasurer",
+  "Vice President for Marketing and Sponsorships",
+  "Vice President for Audit and Logistics",
+  "Vice President for Corporate Communications",
+  "Vice President for Quality Management and Assurance",
+  "Vice President for Organization Relations",
+  "Board of Director",
+];
+
+const SOCCSSetupPage = () => {
   const [step, setStep] = useState<number>(1);
-  const [memberInputs, setMemberInputs] = useState([{ signatoryEmail: "", position: "" }]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
+    middleName: "",
+    position: "",
+  });
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -22,37 +45,30 @@ const SOCCSetupPage = () => {
     setStep(step - 1);
   };
 
+  const handleFormChange = (newData: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...newData }));
+  };
+
   const handleSubmit = async () => {
-    setError(null);
-    if (!validateForm()) {
+    if (!session?.user?.email) {
+      alert("You must be logged in to complete the setup.");
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const response = await axios.post("/api/socc-setup", {
-        email: session?.user?.email,
-        signatories: memberInputs,
+        ...formData,
+        email: session.user.email,
       });
 
-      if (response.status === 201) {
-        alert("SOCC setup completed successfully!");
+      if (response.status === 200) {
+        alert("SOCC Signatory setup completed successfully!");
         router.push("/organizations");
       }
     } catch (error) {
-      console.error("Error setting up SOCC:", error);
-      setError("An error occurred while setting up SOCC. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error during SOCC Signatory setup:", error);
+      alert("An error occurred during setup. Please try again.");
     }
-  };
-
-  const validateForm = () => {
-    if (memberInputs.some((input) => !input.signatoryEmail || !input.position)) {
-      setError("All member inputs must have both an email and a position.");
-      return false;
-    }
-    return true;
   };
 
   if (status === "loading") {
@@ -60,128 +76,131 @@ const SOCCSetupPage = () => {
   }
 
   return (
-      <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">Setup SOCC member accounts</h1>
-          <p className="text-gray-600">Follow the steps to setup SOCC accounts.</p>
-        </div>
-        {error && (
-          <div className="alert alert-error">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="stroke-current shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{error}</span>
-          </div>
-        )}
-        <div className="flex flex-col items-start justify-center w-full">
-          <SetupStepper step={step} />
-          <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
-            {step === 1 ? (
-              <SOCCSetupStep1 nextStep={nextStep} memberInputs={memberInputs} setMemberInputs={setMemberInputs} />
-            ) : (
-              <SOCCSetupStep2
-                prevStep={prevStep}
-                memberInputs={memberInputs}
-                handleSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-              />
-            )}
-          </div>
+    <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-bold text-primary">SOCC Signatory Setup</h1>
+        <p className="text-gray-600">
+          Follow the steps to set up your SOCC Signatory account before proceeding with ESORR
+        </p>
+      </div>
+      <div className="flex flex-col items-start justify-center w-full">
+        <SetupStepper step={step} />
+        <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
+          {step === 1 ? (
+            <SOCCSignatorySetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+          ) : (
+            <SOCCSignatorySetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
+          )}
         </div>
       </div>
+    </div>
   );
 };
 
-const SOCCSetupStep1 = ({
-  nextStep,
-  memberInputs,
-  setMemberInputs,
-}: {
+interface SOCCSignatorySetupStep1Props {
   nextStep: () => void;
-  memberInputs: any[];
-  setMemberInputs: React.Dispatch<React.SetStateAction<any[]>>;
-}) => {
-  const handleAddMemberInput = () => {
-    setMemberInputs([...memberInputs, { signatoryEmail: "", position: "" }]);
+  formData: FormData;
+  handleFormChange: (newData: Partial<FormData>) => void;
+}
+
+const SOCCSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCSignatorySetupStep1Props) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    handleFormChange({ [name]: value });
   };
 
-  const handleRemoveMemberInput = (index: number) => {
-    setMemberInputs(memberInputs.filter((_, i) => i !== index));
-  };
-
-  const handleMemberInputChange = (index: number, field: "signatoryEmail" | "position", value: string) => {
-    const newInputs = [...memberInputs];
-    newInputs[index][field] = value;
-    setMemberInputs(newInputs);
+  const isFormValid = () => {
+    return formData.firstName && formData.lastName && formData.position;
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">Request SOCC Member Accounts</h2>
-        <p className="text-primary mt-2">
-          Fill out the forms to request accounts for SOCC members. An email confirmation will be sent once accounts have
-          been approved. Accounts can be requested even after the setup is complete.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-800">Basic Setup</h2>
+        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC Signatory account</p>
       </div>
-      <form className="space-y-4">
-        {memberInputs.map((input, index) => (
-          <div key={index} className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-            <div className="form-control flex-grow">
-              <label className="label" htmlFor={`member-email-${index}`}>
-                <span className="label-text">Member Email</span>
-                <span className="label-text-alt text-info flex items-center">
-                  <BadgeInfo className="w-4 h-4 mr-1" />
-                  only ust.edu.ph emails are allowed
-                </span>
-              </label>
-              <input
-                type="email"
-                id={`member-email-${index}`}
-                placeholder="email@ust.edu.ph"
-                className="input input-bordered w-full"
-                value={input.signatoryEmail}
-                onChange={(e) => handleMemberInputChange(index, "signatoryEmail", e.target.value)}
-              />
-            </div>
-            <div className="form-control">
-              <label className="label" htmlFor={`member-position-${index}`}>
-                <span className="label-text">Position</span>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (isFormValid()) {
+            nextStep();
+          }
+        }}
+      >
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Name Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="firstName" className="label">
+                First Name
               </label>
               <input
                 type="text"
-                id={`member-position-${index}`}
-                placeholder="e.g., President"
+                id="firstName"
+                name="firstName"
                 className="input input-bordered w-full"
-                value={input.position}
-                onChange={(e) => handleMemberInputChange(index, "position", e.target.value)}
+                required
+                value={formData.firstName}
+                onChange={handleInputChange}
               />
             </div>
-            <button
-              type="button"
-              className="btn btn-ghost btn-square text-error"
-              onClick={() => handleRemoveMemberInput(index)}
-            >
-              <XCircle />
-            </button>
+            <div>
+              <label htmlFor="middleName" className="label">
+                Middle Name
+              </label>
+              <input
+                type="text"
+                id="middleName"
+                name="middleName"
+                className="input input-bordered w-full"
+                value={formData.middleName}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="label">
+                Last Name
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                className="input input-bordered w-full"
+                required
+                value={formData.lastName}
+                onChange={handleInputChange}
+              />
+            </div>
           </div>
-        ))}
-        <button type="button" className="btn btn-outline btn-primary" onClick={handleAddMemberInput}>
-          Add SOCC Member
-          <CircleFadingPlus className="ml-2" />
-        </button>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Position</h3>
+          <div>
+            <label htmlFor="position" className="label">
+              Select your position
+            </label>
+            <select
+              id="position"
+              name="position"
+              className="select select-bordered w-full"
+              required
+              value={formData.position}
+              onChange={handleInputChange}
+            >
+              <option value="">Select a position</option>
+              {positions.map((position) => (
+                <option key={position} value={position}>
+                  {position}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="flex justify-end mt-6">
-          <button className="btn btn-primary" type="button" onClick={nextStep}>
+          <button className="btn btn-primary" type="submit" disabled={!isFormValid()}>
             Next Step
             <CornerDownLeft className="ml-2 rotate-180" />
           </button>
@@ -191,62 +210,41 @@ const SOCCSetupStep1 = ({
   );
 };
 
-const SOCCSetupStep2 = ({
+const SOCCSignatorySetupStep2 = ({
   prevStep,
-  memberInputs,
+  formData,
   handleSubmit,
-  isSubmitting,
 }: {
   prevStep: () => void;
-  memberInputs: any[];
+  formData: FormData;
   handleSubmit: () => void;
-  isSubmitting: boolean;
 }) => {
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-primary">Confirm Setup</h2>
-
-      <section aria-labelledby="org-signatories">
-        <h3 id="org-signatories" className="text-xl font-semibold mb-2 text-gray-700">
-          Member Accounts
+      <section aria-labelledby="name-details">
+        <h3 id="name-details" className="text-xl font-semibold mb-2 text-gray-700">
+          Name Details
         </h3>
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Position</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memberInputs.map((member, index) => (
-                <tr key={index}>
-                  <td>{member.signatoryEmail}</td>
-                  <td>{member.position}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <p className="text-lg">
+          {formData.firstName} {formData.middleName} {formData.lastName}
+        </p>
+      </section>
+      <section aria-labelledby="position-details">
+        <h3 id="position-details" className="text-xl font-semibold mb-2 text-gray-700">
+          Position
+        </h3>
+        <p className="text-lg">{formData.position}</p>
       </section>
 
       <div className="flex justify-between mt-8">
-        <button className="btn btn-outline" onClick={prevStep} disabled={isSubmitting}>
+        <button className="btn btn-outline" onClick={prevStep}>
           <CornerDownLeft className="mr-2" />
           Previous Step
         </button>
-        <button className="btn btn-primary" type="button" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <span className="loading loading-spinner"></span>
-              Submitting...
-            </>
-          ) : (
-            <>
-              <Check className="mr-2" />
-              Confirm Setup
-            </>
-          )}
+        <button className="btn btn-primary" type="button" onClick={handleSubmit}>
+          <Check className="mr-2" />
+          Confirm Setup
         </button>
       </div>
     </div>
@@ -264,22 +262,7 @@ const SetupStepper = ({ step }: { step: number }) => {
         >
           1
         </span>
-        SOCC Member <span className="hidden sm:inline-flex sm:ms-2">Accounts</span>
-        <svg
-          className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 12 10"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m7 9 4-4-4-4M1 9l4-4-4-4"
-          />
-        </svg>
+        Basic <span className="hidden sm:inline-flex sm:ms-2">Setup</span>
       </li>
       <li className={`flex items-center ${step >= 2 ? "text-primary" : ""}`}>
         <span
@@ -295,4 +278,4 @@ const SetupStepper = ({ step }: { step: number }) => {
   );
 };
 
-export default SOCCSetupPage;
+export default SOCCSSetupPage;

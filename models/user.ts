@@ -5,11 +5,10 @@ const PositionSchema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
     ref: "Organization",
-    required: true,
   },
+  affiliation: String,
   position: {
     type: String,
-    required: true,
   },
 });
 
@@ -21,7 +20,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY", "RSO"],
+    enum: ["OSA", "AU", "RSO-SIGNATORY", "SOCC", "RSO"],
     required: true,
   },
   positions: [PositionSchema],
