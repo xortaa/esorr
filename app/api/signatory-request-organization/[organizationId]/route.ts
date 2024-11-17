@@ -1,3 +1,4 @@
+// C:\Users\kercwin\code\dev\esorr\app\api\signatory-request-organization\[organizationId]\route.ts
 import { NextResponse, NextRequest } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import SignatoryRequests from "@/models/signatory-request";
@@ -20,13 +21,12 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
 export const POST = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();
   try {
-    const { email, position, requestedBy, isExecutive } = await req.json();
+    const { email, position, requestedBy } = await req.json();
 
     const signatoryRequest = await SignatoryRequests.create({
       email,
       position,
       requestedBy,
-      isExecutive,
       organization: params.organizationId,
       role: "RSO-SIGNATORY",
     });

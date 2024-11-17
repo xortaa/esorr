@@ -1,3 +1,4 @@
+// C:\Users\kercwin\code\dev\esorr\models\user.ts
 import { Schema, model, models } from "mongoose";
 
 const PositionSchema = new Schema({
@@ -59,11 +60,6 @@ const UserSchema = new Schema({
   isSetup: {
     type: Boolean,
     default: false,
-  },
-  isExecutive: {
-    type: Boolean,
-    default: false,
-    index: true,
   },
 });
 

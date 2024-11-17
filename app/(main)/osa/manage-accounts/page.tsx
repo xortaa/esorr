@@ -7,12 +7,40 @@ import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
+interface Organization {
+  _id: string;
+  name: string;
+}
+
+interface Position {
+  _id: string;
+  organization: Organization;
+  position: string;
+}
+
+interface Account {
+  _id: string;
+  email: string;
+  role: string;
+  positions: Position[];
+}
+
+interface SignatoryRequest {
+  _id: string;
+  email: string;
+  role: string;
+  position: string;
+  organization: Organization;
+  requestedBy: string;
+  submittedAt: string;
+}
+
 export default function AccountsDashboard() {
-  const [affiliationOptions, setAffiliationOptions] = useState([]);
+  const [affiliationOptions, setAffiliationOptions] = useState<Organization[]>([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
-  const [accounts, setAccounts] = useState([]);
-  const [signatoryRequests, setSignatoryRequests] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [signatoryRequests, setSignatoryRequests] = useState<SignatoryRequest[]>([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("All");
@@ -113,7 +141,7 @@ export default function AccountsDashboard() {
     try {
       const response = await axios.patch(`/api/signatory-request/${requestId}`);
       if (response.status === 200) {
-        fetchSignatoryRequests();
+        setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
         fetchAccounts();
       }
     } catch (error) {
@@ -121,14 +149,14 @@ export default function AccountsDashboard() {
     }
   };
 
-  const handleDeleteSignatoryRequest = async (requestId: string) => {
+  const handleRejectSignatoryRequest = async (requestId: string) => {
     try {
       const response = await axios.delete(`/api/signatory-request/${requestId}`);
       if (response.status === 200) {
         setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
       }
     } catch (error) {
-      console.error("Error deleting signatory request:", error);
+      console.error("Error rejecting signatory request:", error);
     }
   };
 
@@ -146,7 +174,7 @@ export default function AccountsDashboard() {
     setTimeout(() => setIsDropdownOpen(false), 200);
   };
 
-  const handleSelectAffiliation = (affiliation) => {
+  const handleSelectAffiliation = (affiliation: Organization) => {
     setNewAccount({ ...newAccount, organization: affiliation.name });
     setAffiliationSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
@@ -287,19 +315,17 @@ export default function AccountsDashboard() {
                       <td className="py-3 px-4">{request.requestedBy}</td>
                       <td className="py-3 px-4">{formatDateTime(request.submittedAt)}</td>
                       <td className="py-3 px-4">
-                        {!request.isApproved && (
-                          <button
-                            className="btn btn-success btn-xs mr-2"
-                            onClick={() => handleApproveSignatoryRequest(request._id)}
-                          >
-                            <Check className="h-4 w-4" />
-                          </button>
-                        )}
                         <button
-                          className="btn btn-ghost btn-xs"
-                          onClick={() => handleDeleteSignatoryRequest(request._id)}
+                          className="btn btn-success btn-xs mr-2"
+                          onClick={() => handleApproveSignatoryRequest(request._id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Check className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="btn btn-error btn-xs"
+                          onClick={() => handleRejectSignatoryRequest(request._id)}
+                        >
+                          <X className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
