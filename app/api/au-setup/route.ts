@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const currentUser = await User.findOne({ email });
+
     const updatedUser = await User.findOneAndUpdate(
       { email },
       {
@@ -20,6 +22,7 @@ export async function POST(req: NextRequest) {
         $push: {
           positions: {
             position: position,
+            affiliation: currentUser.affiliation,
           },
         },
         isSetup: true,
