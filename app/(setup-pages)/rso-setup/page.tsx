@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
@@ -110,7 +110,6 @@ const RSOSetupPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Create a new object with the form data
       const submitData = {
         name: formData.name,
         logo: formData.logo,
@@ -137,7 +136,7 @@ const RSOSetupPage = () => {
 
       const response = await axios.post("/api/rso-setup", submitData, {
         headers: { "Content-Type": "application/json" },
-        timeout: 60000, // Increase timeout to 60 seconds
+        timeout: 60000,
       });
 
       if (response.status === 201) {
@@ -243,33 +242,15 @@ const RSOSetupPage = () => {
 
 interface OrganizationSetupStep1Props {
   nextStep: () => void;
-  affiliationOptions;
+  affiliationOptions: any[];
   affiliationOptionsLoading: boolean;
-  selectedAffiliation;
-  setSelectedAffiliation: (affiliation) => void;
+  selectedAffiliation: any;
+  setSelectedAffiliation: (affiliation: any) => void;
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   isNotUniversityWide: boolean;
   setIsNotUniversityWide: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-const strategicDirectionalAreas = [
-  "Academic Excellence",
-  "Research and Innovation",
-  "Community Engagement",
-  "Internationalization",
-  "Sustainability",
-  "Diversity and Inclusion",
-];
-
-const organizationCategories = [
-  "Academic",
-  "Cultural",
-  "Religious",
-  "Sports",
-  "Special Interest",
-  "Volunteer and Service",
-];
 
 const OrganizationSetupStep1 = ({
   nextStep,
@@ -282,12 +263,13 @@ const OrganizationSetupStep1 = ({
   isNotUniversityWide,
   setIsNotUniversityWide,
 }: OrganizationSetupStep1Props) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSDAreaDropdownOpen, setIsSDAreaDropdownOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const futureYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -299,11 +281,24 @@ const OrganizationSetupStep1 = ({
     return Array.from({ length: 6 }, (_, i) => currentYear - i);
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleOrganizationTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsNotUniversityWide(event.target.value === "college-based");
     if (event.target.value === "univ-wide") {
       setSelectedAffiliation(null);
-      setSearchTerm("");
+      setAffiliationSearchTerm("");
     }
   };
 
@@ -315,29 +310,31 @@ const OrganizationSetupStep1 = ({
   };
 
   const filteredAffiliations = useMemo(() => {
-    if (searchTerm.trim() === "") {
+    if (affiliationSearchTerm.trim() === "") {
       return [];
     }
     return affiliationOptions.filter((affiliation) =>
-      affiliation.name.toLowerCase().includes(searchTerm.toLowerCase())
+      affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
     );
-  }, [affiliationOptions, searchTerm]);
+  }, [affiliationOptions, affiliationSearchTerm]);
 
-  const handleSelectAffiliation = (affiliation) => {
+  const handleSelectAffiliation = (affiliation: any) => {
     setSelectedAffiliation(affiliation);
-    setSearchTerm(affiliation.name);
+    setAffiliationSearchTerm(affiliation.name);
     setIsDropdownOpen(false);
   };
 
   const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
+    setAffiliationSearchTerm(value);
     setSelectedAffiliation(null);
-    setIsDropdownOpen(value.trim() !== "");
+    setIsDropdownOpen(true);
   };
 
-  const handleInputBlur = () => {
-    setTimeout(() => setIsDropdownOpen(false), 200);
+  const handleClearAffiliationSearch = () => {
+    setAffiliationSearchTerm("");
+    setSelectedAffiliation(null);
+    setIsDropdownOpen(false);
   };
 
   const handleAddSocialInput = () => {
@@ -348,7 +345,7 @@ const OrganizationSetupStep1 = ({
   };
 
   const handleRemoveSocialInput = (index: number) => {
-    const newSocials = formData.socials.filter((_, i) => i !== index);
+    const newSocials = formData.socials.filter((_: any, i: number) => i !== index);
     setFormData({ ...formData, socials: newSocials });
   };
 
@@ -366,14 +363,12 @@ const OrganizationSetupStep1 = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      // Check file type
       const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
       if (!allowedTypes.includes(file.type)) {
         setLogoError("Logo must be a PNG, JPG, or JPEG file.");
         return;
       }
 
-      // Check file size (10MB = 10 * 1024 * 1024 bytes)
       if (file.size > 10 * 1024 * 1024) {
         setLogoError("Logo file size must not exceed 10MB.");
         return;
@@ -615,7 +610,7 @@ const OrganizationSetupStep1 = ({
         </div>
 
         {isNotUniversityWide && (
-          <div className="form-control w-full">
+          <div className="form-control w-full" ref={dropdownRef}>
             <label className="label" htmlFor="affiliation-search">
               <span className="label-text">Search for your affiliation (Required)</span>
             </label>
@@ -625,39 +620,37 @@ const OrganizationSetupStep1 = ({
                 id="affiliation-search"
                 className="input input-bordered w-full pr-10"
                 placeholder="Search for your affiliation..."
-                value={searchTerm}
+                value={affiliationSearchTerm}
                 onChange={handleAffiliationInputChange}
-                onBlur={handleInputBlur}
+                onFocus={() => setIsDropdownOpen(true)}
                 disabled={affiliationOptionsLoading}
                 required
               />
-              {searchTerm && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              {affiliationSearchTerm && (
                 <button
                   type="button"
-                  className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSelectedAffiliation(null);
-                  }}
+                  className="btn btn-ghost btn-circle absolute right-10 top-1/2 transform -translate-y-1/2"
+                  onClick={handleClearAffiliationSearch}
                 >
                   <X className="h-5 w-5" />
                 </button>
               )}
             </div>
             {isDropdownOpen && filteredAffiliations.length > 0 && (
-              <div className="relative">
-                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                  {filteredAffiliations.map((affiliation) => (
-                    <li
-                      key={affiliation._id}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleSelectAffiliation(affiliation)}
-                    >
-                      {affiliation.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                {filteredAffiliations.map((affiliation) => (
+                  <li
+                    key={affiliation._id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectAffiliation(affiliation)}
+                  >
+                    {affiliation.name}
+                  </li>
+                ))}
+              </ul>
             )}
             {affiliationOptionsLoading && (
               <div className="text-center mt-2">
