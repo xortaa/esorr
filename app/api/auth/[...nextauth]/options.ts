@@ -17,12 +17,14 @@ declare module "next-auth" {
       _id: string;
       role: string;
       isSetup: boolean;
+      fullName: string;
       positions?: {
-        organization: {
+        organization?: {
           _id: string;
           name: string;
         };
         position: string;
+        affiliation?: string;
         _id: string;
       }[];
     } & DefaultSession["user"];
@@ -32,12 +34,14 @@ declare module "next-auth" {
     role: string;
     _id: string;
     isSetup: boolean;
+    fullName: string;
     positions?: {
-      organization: {
+      organization?: {
         _id: string;
         name: string;
       };
       position: string;
+      affiliation?: string;
       _id: string;
     }[];
   }
@@ -48,12 +52,14 @@ declare module "next-auth/jwt" {
     role: string;
     _id: string;
     isSetup: boolean;
+    fullName: string;
     positions?: {
-      organization: {
+      organization?: {
         _id: string;
         name: string;
       };
       position: string;
+      affiliation?: string;
       _id: string;
     }[];
   }
@@ -62,8 +68,8 @@ declare module "next-auth/jwt" {
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: { access_type: "offline", prompt: "consent" },
       },
@@ -84,7 +90,7 @@ export const options: NextAuthOptions = {
         }).select("+password");
 
         if (userFound) {
-          const passwordMatch = await bcrypt.compare(credentials!.password, userFound.password);
+          const passwordMatch = await bcrypt.compare(credentials.password, userFound.password);
           if (!passwordMatch) throw new Error("Invalid Password");
           return userFound;
         } else {
@@ -106,12 +112,14 @@ export const options: NextAuthOptions = {
             name: profile.name,
             image: profile.picture,
             role: "OSA",
-            isSetup: false, // Initialize isSetup for new users
+            isSetup: false,
+            fullName: profile.name,
           });
           await newUser.save();
           account._id = newUser._id.toString();
           account.role = newUser.role;
           account.isSetup = newUser.isSetup;
+          account.fullName = newUser.fullName;
           return true;
         }
 
@@ -122,6 +130,7 @@ export const options: NextAuthOptions = {
           account._id = existingUser._id.toString();
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
+          account.fullName = existingUser.fullName;
           if (existingUser.positions) {
             account.positions = existingUser.positions;
           }
@@ -141,17 +150,21 @@ export const options: NextAuthOptions = {
       session.user.role = token.role;
       session.user.isSetup = token.isSetup;
       session.user.positions = token.positions;
+      session.user.fullName = token.fullName;
 
       // Populate organization details in positions
       if (session.user.positions) {
         for (const position of session.user.positions) {
-          const organization = await Organization.findById(position.organization._id).select("name");
-          if (organization) {
-            position.organization = {
-              _id: organization._id.toString(),
-              name: organization.name,
-            };
+          if (position.organization) {
+            const organization = await Organization.findById(position.organization._id).select("name");
+            if (organization) {
+              position.organization = {
+                _id: organization._id.toString(),
+                name: organization.name,
+              };
+            }
           }
+          // We no longer set the affiliation to the position for AU users here
         }
       }
 
@@ -163,22 +176,26 @@ export const options: NextAuthOptions = {
         token._id = account._id;
         token.isSetup = account.isSetup;
         token.positions = account.positions;
+        token.fullName = account.fullName;
       } else if (user) {
         token.role = (user as any).role;
         token._id = (user as any)._id.toString();
         token.isSetup = (user as any).isSetup;
         token.positions = (user as any).positions;
+        token.fullName = (user as any).fullName;
       }
 
       // Populate organization details in positions
       if (token.positions) {
         for (const position of token.positions) {
-          const organization = await Organization.findById(position.organization).select("name");
-          if (organization) {
-            position.organization = {
-              _id: organization._id.toString(),
-              name: organization.name,
-            };
+          if (position.organization) {
+            const organization = await Organization.findById(position.organization).select("name");
+            if (organization) {
+              position.organization = {
+                _id: organization._id.toString(),
+                name: organization.name,
+              };
+            }
           }
         }
       }

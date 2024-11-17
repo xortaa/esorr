@@ -226,10 +226,11 @@ type UserPosition = {
 };
 
 type Positions = {
-  organization: {
+  organization?: {
     _id: string;
     name: string;
   };
+  affiliation?: string;
   position: string;
   _id: string;
 };
@@ -615,7 +616,7 @@ export default function EnhancedAnnex01Manager() {
 
   const submitAnnexForReview = async (id: string) => {
     try {
-      console.log("hey")
+      console.log("hey");
       const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
         status: "For Review",
         dateSubmitted: new Date(),
@@ -690,79 +691,78 @@ export default function EnhancedAnnex01Manager() {
     }
   };
 
- const handleSubmitSignature = async () => {
-   if (!selectedUserPosition || !selectedAnnex || !selectedSignaturePosition) {
-     alert("Please select a role, an annex, and a signature position");
-     return;
-   }
+  const handleSubmitSignature = async () => {
+    if (!selectedUserPosition || !selectedAnnex || !selectedSignaturePosition) {
+      alert("Please select a role, an annex, and a signature position");
+      return;
+    }
 
-   let signatureData: File;
-   if (signatureFile) {
-     signatureData = signatureFile;
-   } else if (signatureRef.current) {
-     const canvas = signatureRef.current.getCanvas();
-     const blob = await new Promise<Blob>((resolve) => canvas.toBlob(resolve, "image/png"));
-     signatureData = new File([blob], "signature.png", { type: "image/png" });
-   } else {
-     alert("Please provide a signature");
-     return;
-   }
+    let signatureData: File;
+    if (signatureFile) {
+      signatureData = signatureFile;
+    } else if (signatureRef.current) {
+      const canvas = signatureRef.current.getCanvas();
+      const blob = await new Promise<Blob>((resolve) => canvas.toBlob(resolve, "image/png"));
+      signatureData = new File([blob], "signature.png", { type: "image/png" });
+    } else {
+      alert("Please provide a signature");
+      return;
+    }
 
-   const formData = new FormData();
-   formData.append("file", signatureData);
-   formData.append("annexId", selectedAnnex._id);
-   formData.append("position", selectedSignaturePosition);
+    const formData = new FormData();
+    formData.append("file", signatureData);
+    formData.append("annexId", selectedAnnex._id);
+    formData.append("position", selectedSignaturePosition);
 
-   try {
-     setIsLoading(true);
-     const response = await fetch("/api/upload-signature", {
-       method: "POST",
-       body: formData,
-     });
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/upload-signature", {
+        method: "POST",
+        body: formData,
+      });
 
-     if (!response.ok) {
-       const errorData = await response.json();
-       throw new Error(errorData.error || "Failed to upload signature");
-     }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload signature");
+      }
 
-     const { url } = await response.json();
+      const { url } = await response.json();
 
-     const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-01/${selectedAnnex._id}`, {
-       [selectedSignaturePosition]: {
-         name: session?.user?.name || "",
-         position: selectedUserPosition.role,
-         signatureUrl: url,
-         dateSigned: new Date(),
-       },
-     });
+      const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-01/${selectedAnnex._id}`, {
+        [selectedSignaturePosition]: {
+          name: session?.user?.fullName || "",
+          position: selectedUserPosition.role,
+          signatureUrl: url,
+          dateSigned: new Date(),
+        },
+      });
 
-     if (updateResponse.data) {
-       const updatedAnnex = updateResponse.data;
-       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-       setSelectedAnnex(updatedAnnex);
+      if (updateResponse.data) {
+        const updatedAnnex = updateResponse.data;
+        setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+        setSelectedAnnex(updatedAnnex);
 
-       const newBlob = await generatePDFBlob(updatedAnnex);
-       setPdfBlob(newBlob);
+        const newBlob = await generatePDFBlob(updatedAnnex);
+        setPdfBlob(newBlob);
 
-       alert("Signature added successfully");
-     } else {
-       throw new Error("Failed to update Annex 01");
-     }
-   } catch (error) {
-     console.error("Error adding signature:", error);
-     alert(`Error adding signature: ${error instanceof Error ? error.message : "Unknown error"}`);
-   } finally {
-     setIsLoading(false);
-   }
+        alert("Signature added successfully");
+      } else {
+        throw new Error("Failed to update Annex 01");
+      }
+    } catch (error) {
+      console.error("Error adding signature:", error);
+      alert(`Error adding signature: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
+    }
 
-   setSignatureFile(null);
-   setSignaturePreview(null);
-   setSelectedSignaturePosition("");
-   if (signatureRef.current) {
-     signatureRef.current.clear();
-   }
- };
-
+    setSignatureFile(null);
+    setSignaturePreview(null);
+    setSelectedSignaturePosition("");
+    if (signatureRef.current) {
+      signatureRef.current.clear();
+    }
+  };
 
   const clearUploadedSignature = () => {
     setSignatureFile(null);
@@ -780,7 +780,6 @@ export default function EnhancedAnnex01Manager() {
     }
   };
 
-  
   const updateRemarks = async (id: string, type: "socc" | "osa", remarks: string) => {
     try {
       const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
@@ -791,7 +790,6 @@ export default function EnhancedAnnex01Manager() {
       console.error("Error updating remarks:", error);
     }
   };
-
 
   return (
     <PageWrapper>
@@ -892,11 +890,14 @@ export default function EnhancedAnnex01Manager() {
                       }}
                     >
                       <option value="">Select your role</option>
-                      {session?.user?.positions?.map((userPosition: Positions, index: number) => (
-                        <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
-                          {userPosition.position} - {userPosition.organization.name}
-                        </option>
-                      ))}
+                      {session?.user?.positions?.map((userPosition: Positions, index: number) => {
+                        const name = userPosition.organization?.name || userPosition.affiliation;
+                        return (
+                          <option key={index} value={`${userPosition.position}-${name}`}>
+                            {userPosition.position} - {name}
+                          </option>
+                        );
+                      })}
                     </select>
                     <select
                       className="select select-bordered w-full"
@@ -970,97 +971,97 @@ interface AnnexCardProps {
   updateRemarks: (id: string, type: "socc" | "osa", remarks: string) => void;
 }
 
- function AnnexCard({
-   annex,
-   submitAnnexForReview,
-   openSignatureModal,
-   generatePDF,
-   updateAnnexStatus,
-   updateRemarks,
- }: AnnexCardProps) {
-   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
-   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+function AnnexCard({
+  annex,
+  submitAnnexForReview,
+  openSignatureModal,
+  generatePDF,
+  updateAnnexStatus,
+  updateRemarks,
+}: AnnexCardProps) {
+  const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
+  const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
 
-   return (
-     <div className="card bg-base-100 shadow-xl">
-       <div className="card-body">
-         <div className="flex items-center justify-between">
-           <div className="flex items-center">
-             <FileText className="mr-2 h-5 w-5 text-primary" />
-             <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
-           </div>
-           <div className="flex items-center space-x-2">
-             <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
-               <PenTool className="h-4 w-4 mr-2" />
-               Add Signature
-             </button>
-             <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
-               <Download className="h-4 w-4 mr-2" />
-               Download PDF
-             </button>
-           </div>
-         </div>
-         <div className="mt-4 space-y-4">
-           <div className="flex items-center space-x-4">
-             <label className="font-medium">Status:</label>
-             <span
-               className={`${
-                 annex.status === "Approved"
-                   ? "text-green-600"
-                   : annex.status === "For Review"
-                   ? "text-yellow-600"
-                   : annex.status === "In Progress"
-                   ? "text-blue-600"
-                   : "text-red-600"
-               }`}
-             >
-               {annex.status}
-             </span>
-           </div>
-           <div className="space-y-2">
-             <div>
-               <label className="font-medium">SOCC Remarks:</label>
-               <textarea
-                 className="textarea textarea-bordered w-full"
-                 value={soccRemarks}
-                 onChange={(e) => setSoccRemarks(e.target.value)}
-               />
-               <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "socc", soccRemarks)}>
-                 Submit SOCC Remark
-               </button>
-             </div>
-             <div>
-               <label className="font-medium">OSA Remarks:</label>
-               <textarea
-                 className="textarea textarea-bordered w-full"
-                 value={osaRemarks}
-                 onChange={(e) => setOsaRemarks(e.target.value)}
-               />
-               <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "osa", osaRemarks)}>
-                 Submit OSA Remark
-               </button>
-             </div>
-           </div>
-           <div className="flex justify-end space-x-2">
-             <button className="btn btn-primary" onClick={() => updateAnnexStatus(annex._id, "Approved")}>
-               Approve
-             </button>
-             <button className="btn btn-secondary" onClick={() => updateAnnexStatus(annex._id, "In Progress")}>
-               Disapprove
-             </button>
-             <button className="btn btn-primary" onClick={() => submitAnnexForReview(annex._id)}>
-               <Send className="mr-2 h-4 w-4" />
-               Submit for Review
-             </button>
-           </div>
-           {annex.dateSubmitted && (
-             <div className="text-sm text-gray-500">
-               Date Submitted: {new Date(annex.dateSubmitted).toLocaleString()}
-             </div>
-           )}
-           <div className="text-sm text-gray-500">Last Modified: {new Date(annex.lastModified).toLocaleString()}</div>
-         </div>
-       </div>
-     </div>
-   );
- }
+  return (
+    <div className="card bg-base-100 shadow-xl">
+      <div className="card-body">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-primary" />
+            <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
+              <PenTool className="h-4 w-4 mr-2" />
+              Add Signature
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </button>
+          </div>
+        </div>
+        <div className="mt-4 space-y-4">
+          <div className="flex items-center space-x-4">
+            <label className="font-medium">Status:</label>
+            <span
+              className={`${
+                annex.status === "Approved"
+                  ? "text-green-600"
+                  : annex.status === "For Review"
+                  ? "text-yellow-600"
+                  : annex.status === "In Progress"
+                  ? "text-blue-600"
+                  : "text-red-600"
+              }`}
+            >
+              {annex.status}
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div>
+              <label className="font-medium">SOCC Remarks:</label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={soccRemarks}
+                onChange={(e) => setSoccRemarks(e.target.value)}
+              />
+              <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "socc", soccRemarks)}>
+                Submit SOCC Remark
+              </button>
+            </div>
+            <div>
+              <label className="font-medium">OSA Remarks:</label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={osaRemarks}
+                onChange={(e) => setOsaRemarks(e.target.value)}
+              />
+              <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "osa", osaRemarks)}>
+                Submit OSA Remark
+              </button>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button className="btn btn-primary" onClick={() => updateAnnexStatus(annex._id, "Approved")}>
+              Approve
+            </button>
+            <button className="btn btn-secondary" onClick={() => updateAnnexStatus(annex._id, "In Progress")}>
+              Disapprove
+            </button>
+            <button className="btn btn-primary" onClick={() => submitAnnexForReview(annex._id)}>
+              <Send className="mr-2 h-4 w-4" />
+              Submit for Review
+            </button>
+          </div>
+          {annex.dateSubmitted && (
+            <div className="text-sm text-gray-500">
+              Date Submitted: {new Date(annex.dateSubmitted).toLocaleString()}
+            </div>
+          )}
+          <div className="text-sm text-gray-500">Last Modified: {new Date(annex.lastModified).toLocaleString()}</div>
+        </div>
+      </div>
+    </div>
+  );
+}

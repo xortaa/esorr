@@ -1,3 +1,4 @@
+//C:\Users\kercwin\code\dev\esorr\app\api\signatory-request-organization\[organizationId]\[requestId]\route.ts
 import { NextResponse, NextRequest } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import SignatoryRequests from "@/models/signatory-request";

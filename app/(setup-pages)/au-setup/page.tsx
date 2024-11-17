@@ -1,40 +1,50 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CornerDownLeft, Check } from "lucide-react";
+import { CornerDownLeft, Check, Search } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface FormData {
-  prefix: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  suffix: string;
+  fullName: string;
   position: string;
+  affiliation: string;
+}
+
+interface Affiliation {
+  _id: string;
+  name: string;
 }
 
 const AUSetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
-    prefix: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    suffix: "",
+    fullName: "",
     position: "",
+    affiliation: "",
   });
+  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const nextStep = () => {
-    setStep(step + 1);
+  useEffect(() => {
+    fetchAffiliations();
+  }, []);
+
+  const fetchAffiliations = async () => {
+    try {
+      const response = await axios.get("/api/affiliations");
+      setAffiliations(response.data);
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    }
   };
 
-  const prevStep = () => {
-    setStep(step - 1);
-  };
+  const nextStep = () => setStep(step + 1);
+  const prevStep = () => setStep(step - 1);
 
   const handleFormChange = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -47,16 +57,9 @@ const AUSetupPage = () => {
     }
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) {
-          formDataToSend.append(key, value);
-        }
-      });
-      formDataToSend.append("email", session.user.email);
-
-      const response = await axios.post("/api/au-setup", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post("/api/au-setup", {
+        ...formData,
+        email: session.user.email,
       });
 
       if (response.status === 200) {
@@ -69,9 +72,7 @@ const AUSetupPage = () => {
     }
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
+  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
@@ -85,7 +86,16 @@ const AUSetupPage = () => {
         <SetupStepper step={step} />
         <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
           {step === 1 ? (
-            <AUSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+            <AUSetupStep1
+              nextStep={nextStep}
+              formData={formData}
+              handleFormChange={handleFormChange}
+              affiliations={affiliations}
+              affiliationSearchTerm={affiliationSearchTerm}
+              setAffiliationSearchTerm={setAffiliationSearchTerm}
+              isDropdownOpen={isDropdownOpen}
+              setIsDropdownOpen={setIsDropdownOpen}
+            />
           ) : (
             <AUSetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
           )}
@@ -99,16 +109,45 @@ interface AUSetupStep1Props {
   nextStep: () => void;
   formData: FormData;
   handleFormChange: (newData: Partial<FormData>) => void;
+  affiliations: Affiliation[];
+  affiliationSearchTerm: string;
+  setAffiliationSearchTerm: (term: string) => void;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: (isOpen: boolean) => void;
 }
 
-const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Props) => {
-  const handleNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const AUSetupStep1 = ({
+  nextStep,
+  formData,
+  handleFormChange,
+  affiliations,
+  affiliationSearchTerm,
+  setAffiliationSearchTerm,
+  isDropdownOpen,
+  setIsDropdownOpen,
+}: AUSetupStep1Props) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     handleFormChange({ [name]: value });
   };
 
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAffiliationSearchTerm(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleSelectAffiliation = (affiliation: Affiliation) => {
+    handleFormChange({ affiliation: affiliation.name });
+    setAffiliationSearchTerm(affiliation.name);
+    setIsDropdownOpen(false);
+  };
+
+  const filteredAffiliations = affiliations.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
+  );
+
   const isFormValid = () => {
-    return formData.firstName && formData.lastName && formData.position;
+    return formData.fullName && formData.position && formData.affiliation;
   };
 
   return (
@@ -121,83 +160,28 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          if (isFormValid()) {
-            nextStep();
-          }
+          if (isFormValid()) nextStep();
         }}
       >
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Name Details</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="prefix" className="label">
-                Prefix (e.g., Mr., Dr.)
-              </label>
-              <input
-                type="text"
-                id="prefix"
-                name="prefix"
-                className="input input-bordered w-full"
-                value={formData.prefix}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="suffix" className="label">
-                Suffix (e.g., PhD, Jr.)
-              </label>
-              <input
-                type="text"
-                id="suffix"
-                name="suffix"
-                className="input input-bordered w-full"
-                value={formData.suffix}
-                onChange={handleNameInputChange}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="firstName" className="label">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                className="input input-bordered w-full"
-                required
-                value={formData.firstName}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="middleName" className="label">
-                Middle Name
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className="input input-bordered w-full"
-                value={formData.middleName}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="label">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className="input input-bordered w-full"
-                required
-                value={formData.lastName}
-                onChange={handleNameInputChange}
-              />
-            </div>
+          <div>
+            <label htmlFor="fullName" className="label">
+              Full Name (including any prefix or suffix)
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              className="input input-bordered w-full"
+              required
+              value={formData.fullName}
+              onChange={handleInputChange}
+              placeholder="e.g. Dr. John A. Doe Jr."
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Include any prefix (e.g., Dr., Mr., Ms.) or suffix (e.g., Jr., Sr., III) in your full name.
+            </p>
           </div>
           <div>
             <label htmlFor="position" className="label">
@@ -210,9 +194,43 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
               className="input input-bordered w-full"
               required
               value={formData.position}
-              onChange={handleNameInputChange}
+              onChange={handleInputChange}
               placeholder="e.g., Dean, Department Head, Professor"
             />
+          </div>
+          <div>
+            <label htmlFor="affiliation" className="label">
+              Affiliation
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="affiliation"
+                name="affiliation"
+                className="input input-bordered w-full pr-10"
+                required
+                value={affiliationSearchTerm}
+                onChange={handleAffiliationInputChange}
+                onFocus={() => setIsDropdownOpen(true)}
+                placeholder="Search for affiliation..."
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            {isDropdownOpen && filteredAffiliations.length > 0 && (
+              <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                {filteredAffiliations.map((affiliation) => (
+                  <li
+                    key={affiliation._id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectAffiliation(affiliation)}
+                  >
+                    {affiliation.name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -243,15 +261,19 @@ const AUSetupStep2 = ({
         <h3 id="name-details" className="text-xl font-semibold mb-2 text-gray-700">
           Name Details
         </h3>
-        <p className="text-lg">
-          {formData.prefix} {formData.firstName} {formData.middleName} {formData.lastName} {formData.suffix}
-        </p>
+        <p className="text-lg">{formData.fullName}</p>
       </section>
       <section aria-labelledby="position">
         <h3 id="position" className="text-xl font-semibold mb-2 text-gray-700">
           Position
         </h3>
         <p className="text-lg">{formData.position}</p>
+      </section>
+      <section aria-labelledby="affiliation">
+        <h3 id="affiliation" className="text-xl font-semibold mb-2 text-gray-700">
+          Affiliation
+        </h3>
+        <p className="text-lg">{formData.affiliation}</p>
       </section>
 
       <div className="flex justify-between mt-8">

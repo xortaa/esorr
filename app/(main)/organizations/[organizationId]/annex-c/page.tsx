@@ -77,10 +77,11 @@ type UserPosition = {
 };
 
 type Positions = {
-  organization: {
+  organization?: {
     _id: string;
     name: string;
   };
+  affiliation?: string;
   position: string;
   _id: string;
 };
@@ -477,7 +478,7 @@ const openSignatureModal = async (annex: AnnexC) => {
 
       const updateData: any = {
         [selectedSignaturePosition]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserPosition.role,
           signatureUrl: url,
           dateSigned: new Date().toISOString(),
@@ -593,11 +594,14 @@ const openSignatureModal = async (annex: AnnexC) => {
                         }}
                       >
                         <option value="">Select your role</option>
-                        {session?.user?.positions?.map((userPosition: Positions, index: number) => (
-                          <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
-                            {userPosition.position} - {userPosition.organization.name}
-                          </option>
-                        ))}
+                        {session?.user?.positions?.map((userPosition: Positions, index: number) => {
+                          const name = userPosition.organization?.name || userPosition.affiliation;
+                          return (
+                            <option key={index} value={`${userPosition.position}-${name}`}>
+                              {userPosition.position} - {name}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
 

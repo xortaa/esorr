@@ -1,14 +1,14 @@
+// C:\Users\kercwin\code\dev\esorr\models\user.ts
 import { Schema, model, models } from "mongoose";
 
 const PositionSchema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
     ref: "Organization",
-    required: true,
   },
+  affiliation: String,
   position: {
     type: String,
-    required: true,
   },
 });
 
@@ -20,7 +20,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["OSA", "AU", "SOCC", "RSO-SIGNATORY", "SOCC-SIGNATORY", "RSO"],
+    enum: ["OSA", "AU", "RSO-SIGNATORY", "SOCC", "RSO"],
     required: true,
   },
   positions: [PositionSchema],
@@ -38,32 +38,13 @@ const UserSchema = new Schema({
       ref: "Organization",
     },
   ],
-  prefix: {
-    type: String,
-  },
-  suffix: {
-    type: String,
-  },
-  firstName: {
-    type: String,
-  },
-  middleName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
+  fullName: String,
   affiliation: {
     type: String,
   },
   isSetup: {
     type: Boolean,
     default: false,
-  },
-  isExecutive: {
-    type: Boolean,
-    default: false,
-    index: true,
   },
 });
 

@@ -937,7 +937,7 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
 
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-e2/${selectedAnnex._id}`, {
         [`${selectedMonth.toLowerCase()}.${selectedSignaturePosition}`]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserPosition.role,
           signatureUrl: url,
         },
