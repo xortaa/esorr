@@ -1,40 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CornerDownLeft, Check } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface FormData {
-  prefix: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  suffix: string;
+  fullName: string;
   position: string;
 }
 
 const AUSetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
-    prefix: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    suffix: "",
+    fullName: "",
     position: "",
   });
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const nextStep = () => {
-    setStep(step + 1);
-  };
-
-  const prevStep = () => {
-    setStep(step - 1);
-  };
+  const nextStep = () => setStep(step + 1);
+  const prevStep = () => setStep(step - 1);
 
   const handleFormChange = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -47,16 +34,9 @@ const AUSetupPage = () => {
     }
 
     try {
-      const formDataToSend = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) {
-          formDataToSend.append(key, value);
-        }
-      });
-      formDataToSend.append("email", session.user.email);
-
-      const response = await axios.post("/api/au-setup", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const response = await axios.post("/api/au-setup", {
+        ...formData,
+        email: session.user.email,
       });
 
       if (response.status === 200) {
@@ -69,9 +49,7 @@ const AUSetupPage = () => {
     }
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
+  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
@@ -102,13 +80,13 @@ interface AUSetupStep1Props {
 }
 
 const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Props) => {
-  const handleNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     handleFormChange({ [name]: value });
   };
 
   const isFormValid = () => {
-    return formData.firstName && formData.lastName && formData.position;
+    return formData.fullName && formData.position;
   };
 
   return (
@@ -121,83 +99,28 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          if (isFormValid()) {
-            nextStep();
-          }
+          if (isFormValid()) nextStep();
         }}
       >
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Name Details</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="prefix" className="label">
-                Prefix (e.g., Mr., Dr.)
-              </label>
-              <input
-                type="text"
-                id="prefix"
-                name="prefix"
-                className="input input-bordered w-full"
-                value={formData.prefix}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="suffix" className="label">
-                Suffix (e.g., PhD, Jr.)
-              </label>
-              <input
-                type="text"
-                id="suffix"
-                name="suffix"
-                className="input input-bordered w-full"
-                value={formData.suffix}
-                onChange={handleNameInputChange}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="firstName" className="label">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                className="input input-bordered w-full"
-                required
-                value={formData.firstName}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="middleName" className="label">
-                Middle Name
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className="input input-bordered w-full"
-                value={formData.middleName}
-                onChange={handleNameInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="label">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className="input input-bordered w-full"
-                required
-                value={formData.lastName}
-                onChange={handleNameInputChange}
-              />
-            </div>
+          <div>
+            <label htmlFor="fullName" className="label">
+              Full Name (including any prefix or suffix)
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              className="input input-bordered w-full"
+              required
+              value={formData.fullName}
+              onChange={handleInputChange}
+              placeholder="e.g. Dr. John A. Doe Jr."
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Include any prefix (e.g., Dr., Mr., Ms.) or suffix (e.g., Jr., Sr., III) in your full name.
+            </p>
           </div>
           <div>
             <label htmlFor="position" className="label">
@@ -210,7 +133,7 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
               className="input input-bordered w-full"
               required
               value={formData.position}
-              onChange={handleNameInputChange}
+              onChange={handleInputChange}
               placeholder="e.g., Dean, Department Head, Professor"
             />
           </div>
@@ -243,9 +166,7 @@ const AUSetupStep2 = ({
         <h3 id="name-details" className="text-xl font-semibold mb-2 text-gray-700">
           Name Details
         </h3>
-        <p className="text-lg">
-          {formData.prefix} {formData.firstName} {formData.middleName} {formData.lastName} {formData.suffix}
-        </p>
+        <p className="text-lg">{formData.fullName}</p>
       </section>
       <section aria-labelledby="position">
         <h3 id="position" className="text-xl font-semibold mb-2 text-gray-700">
