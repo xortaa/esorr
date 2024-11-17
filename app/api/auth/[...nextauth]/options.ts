@@ -17,6 +17,7 @@ declare module "next-auth" {
       _id: string;
       role: string;
       isSetup: boolean;
+      fullName: string;
       positions?: {
         organization?: {
           _id: string;
@@ -33,6 +34,7 @@ declare module "next-auth" {
     role: string;
     _id: string;
     isSetup: boolean;
+    fullName: string;
     positions?: {
       organization?: {
         _id: string;
@@ -50,6 +52,7 @@ declare module "next-auth/jwt" {
     role: string;
     _id: string;
     isSetup: boolean;
+    fullName: string;
     positions?: {
       organization?: {
         _id: string;
@@ -110,11 +113,13 @@ export const options: NextAuthOptions = {
             image: profile.picture,
             role: "OSA",
             isSetup: false,
+            fullName: profile.name,
           });
           await newUser.save();
           account._id = newUser._id.toString();
           account.role = newUser.role;
           account.isSetup = newUser.isSetup;
+          account.fullName = newUser.fullName;
           return true;
         }
 
@@ -125,6 +130,7 @@ export const options: NextAuthOptions = {
           account._id = existingUser._id.toString();
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
+          account.fullName = existingUser.fullName;
           if (existingUser.positions) {
             account.positions = existingUser.positions;
           }
@@ -144,8 +150,9 @@ export const options: NextAuthOptions = {
       session.user.role = token.role;
       session.user.isSetup = token.isSetup;
       session.user.positions = token.positions;
+      session.user.fullName = token.fullName;
 
-      // Populate organization details and affiliation in positions
+      // Populate organization details in positions
       if (session.user.positions) {
         for (const position of session.user.positions) {
           if (position.organization) {
@@ -156,9 +163,8 @@ export const options: NextAuthOptions = {
                 name: organization.name,
               };
             }
-          } else if (session.user.role === "AU") {
-            position.affiliation = position.position; // For AU users, set affiliation to their position
           }
+          // We no longer set the affiliation to the position for AU users here
         }
       }
 
@@ -170,14 +176,16 @@ export const options: NextAuthOptions = {
         token._id = account._id;
         token.isSetup = account.isSetup;
         token.positions = account.positions;
+        token.fullName = account.fullName;
       } else if (user) {
         token.role = (user as any).role;
         token._id = (user as any)._id.toString();
         token.isSetup = (user as any).isSetup;
         token.positions = (user as any).positions;
+        token.fullName = (user as any).fullName;
       }
 
-      // Populate organization details and affiliation in positions
+      // Populate organization details in positions
       if (token.positions) {
         for (const position of token.positions) {
           if (position.organization) {
@@ -188,8 +196,6 @@ export const options: NextAuthOptions = {
                 name: organization.name,
               };
             }
-          } else if (token.role === "AU") {
-            position.affiliation = position.position; // For AU users, set affiliation to their position
           }
         }
       }
