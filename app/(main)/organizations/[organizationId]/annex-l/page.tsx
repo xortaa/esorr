@@ -143,10 +143,11 @@ type UserPosition = {
 };
 
 type Positions = {
-  organization: {
+  organization?: {
     _id: string;
     name: string;
   };
+  affiliation?: string;
   position: string;
   _id: string;
 };
@@ -414,7 +415,7 @@ export default function EnhancedAnnexLManager() {
 
       const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-l/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserPosition.role,
           signatureUrl: url,
         },
@@ -516,11 +517,14 @@ export default function EnhancedAnnexLManager() {
                       }}
                     >
                       <option value="">Select your role</option>
-                      {session?.user?.positions?.map((userPosition: Positions, index: number) => (
-                        <option key={index} value={`${userPosition.position}-${userPosition.organization.name}`}>
-                          {userPosition.position} - {userPosition.organization.name}
-                        </option>
-                      ))}
+                      {session?.user?.positions?.map((userPosition: Positions, index: number) => {
+                        const name = userPosition.organization?.name || userPosition.affiliation;
+                        return (
+                          <option key={index} value={`${userPosition.position}-${name}`}>
+                            {userPosition.position} - {name}
+                          </option>
+                        );
+                      })}
                     </select>
                     <select
                       className="select select-bordered w-full"

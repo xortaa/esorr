@@ -915,7 +915,7 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
 
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-c1/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserPosition.role,
           signatureUrl: url,
         },

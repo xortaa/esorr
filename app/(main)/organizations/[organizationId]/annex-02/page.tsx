@@ -265,6 +265,16 @@ type Annex02 = {
   director?: SignatureSchema;
 };
 
+type Positions = {
+  organization?: {
+    _id: string;
+    name: string;
+  };
+  affiliation?: string;
+  position: string;
+  _id: string;
+};
+
 const MyDocument: React.FC<{ annex: Annex02 }> = ({ annex }) => (
   <Document>
     <Page style={styles.page} size="LEGAL">
@@ -905,7 +915,7 @@ export default function Annex02Manager({ params }: { params: { organizationId: s
 
       const updateResponse = await axios.patch(`/api/annexes/${params.organizationId}/annex-02/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
-          name: session?.user?.name || "",
+          name: session?.user?.fullName || "",
           position: selectedUserRole,
           signatureUrl: url,
           dateSigned: new Date(),
@@ -997,11 +1007,14 @@ export default function Annex02Manager({ params }: { params: { organizationId: s
                       onChange={(e) => setSelectedUserRole(e.target.value)}
                     >
                       <option value="">Select your role</option>
-                      {session?.user?.positions?.map((position, index) => (
-                        <option key={index} value={`${position.position}-${position.organization.name}`}>
-                          {position.position} - {position.organization.name}
-                        </option>
-                      ))}
+                      {session?.user?.positions?.map((userPosition: Positions, index: number) => {
+                        const name = userPosition.organization?.name || userPosition.affiliation;
+                        return (
+                          <option key={index} value={`${userPosition.position}-${name}`}>
+                            {userPosition.position} - {name}
+                          </option>
+                        );
+                      })}
                     </select>
                     <select
                       className="select select-bordered w-full"
