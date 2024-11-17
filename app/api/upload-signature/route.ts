@@ -3,29 +3,32 @@ import { Storage } from "@google-cloud/storage";
 import { v4 as uuidv4 } from "uuid";
 
 const storageClient = new Storage({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: {
+    type: "service_account",
+    project_id: process.env.GCP_PROJECT_ID,
+    private_key: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    client_email: process.env.GCP_CLIENT_EMAIL,
+    client_id: process.env.GCP_CLIENT_ID,
+  },
   projectId: process.env.GCP_PROJECT_ID,
 });
 
-const bucketName = process.env.GCP_BUCKET_SIGNATURES;
+const bucketName = process.env.GCP_BUCKET_NAME;
 const bucket = storageClient.bucket(bucketName);
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const annexId = formData.get("annexId") as string;
-    const position = formData.get("position") as string;
 
-    if (!file || !annexId || !position) {
-      return NextResponse.json({ error: "Missing required information" }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Generate a unique filename
-    const fileExtension = file.name.split(".").pop();
-    const uniqueFilename = `${annexId}_${position}_${uuidv4()}.${fileExtension}`;
+    // Generate a unique filename using uuid
+    const uniqueFilename = `${uuidv4()}-${file.name}`;
 
     // Upload to Google Cloud Storage
     const blob = bucket.file(uniqueFilename);

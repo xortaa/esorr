@@ -1,7 +1,13 @@
 import { Storage } from "@google-cloud/storage";
 
 const storageClient = new Storage({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: {
+    type: "service_account",
+    project_id: process.env.GCP_PROJECT_ID,
+    private_key: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    client_email: process.env.GCP_CLIENT_EMAIL,
+    client_id: process.env.GCP_CLIENT_ID,
+  },
   projectId: process.env.GCP_PROJECT_ID,
 });
 
