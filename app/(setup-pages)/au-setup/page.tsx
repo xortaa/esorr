@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CornerDownLeft, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CornerDownLeft, Check, Search } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,11 @@ interface FormData {
   affiliation: string;
 }
 
+interface Affiliation {
+  _id: string;
+  name: string;
+}
+
 const AUSetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
@@ -19,8 +24,24 @@ const AUSetupPage = () => {
     position: "",
     affiliation: "",
   });
+  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    fetchAffiliations();
+  }, []);
+
+  const fetchAffiliations = async () => {
+    try {
+      const response = await axios.get("/api/affiliations");
+      setAffiliations(response.data);
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    }
+  };
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -65,7 +86,16 @@ const AUSetupPage = () => {
         <SetupStepper step={step} />
         <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
           {step === 1 ? (
-            <AUSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+            <AUSetupStep1
+              nextStep={nextStep}
+              formData={formData}
+              handleFormChange={handleFormChange}
+              affiliations={affiliations}
+              affiliationSearchTerm={affiliationSearchTerm}
+              setAffiliationSearchTerm={setAffiliationSearchTerm}
+              isDropdownOpen={isDropdownOpen}
+              setIsDropdownOpen={setIsDropdownOpen}
+            />
           ) : (
             <AUSetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
           )}
@@ -79,13 +109,42 @@ interface AUSetupStep1Props {
   nextStep: () => void;
   formData: FormData;
   handleFormChange: (newData: Partial<FormData>) => void;
+  affiliations: Affiliation[];
+  affiliationSearchTerm: string;
+  setAffiliationSearchTerm: (term: string) => void;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: (isOpen: boolean) => void;
 }
 
-const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Props) => {
+const AUSetupStep1 = ({
+  nextStep,
+  formData,
+  handleFormChange,
+  affiliations,
+  affiliationSearchTerm,
+  setAffiliationSearchTerm,
+  isDropdownOpen,
+  setIsDropdownOpen,
+}: AUSetupStep1Props) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     handleFormChange({ [name]: value });
   };
+
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAffiliationSearchTerm(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleSelectAffiliation = (affiliation: Affiliation) => {
+    handleFormChange({ affiliation: affiliation.name });
+    setAffiliationSearchTerm(affiliation.name);
+    setIsDropdownOpen(false);
+  };
+
+  const filteredAffiliations = affiliations.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
+  );
 
   const isFormValid = () => {
     return formData.fullName && formData.position && formData.affiliation;
@@ -143,16 +202,35 @@ const AUSetupStep1 = ({ nextStep, formData, handleFormChange }: AUSetupStep1Prop
             <label htmlFor="affiliation" className="label">
               Affiliation
             </label>
-            <input
-              type="text"
-              id="affiliation"
-              name="affiliation"
-              className="input input-bordered w-full"
-              required
-              value={formData.affiliation}
-              onChange={handleInputChange}
-              placeholder="e.g., College of Engineering, School of Business"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="affiliation"
+                name="affiliation"
+                className="input input-bordered w-full pr-10"
+                required
+                value={affiliationSearchTerm}
+                onChange={handleAffiliationInputChange}
+                onFocus={() => setIsDropdownOpen(true)}
+                placeholder="Search for affiliation..."
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+            </div>
+            {isDropdownOpen && filteredAffiliations.length > 0 && (
+              <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                {filteredAffiliations.map((affiliation) => (
+                  <li
+                    key={affiliation._id}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectAffiliation(affiliation)}
+                  >
+                    {affiliation.name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
