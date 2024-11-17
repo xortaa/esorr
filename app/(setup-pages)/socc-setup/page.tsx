@@ -7,9 +7,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface FormData {
-  firstName: string;
-  lastName: string;
-  middleName: string;
+  fullName: string;
   position: string;
 }
 
@@ -26,24 +24,17 @@ const positions = [
   "Board of Director",
 ];
 
-const SOCCSSetupPage = () => {
+const SOCCSetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    middleName: "",
+    fullName: "",
     position: "",
   });
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const nextStep = () => {
-    setStep(step + 1);
-  };
-
-  const prevStep = () => {
-    setStep(step - 1);
-  };
+  const nextStep = () => setStep(step + 1);
+  const prevStep = () => setStep(step - 1);
 
   const handleFormChange = (newData: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -62,34 +53,30 @@ const SOCCSSetupPage = () => {
       });
 
       if (response.status === 200) {
-        alert("SOCC Signatory setup completed successfully!");
+        alert("SOCC setup completed successfully!");
         router.push("/organizations");
       }
     } catch (error) {
-      console.error("Error during SOCC Signatory setup:", error);
+      console.error("Error during SOCC setup:", error);
       alert("An error occurred during setup. Please try again.");
     }
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
+  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold text-primary">SOCC Signatory Setup</h1>
-        <p className="text-gray-600">
-          Follow the steps to set up your SOCC Signatory account before proceeding with ESORR
-        </p>
+        <h1 className="text-3xl font-bold text-primary">SOCC Setup</h1>
+        <p className="text-gray-600">Follow the steps to set up your SOCC account before proceeding with ESORR</p>
       </div>
       <div className="flex flex-col items-start justify-center w-full">
         <SetupStepper step={step} />
         <div className="p-6 bg-white w-full shadow-md rounded-lg border-t-4 border-primary">
           {step === 1 ? (
-            <SOCCSignatorySetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
+            <SOCCSetupStep1 nextStep={nextStep} formData={formData} handleFormChange={handleFormChange} />
           ) : (
-            <SOCCSignatorySetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
+            <SOCCSetupStep2 prevStep={prevStep} formData={formData} handleSubmit={handleSubmit} />
           )}
         </div>
       </div>
@@ -97,81 +84,54 @@ const SOCCSSetupPage = () => {
   );
 };
 
-interface SOCCSignatorySetupStep1Props {
+interface SOCCSetupStep1Props {
   nextStep: () => void;
   formData: FormData;
   handleFormChange: (newData: Partial<FormData>) => void;
 }
 
-const SOCCSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCSignatorySetupStep1Props) => {
+const SOCCSetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCSetupStep1Props) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     handleFormChange({ [name]: value });
   };
 
   const isFormValid = () => {
-    return formData.firstName && formData.lastName && formData.position;
+    return formData.fullName && formData.position;
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-800">Basic Setup</h2>
-        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC Signatory account</p>
+        <p className="text-primary mt-2">Please complete the following steps to set up your SOCC account</p>
       </div>
       <form
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          if (isFormValid()) {
-            nextStep();
-          }
+          if (isFormValid()) nextStep();
         }}
       >
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Name Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="firstName" className="label">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                className="input input-bordered w-full"
-                required
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="middleName" className="label">
-                Middle Name
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className="input input-bordered w-full"
-                value={formData.middleName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="label">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className="input input-bordered w-full"
-                required
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
-            </div>
+          <div>
+            <label htmlFor="fullName" className="label">
+              Full Name (including any prefix or suffix)
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              className="input input-bordered w-full"
+              required
+              value={formData.fullName}
+              onChange={handleInputChange}
+              placeholder="e.g. Dr. John A. Doe Jr."
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Include any prefix (e.g., Dr., Mr., Ms.) or suffix (e.g., Jr., Sr., III) in your full name.
+            </p>
           </div>
         </div>
 
@@ -210,7 +170,7 @@ const SOCCSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: SOCCS
   );
 };
 
-const SOCCSignatorySetupStep2 = ({
+const SOCCSetupStep2 = ({
   prevStep,
   formData,
   handleSubmit,
@@ -226,9 +186,7 @@ const SOCCSignatorySetupStep2 = ({
         <h3 id="name-details" className="text-xl font-semibold mb-2 text-gray-700">
           Name Details
         </h3>
-        <p className="text-lg">
-          {formData.firstName} {formData.middleName} {formData.lastName}
-        </p>
+        <p className="text-lg">{formData.fullName}</p>
       </section>
       <section aria-labelledby="position-details">
         <h3 id="position-details" className="text-xl font-semibold mb-2 text-gray-700">
@@ -278,4 +236,4 @@ const SetupStepper = ({ step }: { step: number }) => {
   );
 };
 
-export default SOCCSSetupPage;
+export default SOCCSetupPage;
