@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
@@ -14,8 +13,9 @@ interface Organization {
 
 interface Position {
   _id: string;
-  organization: Organization;
+  organization?: Organization;
   position: string;
+  affiliation?: string;
 }
 
 interface Account {
@@ -23,6 +23,7 @@ interface Account {
   email: string;
   role: string;
   positions: Position[];
+  affiliation?: string;
 }
 
 interface SignatoryRequest {
@@ -196,10 +197,12 @@ export default function AccountsDashboard() {
 
       if (newAccount.role === "AU") {
         accountData.affiliation = newAccount.affiliation;
+        accountData.positions = [{ affiliation: newAccount.affiliation, position: newAccount.position }];
       }
 
       if (newAccount.role === "SOCC") {
         accountData.affiliation = "SOCC";
+        accountData.positions = [{ affiliation: "SOCC", position: newAccount.position }];
       }
 
       const response = await axios.post("/api/users", accountData);
@@ -226,12 +229,7 @@ export default function AccountsDashboard() {
 
   return (
     <PageWrapper>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white shadow-lg rounded-lg p-6 mb-8"
-      >
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Accounts Dashboard</h1>
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex-1">
@@ -250,6 +248,7 @@ export default function AccountsDashboard() {
               onChange={(e) => setFilterRole(e.target.value)}
             >
               <option value="All">All Roles</option>
+              <option value="OSA">OSA</option>
               <option value="SOCC">SOCC</option>
               <option value="AU">AU</option>
               <option value="RSO">RSO</option>
@@ -347,7 +346,7 @@ export default function AccountsDashboard() {
                   <tr>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
-                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organizations and Positions</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Affiliations and Positions</th>
                     <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
                   </tr>
                 </thead>
@@ -358,9 +357,9 @@ export default function AccountsDashboard() {
                       <td className="py-3 px-4">{account.role}</td>
                       <td className="py-3 px-4">
                         <ul>
-                          {account.positions.map((pos) => (
-                            <li key={pos._id}>
-                              {pos.organization?.name}: {pos.position}
+                          {account.positions.map((pos, index) => (
+                            <li key={pos._id || index}>
+                              {pos.affiliation || pos.organization?.name}: {pos.position}
                             </li>
                           ))}
                         </ul>
@@ -379,7 +378,7 @@ export default function AccountsDashboard() {
             </div>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {isCreatingAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -409,6 +408,7 @@ export default function AccountsDashboard() {
                   required
                 >
                   <option value="">Select a role</option>
+                  <option value="OSA">OSA</option>
                   <option value="SOCC">SOCC</option>
                   <option value="AU">AU</option>
                   <option value="RSO">RSO</option>
@@ -463,6 +463,20 @@ export default function AccountsDashboard() {
                     />
                   </div>
                 </>
+              )}
+              {(newAccount.role === "AU" || newAccount.role === "SOCC") && (
+                <div>
+                  <label className="label">
+                    <span className="label-text text-gray-700">Position</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered w-full"
+                    value={newAccount.position}
+                    onChange={(e) => setNewAccount({ ...newAccount, position: e.target.value })}
+                    required
+                  />
+                </div>
               )}
               {newAccount.role === "AU" && (
                 <div>
