@@ -27,7 +27,11 @@ export async function POST(req: NextRequest) {
         firstName,
         middleName,
         lastName,
-        position,
+        $push: {
+          positions: {
+            position: position,
+          },
+        },
         isSetup: true,
       },
       { new: true }

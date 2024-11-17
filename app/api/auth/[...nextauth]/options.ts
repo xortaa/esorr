@@ -18,11 +18,12 @@ declare module "next-auth" {
       role: string;
       isSetup: boolean;
       positions?: {
-        organization: {
+        organization?: {
           _id: string;
           name: string;
         };
         position: string;
+        affiliation?: string;
         _id: string;
       }[];
     } & DefaultSession["user"];
@@ -33,11 +34,12 @@ declare module "next-auth" {
     _id: string;
     isSetup: boolean;
     positions?: {
-      organization: {
+      organization?: {
         _id: string;
         name: string;
       };
       position: string;
+      affiliation?: string;
       _id: string;
     }[];
   }
@@ -49,11 +51,12 @@ declare module "next-auth/jwt" {
     _id: string;
     isSetup: boolean;
     positions?: {
-      organization: {
+      organization?: {
         _id: string;
         name: string;
       };
       position: string;
+      affiliation?: string;
       _id: string;
     }[];
   }
@@ -62,8 +65,8 @@ declare module "next-auth/jwt" {
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: { access_type: "offline", prompt: "consent" },
       },
@@ -84,7 +87,7 @@ export const options: NextAuthOptions = {
         }).select("+password");
 
         if (userFound) {
-          const passwordMatch = await bcrypt.compare(credentials!.password, userFound.password);
+          const passwordMatch = await bcrypt.compare(credentials.password, userFound.password);
           if (!passwordMatch) throw new Error("Invalid Password");
           return userFound;
         } else {
@@ -106,7 +109,7 @@ export const options: NextAuthOptions = {
             name: profile.name,
             image: profile.picture,
             role: "OSA",
-            isSetup: false, // Initialize isSetup for new users
+            isSetup: false,
           });
           await newUser.save();
           account._id = newUser._id.toString();
@@ -142,15 +145,19 @@ export const options: NextAuthOptions = {
       session.user.isSetup = token.isSetup;
       session.user.positions = token.positions;
 
-      // Populate organization details in positions
+      // Populate organization details and affiliation in positions
       if (session.user.positions) {
         for (const position of session.user.positions) {
-          const organization = await Organization.findById(position.organization._id).select("name");
-          if (organization) {
-            position.organization = {
-              _id: organization._id.toString(),
-              name: organization.name,
-            };
+          if (position.organization) {
+            const organization = await Organization.findById(position.organization._id).select("name");
+            if (organization) {
+              position.organization = {
+                _id: organization._id.toString(),
+                name: organization.name,
+              };
+            }
+          } else if (session.user.role === "AU") {
+            position.affiliation = position.position; // For AU users, set affiliation to their position
           }
         }
       }
@@ -170,15 +177,19 @@ export const options: NextAuthOptions = {
         token.positions = (user as any).positions;
       }
 
-      // Populate organization details in positions
+      // Populate organization details and affiliation in positions
       if (token.positions) {
         for (const position of token.positions) {
-          const organization = await Organization.findById(position.organization).select("name");
-          if (organization) {
-            position.organization = {
-              _id: organization._id.toString(),
-              name: organization.name,
-            };
+          if (position.organization) {
+            const organization = await Organization.findById(position.organization).select("name");
+            if (organization) {
+              position.organization = {
+                _id: organization._id.toString(),
+                name: organization.name,
+              };
+            }
+          } else if (token.role === "AU") {
+            position.affiliation = position.position; // For AU users, set affiliation to their position
           }
         }
       }
