@@ -38,21 +38,7 @@ const UserSchema = new Schema({
       ref: "Organization",
     },
   ],
-  prefix: {
-    type: String,
-  },
-  suffix: {
-    type: String,
-  },
-  firstName: {
-    type: String,
-  },
-  middleName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
+  fullName: String,
   affiliation: {
     type: String,
   },
