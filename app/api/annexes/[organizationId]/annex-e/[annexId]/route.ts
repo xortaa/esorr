@@ -8,7 +8,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   try {
     const annexE = await AnnexE.findById(params.annexId).populate({
       path: "organization",
-      select: "name"
+      select: "name affiliation"
     }).populate({
       path: "operationalAssessment",
       populate: [

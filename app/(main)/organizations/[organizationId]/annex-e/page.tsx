@@ -36,6 +36,7 @@ type Inflow = {
 interface Organization {
   _id: string;
   name: string;
+  affiliation: string
 }
 interface EvaluationRating {
   1: number;
@@ -55,6 +56,7 @@ interface OutflowItem {
   cost: number;
   quantity: number;
   serialNumber: string;
+  expenseReportCategory: string;
 }
 interface Outflow {
   _id: string;
@@ -1653,7 +1655,7 @@ const AnnexEManager: React.FC = () => {
   const signatureRef = useRef<SignatureCanvas>(null);
   const { organizationId } = useParams();
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
-  const [inflows, setInflows] = useState<Inflow[]>([]);
+  const [inflowsMap, setInflowsMap] = useState<Map<string, Inflow[]>>(new Map());
 
   useEffect(() => {
     if (organizationId) {
@@ -1661,12 +1663,15 @@ const AnnexEManager: React.FC = () => {
     }
   }, [organizationId]);
 
-  const fetchInflows = async (annexId: string) => {
+  const fetchInflows = async (annexId: string): Promise<Inflow[]> => {
     try {
       const response = await axios.get(`/api/annexes/${organizationId}/annex-e/${annexId}/fetch-inflows`);
-      setInflows(response.data);
+      const fetchedInflows = response.data;
+      setInflowsMap(new Map(inflowsMap.set(annexId, fetchedInflows)));
+      return fetchedInflows;
     } catch (error) {
       console.error("Error fetching inflows:", error);
+      return [];
     }
   };
 
@@ -1702,6 +1707,12 @@ const AnnexEManager: React.FC = () => {
       setIsLoading(true);
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
       setSelectedAnnex(updatedAnnex);
+
+      // Fetch inflows if not already available
+      if (!inflowsMap.has(updatedAnnex._id)) {
+        await fetchInflows(updatedAnnex._id);
+      }
+
       setIsModalOpen(true);
       const blob = await generatePDFBlob(updatedAnnex);
       setPdfBlob(blob);
@@ -1717,7 +1728,7 @@ const AnnexEManager: React.FC = () => {
     try {
       console.log("Generating PDF for Annex E:", annex._id);
 
-      await fetchInflows(annex._id);
+      const annexInflows = inflowsMap.get(annex._id) || [];
 
       // Generate the main Annex E document
       const annexPdf = pdf(<MyDocument annex={annex} />);
@@ -1728,7 +1739,7 @@ const AnnexEManager: React.FC = () => {
 
       // Fetch and merge additional files for unique events
       const uniqueEvents = getUniqueEvents(annex.operationalAssessment);
-      await mergeUniqueEventFiles(uniqueEvents, merger);
+      await mergeUniqueEventFiles(uniqueEvents, merger, annex, annexInflows);
 
       const mergedPdfBuffer = await merger.saveAsBuffer();
       const mergedPdf = new Blob([mergedPdfBuffer], { type: "application/pdf" });
@@ -1756,13 +1767,18 @@ const AnnexEManager: React.FC = () => {
     return Array.from(uniqueEventsMap.values());
   };
 
-  const mergeUniqueEventFiles = async (events: Event[], merger: PDFMerger): Promise<void> => {
+  const mergeUniqueEventFiles = async (
+    events: Event[],
+    merger: PDFMerger,
+    annex: AnnexE,
+    inflows: Inflow[]
+  ): Promise<void> => {
     for (const event of events) {
       // Project Proposal Form (PPF)
       await mergeFiles(event.projectProposalForm, merger, "Project Proposal Form");
 
       // Generate and add the expense report PDF for this event
-      const expenseReportPdf = pdf(<ExpenseReport event={event} inflows={inflows} />);
+      const expenseReportPdf = pdf(<ExpenseReport event={event} inflows={inflows} annex={annex} />);
       const expenseReportBlob = await expenseReportPdf.toBlob();
       await merger.add(expenseReportBlob);
 
@@ -1815,6 +1831,12 @@ const AnnexEManager: React.FC = () => {
     try {
       setIsLoading(true);
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
+
+      // Fetch inflows if not already available
+      if (!inflowsMap.has(updatedAnnex._id)) {
+        await fetchInflows(updatedAnnex._id);
+      }
+
       const blob = await generatePDFBlob(updatedAnnex);
       const url = URL.createObjectURL(blob);
       console.log("PDF URL:", url);
