@@ -173,3 +173,42 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 };
+
+export const PATCH = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
+  await connectToDatabase();
+
+  try {
+    const { annexId } = params;
+    const updateData = await req.json();
+
+    // Validate the update data
+    const allowedFields = [
+      "outgoingSecretary",
+      "outgoingPresident",
+      "incomingSecretary",
+      "incomingPresident",
+      "adviser",
+    ];
+    const updateField = Object.keys(updateData)[0];
+
+    if (!allowedFields.includes(updateField)) {
+      return NextResponse.json({ error: "Invalid signature field" }, { status: 400 });
+    }
+
+    // Find and update the Annex E document
+    const updatedAnnexE = await AnnexE.findByIdAndUpdate(
+      annexId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAnnexE) {
+      return NextResponse.json({ error: "Annex E not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedAnnexE, { status: 200 });
+  } catch (error) {
+    console.error("Error updating Annex E signature:", error);
+    return NextResponse.json({ error: "An error occurred while updating Annex E signature" }, { status: 500 });
+  }
+};

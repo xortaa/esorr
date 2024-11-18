@@ -36,7 +36,7 @@ type Inflow = {
 interface Organization {
   _id: string;
   name: string;
-  affiliation: string
+  affiliation: string;
 }
 interface EvaluationRating {
   1: number;
@@ -332,46 +332,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const PDFPreview: React.FC<{ file: string }> = ({ file }) => {
-  const [pdfImage, setPdfImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadPDF = async () => {
-      try {
-        const loadingTask = pdfjs.getDocument(file);
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext).promise;
-
-        setPdfImage(canvas.toDataURL());
-      } catch (error) {
-        console.error("Error loading PDF:", error);
-      }
-    };
-
-    loadPDF();
-  }, [file]);
-
-  return (
-    <View>
-      <Text style={styles.pdfTitle}>PDF Preview:</Text>
-      {pdfImage ? <Image src={pdfImage} style={styles.pdfPreview} /> : <Text>Loading PDF preview...</Text>}
-    </View>
-  );
-};
-
 const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
   const getUniqueEvents = () => {
     const eventsMap = new Map<string, Event>();
@@ -388,24 +348,6 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
   };
 
   const uniqueEvents = getUniqueEvents();
-
-  const renderPDFs = async (files: string[]) => {
-    const pdfDocs = await Promise.all(
-      files.map(async (file) => {
-        const pdfBytes = await fetch(file).then((res) => res.arrayBuffer());
-        return await PDFDocument.load(pdfBytes);
-      })
-    );
-
-    const mergedPdf = await PDFDocument.create();
-    for (const pdf of pdfDocs) {
-      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-      copiedPages.forEach((page) => mergedPdf.addPage(page));
-    }
-
-    const pdfBytes = await mergedPdf.save();
-    return pdfBytes;
-  };
 
   //  const evaluationSummary = event.evaluationSummary || {};
   //  const criteria = Object.keys(evaluationSummary);
@@ -1584,11 +1526,11 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
               borderTop: 1,
             }}
           >
-            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}>Sample</Text>
-            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}>Sample</Text>
-            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}>Sample</Text>
+            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}>{" "}</Text>
+            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}></Text>
+            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}></Text>
             <Text style={{ borderRight: 1, width: "12.25%", padding: 2 }}>
-              <Text style={{ fontFamily: "Boxed" }}>0</Text>
+              <Text style={{ fontFamily: "Boxed" }}></Text>
             </Text>
             <Text style={{ borderRight: 1, width: "12.25%", padding: 2 }}></Text>
             <Text style={{ borderRight: 1, width: "12.25%", padding: 2 }}></Text>
@@ -1599,31 +1541,65 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
         <View style={{ fontSize: 8 }}>
           <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 10 }}>Prepared By:</Text>
           <Text style={{ fontFamily: "Arial Narrow Bold Italic", marginTop: 10 }}>
-            <Text style={{ backgroundColor: "black", color: "white" }}>OUTOGING OFFICERS:</Text>
+            <Text style={{ backgroundColor: "black", color: "white" }}>OUTGOING OFFICERS:</Text>
           </Text>
-          <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1, marginTop: 20 }}>
-            SIGNATURE OVER PRINTED NAME OF SECRETARY
-          </Text>
-          <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1, marginTop: 20 }}>
-            SIGNATURE OVER PRINTED NAME OF PRESIDENT
-          </Text>
+          <View style={{ flexDirection: "column", marginTop: 20 }}>
+            <View style={{ width: "50%" }}>
+              {annex.outgoingSecretary && (
+                <Image src={annex.outgoingSecretary.signatureUrl} style={{ width: 100, height: 50 }} />
+              )}
+              <Text style={{ fontFamily: "Arial Narrow Bold", borderTop: 1 }}>
+                {annex.outgoingSecretary ? annex.outgoingSecretary.name : "SIGNATURE OVER PRINTED NAME OF SECRETARY"}
+              </Text>
+              <Text>{annex.outgoingSecretary && annex.outgoingSecretary.position}</Text>
+            </View>
+            <View style={{ width: "50%" }}>
+              {annex.outgoingPresident && (
+                <Image src={annex.outgoingPresident.signatureUrl} style={{ width: 100, height: 50 }} />
+              )}
+              <Text style={{ fontFamily: "Arial Narrow Bold", borderTop: 1 }}>
+                {annex.outgoingPresident ? annex.outgoingPresident.name : "SIGNATURE OVER PRINTED NAME OF PRESIDENT"}
+              </Text>
+              <Text>{annex.outgoingPresident && annex.outgoingPresident.position}</Text>
+            </View>
+          </View>
+
           <Text style={{ fontFamily: "Arial Narrow Bold Italic", marginTop: 10 }}>
             <Text style={{ backgroundColor: "black", color: "white" }}>INCOMING OFFICERS:</Text>
           </Text>
 
-          <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1, marginTop: 20 }}>
-            SIGNATURE OVER PRINTED NAME OF SECRETARY
-          </Text>
-          <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1, marginTop: 20 }}>
-            SIGNATURE OVER PRINTED NAME OF PRESIDENT
-          </Text>
+          <View style={{ flexDirection: "column", marginTop: 20 }}>
+            <View style={{ width: "50%" }}>
+              {annex.incomingSecretary && (
+                <Image src={annex.incomingSecretary.signatureUrl} style={{ width: 100, height: 50 }} />
+              )}
+              <Text style={{ fontFamily: "Arial Narrow Bold", borderTop: 1 }}>
+                {annex.incomingSecretary ? annex.incomingSecretary.name : "SIGNATURE OVER PRINTED NAME OF SECRETARY"}
+              </Text>
+              <Text>{annex.incomingSecretary && annex.incomingSecretary.position}</Text>
+            </View>
+            <View style={{ width: "50%" }}>
+              {annex.incomingPresident && (
+                <Image src={annex.incomingPresident.signatureUrl} style={{ width: 100, height: 50 }} />
+              )}
+              <Text style={{ fontFamily: "Arial Narrow Bold", borderTop: 1 }}>
+                {annex.incomingPresident ? annex.incomingPresident.name : "SIGNATURE OVER PRINTED NAME OF PRESIDENT"}
+              </Text>
+              <Text>{annex.incomingPresident && annex.incomingPresident.position}</Text>
+            </View>
+          </View>
+
           <Text style={{ fontFamily: "Arial Narrow Bold Italic", marginTop: 10 }}>
             <Text style={{ backgroundColor: "black", color: "white" }}> Certified by:</Text>
           </Text>
 
-          <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1, marginTop: 20 }}>
-            SIGNATURE OVER PRINTED NAME OF ADVISER
-          </Text>
+          <View style={{ marginTop: 20 }}>
+            {annex.adviser && <Image src={annex.adviser.signatureUrl} style={{ width: 100, height: 50 }} />}
+            <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1 }}>
+              {annex.adviser ? annex.adviser.name : "SIGNATURE OVER PRINTED NAME OF ADVISER"}
+            </Text>
+            <Text>{annex.adviser && annex.adviser.position}</Text>
+          </View>
         </View>
 
         <Footer />
@@ -1708,7 +1684,6 @@ const AnnexEManager: React.FC = () => {
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
       setSelectedAnnex(updatedAnnex);
 
-      // Fetch inflows if not already available
       if (!inflowsMap.has(updatedAnnex._id)) {
         await fetchInflows(updatedAnnex._id);
       }
@@ -1730,14 +1705,12 @@ const AnnexEManager: React.FC = () => {
 
       const annexInflows = inflowsMap.get(annex._id) || [];
 
-      // Generate the main Annex E document
       const annexPdf = pdf(<MyDocument annex={annex} />);
       const annexBlob = await annexPdf.toBlob();
 
       let merger = new PDFMerger();
       await merger.add(annexBlob);
 
-      // Fetch and merge additional files for unique events
       const uniqueEvents = getUniqueEvents(annex.operationalAssessment);
       await mergeUniqueEventFiles(uniqueEvents, merger, annex, annexInflows);
 
@@ -1774,21 +1747,14 @@ const AnnexEManager: React.FC = () => {
     inflows: Inflow[]
   ): Promise<void> => {
     for (const event of events) {
-      // Project Proposal Form (PPF)
       await mergeFiles(event.projectProposalForm, merger, "Project Proposal Form");
 
-      // Generate and add the expense report PDF for this event
       const expenseReportPdf = pdf(<ExpenseReport event={event} inflows={inflows} annex={annex} />);
       const expenseReportBlob = await expenseReportPdf.toBlob();
       await merger.add(expenseReportBlob);
 
-      // Actual answered Evaluation Forms
       await mergeFiles(event.actualAnsweredEvaluationForms, merger, "Actual Answered Evaluation Forms");
-
-      // Short write-up of the event for publication
       await mergeFiles(event.shortWriteUp, merger, "Short Write-up");
-
-      // Pictures of Event with Description
       await mergeFiles(event.picturesOfEvent, merger, "Pictures of Event");
     }
   };
@@ -1832,7 +1798,6 @@ const AnnexEManager: React.FC = () => {
       setIsLoading(true);
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
 
-      // Fetch inflows if not already available
       if (!inflowsMap.has(updatedAnnex._id)) {
         await fetchInflows(updatedAnnex._id);
       }
