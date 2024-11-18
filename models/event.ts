@@ -51,11 +51,15 @@ const EventSchema = new Schema({
   comments: [{ id: { type: String }, text: { type: String } }],
   sponsorName: { type: String },
   sponsorshipTypes: [{ type: String }],
-  files: [String],
+  // files: [String],
   outflows: {
     type: [Schema.Types.ObjectId],
     ref: "Outflow",
   },
+  projectProposalForm: [String],
+  actualAnsweredEvaluationForms: [String],
+  shortWriteUp: [String],
+  picturesOfEvent: [String],
 });
 
 const Event = models.Event || model("Event", EventSchema);

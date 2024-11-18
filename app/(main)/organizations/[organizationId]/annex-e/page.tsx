@@ -11,6 +11,11 @@ import { pdf } from "@react-pdf/renderer";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import { PDFDocument } from "pdf-lib";
+import * as pdfjs from "pdfjs-dist";
+import PDFMerger from "pdf-merger-js";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export interface Signature {
   name: string;
@@ -80,8 +85,12 @@ export interface Event {
   comments: Array<{ id: string; text: string }>;
   sponsorName: string;
   sponsorshipTypes: SponsorshipType[];
-  files: string[];
+  
   outflows: Outflow[];
+  projectProposalForm: string[];
+  actualAnsweredEvaluationForms: string[];
+  shortWriteUp: string[];
+  picturesOfEvent: string[];
 }
 
 type SponsorshipType = "Cash" | "Deals" | "Booth" | "Product Launching" | "Flyers" | "Discount Coupon";
@@ -301,7 +310,62 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
+  pdfContainer: {
+    marginTop: 10,
+    border: 1,
+    padding: 5,
+  },
+  pdfTitle: {
+    fontSize: 10,
+    fontFamily: "Arial Narrow Bold",
+    marginBottom: 5,
+  },
+  pdfPreview: {
+    width: "100%",
+    height: 200,
+    objectFit: "contain",
+  },
 });
+
+const PDFPreview: React.FC<{ file: string }> = ({ file }) => {
+  const [pdfImage, setPdfImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPDF = async () => {
+      try {
+        const loadingTask = pdfjs.getDocument(file);
+        const pdf = await loadingTask.promise;
+        const page = await pdf.getPage(1);
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport,
+        };
+        await page.render(renderContext).promise;
+
+        setPdfImage(canvas.toDataURL());
+      } catch (error) {
+        console.error("Error loading PDF:", error);
+      }
+    };
+
+    loadPDF();
+  }, [file]);
+
+  return (
+    <View>
+      <Text style={styles.pdfTitle}>PDF Preview:</Text>
+      {pdfImage ? <Image src={pdfImage} style={styles.pdfPreview} /> : <Text>Loading PDF preview...</Text>}
+    </View>
+  );
+};
 
 const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
   const getUniqueEvents = () => {
@@ -319,6 +383,24 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
   };
 
   const uniqueEvents = getUniqueEvents();
+
+  const renderPDFs = async (files: string[]) => {
+    const pdfDocs = await Promise.all(
+      files.map(async (file) => {
+        const pdfBytes = await fetch(file).then((res) => res.arrayBuffer());
+        return await PDFDocument.load(pdfBytes);
+      })
+    );
+
+    const mergedPdf = await PDFDocument.create();
+    for (const pdf of pdfDocs) {
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      copiedPages.forEach((page) => mergedPdf.addPage(page));
+    }
+
+    const pdfBytes = await mergedPdf.save();
+    return pdfBytes;
+  };
 
   //  const evaluationSummary = event.evaluationSummary || {};
   //  const criteria = Object.keys(evaluationSummary);
@@ -1451,6 +1533,8 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
               <Text>•</Text>
               <Text style={{ paddingLeft: 10 }}>Pictures of Event with Description</Text>
             </View>
+
+            {/* MAP OVER ALL THE EVENT.FILES FILE IN THE EVENT AND CONCATENATE THE PDF HERE */}
           </View>
         ))}
         {/* end of event} */}
@@ -1618,13 +1702,92 @@ const AnnexEManager: React.FC = () => {
 
   const generatePDFBlob = async (annex: AnnexE): Promise<Blob> => {
     try {
-      console.log("Generating PDF for annex:", annex);
-      const blob = await pdf(<MyDocument annex={annex} />).toBlob();
-      console.log("PDF blob generated successfully");
+      console.log("Generating PDF for Annex E:", annex._id);
+
+      // Generate the main Annex E document
+      const annexPdf = pdf(<MyDocument annex={annex} />);
+      const annexBlob = await annexPdf.toBlob();
+
+      let merger = new PDFMerger();
+      await merger.add(annexBlob);
+
+      // Fetch and merge additional files for unique events
+      const uniqueEvents = getUniqueEvents(annex.operationalAssessment);
+      await mergeUniqueEventFiles(uniqueEvents, merger);
+
+      const mergedPdfBuffer = await merger.saveAsBuffer();
+      const mergedPdf = new Blob([mergedPdfBuffer], { type: "application/pdf" });
+      console.log("Merged Annex E PDF blob generated. Size:", mergedPdf.size, "bytes");
+      return mergedPdf;
+    } catch (error) {
+      console.error("Error generating Annex E PDF blob:", error);
+      throw error;
+    }
+  };
+
+  const getUniqueEvents = (operationalAssessment: OperationalAssessment): Event[] => {
+    const uniqueEventsMap = new Map<string, Event>();
+
+    Object.values(operationalAssessment).forEach((category) => {
+      if (Array.isArray(category)) {
+        category.forEach((item) => {
+          if (item.event && !uniqueEventsMap.has(item.event._id)) {
+            uniqueEventsMap.set(item.event._id, item.event);
+          }
+        });
+      }
+    });
+
+    return Array.from(uniqueEventsMap.values());
+  };
+
+  const mergeUniqueEventFiles = async (events: Event[], merger: PDFMerger): Promise<void> => {
+    for (const event of events) {
+      // Project Proposal Form (PPF)
+      await mergeFiles(event.projectProposalForm, merger, "Project Proposal Form");
+
+      // Actual answered Evaluation Forms
+      await mergeFiles(event.actualAnsweredEvaluationForms, merger, "Actual Answered Evaluation Forms");
+
+      // Short write-up of the event for publication
+      await mergeFiles(event.shortWriteUp, merger, "Short Write-up");
+
+      // Pictures of Event with Description
+      await mergeFiles(event.picturesOfEvent, merger, "Pictures of Event");
+    }
+  };
+
+  const mergeFiles = async (files: string[], merger: PDFMerger, category: string): Promise<void> => {
+    if (files && files.length > 0) {
+      console.log(`Processing ${category} for event`);
+      for (const fileUrl of files) {
+        const fileBlob = await fetchPDF(fileUrl);
+        if (fileBlob) {
+          await merger.add(fileBlob);
+          console.log(`Added ${category} file: ${fileUrl}`);
+        } else {
+          console.warn(`Failed to fetch ${category} file: ${fileUrl}`);
+        }
+      }
+    } else {
+      console.log(`No ${category} files found for event`);
+    }
+  };
+
+  const fetchPDF = async (url: string): Promise<Blob | null> => {
+    try {
+      console.log("Fetching PDF from URL:", url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error("Failed to fetch PDF. Status:", response.status);
+        throw new Error("Failed to fetch PDF");
+      }
+      const blob = await response.blob();
+      console.log("PDF fetched successfully. Size:", blob.size, "bytes");
       return blob;
     } catch (error) {
-      console.error("Error generating PDF blob:", error);
-      throw error;
+      console.error("Error fetching PDF:", error);
+      return null;
     }
   };
 

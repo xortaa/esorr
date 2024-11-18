@@ -53,7 +53,10 @@ interface EventData {
   comments: Comment[];
   sponsorName: string;
   sponsorshipTypes: string[];
-  files: string[];
+  projectProposalForm: string[];
+  actualAnsweredEvaluationForms: string[];
+  shortWriteUp: string[];
+  picturesOfEvent: string[];
 }
 
 interface FileToUpload {
@@ -92,7 +95,10 @@ const EventDetails = () => {
     comments: [],
     sponsorName: "",
     sponsorshipTypes: [],
-    files: [],
+    projectProposalForm: [],
+    actualAnsweredEvaluationForms: [],
+    shortWriteUp: [],
+    picturesOfEvent: [],
   });
   const [newCriteria, setNewCriteria] = useState("");
   const [filesToUpload, setFilesToUpload] = useState<FileToUpload[]>([]);
@@ -121,7 +127,10 @@ const EventDetails = () => {
         comments: data.comments || [],
         sponsorName: data.sponsorName || "",
         sponsorshipTypes: data.sponsorshipTypes || [],
-        files: data.files || [],
+        projectProposalForm: data.projectProposalForm || [],
+        actualAnsweredEvaluationForms: data.actualAnsweredEvaluationForms || [],
+        shortWriteUp: data.shortWriteUp || [],
+        picturesOfEvent: data.picturesOfEvent || [],
       }));
     } catch (error) {
       console.error("Error fetching event details:", error);
@@ -231,49 +240,74 @@ const EventDetails = () => {
     }));
   };
 
-  const handleSave = async () => {
-    try {
-      // Upload files
-      const uploadedFiles = await Promise.all(
-        filesToUpload.map(async (fileToUpload) => {
-          const formData = new FormData();
-          formData.append("file", fileToUpload.file);
+ const handleSave = async () => {
+   try {
+     // Upload files
+     const uploadedFiles = await Promise.all(
+       filesToUpload.map(async (fileToUpload) => {
+         const formData = new FormData();
+         formData.append("file", fileToUpload.file);
+         formData.append("fileType", fileToUpload.fileType);
 
-          const response = await fetch("/api/upload-image", {
-            method: "POST",
-            body: formData,
-          });
+         const response = await fetch("/api/upload-image", {
+           method: "POST",
+           body: formData,
+         });
 
-          if (!response.ok) throw new Error("Upload failed");
+         if (!response.ok) {
+           const errorData = await response.json();
+           throw new Error(`Upload failed: ${errorData.message || "Unknown error"}`);
+         }
 
-          const data = await response.json();
-          return data.url;
-        })
-      );
+         const data = await response.json();
+         return { url: data.url, fileType: fileToUpload.fileType };
+       })
+     );
 
-      // Update event with new file URLs
-      const updatedEvent = {
-        ...event,
-        files: [...event.files, ...uploadedFiles],
-      };
+     // Update event with new file URLs
+     const updatedEvent = {
+       ...event,
+       projectProposalForm: [
+         ...event.projectProposalForm,
+         ...uploadedFiles.filter((file) => file.fileType === "projectProposalForm").map((file) => file.url),
+       ],
+       actualAnsweredEvaluationForms: [
+         ...event.actualAnsweredEvaluationForms,
+         ...uploadedFiles.filter((file) => file.fileType === "actualAnsweredEvaluationForms").map((file) => file.url),
+       ],
+       shortWriteUp: [
+         ...event.shortWriteUp,
+         ...uploadedFiles.filter((file) => file.fileType === "shortWriteUp").map((file) => file.url),
+       ],
+       picturesOfEvent: [
+         ...event.picturesOfEvent,
+         ...uploadedFiles.filter((file) => file.fileType === "picturesOfEvent").map((file) => file.url),
+       ],
+     };
 
-      // Save event data
-      await axios.put(
-        `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
-        updatedEvent
-      );
+     // Save event data
+     const saveResponse = await axios.put(
+       `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
+       updatedEvent
+     );
 
-      // Clear filesToUpload after successful save
-      setFilesToUpload([]);
+     if (saveResponse.status !== 200) {
+       throw new Error("Failed to save event data");
+     }
 
-      // Update local state
-      setEvent(updatedEvent);
+     // Clear filesToUpload after successful save
+     setFilesToUpload([]);
 
-      console.log("Event saved successfully:", updatedEvent);
-    } catch (error) {
-      console.error("Error updating event:", error);
-    }
-  };
+     // Update local state
+     setEvent(updatedEvent);
+
+     console.log("Event saved successfully:", updatedEvent);
+     alert("Event saved successfully!");
+   } catch (error) {
+     console.error("Error updating event:", error);
+     alert(`Error saving event: ${error.message}`);
+   }
+ };
 
   return (
     <div className="container mx-auto p-4">
@@ -300,7 +334,12 @@ const EventDetails = () => {
           sponsorshipTypes={event.sponsorshipTypes}
           updateEvent={updateEvent}
         />
-        <FileUploadForm files={event.files} filesToUpload={filesToUpload} setFilesToUpload={setFilesToUpload} />
+        <FileUploadForm
+          event={event}
+          filesToUpload={filesToUpload}
+          setFilesToUpload={setFilesToUpload}
+          updateEvent={updateEvent}
+        />
         <div className="flex justify-between">
           <Link href={`/organizations/${organizationId}/annex-e/${annexId}`} className="btn btn-secondary">
             Back to List
@@ -670,15 +709,26 @@ const SponsorForm: React.FC<{
 };
 
 const FileUploadForm: React.FC<{
-  files: string[];
+  event: EventData;
   filesToUpload: FileToUpload[];
   setFilesToUpload: React.Dispatch<React.SetStateAction<FileToUpload[]>>;
-}> = ({ files, filesToUpload, setFilesToUpload }) => {
+  updateEvent: (field: keyof EventData, value: any) => void;
+}> = ({ event, filesToUpload, setFilesToUpload, updateEvent }) => {
   const [uploadStatus, setUploadStatus] = useState<{ [key: string]: string }>({});
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Only PDF files are allowed.");
+      return;
+    }
+
+    if (file.size > 200 * 1024 * 1024) {
+      alert("File size must not exceed 200MB.");
+      return;
+    }
 
     setFilesToUpload((prev) => [...prev, { file, fileType }]);
     setUploadStatus((prev) => ({ ...prev, [fileType]: "selected" }));
@@ -693,44 +743,94 @@ const FileUploadForm: React.FC<{
     }
   };
 
+  const handleDeleteFile = async (fileType: keyof EventData, fileName: string) => {
+    try {
+      await axios.post("/api/delete-file", { fileName });
+      updateEvent(
+        fileType,
+        (event[fileType] as string[]).filter((file) => file !== fileName)
+      );
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      alert("Failed to delete file. Please try again.");
+    }
+  };
+
+  const renderFileList = (fileType: keyof EventData, label: string) => {
+    const files = event[fileType];
+    if (Array.isArray(files) && files.length > 0) {
+      return files.map((file, index) => {
+        const fileUrl = typeof file === "string" ? file : file.text;
+        return (
+          <li key={`${fileType}-${index}`} className="text-sm flex items-center justify-between">
+            <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              {`${label} ${index + 1}`}
+            </a>
+            <button
+              onClick={() => handleDeleteFile(fileType, fileUrl)}
+              className="btn btn-ghost btn-xs"
+              aria-label={`Delete ${label}`}
+            >
+              <Trash2 size={16} />
+            </button>
+          </li>
+        );
+      });
+    }
+    return null;
+  };
+
   return (
     <div className="card bg-base-100 border-2">
       <div className="card-body">
         <h2 className="card-title text-primary">Required Attachments</h2>
         <div className="space-y-4">
+          <p className="text-lg font-medium">Please attach the following:</p>
+          <ul className="list-disc list-inside space-y-2">
+            <li>Project Proposal Form (PPF)</li>
+            <li>Actual answered Evaluation Forms</li>
+            <li>Short write-up of the event for publication.</li>
+            <li>Pictures of Event with Description</li>
+          </ul>
+          <p className="text-sm text-slate-500">
+            Note: Liquidation Report and PHOTOCOPY of Original Receipts (Please follow standard format) is accomplished
+            in the annex E2. There won't be a file upload here.
+          </p>
           <div className="grid gap-4">
-            <p className="text-slate-500">
-              Note: The expense report and receipts should be accomplished in the Annex-E2 of E-SORR
-            </p>
-            {["saaf", "evaluationTally", "writeup", "eventPictures", "terminalReport"].map((fileType) => (
-              <div key={fileType} className="form-control">
+            {[
+              { type: "projectProposalForm", label: "Project Proposal Form (PPF)" },
+              { type: "actualAnsweredEvaluationForms", label: "Actual answered Evaluation Forms" },
+              { type: "shortWriteUp", label: "Short write-up" },
+              { type: "picturesOfEvent", label: "Pictures of Event (PDF with images and descriptions)" },
+            ].map(({ type, label }) => (
+              <div key={type} className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium">{fileType.charAt(0).toUpperCase() + fileType.slice(1)}</span>
+                  <span className="label-text font-medium">{label}</span>
                 </label>
                 <input
                   type="file"
                   className="file-input file-input-bordered w-full"
-                  onChange={(e) => handleFileSelect(e, fileType)}
-                  accept={fileType === "eventPictures" ? ".jpg,.jpeg,.png" : ".pdf,.doc,.docx,.xls,.xlsx"}
+                  onChange={(e) => handleFileSelect(e, type)}
+                  accept=".pdf"
                 />
-                <span className={`text-sm mt-1 ${getStatusColor(fileType)}`}>
-                  {uploadStatus[fileType] === "selected" && "File selected (will be uploaded on save)"}
+                <span className={`text-sm mt-1 ${getStatusColor(type)}`}>
+                  {uploadStatus[type] === "selected" && "File selected (will be uploaded on save)"}
                 </span>
               </div>
             ))}
           </div>
 
-          {files.length > 0 && (
+          {(event.projectProposalForm.length > 0 ||
+            event.actualAnsweredEvaluationForms.length > 0 ||
+            event.shortWriteUp.length > 0 ||
+            event.picturesOfEvent.length > 0) && (
             <div className="mt-4">
               <h3 className="text-sm font-medium mb-2">Previously Uploaded Files:</h3>
               <ul className="list-disc list-inside space-y-1">
-                {files.map((file, index) => (
-                  <li key={index} className="text-sm">
-                    <a href={file} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                      {file.split("/").pop()}
-                    </a>
-                  </li>
-                ))}
+                {renderFileList("projectProposalForm", "Project Proposal Form")}
+                {renderFileList("actualAnsweredEvaluationForms", "Evaluation Forms")}
+                {renderFileList("shortWriteUp", "Short Write-up")}
+                {renderFileList("picturesOfEvent", "Event Pictures")}
               </ul>
             </div>
           )}
