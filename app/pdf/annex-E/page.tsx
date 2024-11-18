@@ -900,6 +900,8 @@ const MyDocument = () => {
           </View>
         </View>
         <Text style={{ marginTop: 30 }}>(Attach Evaluation Report of all Events)</Text>
+
+        
         <View>
           <View break style={{ flexDirection: "column", textAlign: "center" }}>
             <Text>UNIVERSITY OF SANTO TOMAS</Text>
@@ -1272,6 +1274,10 @@ const MyDocument = () => {
           <Text>•</Text>
           <Text style={{ paddingLeft: 10 }}>Pictures of Event with Description</Text>
         </View>
+
+
+
+
         <Text break style={{}}>
           Recognition of Organizational Excellence
         </Text>

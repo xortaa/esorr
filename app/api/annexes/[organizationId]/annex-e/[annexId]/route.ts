@@ -6,7 +6,167 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexE = await AnnexE.findById(params.annexId);
+    const annexE = await AnnexE.findById(params.annexId).populate({
+      path: "organization",
+      select: "name"
+    }).populate({
+      path: "operationalAssessment",
+      populate: [
+        {
+          path: "v01.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v02.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v03.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v04.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v05.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v06.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v07.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v08.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "v09.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "s1.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "s2.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "s3.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "e1.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "e2.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "e3.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "a1.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "a2.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "a3.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "l1.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "l2.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "l3.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg1.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg2.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg3.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg4.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg5.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg6.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg7.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg8.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg9.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg10.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg11.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg12.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg13.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg14.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg15.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg16.event",
+          populate: { path: "outflows" },
+        },
+        {
+          path: "sdg17.event",
+          populate: { path: "outflows" },
+        },
+      ],
+    });
+
     return NextResponse.json(annexE, { status: 200 });
   } catch (error) {
     console.error(error);
