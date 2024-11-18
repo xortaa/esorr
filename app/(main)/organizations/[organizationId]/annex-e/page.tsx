@@ -14,43 +14,49 @@ import { useSession } from "next-auth/react";
 import { PDFDocument } from "pdf-lib";
 import * as pdfjs from "pdfjs-dist";
 import PDFMerger from "pdf-merger-js";
+import ExpenseReport from "@/components/ExpenseReport";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-export interface Signature {
+interface Signature {
   name: string;
   position: string;
   signatureUrl: string;
 }
 
-export interface Organization {
+type Inflow = {
+  _id: string;
+  category: string;
+  date: Date;
+  amount: number;
+  payingParticipants: number;
+  totalMembers: number;
+  merchandiseSales: number;
+};
+
+interface Organization {
   _id: string;
   name: string;
 }
-
-export interface EvaluationRating {
+interface EvaluationRating {
   1: number;
   2: number;
   3: number;
   4: number;
   5: number;
 }
-
-export interface AssessmentCriteria {
+interface AssessmentCriteria {
   rating: number;
   analysis: string;
   recommendation: string;
 }
-
-export interface OutflowItem {
+interface OutflowItem {
   category: string;
   description: string;
   cost: number;
   quantity: number;
   serialNumber: string;
 }
-
-export interface Outflow {
+interface Outflow {
   _id: string;
   establishment: string;
   date: Date;
@@ -58,8 +64,7 @@ export interface Outflow {
   totalCost: number;
   image: string;
 }
-
-export interface Event {
+interface Event {
   _id: string;
   academicYear: string;
   organization: string;
@@ -85,7 +90,7 @@ export interface Event {
   comments: Array<{ id: string; text: string }>;
   sponsorName: string;
   sponsorshipTypes: SponsorshipType[];
-  
+
   outflows: Outflow[];
   projectProposalForm: string[];
   actualAnsweredEvaluationForms: string[];
@@ -95,11 +100,10 @@ export interface Event {
 
 type SponsorshipType = "Cash" | "Deals" | "Booth" | "Product Launching" | "Flyers" | "Discount Coupon";
 
-export interface OperationalAssessmentCategory {
+interface OperationalAssessmentCategory {
   event: Event;
 }
-
-export interface OperationalAssessment {
+interface OperationalAssessment {
   _id: string;
   annexE: string;
   v01: OperationalAssessmentCategory[];
@@ -141,8 +145,7 @@ export interface OperationalAssessment {
   sdg16: OperationalAssessmentCategory[];
   sdg17: OperationalAssessmentCategory[];
 }
-
-export interface AnnexE {
+interface AnnexE {
   _id: string;
   organization: Organization;
   academicYear: string;
@@ -1650,12 +1653,22 @@ const AnnexEManager: React.FC = () => {
   const signatureRef = useRef<SignatureCanvas>(null);
   const { organizationId } = useParams();
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
+  const [inflows, setInflows] = useState<Inflow[]>([]);
 
   useEffect(() => {
     if (organizationId) {
       fetchAnnexes();
     }
   }, [organizationId]);
+
+  const fetchInflows = async (annexId: string) => {
+    try {
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-e/${annexId}/fetch-inflows`);
+      setInflows(response.data);
+    } catch (error) {
+      console.error("Error fetching inflows:", error);
+    }
+  };
 
   const fetchAnnexes = async () => {
     setIsLoading(true);
@@ -1704,6 +1717,8 @@ const AnnexEManager: React.FC = () => {
     try {
       console.log("Generating PDF for Annex E:", annex._id);
 
+      await fetchInflows(annex._id);
+
       // Generate the main Annex E document
       const annexPdf = pdf(<MyDocument annex={annex} />);
       const annexBlob = await annexPdf.toBlob();
@@ -1745,6 +1760,11 @@ const AnnexEManager: React.FC = () => {
     for (const event of events) {
       // Project Proposal Form (PPF)
       await mergeFiles(event.projectProposalForm, merger, "Project Proposal Form");
+
+      // Generate and add the expense report PDF for this event
+      const expenseReportPdf = pdf(<ExpenseReport event={event} inflows={inflows} />);
+      const expenseReportBlob = await expenseReportPdf.toBlob();
+      await merger.add(expenseReportBlob);
 
       // Actual answered Evaluation Forms
       await mergeFiles(event.actualAnsweredEvaluationForms, merger, "Actual Answered Evaluation Forms");
