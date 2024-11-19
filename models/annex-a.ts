@@ -1,5 +1,10 @@
 import { Schema, model, models } from "mongoose";
 
+const SignatureSchema = new Schema({ 
+  name: String,
+  signatureUrl: String,
+})
+
 const AnnexASchema = new Schema({
   organization: {
     type: Schema.Types.ObjectId,
@@ -53,6 +58,29 @@ const AnnexASchema = new Schema({
     type: Boolean, 
     default: false
   },
+  advisers: { 
+    type: [Schema.Types.ObjectId], 
+    ref: "Nominee" 
+  },
+  officers: { 
+    type: [Schema.Types.ObjectId], 
+    ref: "Officer" 
+  },
+  members: {
+    type: [Schema.Types.ObjectId],
+    ref: "Member"
+
+  },
+  outflows: { 
+    type: [Schema.Types.ObjectId], 
+    ref: "Outflow" 
+  },
+  outgoingSecretary: SignatureSchema,
+  incomingSecretary: SignatureSchema,
+  outgoingTreasurer: SignatureSchema,
+  incomingTreasurer: SignatureSchema,
+  outgoingPresident: SignatureSchema,
+  incomingPresident: SignatureSchema,
 });
 
 const AnnexA = models.AnnexA || model("AnnexA", AnnexASchema);

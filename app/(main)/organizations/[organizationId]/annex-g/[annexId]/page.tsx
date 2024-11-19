@@ -1,11 +1,16 @@
-// C:\Users\kercw\code\dev\esorr\app\(main)\organizations\[organizationId]\annex-g\[annexId]\page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { Save, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Save, Trash2, Upload, X } from 'lucide-react';
 import PageWrapper from "@/components/PageWrapper";
 import { uploadImage } from "@/utils/storage";
 import { useParams } from "next/navigation";
+import SignatureCanvas from "react-signature-canvas";
+
+type Affiliation = {
+  _id: string;
+  name: string;
+};
 
 type Nominee = {
   _id?: string;
@@ -15,6 +20,9 @@ type Nominee = {
   landline: string;
   mobile: string;
   cv?: File | string;
+  officeAddress1: string;
+  officeAddress2: string;
+  signature: string;
 };
 
 const INITIAL_NOMINEE: Nominee = {
@@ -23,6 +31,9 @@ const INITIAL_NOMINEE: Nominee = {
   email: "",
   landline: "",
   mobile: "",
+  officeAddress1: "",
+  officeAddress2: "",
+  signature: "",
 };
 
 export default function Component() {
@@ -37,9 +48,17 @@ export default function Component() {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const signatureRefs = [useRef<SignatureCanvas>(null), useRef<SignatureCanvas>(null), useRef<SignatureCanvas>(null)];
+
+  // New state for affiliations
+  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
+  const [affiliationSearchTerms, setAffiliationSearchTerms] = useState<string[]>(["", "", ""]);
+  const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState<boolean[]>([false, false, false]);
+  const [affiliationsLoading, setAffiliationsLoading] = useState(false);
 
   useEffect(() => {
     fetchNominees();
+    fetchAffiliations();
   }, [organizationId, annexId]);
 
   const fetchNominees = async () => {
@@ -68,10 +87,57 @@ export default function Component() {
     }
   };
 
+  const fetchAffiliations = async () => {
+    setAffiliationsLoading(true);
+    try {
+      const response = await fetch('/api/affiliations');
+      if (!response.ok) {
+        throw new Error('Failed to fetch affiliations');
+      }
+      const data = await response.json();
+      setAffiliations(data);
+    } catch (error) {
+      console.error('Error fetching affiliations:', error);
+      setError('Failed to load affiliations. Please try again.');
+    } finally {
+      setAffiliationsLoading(false);
+    }
+  };
+
   const handleInputChange = (index: number, field: keyof Nominee, value: string | File) => {
     const updatedNominees = [...nominees];
     updatedNominees[index] = { ...updatedNominees[index], [field]: value };
     setNominees(updatedNominees);
+  };
+
+  const handleAffiliationInputChange = (index: number, value: string) => {
+    const updatedSearchTerms = [...affiliationSearchTerms];
+    updatedSearchTerms[index] = value;
+    setAffiliationSearchTerms(updatedSearchTerms);
+
+    const updatedDropdownStates = [...isAffiliationDropdownOpen];
+    updatedDropdownStates[index] = true;
+    setIsAffiliationDropdownOpen(updatedDropdownStates);
+
+    handleInputChange(index, 'faculty', value);
+  };
+
+  const handleSelectAffiliation = (index: number, affiliation: Affiliation) => {
+    handleInputChange(index, 'faculty', affiliation.name);
+    
+    const updatedSearchTerms = [...affiliationSearchTerms];
+    updatedSearchTerms[index] = affiliation.name;
+    setAffiliationSearchTerms(updatedSearchTerms);
+
+    const updatedDropdownStates = [...isAffiliationDropdownOpen];
+    updatedDropdownStates[index] = false;
+    setIsAffiliationDropdownOpen(updatedDropdownStates);
+  };
+
+  const filteredAffiliations = (index: number) => {
+    return affiliations.filter(affiliation =>
+      affiliation.name.toLowerCase().includes(affiliationSearchTerms[index].toLowerCase())
+    );
   };
 
   const saveNominee = async (index: number) => {
@@ -166,6 +232,71 @@ export default function Component() {
     }
   };
 
+  const uploadSignature = async (index: number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("annexId", annexId as string);
+    formData.append("position", `nominee_${index + 1}`);
+
+    try {
+      const response = await fetch("/api/upload-signature", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload signature");
+      }
+
+      const data = await response.json();
+      handleInputChange(index, "signature", data.url);
+    } catch (error) {
+      console.error("Error uploading signature:", error);
+      setError("Failed to upload signature. Please try again.");
+    }
+  };
+
+  const saveSignature = async (index: number) => {
+    const signatureCanvas = signatureRefs[index].current;
+    if (signatureCanvas && !signatureCanvas.isEmpty()) {
+      const signatureDataURL = signatureCanvas.toDataURL("image/png");
+      const response = await fetch(signatureDataURL);
+      const blob = await response.blob();
+      const file = new File([blob], "signature.png", { type: "image/png" });
+
+      await uploadSignature(index, file);
+    } else {
+      alert("Please provide a signature before saving.");
+    }
+  };
+
+  const deleteSignature = async (index: number) => {
+    const nominee = nominees[index];
+    if (nominee.signature) {
+      const fileName = nominee.signature.split("/").pop();
+      if (fileName) {
+        try {
+          await fetch("/api/delete-file", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fileName }),
+          });
+
+          const updatedNominees = [...nominees];
+          updatedNominees[index] = { ...updatedNominees[index], signature: "" };
+          setNominees(updatedNominees);
+
+          alert("Signature deleted successfully");
+        } catch (error) {
+          console.error("Error deleting signature:", error);
+          setError("Failed to delete signature. Please try again.");
+        }
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <PageWrapper>
@@ -223,14 +354,60 @@ export default function Component() {
                   <label className="label" htmlFor={`faculty-${index}`}>
                     <span className="label-text">Faculty/College/Institute/School</span>
                   </label>
-                  <input
-                    type="text"
-                    id={`faculty-${index}`}
-                    className="input input-bordered w-full"
-                    value={nominee.faculty}
-                    onChange={(e) => handleInputChange(index, "faculty", e.target.value)}
-                    required
-                  />
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      id={`faculty-${index}`}
+                      className="input input-bordered w-full pr-10"
+                      placeholder="Search for affiliation..."
+                      value={affiliationSearchTerms[index]}
+                      onChange={(e) => handleAffiliationInputChange(index, e.target.value)}
+                      onFocus={() => {
+                        const updatedDropdownStates = [...isAffiliationDropdownOpen];
+                        updatedDropdownStates[index] = true;
+                        setIsAffiliationDropdownOpen(updatedDropdownStates);
+                      }}
+                      onBlur={() => setTimeout(() => {
+                        const updatedDropdownStates = [...isAffiliationDropdownOpen];
+                        updatedDropdownStates[index] = false;
+                        setIsAffiliationDropdownOpen(updatedDropdownStates);
+                      }, 200)}
+                      disabled={affiliationsLoading}
+                      required
+                    />
+                    {affiliationSearchTerms[index] && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => {
+                          const updatedSearchTerms = [...affiliationSearchTerms];
+                          updatedSearchTerms[index] = "";
+                          setAffiliationSearchTerms(updatedSearchTerms);
+                          handleInputChange(index, "faculty", "");
+                        }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    {isAffiliationDropdownOpen[index] && filteredAffiliations(index).length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {filteredAffiliations(index).map((affiliation) => (
+                          <li
+                            key={affiliation._id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectAffiliation(index, affiliation)}
+                          >
+                            {affiliation.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  {affiliationsLoading && (
+                    <div className="text-center mt-2">
+                      <span className="loading loading-dots loading-md"></span>
+                    </div>
+                  )}
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`email-${index}`}>
@@ -271,6 +448,31 @@ export default function Component() {
                   />
                 </div>
                 <div className="form-control">
+                  <label className="label" htmlFor={`officeAddress1-${index}`}>
+                    <span className="label-text">Office Address Line 1</span>
+                  </label>
+                  <input
+                    type="text"
+                    id={`officeAddress1-${index}`}
+                    className="input input-bordered w-full"
+                    value={nominee.officeAddress1}
+                    onChange={(e) => handleInputChange(index, "officeAddress1", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-control">
+                  <label className="label" htmlFor={`officeAddress2-${index}`}>
+                    <span className="label-text">Office Address Line 2 (Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id={`officeAddress2-${index}`}
+                    className="input input-bordered w-full"
+                    value={nominee.officeAddress2}
+                    onChange={(e) => handleInputChange(index, "officeAddress2", e.target.value)}
+                  />
+                </div>
+                <div className="form-control">
                   <label className="label" htmlFor={`cv-${index}`}>
                     <span className="label-text">Upload CV</span>
                   </label>
@@ -291,12 +493,7 @@ export default function Component() {
                         />
                       </svg>
                       <span className="flex-grow font-medium">File Uploaded</span>
-                      <a
-                        href={nominee.cv}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-ghost"
-                      >
+                      <a href={nominee.cv} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost">
                         View
                       </a>
                       <button
@@ -344,6 +541,73 @@ export default function Component() {
                       }}
                       accept=".pdf,.doc,.docx"
                     />
+                  )}
+                </div>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Signature</span>
+                  </label>
+                  {nominee.signature ? (
+                    <div className="flex items-center space-x-4 p-4 bg-slate-100 rounded-lg">
+                      <img src={nominee.signature} alt="Signature" className="h-20" />
+                      <button
+                        type="button"
+                        className="btn btn-sm bg-red-100 text-red-800"
+                        onClick={() => deleteSignature(index)}
+                      >
+                        Delete Signature
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <SignatureCanvas
+                        ref={signatureRefs[index]}
+                        canvasProps={{
+                          className: "signature-canvas border border-gray-300 rounded-md",
+                          width: 500,
+                          height: 200,
+                        }}
+                      />
+                      <div className="flex space-x-2 mt-2">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => saveSignature(index)}
+                        >
+                          Save Signature
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          onClick={() => {
+                            const signatureCanvas = signatureRefs[index].current;
+                            if (signatureCanvas) {
+                              signatureCanvas.clear();
+                            }
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div className="mt-4">
+                        <label htmlFor={`signature-upload-${index}`} className="btn btn-outline">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Signature
+                        </label>
+                        <input
+                          id={`signature-upload-${index}`}
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              uploadSignature(index, file);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
                 <button

@@ -1,283 +1,281 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { X, UserPlus, Trash2, FilePenLine, Search } from 'lucide-react';
+import { X, UserPlus, Trash2, FilePenLine, Search } from "lucide-react";
 import axios from "axios";
 import SignatureCanvas from "react-signature-canvas";
 import PageWrapper from "@/components/PageWrapper";
 
-
 function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
-    const [editedOfficer, setEditedOfficer] = useState(
-      officer || {
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        position: "",
-        affiliation: "",
-        program: "",
-        mobileNumber: "",
-        residence: "",
-        email: "",
-        facebook: "",
-        image: "",
-        religion: "",
-        citizenship: "",
-        gender: "",
-        educationalBackground: [
-          { level: "Secondary", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
-          { level: "College/Major", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
-          { level: "Special Training", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
-        ],
-        recordOfExtraCurricularActivities: [
-          { nameOfOrganization: "", position: "", inclusiveDates: "" },
-          { nameOfOrganization: "", position: "", inclusiveDates: "" },
-        ],
-        signature: "",
-      }
+  const [editedOfficer, setEditedOfficer] = useState(
+    officer || {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      position: "",
+      affiliation: "",
+      program: "",
+      mobileNumber: "",
+      residence: "",
+      email: "",
+      facebook: "",
+      image: "",
+      religion: "",
+      citizenship: "",
+      gender: "",
+      educationalBackground: [
+        { level: "Secondary", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
+        { level: "College/Major", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
+        { level: "Special Training", nameAndLocation: "", yearOfGraduation: "", organization: "", position: "" },
+      ],
+      recordOfExtraCurricularActivities: [
+        { nameOfOrganization: "", position: "", inclusiveDates: "" },
+        { nameOfOrganization: "", position: "", inclusiveDates: "" },
+      ],
+      signature: "",
+      studentNumber: "",
+      gwa: "",
+    }
+  );
+
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedSignature, setSelectedSignature] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(editedOfficer.image || null);
+  const [previewSignature, setPreviewSignature] = useState<string | null>(editedOfficer.signature || null);
+  const [isChangingImage, setIsChangingImage] = useState(false);
+  const [isChangingSignature, setIsChangingSignature] = useState(false);
+  const [signatureMethod, setSignatureMethod] = useState<"draw" | "upload">("draw");
+
+  const [affiliationOptions, setAffiliationOptions] = useState([]);
+  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState(editedOfficer.affiliation || "");
+  const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
+  const [selectedAffiliation, setSelectedAffiliation] = useState(null);
+
+  const [programOptions, setProgramOptions] = useState([]);
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
+  const [programSearchTerm, setProgramSearchTerm] = useState(editedOfficer.program || "");
+  const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+
+  const signatureRef = useRef<SignatureCanvas>(null);
+
+  const isFormValid = useMemo(() => {
+    return (
+      editedOfficer.firstName.trim() !== "" &&
+      editedOfficer.lastName.trim() !== "" &&
+      editedOfficer.position.trim() !== ""
     );
+  }, [editedOfficer.firstName, editedOfficer.lastName, editedOfficer.position]);
 
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [selectedSignature, setSelectedSignature] = useState<File | null>(null);
-    const [previewImage, setPreviewImage] = useState<string | null>(editedOfficer.image || null);
-    const [previewSignature, setPreviewSignature] = useState<string | null>(editedOfficer.signature || null);
-    const [isChangingImage, setIsChangingImage] = useState(false);
-    const [isChangingSignature, setIsChangingSignature] = useState(false);
-    const [signatureMethod, setSignatureMethod] = useState<"draw" | "upload">("draw");
+  useEffect(() => {
+    fetchAffiliations();
+  }, []);
 
-    const [affiliationOptions, setAffiliationOptions] = useState([]);
-    const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
-    const [affiliationSearchTerm, setAffiliationSearchTerm] = useState(editedOfficer.affiliation || "");
-    const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
-    const [selectedAffiliation, setSelectedAffiliation] = useState(null);
+  const fetchAffiliations = async () => {
+    setAffiliationOptionsLoading(true);
+    try {
+      const response = await axios.get("/api/affiliations");
+      setAffiliationOptions(response.data);
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    } finally {
+      setAffiliationOptionsLoading(false);
+    }
+  };
 
-    const [programOptions, setProgramOptions] = useState([]);
-    const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
-    const [programSearchTerm, setProgramSearchTerm] = useState(editedOfficer.program || "");
-    const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
-    const [selectedProgram, setSelectedProgram] = useState(null);
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+      setIsChangingImage(true);
 
-    const signatureRef = useRef<SignatureCanvas>(null);
-
-    const isFormValid = useMemo(() => {
-      return (
-        editedOfficer.firstName.trim() !== "" &&
-        editedOfficer.lastName.trim() !== "" &&
-        editedOfficer.position.trim() !== ""
-      );
-    }, [editedOfficer.firstName, editedOfficer.lastName, editedOfficer.position]);
-
-    useEffect(() => {
-      fetchAffiliations();
-    }, []);
-
-    const fetchAffiliations = async () => {
-      setAffiliationOptionsLoading(true);
-      try {
-        const response = await axios.get("/api/affiliations");
-        setAffiliationOptions(response.data);
-      } catch (error) {
-        console.error("Error fetching affiliations:", error);
-      } finally {
-        setAffiliationOptionsLoading(false);
-      }
-    };
-
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setSelectedImage(file);
-        setPreviewImage(URL.createObjectURL(file));
-        setIsChangingImage(true);
-
-        if (editedOfficer.image) {
-          const fileName = editedOfficer.image.split("/").pop();
-          if (fileName) {
-            await deleteFile(fileName);
-          }
+      if (editedOfficer.image) {
+        const fileName = editedOfficer.image.split("/").pop();
+        if (fileName) {
+          await deleteFile(fileName);
         }
       }
-    };
+    }
+  };
 
-    const handleSignatureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setSelectedSignature(file);
-        setPreviewSignature(URL.createObjectURL(file));
-        setIsChangingSignature(true);
-
-        if (editedOfficer.signature) {
-          const fileName = editedOfficer.signature.split("/").pop();
-          if (fileName) {
-            await deleteFile(fileName);
-          }
-        }
-      }
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value, type } = e.target;
-      const uppercaseFields = [
-        "firstName",
-        "middleName",
-        "lastName",
-        "religion",
-        "citizenship",
-        "position",
-        "affiliation",
-        "program",
-        "residence",
-      ];
-      setEditedOfficer({
-        ...editedOfficer,
-        [name]: uppercaseFields.includes(name) ? value.toUpperCase() : value,
-      });
-    };
-
-    const handleEducationChange = (index: number, field: any, value: string) => {
-      const updatedEducation = [...editedOfficer.educationalBackground];
-      updatedEducation[index] = { ...updatedEducation[index], [field]: value };
-      setEditedOfficer({ ...editedOfficer, educationalBackground: updatedEducation });
-    };
-
-    const handleExtraCurricularChange = (index: number, field: any, value: string) => {
-      const updatedActivities = [...editedOfficer.recordOfExtraCurricularActivities];
-      updatedActivities[index] = { ...updatedActivities[index], [field]: value };
-      setEditedOfficer({ ...editedOfficer, recordOfExtraCurricularActivities: updatedActivities });
-    };
-
-    const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setAffiliationSearchTerm(value);
-      setSelectedAffiliation(null);
-      setIsAffiliationDropdownOpen(true);
-      setEditedOfficer({ ...editedOfficer, affiliation: value });
-    };
-
-    const handleSelectAffiliation = async (affiliation) => {
-      setSelectedAffiliation(affiliation);
-      setAffiliationSearchTerm(affiliation.name);
-      setIsAffiliationDropdownOpen(false);
-      setEditedOfficer({ ...editedOfficer, affiliation: affiliation.name });
-      setSelectedProgram(null);
-      setProgramSearchTerm("");
-
-      setProgramOptionsLoading(true);
-      try {
-        const response = await axios.get(`/api/affiliations/${affiliation._id}/programs`);
-        setProgramOptions(response.data.programs);
-      } catch (error) {
-        console.error("Error fetching programs:", error);
-      } finally {
-        setProgramOptionsLoading(false);
-      }
-    };
-
-    const handleProgramInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setProgramSearchTerm(value);
-      setSelectedProgram(null);
-      setIsProgramDropdownOpen(true);
-      setEditedOfficer({ ...editedOfficer, program: value });
-    };
-
-    const handleSelectProgram = (program) => {
-      setSelectedProgram(program);
-      setProgramSearchTerm(program.name);
-      setIsProgramDropdownOpen(false);
-      setEditedOfficer({ ...editedOfficer, program: program.name });
-    };
-
-    const handleChangeSignature = () => {
+  const handleSignatureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedSignature(file);
+      setPreviewSignature(URL.createObjectURL(file));
       setIsChangingSignature(true);
-      setPreviewSignature(null);
-      if (signatureMethod === "draw") {
-        if (signatureRef.current) {
-          signatureRef.current.clear();
-        }
-      } else {
-        setSelectedSignature(null);
-      }
-    };
 
-    const handleClearSignature = () => {
+      if (editedOfficer.signature) {
+        const fileName = editedOfficer.signature.split("/").pop();
+        if (fileName) {
+          await deleteFile(fileName);
+        }
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    const uppercaseFields = [
+      "firstName",
+      "middleName",
+      "lastName",
+      "religion",
+      "citizenship",
+      "position",
+      "affiliation",
+      "program",
+      "residence",
+      "studentNumber",
+    ];
+    setEditedOfficer({
+      ...editedOfficer,
+      [name]: uppercaseFields.includes(name) ? value.toUpperCase() : value,
+    });
+  };
+
+  const handleEducationChange = (index: number, field: any, value: string) => {
+    const updatedEducation = [...editedOfficer.educationalBackground];
+    updatedEducation[index] = { ...updatedEducation[index], [field]: value };
+    setEditedOfficer({ ...editedOfficer, educationalBackground: updatedEducation });
+  };
+
+  const handleExtraCurricularChange = (index: number, field: any, value: string) => {
+    const updatedActivities = [...editedOfficer.recordOfExtraCurricularActivities];
+    updatedActivities[index] = { ...updatedActivities[index], [field]: value };
+    setEditedOfficer({ ...editedOfficer, recordOfExtraCurricularActivities: updatedActivities });
+  };
+
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAffiliationSearchTerm(value);
+    setSelectedAffiliation(null);
+    setIsAffiliationDropdownOpen(true);
+    setEditedOfficer({ ...editedOfficer, affiliation: value });
+  };
+
+  const handleSelectAffiliation = async (affiliation) => {
+    setSelectedAffiliation(affiliation);
+    setAffiliationSearchTerm(affiliation.name);
+    setIsAffiliationDropdownOpen(false);
+    setEditedOfficer({ ...editedOfficer, affiliation: affiliation.name });
+    setSelectedProgram(null);
+    setProgramSearchTerm("");
+
+    setProgramOptionsLoading(true);
+    try {
+      const response = await axios.get(`/api/affiliations/${affiliation._id}/programs`);
+      setProgramOptions(response.data.programs);
+    } catch (error) {
+      console.error("Error fetching programs:", error);
+    } finally {
+      setProgramOptionsLoading(false);
+    }
+  };
+
+  const handleProgramInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setProgramSearchTerm(value);
+    setSelectedProgram(null);
+    setIsProgramDropdownOpen(true);
+    setEditedOfficer({ ...editedOfficer, program: value });
+  };
+
+  const handleSelectProgram = (program) => {
+    setSelectedProgram(program);
+    setProgramSearchTerm(program.name);
+    setIsProgramDropdownOpen(false);
+    setEditedOfficer({ ...editedOfficer, program: program.name });
+  };
+
+  const handleChangeSignature = () => {
+    setIsChangingSignature(true);
+    setPreviewSignature(null);
+    if (signatureMethod === "draw") {
       if (signatureRef.current) {
         signatureRef.current.clear();
       }
-    };
+    } else {
+      setSelectedSignature(null);
+    }
+  };
 
-    const deleteFile = async (fileName: string) => {
-      try {
-        await axios.post("/api/delete-file", { fileName });
-      } catch (error) {
-        console.error("Error deleting file:", error);
-      }
-    };
+  const handleClearSignature = () => {
+    if (signatureRef.current) {
+      signatureRef.current.clear();
+    }
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      try {
-        let imageUrl = editedOfficer.image;
-        if (selectedImage) {
-          const formData = new FormData();
-          formData.append("file", selectedImage);
+  const deleteFile = async (fileName: string) => {
+    try {
+      await axios.post("/api/delete-file", { fileName });
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+  };
 
-          const response = await axios.post("/api/upload-image", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          imageUrl = response.data.url;
-        }
+   const handleSubmit = async (e: React.FormEvent) => {
+     e.preventDefault();
+     try {
+       let imageUrl = editedOfficer.image;
+       if (selectedImage) {
+         const formData = new FormData();
+         formData.append("file", selectedImage);
 
-        let signatureUrl = editedOfficer.signature;
-        if (isChangingSignature || !editedOfficer.signature) {
-          const formData = new FormData();
-          formData.append("annexId", annexId);
-          formData.append("position", editedOfficer.position);
+         const response = await axios.post("/api/upload-image", formData, {
+           headers: { "Content-Type": "multipart/form-data" },
+         });
+         imageUrl = response.data.url;
+       }
 
-          if (signatureRef.current && !signatureRef.current.isEmpty()) {
-            const signatureDataURL = signatureRef.current.toDataURL();
-            const signatureBlob = await (await fetch(signatureDataURL)).blob();
-            formData.append("file", signatureBlob, "signature.png");
-          } else if (selectedSignature) {
-            formData.append("file", selectedSignature);
-          } else {
-            throw new Error("No valid signature provided");
-          }
+       let signatureUrl = editedOfficer.signature;
+       if (
+         isChangingSignature ||
+         (!editedOfficer.signature && (signatureRef.current?.isEmpty() === false || selectedSignature))
+       ) {
+         const formData = new FormData();
+         formData.append("annexId", annexId);
+         formData.append("position", editedOfficer.position);
 
-          const response = await axios.post("/api/upload-signature", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          signatureUrl = response.data.url;
-        }
+         if (signatureRef.current && !signatureRef.current.isEmpty()) {
+           const signatureDataURL = signatureRef.current.toDataURL();
+           const signatureBlob = await (await fetch(signatureDataURL)).blob();
+           formData.append("file", signatureBlob, "signature.png");
+         } else if (selectedSignature) {
+           formData.append("file", selectedSignature);
+         }
 
-        const officerToSubmit = {
-          ...editedOfficer,
-          image: imageUrl,
-          signature: signatureUrl,
-        };
+         if (formData.has("file")) {
+           const response = await axios.post("/api/upload-signature", formData, {
+             headers: { "Content-Type": "multipart/form-data" },
+           });
+           signatureUrl = response.data.url;
+         }
+       }
 
-        if (officer) {
-          // Editing an existing officer
-          await axios.patch(`/api/annexes/${organizationId}/annex-a1/${annexId}/officers/${officer._id}`, officerToSubmit);
-        } else {
-          // Creating a new officer
-          await axios.post(`/api/annexes/${organizationId}/annex-a1/${annexId}officers`, officerToSubmit);
-        }
+       const officerToSubmit = {
+         ...editedOfficer,
+         image: imageUrl,
+         signature: signatureUrl,
+       };
 
-        onSave(officerToSubmit);
-        onClose();
-      } catch (error) {
-        console.error("Error saving officer:", error);
-      }
-    };
+       onSave(officerToSubmit);
+       onClose();
+     } catch (error) {
+       console.error("Error saving officer:", error);
+     }
+   };
 
-    const filteredAffiliations = affiliationOptions.filter((affiliation) =>
-      affiliation.name.toLowerCase().includes((affiliationSearchTerm || "").toLowerCase())
-    );
 
-    const filteredPrograms = programOptions.filter((program) =>
-      program.name.toLowerCase().includes((programSearchTerm || "").toLowerCase())
-    );
+  const filteredAffiliations = affiliationOptions.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes((affiliationSearchTerm || "").toLowerCase())
+  );
+
+  const filteredPrograms = programOptions.filter((program) =>
+    program.name.toLowerCase().includes((programSearchTerm || "").toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
@@ -546,6 +544,30 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   onChange={handleInputChange}
                 />
               </div>
+              <div className="w-full">
+                <label className="label mb-1">STUDENT NUMBER</label>
+                <input
+                  name="studentNumber"
+                  className="input input-bordered w-full uppercase"
+                  placeholder="2023-12345"
+                  value={editedOfficer.studentNumber}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="w-full">
+                <label className="label mb-1">GWA</label>
+                <input
+                  name="gwa"
+                  type="number"
+                  step="0.01"
+                  min="1.00"
+                  max="5.00"
+                  className="input input-bordered w-full"
+                  placeholder="1.00 - 5.00"
+                  value={editedOfficer.gwa}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
 
             <div>
@@ -766,27 +788,37 @@ export default function OfficersTable({ params }: { params: { organizationId: st
     setEditingOfficer(null);
   };
 
-  const handleSaveOfficer = async (officerData) => {
-    try {
-      if (editingOfficer) {
-        // Update existing officer
-        await axios.patch(
-          `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers/${editingOfficer._id}`,
-          officerData
-        );
-        setOfficers(officers.map((o) => (o._id === editingOfficer._id ? { ...o, ...officerData } : o)));
-      } else {
-        // Create new officer
-        const response = await axios.post(
-          `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers`,
-          officerData
-        );
-        setOfficers([...officers, response.data]);
-      }
-    } catch (error) {
-      console.error("Error saving officer:", error);
-    }
-  };
+ const handleSaveOfficer = async (officerData) => {
+   try {
+     let newOfficer;
+     if (editingOfficer) {
+       // Update existing officer
+       const response = await axios.patch(
+         `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers/${editingOfficer._id}`,
+         officerData
+       );
+       newOfficer = response.data;
+     } else {
+       // Create new officer
+       const response = await axios.post(
+         `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers`,
+         officerData
+       );
+       newOfficer = response.data;
+     }
+
+     // Update the officers state, ensuring no duplicates
+     setOfficers((prevOfficers) => {
+       const updatedOfficers = prevOfficers.filter((o) => o._id !== newOfficer._id);
+       return [...updatedOfficers, newOfficer];
+     });
+
+     handleCloseModal();
+     await fetchOfficers(); // Refresh the officers list after saving
+   } catch (error) {
+     console.error("Error saving officer:", error);
+   }
+ };
 
   return (
     <PageWrapper>

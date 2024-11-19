@@ -97,6 +97,7 @@ export async function PUT(
 
     const annexE1 = await AnnexE1.findOne({
       academicYear: annexE2.academicYear,
+      organization: annexE2.organization,
     });
 
     if (!annexE1) {
@@ -197,6 +198,7 @@ export async function DELETE(
 
       const annexE1 = await AnnexE1.findOne({
         academicYear: annexE2.academicYear,
+        organization: annexE2.organization
       });
 
       if (annexE1) {

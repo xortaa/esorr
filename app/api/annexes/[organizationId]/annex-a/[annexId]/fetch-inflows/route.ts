@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import AnnexE from "@/models/annex-e";
+import AnnexA from "@/models/annex-a";
 import AnnexE2 from "@/models/annex-e2";
 
 const monthNames = [
@@ -22,9 +22,11 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexE = await AnnexE.findById(params.annexId).select("academicYear");
+    const annexA = await AnnexA.findById(params.annexId).select("academicYear");
 
-    const annexE2 = await AnnexE2.findOne({ academicYear: annexE.academicYear, organizationId: params.organizationId });
+    console.log("logging annexa: ", annexA);
+
+    const annexE2 = await AnnexE2.findOne({ academicYear: annexA.academicYear, organizationId: params.organizationId });
 
     const allInflows = [];
     for (const month of monthNames) {
