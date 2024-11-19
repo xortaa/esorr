@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexB from "@/models/annex-b";
 import Member from "@/models/member";
+import AnnexA from "@/models/annex-a";
 
 export async function GET(req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
@@ -38,6 +39,13 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     annexB.members.push(newMember._id);
     await annexB.save();
     await annexB.updateMemberCounts();
+
+    const annexA = await AnnexA.findOne({ academicYear: annexB.academicYear, organization: params.organizationId });
+
+    if (annexA) {
+      annexA.members.push(newMember._id);
+      await annexA.save();
+    }
 
     return NextResponse.json(newMember, { status: 201 });
   } catch (error) {

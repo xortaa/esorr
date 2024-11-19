@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexE2 from "@/models/annex-e2";
 import AnnexE1 from "@/models/annex-e1";
+import AnnexA from "@/models/annex-a";
 import Outflow from "@/models/outflow";
 import Event from "@/models/event";
 import FinancialReport from "@/models/financial-report";
@@ -79,6 +80,7 @@ export async function POST(request: Request, { params }: { params: { organizatio
     // Find the associated AnnexE1 and FinancialReport
     const annexE1 = await AnnexE1.findOne({
       academicYear: annex.academicYear,
+      organization: annex.organization
     });
 
     if (!annexE1) {
@@ -111,6 +113,20 @@ export async function POST(request: Request, { params }: { params: { organizatio
         annex[monthName].endingBalance = financialReport[monthName].endingBalance;
       }
     });
+
+    const annexA = await AnnexA.findOne({
+      organization: annex.organization,
+      academicYear: annex.academicYear,
+    })
+
+    if (!annexA) {
+      return NextResponse.json({ error: "AnnexA not found" }, { status: 404 });
+    }
+
+    annexA.outflows.push(newOutflow._id);
+    await annexA.save()
+
+
 
     await Promise.all([financialReport.save(), annex.save()]);
 

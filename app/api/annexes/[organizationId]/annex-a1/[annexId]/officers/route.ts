@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexA1 from "@/models/annex-a1";
 import Officer from "@/models/officer";
+import AnnexA from "@/models/annex-a";
 
 export async function GET(req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   await connectToDatabase();
@@ -55,8 +56,24 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
       recordOfExtraCurricularActivities: data.recordOfExtraCurricularActivities || [],
     });
 
-    annex.officers.push(newOfficer._id);
-    await annex.save();
+    // Add the officer to AnnexA1 only if it's not already there
+    if (!annex.officers.includes(newOfficer._id)) {
+      annex.officers.push(newOfficer._id);
+      await annex.save();
+    }
+
+    // Find the corresponding AnnexA document and add the officer there as well
+    const annexA = await AnnexA.findOne({
+      academicYear: annex.academicYear,
+      organization: organizationId,
+    });
+
+    if (annexA && !annexA.officers.includes(newOfficer._id)) {
+      annexA.officers.push(newOfficer._id);
+      await annexA.save();
+    } else if (!annexA) {
+      console.warn("AnnexA not found for the given academic year and organization");
+    }
 
     console.log("New officer created and added to annex:", newOfficer);
     return NextResponse.json(newOfficer, { status: 201 });

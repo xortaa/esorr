@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexA1 from "@/models/annex-a1";
 import Officer from "@/models/officer";
+import AnnexA from "@/models/annex-a";
 
 export async function GET(
   req: NextRequest,
@@ -74,7 +75,11 @@ export async function DELETE(
     }
 
     // Remove the officer from the annex
-    await AnnexA1.findOneAndUpdate({ _id: annexId, organization: organizationId }, { $pull: { officers: officerId } });
+    const annexA1 = await AnnexA1.findOneAndUpdate({ _id: annexId, organization: organizationId }, { $pull: { officers: officerId } });
+
+    // Remove the officer from the annex-a document
+    const annexA = await AnnexA.findOne({ academicYear: annexA1.academicYear, organization: organizationId });
+    await annexA.updateOne({ $pull: { officers: officerId } });
 
     return NextResponse.json({ message: "Officer deleted successfully" });
   } catch (error) {

@@ -87,6 +87,15 @@ const officerSchema = new Schema({
   signature: {
     type: String,
   },
+  emailAddress: { 
+    type: String,
+  },
+  studentNumber: { 
+    type: String, 
+  },
+  gwa: { 
+    type: String, 
+  }
 });
 
 const Officer = models.Officer || model("Officer", officerSchema);
