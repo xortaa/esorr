@@ -6,6 +6,7 @@ const OutflowItemSchema = new Schema({
   cost: Number,
   quantity: Number,
   serialNumber: String,
+  expenseReportCategory: String
 });
 
 const OutflowSchema = new Schema({

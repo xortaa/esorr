@@ -45,7 +45,10 @@ export async function PUT(
       comments: body.comments,
       sponsorName: body.sponsorName,
       sponsorshipTypes: body.sponsorshipTypes,
-      files: body.files,
+      projectProposalForm: body.projectProposalForm,
+      actualAnsweredEvaluationForms: body.actualAnsweredEvaluationForms,
+      shortWriteUp: body.shortWriteUp,
+      picturesOfEvent: body.picturesOfEvent,
     };
 
     const updatedEvent = await Event.findByIdAndUpdate(

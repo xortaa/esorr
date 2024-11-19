@@ -8,7 +8,6 @@ import {
   Trash,
   Receipt,
   Calendar,
-  PhilippinePeso,
   Hash,
   Layers,
   FileText,
@@ -18,6 +17,7 @@ import {
   Edit,
   X,
   CalendarDays,
+  PhilippinePeso,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
@@ -37,6 +37,7 @@ interface OutflowItem {
   cost: number;
   quantity: number;
   serialNumber: string;
+  expenseReportCategory: string;
 }
 
 interface Outflow {
@@ -46,7 +47,7 @@ interface Outflow {
   items: OutflowItem[];
   image: string;
   totalCost: number;
-  event: string; // Add this line
+  event: string;
 }
 
 interface Inflow {
@@ -92,6 +93,8 @@ const inflowCategories = [
   "Interest Income",
 ];
 
+const expenseReportCategories = ["Meals", "Transport", "Supplies", "Lodging", "Repairs", "Others", "Misc."];
+
 const formatDate = (dateString: string) => {
   const date = parseISO(dateString);
   if (isValid(date)) {
@@ -127,6 +130,7 @@ export default function AnnexE2FinancialLiquidationReport() {
     cost: 0,
     quantity: 1,
     serialNumber: "",
+    expenseReportCategory: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -209,7 +213,6 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-  
   const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (editingItem && currentOutflow) {
@@ -236,19 +239,19 @@ export default function AnnexE2FinancialLiquidationReport() {
         cost: 0,
         quantity: 1,
         serialNumber: "",
+        expenseReportCategory: "",
       });
       setIsAddingItem(false);
     }
   };
 
- const updateItem = () => {
-   if (currentOutflow && editingItem) {
-     const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? editingItem : item));
-     setCurrentOutflow({ ...currentOutflow, items: updatedItems });
-     setEditingItem(null);
-   }
- };
-
+  const updateItem = () => {
+    if (currentOutflow && editingItem) {
+      const updatedItems = currentOutflow.items.map((item) => (item._id === editingItem._id ? editingItem : item));
+      setCurrentOutflow({ ...currentOutflow, items: updatedItems });
+      setEditingItem(null);
+    }
+  };
 
   const deleteItem = (itemId: string) => {
     if (localOutflow) {
@@ -306,56 +309,56 @@ export default function AnnexE2FinancialLiquidationReport() {
     }
   };
 
-   const saveOutflow = async () => {
-     if (currentOutflow) {
-       setIsLoading(true);
-       try {
-         let imageUrl = currentOutflow.image;
-         if (selectedFile) {
-           imageUrl = await uploadImage(selectedFile);
-         }
+  const saveOutflow = async () => {
+    if (currentOutflow) {
+      setIsLoading(true);
+      try {
+        let imageUrl = currentOutflow.image;
+        if (selectedFile) {
+          imageUrl = await uploadImage(selectedFile);
+        }
 
-         const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
-         const outflowData = {
-           establishment: currentOutflow.establishment,
-           date: currentOutflow.date,
-           items: currentOutflow.items.map(({ _id, ...item }) => item),
-           image: imageUrl,
-           totalCost,
-           event: currentOutflow.event,
-         };
+        const totalCost = currentOutflow.items.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+        const outflowData = {
+          establishment: currentOutflow.establishment,
+          date: currentOutflow.date,
+          items: currentOutflow.items.map(({ _id, ...item }) => item),
+          image: imageUrl,
+          totalCost,
+          event: currentOutflow.event,
+        };
 
-         let response;
-         if (isEditing) {
-           response = await axios.put(
-             `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
-             outflowData
-           );
-         } else {
-           response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
-         }
+        let response;
+        if (isEditing) {
+          response = await axios.put(
+            `/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${currentOutflow._id}`,
+            outflowData
+          );
+        } else {
+          response = await axios.post(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow`, outflowData);
+        }
 
-         if (response.status === 200 || response.status === 201) {
-           if (isEditing) {
-             setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
-           } else {
-             setOutflows([...outflows, response.data]);
-           }
-           setCurrentOutflow(null);
-           setSelectedFile(null);
-           setPreviewUrl(null);
-           setIsEditing(false);
-           console.log("Outflow saved successfully");
-         } else {
-           throw new Error("Failed to save outflow");
-         }
-       } catch (error) {
-         console.error("Error saving outflow:", error);
-       } finally {
-         setIsLoading(false);
-       }
-     }
-   };
+        if (response.status === 200 || response.status === 201) {
+          if (isEditing) {
+            setOutflows(outflows.map((outflow) => (outflow._id === currentOutflow._id ? response.data : outflow)));
+          } else {
+            setOutflows([...outflows, response.data]);
+          }
+          setCurrentOutflow(null);
+          setSelectedFile(null);
+          setPreviewUrl(null);
+          setIsEditing(false);
+          console.log("Outflow saved successfully");
+        } else {
+          throw new Error("Failed to save outflow");
+        }
+      } catch (error) {
+        console.error("Error saving outflow:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   const handleInflowChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -484,7 +487,6 @@ export default function AnnexE2FinancialLiquidationReport() {
       category: "",
       date: "",
       amount: 0,
-
       payingParticipants: 0,
       totalMembers: 0,
       merchandiseSales: 0,
@@ -685,6 +687,25 @@ export default function AnnexE2FinancialLiquidationReport() {
                                       className="input input-bordered w-full"
                                     />
                                   </div>
+                                  <div className="form-control">
+                                    <label className="label">
+                                      <span className="label-text">Expense Report Category</span>
+                                    </label>
+                                    <select
+                                      name="expenseReportCategory"
+                                      value={editingItem.expenseReportCategory}
+                                      onChange={handleItemChange}
+                                      className="select select-bordered select-primary w-full"
+                                      required
+                                    >
+                                      <option value="">Select a category</option>
+                                      {expenseReportCategories.map((category) => (
+                                        <option key={category} value={category}>
+                                          {category}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
                                 </div>
                               ) : (
                                 <>
@@ -693,6 +714,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <p className="text-sm text-neutral-content">Cost: ₱{item.cost}</p>
                                   <p className="text-sm text-neutral-content">Quantity: {item.quantity}</p>
                                   <p className="text-sm text-neutral-content">Serial No: {item.serialNumber}</p>
+                                  <p className="text-sm text-neutral-content">
+                                    Expense Report Category: {item.expenseReportCategory}
+                                  </p>
                                 </>
                               )}
                               <div className="flex justify-end mt-4">
@@ -811,6 +835,25 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   onChange={handleItemChange}
                                   className="input input-bordered w-full"
                                 />
+                              </div>
+                              <div className="form-control">
+                                <label className="label">
+                                  <span className="label-text">Expense Report Category</span>
+                                </label>
+                                <select
+                                  name="expenseReportCategory"
+                                  value={newItem.expenseReportCategory}
+                                  onChange={handleItemChange}
+                                  className="select select-bordered select-primary w-full"
+                                  required
+                                >
+                                  <option value="">Select a category</option>
+                                  {expenseReportCategories.map((category) => (
+                                    <option key={category} value={category}>
+                                      {category}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
                             </div>
                             <div className="flex justify-end mt-8">
