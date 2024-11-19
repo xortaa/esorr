@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, UserPlus, X, Trash2, Check } from "lucide-react";
+import { UserPlus, X, Trash2, Check, Search } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -36,14 +36,83 @@ interface SignatoryRequest {
   submittedAt: string;
 }
 
+interface OrganizationSearchProps {
+  onSelect: (organization: Organization) => void;
+}
+
+function OrganizationSearch({ onSelect }: OrganizationSearchProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const response = await axios.get("/api/organizations");
+        if (response.status === 200) {
+          setOrganizations(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+
+    fetchOrganizations();
+  }, []);
+
+  const filteredOrganizations = organizations.filter((org) =>
+    org.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleSelectOrganization = (organization: Organization) => {
+    onSelect(organization);
+    setSearchTerm(organization.name);
+    setIsDropdownOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <div className="relative">
+        <input
+          type="text"
+          className="input input-bordered w-full pr-10"
+          placeholder="Search for organization..."
+          value={searchTerm}
+          onChange={handleInputChange}
+          onFocus={() => setIsDropdownOpen(true)}
+          onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+      </div>
+      {isDropdownOpen && filteredOrganizations.length > 0 && (
+        <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+          {filteredOrganizations.map((org) => (
+            <li
+              key={org._id}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSelectOrganization(org)}
+            >
+              {org.name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function AccountsDashboard() {
-  const [affiliationOptions, setAffiliationOptions] = useState<Organization[]>([]);
-  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [signatoryRequests, setSignatoryRequests] = useState<SignatoryRequest[]>([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
-  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [showArchived, setShowArchived] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
@@ -53,7 +122,6 @@ export default function AccountsDashboard() {
     organization: "",
     position: "",
   });
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
 
   useEffect(() => {
@@ -99,12 +167,6 @@ export default function AccountsDashboard() {
     );
   }, [signatoryRequests, accountSearchTerm, filterRole]);
 
-  const filteredAffiliations = useMemo(() => {
-    return affiliationOptions.filter((affiliation) =>
-      affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
-    );
-  }, [affiliationOptions, affiliationSearchTerm]);
-
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
     if (newAccount.role === "RSO-SIGNATORY" && (!newAccount.organization || !newAccount.position)) return true;
@@ -145,26 +207,6 @@ export default function AccountsDashboard() {
     }
   };
 
-  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAffiliationSearchTerm(e.target.value);
-    setNewAccount({ ...newAccount, organization: "" });
-    setIsDropdownOpen(true);
-  };
-
-  const handleAffiliationInputFocus = () => {
-    setIsDropdownOpen(true);
-  };
-
-  const handleInputBlur = () => {
-    setTimeout(() => setIsDropdownOpen(false), 200);
-  };
-
-  const handleSelectAffiliation = (affiliation: Organization) => {
-    setNewAccount({ ...newAccount, organization: affiliation.name });
-    setAffiliationSearchTerm(affiliation.name);
-    setIsDropdownOpen(false);
-  };
-
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isCreateButtonDisabled()) return;
@@ -186,7 +228,12 @@ export default function AccountsDashboard() {
 
       const response = await axios.post("/api/users", accountData);
       if (response.status === 201) {
-        setAccounts((prevAccounts) => [...prevAccounts, response.data]);
+        const newAccountData = response.data;
+        // Ensure the organization name is included in the new account data
+        if (newAccount.role === "RSO-SIGNATORY") {
+          newAccountData.positions[0].organization = { name: newAccount.organization };
+        }
+        setAccounts((prevAccounts) => [...prevAccounts, newAccountData]);
         setNewAccount({ email: "", role: "", organization: "", position: "" });
         setIsCreatingAccount(false);
       }
@@ -198,7 +245,6 @@ export default function AccountsDashboard() {
   const handleCancelCreateAccount = () => {
     setIsCreatingAccount(false);
     setNewAccount({ email: "", role: "", organization: "", position: "" });
-    setAffiliationSearchTerm("");
   };
 
   const formatDateTime = (dateString: string) => {
@@ -345,8 +391,8 @@ export default function AccountsDashboard() {
                       </td>
                       <td className="py-3 px-4">
                         {!showArchived && (
-                          <button className="btn btn-ghost btn-xs" onClick={() => handleArchiveAccount(account._id)}>
-                            <Trash2 className="h-4 w-4" />
+                          <button className="btn btn-error btn-xs" onClick={() => handleArchiveAccount(account._id)}>
+                            Archive Account
                           </button>
                         )}
                       </td>
@@ -400,34 +446,7 @@ export default function AccountsDashboard() {
                     <label className="label">
                       <span className="label-text text-gray-700">Organization</span>
                     </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        className="input input-bordered w-full pr-10"
-                        placeholder="Search for organization..."
-                        value={affiliationSearchTerm}
-                        onChange={handleAffiliationInputChange}
-                        onFocus={handleAffiliationInputFocus}
-                        onBlur={handleInputBlur}
-                        required
-                      />
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
-                      </div>
-                    </div>
-                    {isDropdownOpen && filteredAffiliations.length > 0 && (
-                      <ul className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-                        {filteredAffiliations.map((affiliation) => (
-                          <li
-                            key={affiliation._id}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleSelectAffiliation(affiliation)}
-                          >
-                            {affiliation.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                    <OrganizationSearch onSelect={(org) => setNewAccount({ ...newAccount, organization: org.name })} />
                   </div>
                   <div>
                     <label className="label">
