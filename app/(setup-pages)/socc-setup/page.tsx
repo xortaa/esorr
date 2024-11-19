@@ -5,6 +5,7 @@ import { CornerDownLeft, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { signOut } from "next-auth/react";
 
 interface FormData {
   fullName: string;
@@ -31,7 +32,6 @@ const SOCCSetupPage = () => {
     position: "",
   });
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -53,8 +53,10 @@ const SOCCSetupPage = () => {
       });
 
       if (response.status === 200) {
-        alert("SOCC setup completed successfully!");
-        router.push("/organizations");
+        alert(
+          "SOCC setup completed successfully! You will be signed out now to complete the setup. Please re-login to enter ESORR."
+        );
+        signOut();
       }
     } catch (error) {
       console.error("Error during SOCC setup:", error);

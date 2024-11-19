@@ -17,8 +17,6 @@ export async function POST(req: NextRequest) {
       { email },
       {
         fullName,
-        prefix,
-        suffix,
         $push: {
           positions: {
             position: position,
