@@ -25,6 +25,23 @@ import AnnexL from "@/models/annex-l";
 import FinancialReport from "@/models/financial-report";
 import Pasoc from "@/models/pasoc";
 import OperationalAssessment from "@/models/operational-assessment";
+import Inflow from "@/models/inflow";
+import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
+
+const monthNames = [
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+];
 
 export async function POST(req: NextRequest) {
   console.log("Starting RSO setup process");
@@ -35,29 +52,29 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("Received request body:", body);
 
-   const {
-     name,
-     logo,
-     socials,
-     facebook,
-     signatoryRequests,
-     isNotUniversityWide,
-     affiliation,
-     email,
-     website,
-     category,
-     strategicDirectionalAreas,
-     mission,
-     vision,
-     description,
-     objectives,
-     startingBalance,
-     currentAcademicYear,
-     academicYearOfLastRecognition,
-     levelOfRecognition,
-     isWithCentralOrganization,
-     isReligiousOrganization,
-   } = body;
+    const {
+      name,
+      logo,
+      socials,
+      facebook,
+      signatoryRequests,
+      isNotUniversityWide,
+      affiliation,
+      email,
+      website,
+      category,
+      strategicDirectionalAreas,
+      mission,
+      vision,
+      description,
+      objectives,
+      startingBalance,
+      currentAcademicYear,
+      academicYearOfLastRecognition,
+      levelOfRecognition,
+      isWithCentralOrganization,
+      isReligiousOrganization,
+    } = body;
 
     // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
@@ -258,48 +275,21 @@ export async function POST(req: NextRequest) {
     console.log("Updating AnnexE with OperationalAssessment");
     await newAnnexE.updateOne({ operationalAssessment: newOperationalAssessment._id });
 
-    const months = [
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-    ] as const;
-
     console.log("Preparing FinancialReportData");
     const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
-      startingBalance: startingBalance,
+      startingBalance: 0,
       transactions: [],
       totalIncome: 0,
       totalExpenses: 0,
-      endingBalance: startingBalance,
-      june: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      july: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      august: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      september: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      october: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      november: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      december: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      january: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      february: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      march: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      april: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
-      may: { startingBalance: startingBalance, endingBalance: startingBalance, totalIncome: 0, totalExpenses: 0 },
+      endingBalance: 0,
     };
 
-    months.forEach((month) => {
+    monthNames.forEach((month) => {
       financialReportData[month] = {
-        startingBalance: startingBalance,
-        endingBalance: startingBalance,
+        startingBalance: 0,
+        endingBalance: 0,
         totalIncome: 0,
         totalExpenses: 0,
       };
@@ -326,6 +316,49 @@ export async function POST(req: NextRequest) {
       academicYear: currentAcademicYear,
     });
     console.log("AnnexE2 created:", newAnnexE2);
+
+    // Create new inflow for the organization's starting balance
+    const currentDate = new Date();
+    const monthIndex = (currentDate.getMonth() + 7) % 12; // Adjust for fiscal year starting in June
+    const monthName = monthNames[monthIndex];
+
+    console.log("Creating initial inflow");
+    const newInflow = await Inflow.create({
+      category: "Organization Fund / Beginning Balance",
+      date: currentDate,
+      amount: startingBalance,
+      payingParticipants: 0,
+      totalMembers: 0,
+      merchandiseSales: 0,
+    });
+    console.log("Initial inflow created:", newInflow);
+
+    // Update AnnexE2 with the new inflow
+    if (!newAnnexE2[monthName]) {
+      newAnnexE2[monthName] = { inflows: [], totalInflow: 0 };
+    }
+    newAnnexE2[monthName].inflows.push(newInflow._id);
+    newAnnexE2[monthName].totalInflow += startingBalance;
+    await newAnnexE2.save();
+
+    // Update FinancialReport
+    console.log("Updating FinancialReport");
+    newFinancialReport.transactions.push({
+      date: currentDate,
+      amount: startingBalance,
+      type: "inflow",
+      category: "Organization Fund / Beginning Balance",
+      description: "Initial organization balance",
+      payingParticipants: 0,
+      totalMembers: 0,
+      merchandiseSales: 0,
+    });
+
+    // Recalculate the entire financial report
+    recalculateFinancialReport(newFinancialReport);
+
+    await newFinancialReport.save();
+    console.log("FinancialReport updated");
 
     console.log("Creating AnnexE3");
     const newAnnexE3 = await AnnexE3.create({

@@ -7,18 +7,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const data = await req.json();
-    const { email, firstName, middleName, lastName } = data;
-
-    if (!email || !firstName || !lastName) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
+    const { email, fullName } = data;
 
     const updatedUser = await User.findOneAndUpdate(
       { email },
       {
-        firstName,
-        middleName,
-        lastName,
+        fullName,
         isSetup: true,
       },
       { new: true }
