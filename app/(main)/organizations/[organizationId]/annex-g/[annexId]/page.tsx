@@ -6,6 +6,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { uploadImage } from "@/utils/storage";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
+import BackButton from "@/components/BackButton";
 
 type Affiliation = {
   _id: string;
@@ -300,21 +301,24 @@ export default function Component() {
   if (isLoading) {
     return (
       <PageWrapper>
+        <BackButton />
         <div className="text-center">Loading...</div>
       </PageWrapper>
     );
   }
-
+  
   if (error) {
     return (
       <PageWrapper>
+        <BackButton />
         <div className="text-center text-red-500">{error}</div>
       </PageWrapper>
     );
   }
-
+  
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">Nominee Form</h1>
       <div className="space-y-8">
         <div className="tabs tabs-boxed">

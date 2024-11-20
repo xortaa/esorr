@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
+import BackButton from "@/components/BackButton";
 
 interface Event {
   _id: string;
@@ -336,6 +337,7 @@ const OrganizationOperationalAssessmentForm = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-4 text-center">Organization Operational Assessment Form</h1>
       <p className="mb-4 text-sm">
         Align all event/projects hosted by the organization to the Strategic Directional Areas, SEAL of Thomasian

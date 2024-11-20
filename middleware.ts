@@ -12,42 +12,52 @@ export async function middleware(req: NextRequest) {
   console.log("Pathname:", pathname);
   console.log("Token:", token);
 
+  // Allow access to the public folder
+  if (pathname.startsWith("/public/") || pathname.startsWith("/_next/") || pathname.includes(".")) {
+    return NextResponse.next();
+  }
+
   // Block access to the whole website if the user is not authenticated
   if (!token && pathname !== "/") {
     console.log("No token, redirecting to home");
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (pathname === "/login-redirect") {
-    if (token) {
-      console.log("Token Role:", token.role);
+  if (token) {
+    console.log("Token Role:", token.role);
+
+    // Define allowed pages for each role
+    const rolePages = {
+      OSA: ["/osa/manage-accounts", "/osa/manage-affiliation", "/organizations"],
+      RSO: ["/organizations", "/rso-setup"],
+      SOCC: ["/organizations", "/socc-setup"],
+      AU: ["/organizations", "/au-setup"],
+      "RSO-SIGNATORY": ["/organizations", "/rso-signatory-setup"],
+      "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
+    };
+
+    // Check if the user is trying to access a page not allowed for their role
+    const allowedPages = rolePages[token.role as keyof typeof rolePages] || [];
+    if (!allowedPages.some((page) => pathname.startsWith(page))) {
+      console.log(`${token.role} accessing unauthorized page, redirecting`);
+
+      // Redirect to the first allowed page for the role
+      return NextResponse.redirect(new URL(allowedPages[0] || "/", req.url));
+    }
+
+    if (pathname === "/login-redirect") {
       if (token.role === "OSA") {
         return NextResponse.redirect(new URL("/osa/manage-accounts", req.url));
       } else if (token.role === "RSO") {
-        if (!token.isSetup) {
-          return NextResponse.redirect(new URL("/rso-setup", req.url));
-        }
-        return NextResponse.redirect(new URL(`/organizations/`, req.url));
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/rso-setup", req.url));
       } else if (token.role === "SOCC") {
-        if (!token.isSetup) {
-          return NextResponse.redirect(new URL("/socc-setup", req.url));
-        }
-        return NextResponse.redirect(new URL("/organizations", req.url));
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/socc-setup", req.url));
       } else if (token.role === "AU") {
-        if (!token.isSetup) {
-          return NextResponse.redirect(new URL("/au-setup", req.url));
-        }
-        return NextResponse.redirect(new URL("/organizations", req.url));
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/au-setup", req.url));
       } else if (token.role === "RSO-SIGNATORY") {
-        if (!token.isSetup) {
-          return NextResponse.redirect(new URL("/rso-signatory-setup", req.url));
-        }
-        return NextResponse.redirect(new URL("/organizations", req.url));
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/rso-signatory-setup", req.url));
       } else if (token.role === "SOCC-SIGNATORY") {
-        if (!token.isSetup) {
-          return NextResponse.redirect(new URL("/socc-signatory-setup", req.url));
-        }
-        return NextResponse.redirect(new URL("/organizations", req.url));
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/socc-signatory-setup", req.url));
       } else {
         return NextResponse.redirect(new URL("/", req.url));
       }
@@ -59,5 +69,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login-redirect"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public/).*)"],
 };

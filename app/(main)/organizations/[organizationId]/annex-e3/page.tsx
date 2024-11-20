@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { Document, Page, Text, View, StyleSheet, Font, pdf, Image } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -950,7 +951,8 @@ export default function AnnexE3Manager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-bold mb-6">ANNEX E-3 SPASOC Forms</h1>
+      <BackButton />
+      <h1 className="text-2xl font-bold mb-6">ANNEX E-3 PASOC Forms</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
           <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -970,7 +972,7 @@ export default function AnnexE3Manager({ params }: { params: { organizationId: s
           ))}
           {annexList.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
-              <p>No SPASOC Forms Annex created yet.</p>
+              <p>No PASOC Forms Annex created yet.</p>
               <p>Click the button above to create one.</p>
             </div>
           )}
@@ -1102,7 +1104,7 @@ function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal,
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <FileText className="mr-2 h-5 w-5 text-primary" />
-            <h2 className="card-title">SPASOC Forms Annex for AY {annex.academicYear}</h2>
+            <h2 className="card-title">PASOC Forms Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -1110,7 +1112,7 @@ function AnnexCard({ annex, editAnnex, submitAnnexForReview, openSignatureModal,
               onClick={() => editAnnex(annex._id)}
             >
               <Edit className="h-4 w-4 mr-2" />
-              Edit SPASOC Forms
+              Edit PASOC Forms
             </button>
             <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />

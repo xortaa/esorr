@@ -9,6 +9,7 @@ import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react
 import dynamic from "next/dynamic";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -1024,6 +1025,7 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX C-1 Articles of Association</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
@@ -1249,10 +1251,6 @@ function AnnexCard({
             <span className={annex.isSubmitted ? "text-green-600" : "text-yellow-600"}>
               {annex.isSubmitted ? "Submitted" : "Not Submitted"}
             </span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <label className="font-medium">Annex ID:</label>
-            <span>{annex._id}</span>
           </div>
           <div className="flex justify-end space-x-2">
             <button

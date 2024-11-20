@@ -5,6 +5,7 @@ import { Save, Upload, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import BackButton from "@/components/BackButton";
 
 const AnnexDCreator = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -70,6 +71,7 @@ const AnnexDCreator = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-3xl font-bold text-center mb-8">Organizations Logo and Letterhead Editor</h1>
       <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
         <div className="card-body">

@@ -9,6 +9,7 @@ import { pdf } from "@react-pdf/renderer";
 import dynamic from "next/dynamic";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -952,6 +953,7 @@ export default function Annex02Manager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX 02 Petition for Recognition</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

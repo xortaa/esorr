@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
+import BackButton from "@/components/BackButton";
 
 // Register fonts
 Font.register({
@@ -528,6 +529,7 @@ const openSignatureModal = async (annex: AnnexC) => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX C Certification of the Articles of Association</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

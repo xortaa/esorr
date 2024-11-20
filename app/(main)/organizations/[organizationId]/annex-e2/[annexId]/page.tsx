@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { uploadImage } from "@/utils/storage";
 import { parseISO, isValid, format } from "date-fns";
+import BackButton from "@/components/BackButton";
 
 interface Event {
   _id: string;
@@ -496,6 +497,7 @@ export default function AnnexE2FinancialLiquidationReport() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-4xl font-bold mb-8 text-center text-primary">Annex E-2: Financial Liquidation Report</h1>

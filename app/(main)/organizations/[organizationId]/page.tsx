@@ -4,6 +4,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { Printer, Lock, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BackButton from "@/components/BackButton";
 
 type AnnexStatus = "completed" | "in_progress" | "locked";
 
@@ -77,6 +78,7 @@ const AnnexesPage = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-3xl font-bold mb-4">Annexes Dashboard</h1>
       <p className="text-slate-500 mb-4">
         Welcome to the Annexes Dashboard! Here you can find all the annexes that you need to submit for your

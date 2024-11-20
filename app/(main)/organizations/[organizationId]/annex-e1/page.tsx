@@ -10,6 +10,7 @@ import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/
 import { pdf } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -1402,6 +1403,7 @@ export default function AnnexE1Manager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX E-1 Financial Report Summary of Receipts and Disbursements</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
