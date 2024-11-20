@@ -460,7 +460,6 @@ export async function POST(req: NextRequest) {
     const newAnnexL = await AnnexL.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
-      isSubmitted: false,
       officerInCharge: null,
       secretary: null,
       president: null,
