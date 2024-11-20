@@ -6,8 +6,13 @@ import { useParams } from "next/navigation";
 import { Plus, Save, Trash2 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 
+type Organization = {
+  _id: string;
+  name: string;
+};
+
 type AnnexA = {
-  organization: string;
+  organization: Organization;
   academicYearOfLastRecognition: string;
   affiliation: string;
   officialEmail: string;
@@ -24,10 +29,12 @@ type AnnexA = {
 };
 
 export default function AnnexAEditor() {
-  const [objectives, setObjectives] = useState([""]);
-  const [originalObjectives, setOriginalObjectives] = useState([""]);
+  const [objectives, setObjectives] = useState<string[]>([""]);
+  const [originalObjectives, setOriginalObjectives] = useState<string[]>([""]);
   const [annexA, setAnnexA] = useState<AnnexA | null>(null);
-  const { organizationId, annexId } = useParams();
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+  const annexId = params.annexId as string;
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -101,7 +108,7 @@ export default function AnnexAEditor() {
               <label className="label">
                 <span className="label-text">Name of the Organization</span>
               </label>
-              <p className="text-lg font-medium">{annexA.organization}</p>
+              <p className="text-lg font-medium">{annexA.organization.name}</p>
             </div>
             <div className="form-control">
               <label className="label">
