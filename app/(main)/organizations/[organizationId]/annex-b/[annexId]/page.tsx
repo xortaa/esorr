@@ -6,6 +6,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import BackButton from "@/components/BackButton";
+import axios from "axios";
 
 type Member = {
   _id: string;
@@ -24,7 +25,7 @@ type Member = {
 };
 
 const AnnexBMembersDashboard = () => {
-  const { organizationId, annexId } = useParams();
+  const { organizationId, annexId } = useParams<{ organizationId: string; annexId: string }>();
   const [members, setMembers] = useState<Member[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("");
@@ -276,6 +277,7 @@ const AnnexBMembersDashboard = () => {
           member={editingMember || newMember}
           onSubmit={editingMember ? handleUpdateMember : handleCreateMember}
           isEditing={!!editingMember}
+          organizationId={organizationId as string}
         />
 
         <input
@@ -316,16 +318,87 @@ interface CreateMemberModalProps {
   member: Partial<Member>;
   onSubmit: (member: any) => void;
   isEditing: boolean;
+  organizationId: string;
 }
 
-const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, member, onSubmit, isEditing }) => {
+const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
+  isOpen,
+  onClose,
+  member,
+  onSubmit,
+  isEditing,
+  organizationId,
+}) => {
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => currentYear - i);
   const [formData, setFormData] = useState(member);
+  const [affiliationOptions, setAffiliationOptions] = useState([]);
+  const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState(false);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
+  const [selectedAffiliation, setSelectedAffiliation] = useState(null);
+
+  const [programOptions, setProgramOptions] = useState([]);
+  const [programOptionsLoading, setProgramOptionsLoading] = useState(false);
+  const [programSearchTerm, setProgramSearchTerm] = useState("");
+  const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState(null);
 
   useEffect(() => {
     setFormData(member);
+    fetchAffiliations();
   }, [member]);
+
+  const fetchAffiliations = async () => {
+    setAffiliationOptionsLoading(true);
+    try {
+      const response = await axios.get("/api/affiliations");
+      setAffiliationOptions(response.data);
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    } finally {
+      setAffiliationOptionsLoading(false);
+    }
+  };
+
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAffiliationSearchTerm(value);
+    setSelectedAffiliation(null);
+    setIsAffiliationDropdownOpen(true);
+  };
+
+  const handleSelectAffiliation = async (affiliation) => {
+    setSelectedAffiliation(affiliation);
+    setAffiliationSearchTerm(affiliation.name);
+    setIsAffiliationDropdownOpen(false);
+    setSelectedProgram(null);
+    setProgramSearchTerm("");
+
+    setProgramOptionsLoading(true);
+    try {
+      const response = await axios.get(`/api/affiliations/${affiliation._id}/programs`);
+      setProgramOptions(response.data.programs);
+    } catch (error) {
+      console.error("Error fetching programs:", error);
+    } finally {
+      setProgramOptionsLoading(false);
+    }
+  };
+
+  const handleProgramInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setProgramSearchTerm(value);
+    setSelectedProgram(null);
+    setIsProgramDropdownOpen(true);
+  };
+
+  const handleSelectProgram = (program) => {
+    setSelectedProgram(program);
+    setProgramSearchTerm(program.name);
+    setIsProgramDropdownOpen(false);
+    setFormData({ ...formData, program: program.name });
+  };
 
   if (!isOpen) return null;
 
@@ -346,6 +419,14 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value === "true" });
   };
+
+  const filteredAffiliations = affiliationOptions.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
+  );
+
+  const filteredPrograms = programOptions.filter((program) =>
+    program.name.toLowerCase().includes(programSearchTerm.toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -447,15 +528,98 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({ isOpen, onClose, 
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text">PROGRAM</span>
+              <span className="label-text">COLLEGE / AFFILIATION</span>
             </label>
-            <input
-              name="program"
-              className="input input-bordered w-full"
-              placeholder="BS FOOD TECHNOLOGY"
-              value={formData.program}
-              onChange={handleInputChange}
-            />
+            <div className="relative w-full">
+              <input
+                type="text"
+                className="input input-bordered w-full pr-10 uppercase"
+                placeholder="Search for affiliation..."
+                value={affiliationSearchTerm}
+                onChange={handleAffiliationInputChange}
+                onFocus={() => setIsAffiliationDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setIsAffiliationDropdownOpen(false), 200)}
+                disabled={affiliationOptionsLoading}
+              />
+              {affiliationSearchTerm && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                  onClick={() => {
+                    setAffiliationSearchTerm("");
+                    setSelectedAffiliation(null);
+                  }}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+              {isAffiliationDropdownOpen && filteredAffiliations.length > 0 && (
+                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {filteredAffiliations.map((affiliation) => (
+                    <li
+                      key={affiliation._id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelectAffiliation(affiliation)}
+                    >
+                      {affiliation.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {affiliationOptionsLoading && (
+              <div className="text-center mt-2">
+                <span className="loading loading-dots loading-md"></span>
+              </div>
+            )}
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">PROGRAM / MAJOR</span>
+            </label>
+            <div className="relative w-full">
+              <input
+                type="text"
+                className="input input-bordered w-full pr-10 uppercase"
+                placeholder="Search for program..."
+                value={programSearchTerm}
+                onChange={handleProgramInputChange}
+                onFocus={() => setIsProgramDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setIsProgramDropdownOpen(false), 200)}
+                disabled={!selectedAffiliation || programOptionsLoading}
+              />
+              {programSearchTerm && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                  onClick={() => {
+                    setProgramSearchTerm("");
+                    setSelectedProgram(null);
+                    setFormData({ ...formData, program: "" });
+                  }}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+              {isProgramDropdownOpen && filteredPrograms.length > 0 && (
+                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {filteredPrograms.map((program) => (
+                    <li
+                      key={program._id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelectProgram(program)}
+                    >
+                      {program.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {programOptionsLoading && (
+              <div className="text-center mt-2">
+                <span className="loading loading-dots loading-md"></span>
+              </div>
+            )}
           </div>
           <div className="form-control">
             <label className="label">
