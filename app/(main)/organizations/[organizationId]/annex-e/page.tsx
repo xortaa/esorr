@@ -152,7 +152,6 @@ interface AnnexE {
   _id: string;
   organization: Organization;
   academicYear: string;
-  isSubmitted: boolean;
   operationalAssessment: OperationalAssessment;
   outgoingSecretary: Signature;
   outgoingPresident: Signature;
