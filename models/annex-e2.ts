@@ -73,6 +73,20 @@ const AnnexE2Schema = new Schema({
   october: MonthlyReportSchema,
   november: MonthlyReportSchema,
   december: MonthlyReportSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 AnnexE2Schema.index({ organization: 1, academicYear: 1, month: 1 }, { unique: true });
