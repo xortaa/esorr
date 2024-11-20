@@ -44,154 +44,97 @@ const monthNames = [
   "may",
 ];
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, { params }: { params: { organizationId: string } }) {
   console.log("Starting RSO setup process");
   await connectToDatabase();
   console.log("Database connection established");
-
-  // get the officer in charge 
-  const officerInCharge = await OfficerInCharge.findOne();
-
-
 
   try {
     const body = await req.json();
     console.log("Received request body:", body);
 
-    const {
-      name,
-      logo,
-      socials,
-      facebook,
-      signatoryRequests,
-      isNotUniversityWide,
-      affiliation,
-      email,
-      website,
-      category,
-      strategicDirectionalAreas,
-      mission,
-      vision,
-      description,
-      objectives,
-      startingBalance,
-      currentAcademicYear,
-      academicYearOfLastRecognition,
-      levelOfRecognition,
-      isWithCentralOrganization,
-      isReligiousOrganization,
-    } = body;
+    const officerInCharge = await OfficerInCharge.findOne();
+    const currentOrganization = await Organization.findById(params.organizationId);
 
-    // Validation checks
-    if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
-    if (!logo) return NextResponse.json({ error: "Missing organization logo" }, { status: 400 });
-    if (typeof isNotUniversityWide !== "boolean")
-      return NextResponse.json({ error: "Invalid university-wide status" }, { status: 400 });
-    if (!email) return NextResponse.json({ error: "Missing user email" }, { status: 400 });
-    if (!category) return NextResponse.json({ error: "Missing organization category" }, { status: 400 });
-    if (!mission) return NextResponse.json({ error: "Missing organization mission" }, { status: 400 });
-    if (!vision) return NextResponse.json({ error: "Missing organization vision" }, { status: 400 });
-    if (!description) return NextResponse.json({ error: "Missing organization description" }, { status: 400 });
-    if (!facebook) return NextResponse.json({ error: "Missing organization Facebook link" }, { status: 400 });
-    if (isNaN(startingBalance)) {
-      return NextResponse.json({ error: "Invalid starting balance" }, { status: 400 });
-    }
+    const currentAcademicYear = body.currentAcademicYear;
+    const [startYear, endYear] = currentAcademicYear.split("-").map(Number);
+    const previousAcademicYear = `${startYear - 1}-${endYear - 1}`;
 
-    const logoUrl = logo;
+    currentOrganization.academicYear = currentAcademicYear;
+    await currentOrganization.save();
 
-    if (isNotUniversityWide && !affiliation) {
-      return NextResponse.json({ error: "Missing affiliation for non-university-wide organization" }, { status: 400 });
-    }
-
-    const finalAffiliation = isNotUniversityWide ? affiliation : "University Wide";
-
-    console.log("Creating new organization");
-    const newOrganization = await Organization.create({
-      name,
-      logo: logoUrl,
-      affiliation,
-      facebook,
-      isWithCentralOrganization,
-      isReligiousOrganization,
-      academicYearOfLastRecognition,
-      levelOfRecognition,
-      officialEmail: email,
-      academicYear: currentAcademicYear,
-      annex01: [],
-      annex02: [],
-      annexA: [],
-      annexA1: [],
-      annexB: [],
-      annexC: [],
-      annexC1: [],
-      annexD: [],
-      annexE: [],
-      annexE1: [],
-      annexE2: [],
-      annexE3: [],
-      annexF: [],
-      annexG: [],
-      annexH: [],
-      annexI: [],
-      annexJ: [],
-      annexK: [],
-      annexL: [],
+    const previousAnnexA = await AnnexA.findOne({
+      organization: currentOrganization._id,
+      academicYear: previousAcademicYear,
     });
-    console.log("New organization created:", newOrganization);
+    const previousAnnexE1 = await AnnexE1.findOne({
+      organization: currentOrganization._id,
+      academicYear: previousAcademicYear,
+    });
+    const previousFinancialReport = await FinancialReport.findOne({
+      academicYear: previousAcademicYear,
+      annexE1: previousAnnexE1._id,
+    });
+    const previousAnnexC1 = await AnnexC1.findOne({
+      organization: currentOrganization._id,
+      academicYear: previousAcademicYear,
+    });
+    const previousAnnexD = await AnnexD.findOne({
+      organization: currentOrganization._id,
+      academicYear: previousAcademicYear,
+    });
 
     // Create all annexes
-    console.log("Creating annexes");
-
     console.log("Creating Annex01");
     const newAnnex01 = await Annex01.create({
-      organization: newOrganization._id,
-      academicYear: currentAcademicYear,
+      organization: currentOrganization._id,
+      academicYear: body.currentAcademicYear,
     });
     console.log("Annex01 created:", newAnnex01);
 
     console.log("Creating Annex02");
     const newAnnex02 = await Annex02.create({
-      organization: newOrganization._id,
-      academicYear: currentAcademicYear,
-      levelOfRecognition,
-      facebook,
-      isWithCentralOrganization,
-      isReligiousOrganization,
-      affiliation,
-      officialEmail: email,
+      organization: currentOrganization._id,
+      academicYear: body.currentAcademicYear,
+      levelOfRecognition: currentOrganization.levelOfRecognition,
+      facebook: currentOrganization.facebook,
+      isWithCentralOrganization: currentOrganization.isWithCentralOrganization,
+      isReligiousOrganization: currentOrganization.isReligiousOrganization,
+      affiliation: currentOrganization.affiliation,
+      officialEmail: currentOrganization.officialEmail,
     });
     console.log("Annex02 created:", newAnnex02);
 
     console.log("Creating AnnexA");
     const newAnnexA = await AnnexA.create({
-      organization: newOrganization._id,
-      academicYearOfLastRecognition,
-      levelOfRecognition,
-      affiliation: finalAffiliation,
-      officialEmail: email,
-      officialWebsite: website,
-      organizationSocials: socials,
-      category,
-      strategicDirectionalAreas,
-      mission,
-      vision,
-      description,
-      objectives,
-      startingBalance,
+      organization: currentOrganization._id,
+      academicYearOfLastRecognition: currentOrganization.academicYearOfLastRecognition,
+      levelOfRecognition: currentOrganization.levelOfRecognition,
+      affiliation: currentOrganization.affiliation,
+      officialEmail: currentOrganization.officialEmail,
+      officialWebsite: previousAnnexA?.officialWebsite || "",
+      organizationSocials: previousAnnexA?.organizationSocials || [],
+      category: previousAnnexA?.category || "",
+      strategicDirectionalAreas: previousAnnexA?.strategicDirectionalAreas || [],
+      mission: previousAnnexA?.mission || "",
+      vision: previousAnnexA?.vision || "",
+      description: previousAnnexA?.description || "",
+      objectives: previousAnnexA?.objectives || [],
+      startingBalance: previousFinancialReport?.endingBalance || 0,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexA created:", newAnnexA);
 
     console.log("Creating AnnexA1");
     const newAnnexA1 = await AnnexA1.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexA1 created:", newAnnexA1);
 
     console.log("Creating AnnexB");
     const newAnnexB = await AnnexB.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       members: [],
       numberOfOfficers: 0,
@@ -209,30 +152,32 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexC");
     const newAnnexC = await AnnexC.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexC created:", newAnnexC);
 
     console.log("Creating AnnexC1");
     const newAnnexC1 = await AnnexC1.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
-      articlesOfAssociation: null,
+      articlesOfAssociation: previousAnnexC1?.articlesOfAssociation,
+      pdf: previousAnnexC1?.pdf,
     });
     console.log("AnnexC1 created:", newAnnexC1);
 
     console.log("Creating AnnexD");
     const newAnnexD = await AnnexD.create({
-      description: "",
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
+      description: previousAnnexD?.description || "",
+      letterhead: previousAnnexD?.letterhead || "",
     });
     console.log("AnnexD created:", newAnnexD);
 
     console.log("Creating AnnexE");
     const newAnnexE = await AnnexE.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexE created:", newAnnexE);
@@ -288,11 +233,11 @@ export async function POST(req: NextRequest) {
     const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
-      startingBalance: 0,
+      startingBalance: previousFinancialReport?.endingBalance || 0,
       transactions: [],
       totalIncome: 0,
       totalExpenses: 0,
-      endingBalance: 0,
+      endingBalance: previousFinancialReport?.endingBalance || 0,
     };
 
     monthNames.forEach((month) => {
@@ -310,7 +255,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexE1");
     const newAnnexE1 = await AnnexE1.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       financialReport: newFinancialReport._id,
     });
@@ -321,7 +266,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexE2");
     const newAnnexE2 = await AnnexE2.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexE2 created:", newAnnexE2);
@@ -335,7 +280,7 @@ export async function POST(req: NextRequest) {
     const newInflow = await Inflow.create({
       category: "Organization Fund / Beginning Balance",
       date: currentDate,
-      amount: startingBalance,
+      amount: previousFinancialReport?.endingBalance || 0,
       payingParticipants: 0,
       totalMembers: 0,
       merchandiseSales: 0,
@@ -347,14 +292,14 @@ export async function POST(req: NextRequest) {
       newAnnexE2[monthName] = { inflows: [], totalInflow: 0 };
     }
     newAnnexE2[monthName].inflows.push(newInflow._id);
-    newAnnexE2[monthName].totalInflow += startingBalance;
+    newAnnexE2[monthName].totalInflow += previousFinancialReport?.endingBalance || 0;
     await newAnnexE2.save();
 
     // Update FinancialReport
     console.log("Updating FinancialReport");
     newFinancialReport.transactions.push({
       date: currentDate,
-      amount: startingBalance,
+      amount: previousFinancialReport?.endingBalance || 0,
       type: "inflow",
       category: "Organization Fund / Beginning Balance",
       description: "Initial organization balance",
@@ -371,7 +316,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexE3");
     const newAnnexE3 = await AnnexE3.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexE3 created:", newAnnexE3);
@@ -423,21 +368,21 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexF");
     const newAnnexF = await AnnexF.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexF created:", newAnnexF);
 
     console.log("Creating AnnexG");
     const newAnnexG = await AnnexG.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
     });
     console.log("AnnexG created:", newAnnexG);
 
     console.log("Creating AnnexH");
     const newAnnexH = await AnnexH.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       osaOfficerInCharge: officerInCharge.name,
     });
@@ -445,7 +390,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexI");
     const newAnnexI = await AnnexI.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       osaOfficerInCharge: officerInCharge.name,
     });
@@ -453,7 +398,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexJ");
     const newAnnexJ = await AnnexJ.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       osaOfficerInCharge: officerInCharge.name,
     });
@@ -461,7 +406,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexK");
     const newAnnexK = await AnnexK.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       osaOfficerInCharge: officerInCharge.name,
     });
@@ -469,7 +414,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Creating AnnexL");
     const newAnnexL = await AnnexL.create({
-      organization: newOrganization._id,
+      organization: currentOrganization._id,
       academicYear: currentAcademicYear,
       officerInCharge: null,
       secretary: null,
@@ -480,106 +425,60 @@ export async function POST(req: NextRequest) {
     console.log("AnnexL created:", newAnnexL);
 
     console.log("Initializing annex fields in organization");
-    if (!newOrganization.annex01) newOrganization.annex01 = [];
-    if (!newOrganization.annex02) newOrganization.annex02 = [];
-    if (!newOrganization.annexA) newOrganization.annexA = [];
-    if (!newOrganization.annexA1) newOrganization.annexA1 = [];
-    if (!newOrganization.annexB) newOrganization.annexB = [];
-    if (!newOrganization.annexC) newOrganization.annexC = [];
-    if (!newOrganization.annexC1) newOrganization.annexC1 = [];
-    if (!newOrganization.annexD) newOrganization.annexD = [];
-    if (!newOrganization.annexE) newOrganization.annexE = [];
-    if (!newOrganization.annexE1) newOrganization.annexE1 = [];
-    if (!newOrganization.annexE2) newOrganization.annexE2 = [];
-    if (!newOrganization.annexE3) newOrganization.annexE3 = [];
-    if (!newOrganization.annexF) newOrganization.annexF = [];
-    if (!newOrganization.annexG) newOrganization.annexG = [];
-    if (!newOrganization.annexH) newOrganization.annexH = [];
-    if (!newOrganization.annexI) newOrganization.annexI = [];
-    if (!newOrganization.annexJ) newOrganization.annexJ = [];
-    if (!newOrganization.annexK) newOrganization.annexK = [];
-    if (!newOrganization.annexL) newOrganization.annexL = [];
+    if (!currentOrganization.annex01) currentOrganization.annex01 = [];
+    if (!currentOrganization.annex02) currentOrganization.annex02 = [];
+    if (!currentOrganization.annexA) currentOrganization.annexA = [];
+    if (!currentOrganization.annexA1) currentOrganization.annexA1 = [];
+    if (!currentOrganization.annexB) currentOrganization.annexB = [];
+    if (!currentOrganization.annexC) currentOrganization.annexC = [];
+    if (!currentOrganization.annexC1) currentOrganization.annexC1 = [];
+    if (!currentOrganization.annexD) currentOrganization.annexD = [];
+    if (!currentOrganization.annexE) currentOrganization.annexE = [];
+    if (!currentOrganization.annexE1) currentOrganization.annexE1 = [];
+    if (!currentOrganization.annexE2) currentOrganization.annexE2 = [];
+    if (!currentOrganization.annexE3) currentOrganization.annexE3 = [];
+    if (!currentOrganization.annexF) currentOrganization.annexF = [];
+    if (!currentOrganization.annexG) currentOrganization.annexG = [];
+    if (!currentOrganization.annexH) currentOrganization.annexH = [];
+    if (!currentOrganization.annexI) currentOrganization.annexI = [];
+    if (!currentOrganization.annexJ) currentOrganization.annexJ = [];
+    if (!currentOrganization.annexK) currentOrganization.annexK = [];
+    if (!currentOrganization.annexL) currentOrganization.annexL = [];
 
     console.log("Adding annexes to organization");
-    newOrganization.annex01.push(newAnnex01._id);
-    newOrganization.annex02.push(newAnnex02._id);
-    newOrganization.annexA.push(newAnnexA._id);
-    newOrganization.annexA1.push(newAnnexA1._id);
-    newOrganization.annexB.push(newAnnexB._id);
-    newOrganization.annexC.push(newAnnexC._id);
-    newOrganization.annexC1.push(newAnnexC1._id);
-    newOrganization.annexD.push(newAnnexD._id);
-    newOrganization.annexE.push(newAnnexE._id);
-    newOrganization.annexE1.push(newAnnexE1._id);
-    newOrganization.annexE2.push(newAnnexE2._id);
-    newOrganization.annexE3.push(newAnnexE3._id);
-    newOrganization.annexF.push(newAnnexF._id);
-    newOrganization.annexG.push(newAnnexG._id);
-    newOrganization.annexH.push(newAnnexH._id);
-    newOrganization.annexI.push(newAnnexI._id);
-    newOrganization.annexJ.push(newAnnexJ._id);
-    newOrganization.annexK.push(newAnnexK._id);
-    newOrganization.annexL.push(newAnnexL._id);
+    currentOrganization.annex01.push(newAnnex01._id);
+    currentOrganization.annex02.push(newAnnex02._id);
+    currentOrganization.annexA.push(newAnnexA._id);
+    currentOrganization.annexA1.push(newAnnexA1._id);
+    currentOrganization.annexB.push(newAnnexB._id);
+    currentOrganization.annexC.push(newAnnexC._id);
+    currentOrganization.annexC1.push(newAnnexC1._id);
+    currentOrganization.annexD.push(newAnnexD._id);
+    currentOrganization.annexE.push(newAnnexE._id);
+    currentOrganization.annexE1.push(newAnnexE1._id);
+    currentOrganization.annexE2.push(newAnnexE2._id);
+    currentOrganization.annexE3.push(newAnnexE3._id);
+    currentOrganization.annexF.push(newAnnexF._id);
+    currentOrganization.annexG.push(newAnnexG._id);
+    currentOrganization.annexH.push(newAnnexH._id);
+    currentOrganization.annexI.push(newAnnexI._id);
+    currentOrganization.annexJ.push(newAnnexJ._id);
+    currentOrganization.annexK.push(newAnnexK._id);
+    currentOrganization.annexL.push(newAnnexL._id);
 
     console.log("Saving updated organization");
-    await newOrganization.save();
+    await currentOrganization.save();
     console.log("Organization saved successfully");
 
-    if (signatoryRequests.length > 0) {
-      console.log("Creating signatory requests");
-      await Promise.all(
-        signatoryRequests.map(async (request: any) => {
-          return await SignatoryRequest.create({
-            ...request,
-            organization: newOrganization._id,
-            requestedBy: email,
-            role: "RSO-SIGNATORY",
-          });
-        })
-      );
-      console.log("Signatory requests created");
-    }
-
-    console.log("Finding current user");
-    const currentUser = await User.findOne({ role: "RSO", email });
-    if (!currentUser) {
-      console.log("User not found");
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-    console.log("Current user found:", currentUser);
-
-    console.log("Updating user's organizations and positions");
-    const existingPositionIndex = currentUser.positions.findIndex(
-      (pos) => pos.organization.toString() === newOrganization._id.toString()
-    );
-
-    if (existingPositionIndex !== -1) {
-      console.log("Updating existing position");
-      currentUser.positions[existingPositionIndex].position = "RSO-SIGNATORY";
-    } else {
-      console.log("Adding new position");
-      currentUser.positions.push({
-        organization: newOrganization._id,
-        position: "OFFICIAL EMAIL",
-      });
-    }
-
-    currentUser.organizations.push(newOrganization._id);
-    currentUser.isSetup = true;
-
-    console.log("Saving updated user");
-    await currentUser.save();
-    console.log("User saved successfully");
-
-    console.log("RSO setup process completed successfully");
+    console.log("new academic year setup process completed successfully");
     return NextResponse.json(
       {
-        message: "RSO setup successful",
+        message: "new academic year setup successful",
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("RSO setup error:", error);
-    return NextResponse.json({ error: "An error occurred during RSO setup" }, { status: 500 });
+    console.error("new academic year setup error:", error);
+    return NextResponse.json({ error: "An error occurred during new academic year setup" }, { status: 500 });
   }
 }

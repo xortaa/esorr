@@ -30,6 +30,7 @@ const OrganizationSchema = new Schema({
   isReligiousOrganization: Boolean,
   academicYearOfLastRecognition: String,
   levelOfRecognition: String,
+  academicYear: String,
   status: {
     type: String,
     enum: ["Active", "Incomplete", "Inactive", "For Revision"],

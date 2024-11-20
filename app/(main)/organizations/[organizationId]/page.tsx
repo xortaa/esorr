@@ -3,7 +3,7 @@ import { useState } from "react";
 import PageWrapper from "@/components/PageWrapper";
 import { Printer, Lock, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import BackButton from "@/components/BackButton";
 
 type AnnexStatus = "completed" | "in_progress" | "locked";
@@ -73,13 +73,67 @@ const AnnexesPage = () => {
     },
   ]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+
   const completedAnnexes = annexes.filter((annex) => annex.status === "completed").length;
   const progress = (completedAnnexes / annexes.length) * 100;
+
+  const currentYear = new Date().getFullYear();
+  const nextAcademicYear = `${currentYear + 1}-${currentYear + 2}`;
+
+  const handleCreateNewAcademicYear = async () => {
+    try {
+      const response = await fetch(`/api/${organizationId}/new-academic-year`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentAcademicYear: nextAcademicYear }),
+      });
+
+      if (response.ok) {
+        console.log("New academic year created successfully");
+        setIsModalOpen(false);
+        // You might want to refresh the page or update the state here
+      } else {
+        console.error("Failed to create new academic year");
+      }
+    } catch (error) {
+      console.error("Error creating new academic year:", error);
+    }
+  };
 
   return (
     <PageWrapper>
       <BackButton />
-      <h1 className="text-3xl font-bold mb-4">Annexes Dashboard</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
+        <button className="btn btn-outline" onClick={() => setIsModalOpen(true)}>
+          Create New Academic Year ({nextAcademicYear})
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg">
+            <h3 className="font-bold text-lg">Create New Academic Year</h3>
+            <p className="py-4">
+              Are you sure you want to create a new academic year for {nextAcademicYear}? This action is irreversible.
+            </p>
+            <div className="modal-action">
+              <button className="btn btn-outline" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={handleCreateNewAcademicYear}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <p className="text-slate-500 mb-4">
         Welcome to the Annexes Dashboard! Here you can find all the annexes that you need to submit for your
         organization's recognition. You can print or download all annexes at once or individually.
