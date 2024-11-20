@@ -26,17 +26,24 @@ const AnnexKSchema = new Schema(
       type: String,
       required: true,
     },
-    isSubmitted: {
-      type: Boolean,
-      default: false,
-    },
-    submissionDate: {
-      type: Date,
-    },
     greenMarshall: SignatureSchema,
     secretary: SignatureSchema,
     president: SignatureSchema,
     adviser: SignatureSchema,
+    status: {
+      type: String,
+      enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+      default: "Not Submitted",
+    },
+    soccRemarks: {
+      type: String,
+      default: "",
+    },
+    osaRemarks: {
+      type: String,
+      default: "",
+    },
+    dateSubmitted: Date,
   },
   {
     timestamps: true,

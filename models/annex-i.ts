@@ -26,21 +26,25 @@ const AnnexISchema = new Schema(
       type: String,
       required: true,
     },
-    isSubmitted: {
-      type: Boolean,
-      default: false,
-    },
-    submissionDate: {
-      type: Date,
-    },
     president: SignatureSchema,
     secretary: SignatureSchema,
     pro: SignatureSchema,
     adviser: SignatureSchema,
+    status: {
+      type: String,
+      enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+      default: "Not Submitted",
+    },
+    soccRemarks: {
+      type: String,
+      default: "",
+    },
+    osaRemarks: {
+      type: String,
+      default: "",
+    },
+    dateSubmitted: Date,
   },
-  {
-    timestamps: true,
-  }
 );
 
 const AnnexI = models.AnnexI || model("AnnexI", AnnexISchema);

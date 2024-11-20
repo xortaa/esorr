@@ -210,9 +210,9 @@ type Annex01 = {
     signatureUrl: string;
     dateSigned: Date;
   };
+  status: string;
   soccRemarks: string;
   osaRemarks: string;
-  status: "Not Started" | "In Progress" | "For Review" | "Approved";
   dateSubmitted: Date;
 };
 
@@ -769,25 +769,53 @@ export default function EnhancedAnnex01Manager() {
     setSignaturePreview(null);
   };
 
-  const updateAnnexStatus = async (id: string, newStatus: Annex01["status"]) => {
+  const handleSubmitAnnex = async (annexId: string) => {
     try {
-      const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
-        status: newStatus,
-      });
-      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-01/${annexId}/submit`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex submitted successfully.");
     } catch (error) {
-      console.error("Error updating annex status:", error);
+      console.error("Error submitting annex:", error);
+      alert("Failed to submit annex. Please try again.");
     }
   };
 
-  const updateRemarks = async (id: string, type: "socc" | "osa", remarks: string) => {
+  const handleUpdateRemarks = async (annexId: string, type: "socc" | "osa", remarks: string) => {
     try {
-      const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
-        [`${type}Remarks`]: remarks,
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-01/${annexId}/${type}-remarks`, {
+        remarks,
       });
-      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert(`${type.toUpperCase()} remarks updated successfully.`);
     } catch (error) {
-      console.error("Error updating remarks:", error);
+      console.error(`Error updating ${type} remarks:`, error);
+      alert(`Failed to update ${type.toUpperCase()} remarks. Please try again.`);
+    }
+  };
+
+  const handleApprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-01/${annexId}/approve`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex approved successfully.");
+    } catch (error) {
+      console.error("Error approving annex:", error);
+      alert("Failed to approve annex. Please try again.");
+    }
+  };
+
+  const handleDisapprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-01/${annexId}/disapprove`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex disapproved successfully.");
+    } catch (error) {
+      console.error("Error disapproving annex:", error);
+      alert("Failed to disapprove annex. Please try again.");
     }
   };
 
@@ -839,11 +867,13 @@ export default function EnhancedAnnex01Manager() {
             <AnnexCard
               key={annex._id}
               annex={annex}
-              submitAnnexForReview={submitAnnexForReview}
               openSignatureModal={openSignatureModal}
               generatePDF={generatePDF}
-              updateAnnexStatus={updateAnnexStatus}
-              updateRemarks={updateRemarks}
+              onSubmit={handleSubmitAnnex}
+              onUpdateRemarks={handleUpdateRemarks}
+              onApprove={handleApprove}
+              onDisapprove={handleDisapprove}
+              session={session}
             />
           ))}
           {annexList.length === 0 && (
@@ -965,20 +995,24 @@ export default function EnhancedAnnex01Manager() {
 
 interface AnnexCardProps {
   annex: Annex01;
-  submitAnnexForReview: (id: string) => void;
   openSignatureModal: (annex: Annex01) => void;
   generatePDF: (annex: Annex01) => void;
-  updateAnnexStatus: (id: string, newStatus: Annex01["status"]) => void;
-  updateRemarks: (id: string, type: "socc" | "osa", remarks: string) => void;
+  onSubmit: (annexId: string) => void;
+  onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
+  onApprove: (annexId: string) => void;
+  onDisapprove: (annexId: string) => void;
+  session: any;
 }
 
 function AnnexCard({
   annex,
-  submitAnnexForReview,
   openSignatureModal,
   generatePDF,
-  updateAnnexStatus,
-  updateRemarks,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -1003,63 +1037,82 @@ function AnnexCard({
           </div>
         </div>
         <div className="mt-4 space-y-4">
-          <div className="flex items-center space-x-4">
-            <label className="font-medium">Status:</label>
-            <span
-              className={`${
-                annex.status === "Approved"
-                  ? "text-green-600"
-                  : annex.status === "For Review"
-                  ? "text-yellow-600"
-                  : annex.status === "In Progress"
-                  ? "text-blue-600"
-                  : "text-red-600"
-              }`}
-            >
-              {annex.status}
-            </span>
+          <div>
+            <p className="font-semibold">Status: {annex.status}</p>
+            {annex.dateSubmitted && (
+              <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
+            )}
           </div>
-          <div className="space-y-2">
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU" ||
+            session?.user?.role === "SOCC") && (
             <div>
-              <label className="font-medium">SOCC Remarks:</label>
+              <label className="label">
+                <span className="label-text font-semibold">SOCC Remarks</span>
+              </label>
               <textarea
                 className="textarea textarea-bordered w-full"
                 value={soccRemarks}
                 onChange={(e) => setSoccRemarks(e.target.value)}
-              />
-              <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "socc", soccRemarks)}>
-                Submit SOCC Remark
-              </button>
+                readOnly={session?.user?.role !== "SOCC"}
+              ></textarea>
+              {session?.user?.role === "SOCC" && (
+                <button
+                  className="btn btn-primary mt-2"
+                  onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
+                >
+                  Update SOCC Remarks
+                </button>
+              )}
             </div>
+          )}
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU") && (
             <div>
-              <label className="font-medium">OSA Remarks:</label>
+              <label className="label">
+                <span className="label-text font-semibold">OSA Remarks</span>
+              </label>
               <textarea
                 className="textarea textarea-bordered w-full"
                 value={osaRemarks}
                 onChange={(e) => setOsaRemarks(e.target.value)}
-              />
-              <button className="btn btn-primary mt-2" onClick={() => updateRemarks(annex._id, "osa", osaRemarks)}>
-                Submit OSA Remark
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-end space-x-2">
-            <button className="btn btn-primary" onClick={() => updateAnnexStatus(annex._id, "Approved")}>
-              Approve
-            </button>
-            <button className="btn btn-secondary" onClick={() => updateAnnexStatus(annex._id, "In Progress")}>
-              Disapprove
-            </button>
-            <button className="btn btn-primary" onClick={() => submitAnnexForReview(annex._id)}>
-              <Send className="mr-2 h-4 w-4" />
-              Submit for Review
-            </button>
-          </div>
-          {annex.dateSubmitted && (
-            <div className="text-sm text-gray-500">
-              Date Submitted: {new Date(annex.dateSubmitted).toLocaleString()}
+                readOnly={session?.user?.role !== "OSA"}
+              ></textarea>
+              {session?.user?.role === "OSA" && (
+                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
+                  Update OSA Remarks
+                </button>
+              )}
             </div>
           )}
+          <div className="flex justify-end space-x-2">
+            {session?.user?.role === "OSA" && (
+              <>
+                <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+                  Approve
+                </button>
+                <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+                  Disapprove
+                </button>
+              </>
+            )}
+            {(session?.user?.role === "RSO" ||
+              session?.user?.role === "RSO-SIGNATORY" ||
+              session?.user?.role === "AU") && (
+              <button
+                className="btn btn-primary"
+                onClick={() => onSubmit(annex._id)}
+                disabled={session?.user?.role === "AU"}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

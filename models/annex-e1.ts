@@ -21,7 +21,7 @@ const AnnexE1Schema = new Schema({
     type: Boolean,
     default: false,
   },
-  financialReport: { 
+  financialReport: {
     type: Schema.Types.ObjectId,
     ref: "FinancialReport",
   },
@@ -31,6 +31,20 @@ const AnnexE1Schema = new Schema({
   adviser: SignatureSchema,
   swdCoordinator: SignatureSchema,
   dean: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexE1 = models.AnnexE1 || model("AnnexE1", AnnexE1Schema);

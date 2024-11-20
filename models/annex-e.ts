@@ -28,6 +28,20 @@ const AnnexESchema = new Schema({
   incomingSecretary: SignatureSchema,
   incomingPresident: SignatureSchema,
   adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexE = models.AnnexE || model("AnnexE", AnnexESchema);

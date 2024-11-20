@@ -10,15 +10,25 @@ const AnnexA1Schema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   officers: {
     type: [Schema.Types.ObjectId],
     ref: "Officer",
     default: [],
   },
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexA1 = models.AnnexA1 || model("AnnexA1", AnnexA1Schema);
