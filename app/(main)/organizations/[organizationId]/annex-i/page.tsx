@@ -132,8 +132,6 @@ type AnnexI = {
     name: string;
   };
   academicYear: string;
-  isSubmitted: boolean;
-  submissionDate?: Date;
   president?: {
     name: string;
     position: string;
@@ -154,6 +152,10 @@ type AnnexI = {
     position: string;
     signatureUrl: string;
   };
+  status: string;
+  soccRemarks: string;
+  osaRemarks: string;
+  dateSubmitted: Date;
 };
 
 type UserPosition = {
@@ -255,8 +257,8 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
 
       <View style={styles.section}>
         <Text style={styles.text}>
-          We, the officers and members of {annex.organization.name} do hereby read and understand the attached
-          policies and guidelines on the responsible use of social media.
+          We, the officers and members of {annex.organization.name} do hereby read and understand the attached policies
+          and guidelines on the responsible use of social media.
         </Text>
       </View>
 
@@ -275,13 +277,13 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
       <SignatureArea role="Organization Adviser" signature={annex.adviser} />
 
       <View style={styles.section}>
-        <Text style={{ fontSize: 11, textAlign: "center" }}>
-          RESPONSIBLE USE OF SOCIAL MEDIA
-        </Text>
+        <Text style={{ fontSize: 11, textAlign: "center" }}>RESPONSIBLE USE OF SOCIAL MEDIA</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={{ fontSize: 11, textAlign: "center" }}>(Annex I: Commitment to Responsible Use of Social Media)</Text>
+        <Text style={{ fontSize: 11, textAlign: "center" }}>
+          (Annex I: Commitment to Responsible Use of Social Media)
+        </Text>
       </View>
 
       {/* Guidelines for Responsible Use of Social Media */}
@@ -294,7 +296,7 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
         "Organization adviser shall monitor the social media accounts/postings of the student organization. Posts should, as much as possible, be cleared first by the adviser.",
         "In unavoidable circumstances, however, the organization adviser retains the right to remove or edit the post-even if it has already been published-if something is found to be erroneous or irregular.",
         "In cases of a deadlock between the officers and the organization adviser, the SWDC/OSA will render the final decision.",
-        "Student organization officers and members must avoid engaging in an online word \"war bashers\", critics, and the general public.",
+        'Student organization officers and members must avoid engaging in an online word "war bashers", critics, and the general public.',
         "Student organization officers and the adviser may hide comments that are unrelated to the post (e.g., advertisements).",
         "In case the organization loses its organization adviser due to a cause duly approved by OSA, the organization will cease to post anything until such time that a next organization adviser is appointed.",
         "The rest of the existing student code of conduct on use of social media will apply.",
@@ -503,6 +505,56 @@ export default function EnhancedAnnexIManager() {
     setSignaturePreview(null);
   };
 
+  const handleSubmitAnnex = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-i/${annexId}/submit`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex submitted successfully.");
+    } catch (error) {
+      console.error("Error submitting annex:", error);
+      alert("Failed to submit annex. Please try again.");
+    }
+  };
+
+  const handleUpdateRemarks = async (annexId: string, type: "socc" | "osa", remarks: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-i/${annexId}/${type}-remarks`, {
+        remarks,
+      });
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert(`${type.toUpperCase()} remarks updated successfully.`);
+    } catch (error) {
+      console.error(`Error updating ${type} remarks:`, error);
+      alert(`Failed to update ${type.toUpperCase()} remarks. Please try again.`);
+    }
+  };
+
+  const handleApprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-i/${annexId}/approve`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex approved successfully.");
+    } catch (error) {
+      console.error("Error approving annex:", error);
+      alert("Failed to approve annex. Please try again.");
+    }
+  };
+
+  const handleDisapprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-i/${annexId}/disapprove`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex disapproved successfully.");
+    } catch (error) {
+      console.error("Error disapproving annex:", error);
+      alert("Failed to disapprove annex. Please try again.");
+    }
+  };
+
   return (
     <PageWrapper>
       <BackButton />
@@ -518,9 +570,12 @@ export default function EnhancedAnnexIManager() {
             <AnnexCard
               key={annex._id}
               annex={annex}
-              submitAnnexForReview={submitAnnexForReview}
               openSignatureModal={openSignatureModal}
               generatePDF={generatePDF}
+              onSubmit={handleSubmitAnnex}
+              onUpdateRemarks={handleUpdateRemarks}
+              onApprove={handleApprove}
+              onDisapprove={handleDisapprove}
             />
           ))}
           {annexList.length === 0 && (
@@ -645,12 +700,25 @@ export default function EnhancedAnnexIManager() {
 
 interface AnnexCardProps {
   annex: AnnexI;
-  submitAnnexForReview: (id: string) => void;
   openSignatureModal: (annex: AnnexI) => void;
   generatePDF: (annex: AnnexI) => void;
+  onSubmit: (annexId: string) => void;
+  onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
+  onApprove: (annexId: string) => void;
+  onDisapprove: (annexId: string) => void;
 }
 
-function AnnexCard({ annex, submitAnnexForReview, openSignatureModal, generatePDF }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+}: AnnexCardProps) {
+  const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
+  const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -673,20 +741,48 @@ function AnnexCard({ annex, submitAnnexForReview, openSignatureModal, generatePD
           </div>
         </div>
         <div className="mt-4 space-y-4">
-          <div className="flex items-center space-x-4">
-            <label className="font-medium">Status:</label>
-            <span className={annex.isSubmitted ? "text-success" : "text-warning"}>
-              {annex.isSubmitted ? "Submitted" : "Not Submitted"}
-            </span>
+          <div>
+            <p className="font-semibold">Status: {annex.status}</p>
+            {annex.dateSubmitted && (
+              <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
+            )}
+          </div>
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">SOCC Remarks</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              value={soccRemarks}
+              onChange={(e) => setSoccRemarks(e.target.value)}
+            ></textarea>
+            <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}>
+              Update SOCC Remarks
+            </button>
+          </div>
+          <div>
+            <label className="label">
+              <span className="label-text font-semibold">OSA Remarks</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              value={osaRemarks}
+              onChange={(e) => setOsaRemarks(e.target.value)}
+            ></textarea>
+            <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
+              Update OSA Remarks
+            </button>
           </div>
           <div className="flex justify-end space-x-2">
-            <button
-              className={`btn ${annex.isSubmitted ? "btn-disabled" : "btn-primary"}`}
-              onClick={() => submitAnnexForReview(annex._id)}
-              disabled={annex.isSubmitted}
-            >
-              <Send className="mr-2 h-4 w-4" />
-              Submit for Review
+            <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+              Approve
+            </button>
+            <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+              Disapprove
+            </button>
+            <button className="btn btn-primary" onClick={() => onSubmit(annex._id)}>
+              <Send className="h-4 w-4 mr-2" />
+              Submit
             </button>
           </div>
         </div>
