@@ -8,10 +8,6 @@ const AnnexDSchema = new mongoose.Schema({
   academicYear: {
     type: String,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   description: {
     type: String,
   },
@@ -24,6 +20,20 @@ const AnnexDSchema = new mongoose.Schema({
   letterhead: {
     type: String,
   },
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexD = mongoose.models.AnnexD || mongoose.model("AnnexD", AnnexDSchema);
