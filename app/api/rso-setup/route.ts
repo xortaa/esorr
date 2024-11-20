@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
       facebook,
       isWithCentralOrganization,
       isReligiousOrganization,
+      academicYearOfLastRecognition,
       levelOfRecognition,
       officialEmail: email,
       annex01: [],
@@ -158,6 +159,7 @@ export async function POST(req: NextRequest) {
     const newAnnexA = await AnnexA.create({
       organization: newOrganization._id,
       academicYearOfLastRecognition,
+      levelOfRecognition,
       affiliation: finalAffiliation,
       officialEmail: email,
       officialWebsite: website,
