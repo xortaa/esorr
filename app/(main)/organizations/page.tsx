@@ -5,8 +5,9 @@ import { Search, ChevronDown } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-const OrganizationsPage = () => {
+export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [organizations, setOrganizations] = useState([]);
   const [affiliations, setAffiliations] = useState([]);
@@ -14,25 +15,40 @@ const OrganizationsPage = () => {
   const [affiliationType, setAffiliationType] = useState("All");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [orgsResponse, affiliationsResponse] = await Promise.all([
-          axios.get("/api/organizations"),
-          axios.get("/api/affiliations"),
-        ]);
-        setOrganizations(orgsResponse.data);
-        setAffiliations(affiliationsResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (status === "loading") {
+      setIsSessionLoading(true);
+      return;
+    }
 
-    fetchData();
-  }, []);
+    setIsSessionLoading(false);
+
+    if (status === "authenticated" && session?.user?.role) {
+      const fetchData = async () => {
+        setIsLoading(true);
+        try {
+          const [orgsResponse, affiliationsResponse] = await Promise.all([
+            axios.get("/api/organizations"),
+            axios.get("/api/affiliations"),
+          ]);
+          setOrganizations(orgsResponse.data);
+          setAffiliations(affiliationsResponse.data);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [status, session]);
 
   const filteredAffiliations = affiliations.filter((affiliation) =>
     affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
@@ -47,6 +63,27 @@ const OrganizationsPage = () => {
           org.affiliation !== "University Wide" &&
           (selectedAffiliation === "" || org.affiliation === selectedAffiliation)))
   );
+
+  if (isSessionLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex justify-center items-center h-screen">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <PageWrapper>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p>Please sign in to view organizations.</p>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -143,9 +180,9 @@ const OrganizationsPage = () => {
       )}
     </PageWrapper>
   );
-};
+}
 
-const OrganizationCard = ({ organization }) => {
+function OrganizationCard({ organization }) {
   const router = useRouter();
   return (
     <div
@@ -176,6 +213,4 @@ const OrganizationCard = ({ organization }) => {
       </div>
     </div>
   );
-};
-
-export default OrganizationsPage;
+}
