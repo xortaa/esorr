@@ -54,29 +54,23 @@ const Navbar = () => {
           </label>
           {isMenuOpen && (
             <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-black rounded-box w-52">
+              {session?.user?.role === "OSA" && (
+                <>
+                  <li>
+                    <Link href="/osa/manage-accounts" className="hover:text-primary">
+                      Manage Accounts
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/osa/manage-affiliation" className="hover:text-primary">
+                      Manage Affiliation
+                    </Link>
+                  </li>
+                </>
+              )}
               <li>
                 <Link href="/organizations" className="hover:text-primary">
                   Organizations
-                </Link>
-              </li>
-              <li>
-                <Link href="/manage-signatories" className="hover:text-primary">
-                  Manage Signatories
-                </Link>
-              </li>
-              <li>
-                <Link href="/manage-accounts" className="hover:text-primary">
-                  Manage Accounts
-                </Link>
-              </li>
-              <li>
-                <Link href="/manage-affiliation" className="hover:text-primary">
-                  Manage Affiliation
-                </Link>
-              </li>
-              <li>
-                <Link href="/profile" className="hover:text-primary">
-                  Profile
                 </Link>
               </li>
             </ul>
@@ -99,50 +93,39 @@ const Navbar = () => {
               Organizations
             </Link>
           </li>
-          <li>
-            <Link href="/manage-signatories" className="hover:text-primary">
-              Manage Signatories
-            </Link>
-          </li>
-          <li>
-            <Link href="/manage-accounts" className="hover:text-primary">
-              Manage Accounts
-            </Link>
-          </li>
-          <li>
-            <Link href="/manage-affiliation" className="hover:text-primary">
-              Manage Affiliation
-            </Link>
-          </li>
-          <li>
-            <Link href="/profile" className="hover:text-primary">
-              Profile
-            </Link>
-          </li>
+          {session?.user?.role === "OSA" && (
+            <>
+              <li>
+                <Link href="/osa/manage-accounts" className="hover:text-primary">
+                  Manage Accounts
+                </Link>
+              </li>
+              <li>
+                <Link href="/osa/manage-affiliation" className="hover:text-primary">
+                  Manage Affiliation
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       </div>
       <div className="navbar-end">
         {session && (
           <div className="dropdown dropdown-end" ref={dropdownRef}>
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar" onClick={toggleDropdown}>
-              <div className="w-10 rounded-full">
-                <img src={session?.user.image ?? "/assets/user-placeholder.png"} alt="User avatar" />
-              </div>
-            </label>
+            <div tabIndex={0} className="btn flex items-center justify-center" onClick={toggleDropdown}>
+              <span className="text-xs">{session?.user.email}</span>
+              <label className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                  <img src={session?.user.image ?? "/assets/user-placeholder.png"} alt="User avatar" />
+                </div>
+              </label>
+            </div>
             {isDropdownOpen && (
               <ul
                 tabIndex={0}
                 className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-black"
               >
-                <li>
-                  <Link href={`/profile/${session?.user._id}`} className="justify-between">
-                    Profile
-                    <span className="badge">{session?.user.role}</span>
-                  </Link>
-                </li>
-                <li>
-                  <a>Settings</a>
-                </li>
+                <span className="text-slate-600 text-right">{session?.user.role}</span>
                 <li>
                   <a
                     onClick={() => {
