@@ -36,6 +36,24 @@ export async function middleware(req: NextRequest) {
       "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
     };
 
+    // Define setup pages for each role
+    const setupPages = {
+      RSO: "/rso-setup",
+      SOCC: "/socc-setup",
+      AU: "/au-setup",
+      "RSO-SIGNATORY": "/rso-signatory-setup",
+      "SOCC-SIGNATORY": "/socc-signatory-setup",
+    };
+
+    // Check if the user needs to complete setup
+    if (token.role !== "OSA" && token.isSetup === false) {
+      const setupPage = setupPages[token.role as keyof typeof setupPages];
+      if (setupPage && !pathname.startsWith(setupPage)) {
+        console.log(`${token.role} needs setup, redirecting to ${setupPage}`);
+        return NextResponse.redirect(new URL(setupPage, req.url));
+      }
+    }
+
     // Check if the user is trying to access a page not allowed for their role
     const allowedPages = rolePages[token.role as keyof typeof rolePages] || [];
     if (!allowedPages.some((page) => pathname.startsWith(page))) {
@@ -48,18 +66,10 @@ export async function middleware(req: NextRequest) {
     if (pathname === "/login-redirect") {
       if (token.role === "OSA") {
         return NextResponse.redirect(new URL("/osa/manage-accounts", req.url));
-      } else if (token.role === "RSO") {
-        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/rso-setup", req.url));
-      } else if (token.role === "SOCC") {
-        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/socc-setup", req.url));
-      } else if (token.role === "AU") {
-        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/au-setup", req.url));
-      } else if (token.role === "RSO-SIGNATORY") {
-        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/rso-signatory-setup", req.url));
-      } else if (token.role === "SOCC-SIGNATORY") {
-        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/socc-signatory-setup", req.url));
       } else {
-        return NextResponse.redirect(new URL("/", req.url));
+        const setupPage = setupPages[token.role as keyof typeof setupPages];
+        const redirectPage = token.isSetup ? "/organizations" : setupPage;
+        return NextResponse.redirect(new URL(redirectPage, req.url));
       }
     }
   }

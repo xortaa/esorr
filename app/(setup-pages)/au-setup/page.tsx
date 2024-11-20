@@ -5,6 +5,7 @@ import { CornerDownLeft, Check, Search } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 interface FormData {
   fullName: string;
@@ -63,8 +64,8 @@ const AUSetupPage = () => {
       });
 
       if (response.status === 200) {
-        alert("Academic Unit setup completed successfully!");
-        router.push("/organizations");
+        alert("Academic Unit setup completed successfully! You will be signed out now to complete the setup. Please re-login t oenter ESORR.");
+        signOut();
       }
     } catch (error) {
       console.error("Error during AU setup:", error);

@@ -7,6 +7,8 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/utils/storage";
+import { signOut } from "next-auth/react";
+
 
 const RSOSetupPage = () => {
   const { data: session, status } = useSession();
@@ -140,8 +142,8 @@ const RSOSetupPage = () => {
       });
 
       if (response.status === 201) {
-        alert("Organization created successfully!");
-        router.push("/organizations");
+        alert("Organization created successfully! You will be signed out now to complete the setup. Please re-login to enter ESORR.");
+        signOut();
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
       }
