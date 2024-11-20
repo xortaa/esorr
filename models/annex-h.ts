@@ -46,6 +46,7 @@ const AnnexHSchema = new Schema({
     default: "",
   },
   dateSubmitted: Date,
+  osaOfficerInCharge: String,
 });
 
 const AnnexH = models.AnnexH || model("AnnexH", AnnexHSchema);

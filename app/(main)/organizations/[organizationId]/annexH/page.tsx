@@ -1,4 +1,3 @@
-// C:\Users\kercw\code\dev\esorr\app\(main)\organizations\[organizationId]\annex-k\page.tsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -108,14 +107,19 @@ const styles = StyleSheet.create({
   },
 });
 
-type AnnexK = {
+type AnnexH = {
   _id: string;
   organization: {
     _id: string;
     name: string;
   };
   academicYear: string;
-  greenMarshall?: {
+  president?: {
+    name: string;
+    position: string;
+    signatureUrl: string;
+  };
+  vicePresident?: {
     name: string;
     position: string;
     signatureUrl: string;
@@ -125,7 +129,17 @@ type AnnexK = {
     position: string;
     signatureUrl: string;
   };
-  president?: {
+  treasurer?: {
+    name: string;
+    position: string;
+    signatureUrl: string;
+  };
+  auditor?: {
+    name: string;
+    position: string;
+    signatureUrl: string;
+  };
+  pro?: {
     name: string;
     position: string;
     signatureUrl: string;
@@ -139,6 +153,7 @@ type AnnexK = {
   soccRemarks: string;
   osaRemarks: string;
   dateSubmitted: Date;
+  osaOfficerInCharge: string;
 };
 
 type UserPosition = {
@@ -156,10 +171,10 @@ type Positions = {
   _id: string;
 };
 
-type SignaturePosition = "greenMarshall" | "secretary" | "president" | "adviser";
+type SignaturePosition = "president" | "vicePresident" | "secretary" | "treasurer" | "auditor" | "pro" | "adviser";
 
 type MyDocumentProps = {
-  annex: AnnexK;
+  annex: AnnexH;
 };
 
 const SignatureImage = ({ signatureUrl }) => {
@@ -207,15 +222,15 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
         <Text style={{ fontSize: 8, fontFamily: "Arial Narrow Bold", textAlign: "left" }}>
           STUDENT ORGANIZATIONS RECOGNITION REQUIREMENTS
         </Text>
-        <Text style={{ fontSize: 8, fontFamily: "Arial Narrow Bold", textAlign: "right" }}>ANNEX K</Text>
+        <Text style={{ fontSize: 8, fontFamily: "Arial Narrow Bold", textAlign: "right" }}>ANNEX H</Text>
         <Text style={{ fontSize: 8, fontFamily: "Arial Narrow Bold", textAlign: "right" }}>
-          Commitment to Care for the Environment
+          Commitment to Anti-Hazing Law
         </Text>
         <Text style={{ fontSize: 8, textAlign: "right" }}>AY {annex.academicYear}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.heading}>COMMITMENT TO CARE FOR THE ENVIRONMENT</Text>
+        <Text style={styles.heading}>COMMITMENT TO ANTI-HAZING LAW</Text>
       </View>
 
       <View style={styles.section}>
@@ -223,34 +238,27 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.text}>__________________________________</Text>
+        <Text style={styles.text}>{annex.osaOfficerInCharge}</Text>
         <Text style={styles.text}>Officer-In-Charge, Office for Student Affairs</Text>
-        <Text style={styles.text}>University of Santo Tomas {"\n"}</Text>
+        <Text style={styles.text}>University of Santo Tomas</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.text}>Dear ___________________:</Text>
+        <Text style={styles.text}>Dear {annex.osaOfficerInCharge}:</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={{ fontSize: 11, textAlign: "center", color: "red", textDecoration: "underline" }}>
+          RE: <Text style={{ fontFamily: "Arial Narrow Bold" }}>ANTI-HAZING LAW</Text>
+        </Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.text}>
-          We, the officers of {annex.organization.name}, will take all necessary actions for the preservation of the
-          environment. As individuals, we recognize the current situation and the need for action. As officers, it is
-          our utmost responsibility to bring this issue to our constituents and the entire Thomasian community, for
-          everyone to take part in the conversation, as well as, the movement.
-          {"\n\n"}
-          We commit to the following:
-          {"\n"}
-          a) ensure the appointment of a Thomasian Green Marshall;
-          {"\n"}
-          b) initiate activities adhering to the Laudato Si of Pope Francis;
-          {"\n"}
-          c) maintain the upkeep of venues before, during, and after the activity;
-          {"\n"}
-          d) be mindful of the resources used before, during, and after activities; and
-          {"\n"}
-          e) practice environmentalism through sustainable actions.
-          {"\n\n"}
+          We, the officers and members of {annex.organization.name}, do hereby read and understand the attached
+          policies and guidelines on the Anti-Hazing Law (Republic Act No. 8049 as amended by Republic Act No. 11053).
+          We commit to abide by these policies and guidelines and ensure that no form of hazing or initiation rites
+          that may endanger the life or safety of our members will be conducted by our organization.
         </Text>
       </View>
 
@@ -258,31 +266,32 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
         <Text style={styles.text}>Signed:</Text>
       </View>
 
-      <SignatureArea role="Thomasian Green Marshall" signature={annex.greenMarshall} />
-
-      <SignatureArea role="Secretary" signature={annex.secretary} />
-
       <SignatureArea role="President" signature={annex.president} />
+      <SignatureArea role="Vice President" signature={annex.vicePresident} />
+      <SignatureArea role="Secretary" signature={annex.secretary} />
+      <SignatureArea role="Treasurer" signature={annex.treasurer} />
+      <SignatureArea role="Auditor" signature={annex.auditor} />
+      <SignatureArea role="PRO" signature={annex.pro} />
 
       <View style={styles.section}>
-        <Text style={styles.text}>{"\n"}Attested by:</Text>
+        <Text style={styles.text}>Attested by:</Text>
       </View>
 
       <SignatureArea role="Organization Adviser" signature={annex.adviser} />
 
       <View fixed style={styles.footer}>
-        <Text style={{ textAlign: "right", color: "#000" }}>UST:S030-00-FO116</Text>
+        <Text style={{ textAlign: "right", color: "#000" }}>UST:S030-00-FO113</Text>
         <Text>All rights reserved by the Office for Student Affairs</Text>
       </View>
     </Page>
   </Document>
 );
 
-export default function EnhancedAnnexKManager() {
+export default function EnhancedAnnexHManager() {
   const { data: session } = useSession();
-  const [annexList, setAnnexList] = useState<AnnexK[]>([]);
+  const [annexList, setAnnexList] = useState<AnnexH[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedAnnex, setSelectedAnnex] = useState<AnnexK | null>(null);
+  const [selectedAnnex, setSelectedAnnex] = useState<AnnexH | null>(null);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserPosition, setSelectedUserPosition] = useState<UserPosition | null>(null);
@@ -299,7 +308,7 @@ export default function EnhancedAnnexKManager() {
   const fetchAnnexes = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`/api/annexes/${organizationId}/annex-k`);
+      const response = await axios.get(`/api/annexes/${organizationId}/annex-h`);
       setAnnexList(response.data);
     } catch (error) {
       console.error("Error fetching annexes:", error);
@@ -310,7 +319,7 @@ export default function EnhancedAnnexKManager() {
 
   const submitAnnexForReview = async (id: string) => {
     try {
-      const response = await axios.patch(`/api/annexes/${organizationId}/annex-k/${id}`, { isSubmitted: true });
+      const response = await axios.patch(`/api/annexes/${organizationId}/annex-h/${id}`, { isSubmitted: true });
       setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
     } catch (error) {
       console.error("Error submitting annex for review:", error);
@@ -318,7 +327,7 @@ export default function EnhancedAnnexKManager() {
     }
   };
 
-  const openSignatureModal = async (annex: AnnexK) => {
+  const openSignatureModal = async (annex: AnnexH) => {
     try {
       setIsLoading(true);
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
@@ -334,7 +343,7 @@ export default function EnhancedAnnexKManager() {
     }
   };
 
-  const generatePDFBlob = async (annex: AnnexK): Promise<Blob> => {
+  const generatePDFBlob = async (annex: AnnexH): Promise<Blob> => {
     try {
       console.log("Preparing annex data with signatures...");
       console.log("Generating PDF for annex:", annex);
@@ -347,7 +356,7 @@ export default function EnhancedAnnexKManager() {
     }
   };
 
-  const generatePDF = async (annex: AnnexK) => {
+  const generatePDF = async (annex: AnnexH) => {
     try {
       setIsLoading(true);
       const updatedAnnex = await fetchUpdatedAnnex(annex._id);
@@ -363,11 +372,11 @@ export default function EnhancedAnnexKManager() {
     }
   };
 
-  const fetchUpdatedAnnex = async (annexId: string): Promise<AnnexK> => {
+  const fetchUpdatedAnnex = async (annexId: string): Promise<AnnexH> => {
     if (!organizationId) {
       throw new Error("Organization ID is not available");
     }
-    const response = await axios.get(`/api/annexes/${organizationId}/annex-k/${annexId}`);
+    const response = await axios.get(`/api/annexes/${organizationId}/annex-h/${annexId}`);
     return response.data;
   };
 
@@ -420,7 +429,7 @@ export default function EnhancedAnnexKManager() {
 
       const { url } = await response.json();
 
-      const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-k/${selectedAnnex._id}`, {
+      const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-h/${selectedAnnex._id}`, {
         [selectedSignaturePosition]: {
           name: session?.user?.fullName || "",
           position: selectedUserPosition.role,
@@ -438,7 +447,7 @@ export default function EnhancedAnnexKManager() {
 
         alert("Signature added successfully");
       } else {
-        throw new Error("Failed to update Annex K");
+        throw new Error("Failed to update Annex H");
       }
     } catch (error) {
       console.error("Error adding signature:", error);
@@ -462,7 +471,7 @@ export default function EnhancedAnnexKManager() {
 
   const handleSubmitAnnex = async (annexId: string) => {
     try {
-      const response = await axios.post(`/api/annexes/${organizationId}/annex-k/${annexId}/submit`);
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-h/${annexId}/submit`);
       const updatedAnnex = response.data;
       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
       alert("Annex submitted successfully.");
@@ -474,7 +483,7 @@ export default function EnhancedAnnexKManager() {
 
   const handleUpdateRemarks = async (annexId: string, type: "socc" | "osa", remarks: string) => {
     try {
-      const response = await axios.post(`/api/annexes/${organizationId}/annex-k/${annexId}/${type}-remarks`, {
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-h/${annexId}/${type}-remarks`, {
         remarks,
       });
       const updatedAnnex = response.data;
@@ -488,7 +497,7 @@ export default function EnhancedAnnexKManager() {
 
   const handleApprove = async (annexId: string) => {
     try {
-      const response = await axios.post(`/api/annexes/${organizationId}/annex-k/${annexId}/approve`);
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-h/${annexId}/approve`);
       const updatedAnnex = response.data;
       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
       alert("Annex approved successfully.");
@@ -500,7 +509,7 @@ export default function EnhancedAnnexKManager() {
 
   const handleDisapprove = async (annexId: string) => {
     try {
-      const response = await axios.post(`/api/annexes/${organizationId}/annex-k/${annexId}/disapprove`);
+      const response = await axios.post(`/api/annexes/${organizationId}/annex-h/${annexId}/disapprove`);
       const updatedAnnex = response.data;
       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
       alert("Annex disapproved successfully.");
@@ -513,7 +522,7 @@ export default function EnhancedAnnexKManager() {
   return (
     <PageWrapper>
       <BackButton />
-      <h1 className="text-2xl font-bold mb-6">ANNEX K COMMITMENT TO CARE FOR THE ENVIRONMENT</h1>
+      <h1 className="text-2xl font-bold mb-6">ANNEX H COMMITMENT TO ANTI-HAZING LAW</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
           <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -536,7 +545,7 @@ export default function EnhancedAnnexKManager() {
           ))}
           {annexList.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
-              <p>No COMMITMENT TO CARE FOR THE ENVIRONMENT Annex created yet.</p>
+              <p>No COMMITMENT TO ANTI-HAZING LAW Annex created yet.</p>
               <p>Click the button above to create one.</p>
             </div>
           )}
@@ -548,7 +557,7 @@ export default function EnhancedAnnexKManager() {
           <div className="relative w-auto max-w-7xl mx-auto my-6">
             <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
               <div className="flex items-start justify-between p-5 border-b border-solid rounded-t">
-                <h3 className="text-2xl font-semibold">Add Signature to Annex K</h3>
+                <h3 className="text-2xl font-semibold">Add Signature to Annex H</h3>
                 <button
                   className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
                   onClick={() => setIsModalOpen(false)}
@@ -594,9 +603,12 @@ export default function EnhancedAnnexKManager() {
                       onChange={(e) => setSelectedSignaturePosition(e.target.value as SignaturePosition)}
                     >
                       <option value="">Select signature position</option>
-                      <option value="greenMarshall">Thomasian Green Marshall</option>
-                      <option value="secretary">Secretary</option>
                       <option value="president">President</option>
+                      <option value="vicePresident">Vice President</option>
+                      <option value="secretary">Secretary</option>
+                      <option value="treasurer">Treasurer</option>
+                      <option value="auditor">Auditor</option>
+                      <option value="pro">PRO</option>
                       <option value="adviser">Adviser</option>
                     </select>
                     <div className="border p-4 rounded-lg">
@@ -655,9 +667,9 @@ export default function EnhancedAnnexKManager() {
 }
 
 interface AnnexCardProps {
-  annex: AnnexK;
-  openSignatureModal: (annex: AnnexK) => void;
-  generatePDF: (annex: AnnexK) => void;
+  annex: AnnexH;
+  openSignatureModal: (annex: AnnexH) => void;
+  generatePDF: (annex: AnnexH) => void;
   onSubmit: (annexId: string) => void;
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
   onApprove: (annexId: string) => void;
@@ -665,7 +677,16 @@ interface AnnexCardProps {
   session: any;
 }
 
-function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove, session }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session: session,
+}: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
@@ -674,7 +695,7 @@ function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateR
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <FileText className="mr-2 h-5 w-5 text-primary" />
-            <h2 className="card-title">COMMITMENT TO CARE FOR THE ENVIRONMENT Annex for AY {annex.academicYear}</h2>
+            <h2 className="card-title">COMMITMENT TO ANTI-HAZING LAW Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
             <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>

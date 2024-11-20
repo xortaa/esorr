@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
-import PageWrapper from "@/components/PageWrapper";
-import { Printer, Lock, CheckCircle } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import BackButton from "@/components/BackButton";
 
-type AnnexStatus = "completed" | "in_progress" | "locked";
+import { useState, useEffect } from "react";
+import PageWrapper from "@/components/PageWrapper";
+import { Printer, PlusCircle, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useParams } from "next/navigation";
+import BackButton from "@/components/BackButton";
+import { useRouter } from "next/navigation";
+
+type AnnexStatus = "Not Submitted" | "Rejected" | "For Review" | "Approved";
 
 interface Annex {
   code: string;
@@ -15,71 +17,148 @@ interface Annex {
   status: AnnexStatus;
 }
 
-const AnnexesPage = () => {
+export default function Component() {
   const [annexes, setAnnexes] = useState<Annex[]>([
-    { code: "01", title: "Rules of Procedure for Recognition", link: "annex-01", status: "completed" },
-    { code: "02", title: "Petition for Recognition", link: "annex-02", status: "in_progress" },
-    {
-      code: "A",
-      title: "Student Organizations General Information Report",
-      link: "annex-a",
-      status: "in_progress",
-    },
-    { code: "A-1", title: "Officer's Information Sheet", link: "annex-a1", status: "in_progress" },
-    { code: "B", title: "List of Members", link: "annex-b", status: "in_progress" },
-    {
-      code: "C",
-      title: "Certification of the Articles of Association",
-      link: "annex-c",
-      status: "in_progress",
-    },
-    { code: "C-1", title: "Articles of Association", link: "annex-c1", status: "in_progress" },
-    { code: "D", title: "Organizations Logo and Letterhead", link: "annex-d", status: "in_progress" },
-    {
-      code: "E",
-      title: "Organization Operational Assessment Form",
-      link: "annex-e",
-      status: "in_progress",
-    },
+    { code: "01", title: "Rules of Procedure for Recognition", link: "annex01", status: "Not Submitted" },
+    { code: "02", title: "Petition for Recognition", link: "annex02", status: "Not Submitted" },
+    { code: "A", title: "Student Organizations General Information Report", link: "annexA", status: "Not Submitted" },
+    { code: "A-1", title: "Officer's Information Sheet", link: "annexA1", status: "Not Submitted" },
+    { code: "B", title: "List of Members", link: "annexB", status: "Not Submitted" },
+    { code: "C", title: "Certification of the Articles of Association", link: "annexC", status: "Not Submitted" },
+    { code: "C-1", title: "Articles of Association", link: "annexC1", status: "Not Submitted" },
+    { code: "D", title: "Organizations Logo and Letterhead", link: "annexD", status: "Not Submitted" },
+    { code: "E", title: "Organization Operational Assessment Form", link: "annexE", status: "Not Submitted" },
     {
       code: "E-1",
       title: "Financial Report Summary of Receipts and Disbursements",
-      link: "annex-e1",
-      status: "in_progress",
+      link: "annexE1",
+      status: "Not Submitted",
     },
-    { code: "E-2", title: "Financial Report Liquidation Report", link: "annex-e2", status: "in_progress" },
+    { code: "E-2", title: "Financial Report Liquidation Report", link: "annexE2", status: "Not Submitted" },
     {
       code: "E-3",
-      title: "Performance Assesment of Student Organizations/Councils (PASOC) Form",
-      link: "annex-e3",
-      status: "in_progress",
+      title: "Performance Assessment of Student Organizations/Councils (PASOC) Form",
+      link: "annexE3",
+      status: "Not Submitted",
     },
-    { code: "F", title: "Activities' Monitoring Form", link: "annex-f", status: "in_progress" },
-    { code: "G", title: "Organization Adviser Nomination Form", link: "annex-g", status: "in_progress" },
-    { code: "H", title: "Commitment to Anti-Hazing Law", link: "annex-h", status: "in_progress" },
-    {
-      code: "I",
-      title: "Commitment to Responsible Use of Social Media",
-      link: "annex-i",
-      status: "in_progress",
-    },
-    { code: "J", title: "Commitment to Active Participation", link: "annex-j", status: "in_progress" },
-    { code: "K", title: "Commitment to Care for the Environment", link: "annex-k", status: "in_progress" },
-    {
-      code: "L",
-      title: "Commitment to Submit The Post Event Evaluation",
-      link: "annex-l",
-      status: "in_progress",
-    },
+    { code: "F", title: "Activities' Monitoring Form", link: "annexF", status: "Not Submitted" },
+    { code: "G", title: "Organization Adviser Nomination Form", link: "annexG", status: "Not Submitted" },
+    { code: "H", title: "Commitment to Anti-Hazing Law", link: "annexH", status: "Not Submitted" },
+    { code: "I", title: "Commitment to Responsible Use of Social Media", link: "annexI", status: "Not Submitted" },
+    { code: "J", title: "Commitment to Active Participation", link: "annexJ", status: "Not Submitted" },
+    { code: "K", title: "Commitment to Care for the Environment", link: "annexK", status: "Not Submitted" },
+    { code: "L", title: "Commitment to Submit The Post Event Evaluation", link: "annexL", status: "Not Submitted" },
   ]);
 
-  const completedAnnexes = annexes.filter((annex) => annex.status === "completed").length;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+  const router = useRouter();
+
+  const handleRedirectToSignatoryRequest = () => {
+    router.push(`/organizations/${organizationId}/signatory-request/`);
+  };
+
+  useEffect(() => {
+    const fetchAnnexes = async () => {
+      try {
+        const response = await fetch(`/api/organizations/${organizationId}`);
+        if (response.ok) {
+          const data = await response.json();
+          updateAnnexesStatus(data);
+        } else {
+          console.error("Failed to fetch organization data");
+        }
+      } catch (error) {
+        console.error("Error fetching organization data:", error);
+      }
+    };
+
+    fetchAnnexes();
+  }, [organizationId]);
+
+  const updateAnnexesStatus = (organizationData: any) => {
+    console.log("Received organization data:", organizationData);
+    const updatedAnnexes = annexes.map((annex) => {
+      const annexKey = annex.link;
+      const annexData = organizationData[annexKey];
+      console.log(`Processing ${annex.link}:`, annexData);
+      if (annexData && annexData.length > 0) {
+        const latestAnnex = annexData[annexData.length - 1];
+        console.log(`Latest ${annex.link} status:`, latestAnnex.status);
+        return { ...annex, status: latestAnnex.status as AnnexStatus };
+      }
+      // If annexData is undefined or empty, keep the current status
+      return annex;
+    });
+    console.log("Updated annexes:", updatedAnnexes);
+    setAnnexes(updatedAnnexes);
+  };
+
+  const completedAnnexes = annexes.filter((annex) => annex.status === "Approved").length;
   const progress = (completedAnnexes / annexes.length) * 100;
+
+  const currentYear = new Date().getFullYear();
+  const nextAcademicYear = `${currentYear + 1}-${currentYear + 2}`;
+
+  const handleCreateNewAcademicYear = async () => {
+    try {
+      const response = await fetch(`/api/${organizationId}/new-academic-year`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentAcademicYear: nextAcademicYear }),
+      });
+
+      if (response.ok) {
+        console.log("New academic year created successfully");
+        setIsModalOpen(false);
+        // You might want to refresh the page or update the state here
+      } else {
+        console.error("Failed to create new academic year");
+      }
+    } catch (error) {
+      console.error("Error creating new academic year:", error);
+    }
+  };
 
   return (
     <PageWrapper>
       <BackButton />
-      <h1 className="text-3xl font-bold mb-4">Annexes Dashboard</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
+        <div>
+          <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
+            Create New Academic Year ({nextAcademicYear})
+          </button>
+
+          <button className="btn btn-primary" onClick={() => handleRedirectToSignatoryRequest()}>
+            {" "}
+            Request Signatories
+          </button>
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg">
+            <h3 className="font-bold text-lg">Create New Academic Year</h3>
+            <p className="py-4">
+              Are you sure you want to create a new academic year for {nextAcademicYear}? This action is irreversible.
+            </p>
+            <div className="modal-action">
+              <button className="btn btn-outline" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={handleCreateNewAcademicYear}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <p className="text-slate-500 mb-4">
         Welcome to the Annexes Dashboard! Here you can find all the annexes that you need to submit for your
         organization's recognition. You can print or download all annexes at once or individually.
@@ -100,33 +179,17 @@ const AnnexesPage = () => {
       <div className="border bg-slate-100 mb-4 p-4 rounded-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">Annexes</h2>
-          <button className="btn btn-sm btn-neutral">
-            <Printer className="mr-2" />
-            Print All Annexes
-          </button>
-        </div>
-
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-2">Initial Requirements</h3>
-          <p className="text-sm text-slate-600 mb-4">Complete these annexes first to unlock the rest.</p>
-          {annexes.slice(0, 2).map((annex) => (
-            <AnnexDashboardAnnexCard key={annex.code} annex={annex} />
-          ))}
         </div>
 
         <div>
-          <h3 className="text-lg font-semibold mb-2">Additional Annexes</h3>
-          <p className="text-sm text-slate-600 mb-4">
-            These annexes will be unlocked after completing the initial requirements.
-          </p>
-          {annexes.slice(2).map((annex) => (
+          {annexes.map((annex) => (
             <AnnexDashboardAnnexCard key={annex.code} annex={annex} />
           ))}
         </div>
       </div>
     </PageWrapper>
   );
-};
+}
 
 interface AnnexDashboardAnnexCardProps {
   annex: Annex;
@@ -135,40 +198,49 @@ interface AnnexDashboardAnnexCardProps {
 const AnnexDashboardAnnexCard = ({ annex }: AnnexDashboardAnnexCardProps) => {
   const currentPath = usePathname();
 
+  const getStatusColor = (status: AnnexStatus) => {
+    switch (status) {
+      case "Approved":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "For Review":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "Rejected":
+        return "bg-red-100 text-red-800 border-red-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
+    }
+  };
+
+  const getStatusIcon = (status: AnnexStatus) => {
+    switch (status) {
+      case "Approved":
+        return <CheckCircle size={20} className="text-green-500" />;
+      case "For Review":
+        return <Clock size={20} className="text-yellow-500" />;
+      case "Rejected":
+        return <AlertCircle size={20} className="text-red-500" />;
+      default:
+        return <PlusCircle size={20} className="text-gray-500" />;
+    }
+  };
+
   return (
     <Link
-      href={annex.status !== "locked" ? `${currentPath}/${annex.link}` : "#"}
-      className={`flex justify-between items-center p-4 hover:shadow-md hover:bg-white ${
-        annex.status === "locked" ? "opacity-50 cursor-not-allowed" : ""
-      }`}
+      href={`${currentPath}/${annex.link}`}
+      className={`flex justify-between items-center p-4 mb-2 rounded-lg border ${getStatusColor(
+        annex.status
+      )} hover:shadow-md transition-all duration-200`}
     >
       <div className="flex items-center justify-center gap-4">
-        <span
-          className={`text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full ${
-            annex.status === "completed"
-              ? "bg-green-200 text-green-800"
-              : annex.status === "in_progress"
-              ? "bg-blue-200 text-blue-800"
-              : "bg-gray-200 text-gray-800"
-          }`}
-        >
-          {annex.status === "completed" ? (
-            <CheckCircle size={20} />
-          ) : annex.status === "locked" ? (
-            <Lock size={20} />
-          ) : (
-            annex.code
-          )}
+        <span className="text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full bg-white">
+          {annex.code}
         </span>
         <div>
-          <p className="text-xl">{annex.title}</p>
-          <p className="text-sm text-slate-500">
-            {annex.status === "completed" ? "Completed" : annex.status === "in_progress" ? "In Progress" : "Locked"}
-          </p>
+          <p className="text-lg font-medium">{annex.title}</p>
+          <p className="text-sm text-slate-600">{annex.status}</p>
         </div>
       </div>
+      <div className="flex items-center">{getStatusIcon(annex.status)}</div>
     </Link>
   );
 };
-
-export default AnnexesPage;

@@ -46,6 +46,7 @@ const AnnexJSchema = new Schema({
     default: "",
   },
   dateSubmitted: Date,
+  osaOfficerInCharge: String,
 });
 
 const AnnexJ = models.AnnexJ || model("AnnexJ", AnnexJSchema);

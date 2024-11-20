@@ -28,7 +28,7 @@ export async function middleware(req: NextRequest) {
 
     // Define allowed pages for each role
     const rolePages = {
-      OSA: ["/osa/manage-accounts", "/osa/manage-affiliation", "/organizations"],
+      OSA: ["/osa/manage-accounts", "/osa/manage-affiliation", "/organizations", "/osa/manage-officer-in-charge"],
       RSO: ["/organizations", "/rso-setup"],
       SOCC: ["/organizations", "/socc-setup"],
       AU: ["/organizations", "/au-setup"],
