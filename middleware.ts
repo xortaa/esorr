@@ -12,6 +12,11 @@ export async function middleware(req: NextRequest) {
   console.log("Pathname:", pathname);
   console.log("Token:", token);
 
+  // Allow access to the public folder
+  if (pathname.startsWith("/public/") || pathname.startsWith("/_next/") || pathname.includes(".")) {
+    return NextResponse.next();
+  }
+
   // Block access to the whole website if the user is not authenticated
   if (!token && pathname !== "/") {
     console.log("No token, redirecting to home");
@@ -28,6 +33,7 @@ export async function middleware(req: NextRequest) {
       SOCC: ["/organizations", "/socc-setup"],
       AU: ["/organizations", "/au-setup"],
       "RSO-SIGNATORY": ["/organizations", "/rso-signatory-setup"],
+      "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
     };
 
     // Check if the user is trying to access a page not allowed for their role
@@ -50,6 +56,8 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/au-setup", req.url));
       } else if (token.role === "RSO-SIGNATORY") {
         return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/rso-signatory-setup", req.url));
+      } else if (token.role === "SOCC-SIGNATORY") {
+        return NextResponse.redirect(new URL(token.isSetup ? "/organizations" : "/socc-signatory-setup", req.url));
       } else {
         return NextResponse.redirect(new URL("/", req.url));
       }
@@ -61,5 +69,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public/).*)"],
 };
