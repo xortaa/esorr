@@ -255,9 +255,9 @@ type AnnexE3 = {
   secretary: SignatureSchema;
   president: SignatureSchema;
   adviser: SignatureSchema;
-  status: string, 
-  soccRemarks: string,
-  osaRemarks: string,
+  status: string;
+  soccRemarks: string;
+  osaRemarks: string;
   dateSubmitted: Date;
 };
 
@@ -1025,6 +1025,7 @@ export default function AnnexE3Manager({ params }: { params: { organizationId: s
               onUpdateRemarks={handleUpdateRemarks}
               onApprove={handleApprove}
               onDisapprove={handleDisapprove}
+              session={session}
             />
           ))}
           {annexList.length === 0 && (
@@ -1155,9 +1156,20 @@ interface AnnexCardProps {
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
+  session: any;
 }
 
-function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  editAnnex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
+}: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
@@ -1193,43 +1205,75 @@ function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit
               <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
             )}
           </div>
-          <div>
-            <label className="label">
-              <span className="label-text font-semibold">SOCC Remarks</span>
-            </label>
-            <textarea
-              className="textarea textarea-bordered w-full"
-              value={soccRemarks}
-              onChange={(e) => setSoccRemarks(e.target.value)}
-            ></textarea>
-            <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}>
-              Update SOCC Remarks
-            </button>
-          </div>
-          <div>
-            <label className="label">
-              <span className="label-text font-semibold">OSA Remarks</span>
-            </label>
-            <textarea
-              className="textarea textarea-bordered w-full"
-              value={osaRemarks}
-              onChange={(e) => setOsaRemarks(e.target.value)}
-            ></textarea>
-            <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
-              Update OSA Remarks
-            </button>
-          </div>
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU" ||
+            session?.user?.role === "SOCC") && (
+            <div>
+              <label className="label">
+                <span className="label-text font-semibold">SOCC Remarks</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={soccRemarks}
+                onChange={(e) => setSoccRemarks(e.target.value)}
+                readOnly={session?.user?.role !== "SOCC"}
+              ></textarea>
+              {session?.user?.role === "SOCC" && (
+                <button
+                  className="btn btn-primary mt-2"
+                  onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
+                >
+                  Update SOCC Remarks
+                </button>
+              )}
+            </div>
+          )}
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU") && (
+            <div>
+              <label className="label">
+                <span className="label-text font-semibold">OSA Remarks</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={osaRemarks}
+                onChange={(e) => setOsaRemarks(e.target.value)}
+                readOnly={session?.user?.role !== "OSA"}
+              ></textarea>
+              {session?.user?.role === "OSA" && (
+                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
+                  Update OSA Remarks
+                </button>
+              )}
+            </div>
+          )}
           <div className="flex justify-end space-x-2">
-            <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
-              Approve
-            </button>
-            <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
-              Disapprove
-            </button>
-            <button className="btn btn-primary" onClick={() => onSubmit(annex._id)}>
-              <Send className="h-4 w-4 mr-2" />
-              Submit
-            </button>
+            {session?.user?.role === "OSA" && (
+              <>
+                <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+                  Approve
+                </button>
+                <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+                  Disapprove
+                </button>
+              </>
+            )}
+            {(session?.user?.role === "RSO" ||
+              session?.user?.role === "RSO-SIGNATORY" ||
+              session?.user?.role === "AU") && (
+              <button
+                className="btn btn-primary"
+                onClick={() => onSubmit(annex._id)}
+                disabled={session?.user?.role === "AU"}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit
+              </button>
+            )}
           </div>
         </div>
       </div>

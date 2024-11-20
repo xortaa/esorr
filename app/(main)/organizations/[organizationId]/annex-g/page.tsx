@@ -463,6 +463,7 @@ const AnnexGManager: React.FC = () => {
               onDisapprove={handleDisapprove}
               onOpenSignatureModal={openSignatureModal}
               onGeneratePDF={generatePDF}
+              session={session}
             />
           ))}
         </div>
@@ -498,6 +499,7 @@ interface AnnexCardProps {
   onDisapprove: (annexId: string) => Promise<void>;
   onOpenSignatureModal: (annex: AnnexG) => Promise<void>;
   onGeneratePDF: (annex: AnnexG) => Promise<void>;
+  session: any;
 }
 
 function AnnexCard({
@@ -508,6 +510,7 @@ function AnnexCard({
   onDisapprove,
   onOpenSignatureModal,
   onGeneratePDF,
+  session
 }: AnnexCardProps) {
   const router = useRouter();
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
@@ -562,43 +565,75 @@ function AnnexCard({
               <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
             )}
           </div>
-          <div>
-            <label className="label">
-              <span className="label-text font-semibold">SOCC Remarks</span>
-            </label>
-            <textarea
-              className="textarea textarea-bordered w-full"
-              value={soccRemarks}
-              onChange={handleSoccRemarksChange}
-            ></textarea>
-            <button className="btn btn-primary mt-2" onClick={handleSoccRemarksUpdate}>
-              Update SOCC Remarks
-            </button>
-          </div>
-          <div>
-            <label className="label">
-              <span className="label-text font-semibold">OSA Remarks</span>
-            </label>
-            <textarea
-              className="textarea textarea-bordered w-full"
-              value={osaRemarks}
-              onChange={handleOsaRemarksChange}
-            ></textarea>
-            <button className="btn btn-primary mt-2" onClick={handleOsaRemarksUpdate}>
-              Update OSA Remarks
-            </button>
-          </div>
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU" ||
+            session?.user?.role === "SOCC") && (
+            <div>
+              <label className="label">
+                <span className="label-text font-semibold">SOCC Remarks</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={soccRemarks}
+                onChange={(e) => setSoccRemarks(e.target.value)}
+                readOnly={session?.user?.role !== "SOCC"}
+              ></textarea>
+              {session?.user?.role === "SOCC" && (
+                <button
+                  className="btn btn-primary mt-2"
+                  onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
+                >
+                  Update SOCC Remarks
+                </button>
+              )}
+            </div>
+          )}
+          {(session?.user?.role === "OSA" ||
+            session?.user?.role === "RSO" ||
+            session?.user?.role === "RSO-SIGNATORY" ||
+            session?.user?.role === "AU") && (
+            <div>
+              <label className="label">
+                <span className="label-text font-semibold">OSA Remarks</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered w-full"
+                value={osaRemarks}
+                onChange={(e) => setOsaRemarks(e.target.value)}
+                readOnly={session?.user?.role !== "OSA"}
+              ></textarea>
+              {session?.user?.role === "OSA" && (
+                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
+                  Update OSA Remarks
+                </button>
+              )}
+            </div>
+          )}
           <div className="flex justify-end space-x-2">
-            <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
-              Approve
-            </button>
-            <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
-              Disapprove
-            </button>
-            <button className="btn btn-primary" onClick={() => onSubmit(annex._id)}>
-              <Send className="h-4 w-4 mr-2" />
-              Submit
-            </button>
+            {session?.user?.role === "OSA" && (
+              <>
+                <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+                  Approve
+                </button>
+                <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+                  Disapprove
+                </button>
+              </>
+            )}
+            {(session?.user?.role === "RSO" ||
+              session?.user?.role === "RSO-SIGNATORY" ||
+              session?.user?.role === "AU") && (
+              <button
+                className="btn btn-primary"
+                onClick={() => onSubmit(annex._id)}
+                disabled={session?.user?.role === "AU"}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit
+              </button>
+            )}
           </div>
         </div>
       </div>
