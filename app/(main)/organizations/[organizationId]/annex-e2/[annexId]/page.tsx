@@ -580,7 +580,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text flex items-center">
-                                <CalendarDays className="mr-2" /> Event
+                                <CalendarDays className="mr-2" /> Event (Create an event under annex E to be able to make an outflow)
                               </span>
                             </label>
                             <select
