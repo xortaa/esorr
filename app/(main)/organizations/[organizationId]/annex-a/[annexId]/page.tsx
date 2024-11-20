@@ -5,6 +5,8 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { Plus, Save, Trash2 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
+import Link from "next/link";
+import BackButton from "@/components/BackButton";
 
 type Organization = {
   _id: string;
@@ -144,6 +146,7 @@ export default function AnnexAEditor() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-3xl font-bold text-center mb-8">Student Organization General Information Report</h1>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
@@ -311,27 +314,27 @@ export default function AnnexAEditor() {
         <div className="card-body">
           <h2 className="card-title">Officers' Information</h2>
           <p className="mb-4">Please fill out the officers' information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Officers' Information Annex</button>
+          <Link href={`/organizations/${organizationId}/annex-a1`}>
+            <button className="btn btn-primary">Go to Officers' Information Annex</button>
+          </Link>
         </div>
       </div>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title">Organization Adviser</h2>
           <p className="mb-4">Please fill out the organization adviser information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Organization Adviser Annex</button>
-        </div>
-      </div>
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Specimen Signatures</h2>
-          <p>List of signatures collected</p>
+          <Link href={`/organizations/${organizationId}/annex-g`}>
+            <button className="btn btn-primary">Go to Organization Adviser Annex</button>
+          </Link>
         </div>
       </div>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title">Financial Status</h2>
           <p className="mb-4">Please fill out the financial status information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Financial Status Annex</button>
+          <Link href={`/organizations/${organizationId}/annex-e2`}>
+            <button className="btn btn-primary">Go to Financial Status Annex</button>
+          </Link>
         </div>
       </div>
     </PageWrapper>
