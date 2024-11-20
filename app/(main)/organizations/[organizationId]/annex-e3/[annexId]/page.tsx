@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
+import BackButton from "@/components/BackButton";
 
 interface AssessmentItem {
   id: string;
@@ -206,6 +207,7 @@ export default function AnnexE3Form() {
   if (loading) {
     return (
       <PageWrapper>
+        <BackButton />
         <div className="flex justify-center items-center h-screen">
           <span className="loading loading-spinner loading-lg"></span>
         </div>
@@ -215,6 +217,7 @@ export default function AnnexE3Form() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
           Annex E3: Performance Assessment of Student Organizations/Councils (PASOC)

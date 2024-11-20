@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import axios from "axios";
 import PDFMerger from "pdf-merger-js";
+import BackButton from "@/components/BackButton";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -385,6 +386,7 @@ const AnnexGManager: React.FC = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX G Organization Adviser Nomination Form</h1>
 
       {isLoading ? (

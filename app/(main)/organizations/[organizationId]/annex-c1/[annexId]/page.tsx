@@ -5,6 +5,7 @@ import axios from "axios";
 import { Save, Plus, Trash2, Image as ImageIcon, Eye } from "lucide-react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import BackButton from "@/components/BackButton";
 
 type Article = {
   order: string;
@@ -368,6 +369,9 @@ export default function ArticlesOfAssociationCreator() {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200">
+        <div className="p-3">
+          <BackButton />
+        </div>
         <div className="p-4">
           <button onClick={addArticle} className="btn btn-primary w-full mb-4">
             <Plus className="inline-block mr-2 h-4 w-4" /> Add Article

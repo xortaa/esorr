@@ -6,6 +6,7 @@ import { FileText, Edit, Send, Download } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import { Document, Page, Text, View, StyleSheet, Font, Image, pdf } from "@react-pdf/renderer";
+import BackButton from "@/components/BackButton";
 
 // Font registrations
 Font.register({
@@ -501,6 +502,7 @@ export default function AnnexA1Manager({ params }: { params: { organizationId: s
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX A-1 Officer's Information Sheet</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

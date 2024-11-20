@@ -10,6 +10,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 // Register fonts
 Font.register({
@@ -467,6 +468,7 @@ export default function EnhancedAnnexHManager() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX H COMMITMENT TO ANTI-HAZING LAW</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

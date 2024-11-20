@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { PhilippinePeso, ArrowUpRight, ArrowDownRight, ChevronDown, ChevronUp, Calendar } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 interface OutflowItem {
   category: string;
@@ -190,6 +191,7 @@ export default function AnnexE1FinancialSummary() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-8 text-center text-primary">Annex E-1: Financial Summary Report</h1>
 

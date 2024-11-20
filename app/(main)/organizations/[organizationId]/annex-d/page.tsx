@@ -11,6 +11,7 @@ import { pdf } from "@react-pdf/renderer";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 type AnnexD = {
   _id: string;
@@ -636,6 +637,7 @@ const AnnexDManager: React.FC = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX D Organizations Logo and Letterhead</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

@@ -5,6 +5,7 @@ import { X, UserPlus, Trash2, FilePenLine, Search } from "lucide-react";
 import axios from "axios";
 import SignatureCanvas from "react-signature-canvas";
 import PageWrapper from "@/components/PageWrapper";
+import BackButton from "@/components/BackButton";
 
 function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
   const [editedOfficer, setEditedOfficer] = useState(
@@ -216,58 +217,57 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
     }
   };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
-     try {
-       let imageUrl = editedOfficer.image;
-       if (selectedImage) {
-         const formData = new FormData();
-         formData.append("file", selectedImage);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      let imageUrl = editedOfficer.image;
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append("file", selectedImage);
 
-         const response = await axios.post("/api/upload-image", formData, {
-           headers: { "Content-Type": "multipart/form-data" },
-         });
-         imageUrl = response.data.url;
-       }
+        const response = await axios.post("/api/upload-image", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        imageUrl = response.data.url;
+      }
 
-       let signatureUrl = editedOfficer.signature;
-       if (
-         isChangingSignature ||
-         (!editedOfficer.signature && (signatureRef.current?.isEmpty() === false || selectedSignature))
-       ) {
-         const formData = new FormData();
-         formData.append("annexId", annexId);
-         formData.append("position", editedOfficer.position);
+      let signatureUrl = editedOfficer.signature;
+      if (
+        isChangingSignature ||
+        (!editedOfficer.signature && (signatureRef.current?.isEmpty() === false || selectedSignature))
+      ) {
+        const formData = new FormData();
+        formData.append("annexId", annexId);
+        formData.append("position", editedOfficer.position);
 
-         if (signatureRef.current && !signatureRef.current.isEmpty()) {
-           const signatureDataURL = signatureRef.current.toDataURL();
-           const signatureBlob = await (await fetch(signatureDataURL)).blob();
-           formData.append("file", signatureBlob, "signature.png");
-         } else if (selectedSignature) {
-           formData.append("file", selectedSignature);
-         }
+        if (signatureRef.current && !signatureRef.current.isEmpty()) {
+          const signatureDataURL = signatureRef.current.toDataURL();
+          const signatureBlob = await (await fetch(signatureDataURL)).blob();
+          formData.append("file", signatureBlob, "signature.png");
+        } else if (selectedSignature) {
+          formData.append("file", selectedSignature);
+        }
 
-         if (formData.has("file")) {
-           const response = await axios.post("/api/upload-signature", formData, {
-             headers: { "Content-Type": "multipart/form-data" },
-           });
-           signatureUrl = response.data.url;
-         }
-       }
+        if (formData.has("file")) {
+          const response = await axios.post("/api/upload-signature", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          signatureUrl = response.data.url;
+        }
+      }
 
-       const officerToSubmit = {
-         ...editedOfficer,
-         image: imageUrl,
-         signature: signatureUrl,
-       };
+      const officerToSubmit = {
+        ...editedOfficer,
+        image: imageUrl,
+        signature: signatureUrl,
+      };
 
-       onSave(officerToSubmit);
-       onClose();
-     } catch (error) {
-       console.error("Error saving officer:", error);
-     }
-   };
-
+      onSave(officerToSubmit);
+      onClose();
+    } catch (error) {
+      console.error("Error saving officer:", error);
+    }
+  };
 
   const filteredAffiliations = affiliationOptions.filter((affiliation) =>
     affiliation.name.toLowerCase().includes((affiliationSearchTerm || "").toLowerCase())
@@ -788,40 +788,41 @@ export default function OfficersTable({ params }: { params: { organizationId: st
     setEditingOfficer(null);
   };
 
- const handleSaveOfficer = async (officerData) => {
-   try {
-     let newOfficer;
-     if (editingOfficer) {
-       // Update existing officer
-       const response = await axios.patch(
-         `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers/${editingOfficer._id}`,
-         officerData
-       );
-       newOfficer = response.data;
-     } else {
-       // Create new officer
-       const response = await axios.post(
-         `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers`,
-         officerData
-       );
-       newOfficer = response.data;
-     }
+  const handleSaveOfficer = async (officerData) => {
+    try {
+      let newOfficer;
+      if (editingOfficer) {
+        // Update existing officer
+        const response = await axios.patch(
+          `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers/${editingOfficer._id}`,
+          officerData
+        );
+        newOfficer = response.data;
+      } else {
+        // Create new officer
+        const response = await axios.post(
+          `/api/annexes/${params.organizationId}/annex-a1/${params.annexId}/officers`,
+          officerData
+        );
+        newOfficer = response.data;
+      }
 
-     // Update the officers state, ensuring no duplicates
-     setOfficers((prevOfficers) => {
-       const updatedOfficers = prevOfficers.filter((o) => o._id !== newOfficer._id);
-       return [...updatedOfficers, newOfficer];
-     });
+      // Update the officers state, ensuring no duplicates
+      setOfficers((prevOfficers) => {
+        const updatedOfficers = prevOfficers.filter((o) => o._id !== newOfficer._id);
+        return [...updatedOfficers, newOfficer];
+      });
 
-     handleCloseModal();
-     await fetchOfficers(); // Refresh the officers list after saving
-   } catch (error) {
-     console.error("Error saving officer:", error);
-   }
- };
+      handleCloseModal();
+      await fetchOfficers(); // Refresh the officers list after saving
+    } catch (error) {
+      console.error("Error saving officer:", error);
+    }
+  };
 
   return (
     <PageWrapper>
+      <BackButton />
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <OfficerModalTrigger onOpenModal={handleOpenModal} />

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import BackButton from "@/components/BackButton";
 
 interface Organization {
   name: string;
@@ -138,6 +139,7 @@ export default function OrganizationProfile() {
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
+      <BackButton />
       <h1 className="text-3xl font-bold mb-6">Organization Profile</h1>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">

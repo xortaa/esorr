@@ -5,6 +5,7 @@ import { Trash2, Search, FilePenLine, UserPlus, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
+import BackButton from "@/components/BackButton";
 
 type Member = {
   _id: string;
@@ -166,6 +167,7 @@ const AnnexBMembersDashboard = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

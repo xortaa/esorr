@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2 } from "lucide-react";
 import axios from "axios";
+import BackButton from "@/components/BackButton";
 
 interface EvaluationRatings {
   5: number;
@@ -311,6 +312,7 @@ const EventDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <BackButton />
       <h2 className="text-2xl font-bold ty">{event.title}</h2>
       <h1 className="text-3xl font-bold mb-6 text-center text-primary">Event Details</h1>
       <div className="space-y-8">

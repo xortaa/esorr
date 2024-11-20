@@ -11,6 +11,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 // Register fonts
 Font.register({
@@ -459,9 +460,7 @@ export default function EnhancedAnnexKManager() {
 
   return (
     <PageWrapper>
-      <button className="btn btn-error" onClick={() => console.log(session)}>
-        SESSION
-      </button>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX K COMMITMENT TO CARE FOR THE ENVIRONMENT</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

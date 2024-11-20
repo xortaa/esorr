@@ -10,6 +10,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 // Register fonts
 Font.register({
@@ -793,6 +794,7 @@ export default function EnhancedAnnex01Manager() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX 01 Rules of Procedure for Recognition</h1>
       {!isCreatingAnnex ? (
         <button onClick={() => setIsCreatingAnnex(true)} className="btn btn-primary mb-6">

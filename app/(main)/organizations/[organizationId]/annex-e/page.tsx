@@ -15,6 +15,7 @@ import { PDFDocument } from "pdf-lib";
 import * as pdfjs from "pdfjs-dist";
 import PDFMerger from "pdf-merger-js";
 import ExpenseReport from "@/components/ExpenseReport";
+import BackButton from "@/components/BackButton";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 interface Signature {
@@ -1912,6 +1913,7 @@ const AnnexEManager: React.FC = () => {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX E Organization Operational Assessment Form</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

@@ -10,6 +10,7 @@ import axios from "axios";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 // Register fonts
 Font.register({
@@ -581,6 +582,7 @@ export default function EnhancedAnnexFManager() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX F ACTIVITIES MONITORING FORM</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">

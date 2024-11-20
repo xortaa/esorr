@@ -7,7 +7,6 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 
 type AnnexA = {
-  _id: string;
   organization: string;
   academicYearOfLastRecognition: string;
   affiliation: string;

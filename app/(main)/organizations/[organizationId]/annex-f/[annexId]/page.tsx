@@ -5,6 +5,7 @@ import { PlusCircle, Delete, Save, ChevronDown, ChevronUp } from "lucide-react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
+import BackButton from "@/components/BackButton";
 
 type Activity = {
   _id?: string;
@@ -177,6 +178,7 @@ export default function ActivitiesFormCreator() {
   if (isLoading) {
     return (
       <PageWrapper>
+        <BackButton />
         <div className="flex items-center justify-center min-h-screen">
           <div className="loading loading-spinner loading-lg"></div>
         </div>
@@ -186,6 +188,7 @@ export default function ActivitiesFormCreator() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-4">Activities Monitoring Form Creator</h1>
       <form className="space-y-8">
         {terms.map((term, termIndex) => (

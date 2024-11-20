@@ -10,6 +10,7 @@ import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/
 import { pdf } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 type AnnexB = {
   _id: string;
@@ -871,6 +872,7 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX B List of Members</h1>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
