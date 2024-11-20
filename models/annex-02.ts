@@ -15,10 +15,6 @@ const Annex02Schema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   levelOfRecognition: String,
   facebook: String,
   isWithCentralOrganization: Boolean,
@@ -52,6 +48,20 @@ const Annex02Schema = new Schema({
   centralOrganizationAdviser: SignatureSchema,
   director: SignatureSchema,
   officialEmail: String,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const Annex02 = models.Annex02 || model("Annex02", Annex02Schema);
