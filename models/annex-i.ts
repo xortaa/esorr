@@ -15,37 +15,36 @@ const SignatureSchema = new Schema({
   },
 });
 
-const AnnexISchema = new Schema(
-  {
-    organization: {
-      type: Schema.Types.ObjectId,
-      ref: "Organization",
-      required: true,
-    },
-    academicYear: {
-      type: String,
-      required: true,
-    },
-    president: SignatureSchema,
-    secretary: SignatureSchema,
-    pro: SignatureSchema,
-    adviser: SignatureSchema,
-    status: {
-      type: String,
-      enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
-      default: "Not Submitted",
-    },
-    soccRemarks: {
-      type: String,
-      default: "",
-    },
-    osaRemarks: {
-      type: String,
-      default: "",
-    },
-    dateSubmitted: Date,
+const AnnexISchema = new Schema({
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
+    required: true,
   },
-);
+  academicYear: {
+    type: String,
+    required: true,
+  },
+  president: SignatureSchema,
+  secretary: SignatureSchema,
+  pro: SignatureSchema,
+  adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
+  osaOfficerInCharge: String,
+});
 
 const AnnexI = models.AnnexI || model("AnnexI", AnnexISchema);
 

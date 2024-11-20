@@ -139,6 +139,7 @@ type AnnexK = {
   soccRemarks: string;
   osaRemarks: string;
   dateSubmitted: Date;
+  osaOfficerInCharge: string;
 };
 
 type UserPosition = {
@@ -223,13 +224,13 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.text}>__________________________________</Text>
+        <Text style={styles.text}>{annex.osaOfficerInCharge}</Text>
         <Text style={styles.text}>Officer-In-Charge, Office for Student Affairs</Text>
         <Text style={styles.text}>University of Santo Tomas {"\n"}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.text}>Dear ___________________:</Text>
+        <Text style={styles.text}>Dear {annex.osaOfficerInCharge}:</Text>
       </View>
 
       <View style={styles.section}>

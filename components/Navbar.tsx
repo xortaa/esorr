@@ -66,6 +66,11 @@ const Navbar = () => {
                       Manage Affiliation
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/osa/manage-officer-in-charge" className="hover:text-primary">
+                      Manage Officer In Charge
+                    </Link>
+                  </li>
                 </>
               )}
               <li>
@@ -103,6 +108,11 @@ const Navbar = () => {
               <li>
                 <Link href="/osa/manage-affiliation" className="hover:text-primary">
                   Manage Affiliation
+                </Link>
+              </li>
+              <li>
+                <Link href="/osa/manage-officer-in-charge" className="hover:text-primary">
+                  Manage Officer In Charge
                 </Link>
               </li>
             </>

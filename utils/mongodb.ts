@@ -56,6 +56,7 @@ const connectToDatabase = async () => {
     require("@/models/pasoc");
     require("@/models/signatory-request");
     require("@/models/user");
+    require("@/models/officer-in-charge")
 
   } catch (error) {
     console.log(error);

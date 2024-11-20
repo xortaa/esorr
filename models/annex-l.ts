@@ -53,6 +53,7 @@ const AnnexLSchema = new Schema({
     default: "",
   },
   dateSubmitted: Date,
+  osaOfficerInCharge: String,
 });
 
 const AnnexL = models.AnnexL || model("AnnexL", AnnexLSchema);

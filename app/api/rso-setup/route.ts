@@ -27,6 +27,7 @@ import Pasoc from "@/models/pasoc";
 import OperationalAssessment from "@/models/operational-assessment";
 import Inflow from "@/models/inflow";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
+import OfficerInCharge from "@/models/officer-in-charge";
 
 const monthNames = [
   "june",
@@ -47,6 +48,11 @@ export async function POST(req: NextRequest) {
   console.log("Starting RSO setup process");
   await connectToDatabase();
   console.log("Database connection established");
+
+  // get the officer in charge 
+  const officerInCharge = await OfficerInCharge.findOne();
+
+
 
   try {
     const body = await req.json();
@@ -432,6 +438,7 @@ export async function POST(req: NextRequest) {
     const newAnnexH = await AnnexH.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      osaOfficerInCharge: officerInCharge.name,
     });
     console.log("AnnexH created:", newAnnexH);
 
@@ -439,6 +446,7 @@ export async function POST(req: NextRequest) {
     const newAnnexI = await AnnexI.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      osaOfficerInCharge: officerInCharge.name,
     });
     console.log("AnnexI created:", newAnnexI);
 
@@ -446,6 +454,7 @@ export async function POST(req: NextRequest) {
     const newAnnexJ = await AnnexJ.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      osaOfficerInCharge: officerInCharge.name,
     });
     console.log("AnnexJ created:", newAnnexJ);
 
@@ -453,6 +462,7 @@ export async function POST(req: NextRequest) {
     const newAnnexK = await AnnexK.create({
       organization: newOrganization._id,
       academicYear: currentAcademicYear,
+      osaOfficerInCharge: officerInCharge.name,
     });
     console.log("AnnexK created:", newAnnexK);
 
@@ -464,6 +474,7 @@ export async function POST(req: NextRequest) {
       secretary: null,
       president: null,
       adviser: null,
+      osaOfficerInCharge: officerInCharge.name,
     });
     console.log("AnnexL created:", newAnnexL);
 
