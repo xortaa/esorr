@@ -16,6 +16,11 @@ const Annex01Schema = new Schema({
     signatureUrl: String,
     dateSigned: Date,
   },
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
   soccRemarks: {
     type: String,
     default: "",
@@ -23,11 +28,6 @@ const Annex01Schema = new Schema({
   osaRemarks: {
     type: String,
     default: "",
-  },
-  status: {
-    type: String,
-    enum: ["Not Started", "In Progress", "For Review", "Approved"],
-    default: "Not Started",
   },
   dateSubmitted: Date,
 });
