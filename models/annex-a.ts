@@ -54,26 +54,21 @@ const AnnexASchema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: { 
-    type: Boolean, 
-    default: false
+  advisers: {
+    type: [Schema.Types.ObjectId],
+    ref: "Nominee",
   },
-  advisers: { 
-    type: [Schema.Types.ObjectId], 
-    ref: "Nominee" 
-  },
-  officers: { 
-    type: [Schema.Types.ObjectId], 
-    ref: "Officer" 
+  officers: {
+    type: [Schema.Types.ObjectId],
+    ref: "Officer",
   },
   members: {
     type: [Schema.Types.ObjectId],
-    ref: "Member"
-
+    ref: "Member",
   },
-  outflows: { 
-    type: [Schema.Types.ObjectId], 
-    ref: "Outflow" 
+  outflows: {
+    type: [Schema.Types.ObjectId],
+    ref: "Outflow",
   },
   outgoingSecretary: SignatureSchema,
   incomingSecretary: SignatureSchema,
@@ -81,6 +76,20 @@ const AnnexASchema = new Schema({
   incomingTreasurer: SignatureSchema,
   outgoingPresident: SignatureSchema,
   incomingPresident: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexA = models.AnnexA || model("AnnexA", AnnexASchema);
