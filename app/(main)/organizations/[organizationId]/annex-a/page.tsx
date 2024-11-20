@@ -1088,7 +1088,7 @@ export default function AnnexAManager() {
   };
 
   const editAnnex = (id: string) => {
-    router.push(`/organizations/${organizationId}/annexes/annex-a/${id}`);
+    router.push(`/organizations/${organizationId}/annex-a/${id}`);
   };
 
   const submitAnnexForReview = async (id: string) => {
