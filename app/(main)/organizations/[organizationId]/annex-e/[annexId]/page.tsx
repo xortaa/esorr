@@ -324,9 +324,9 @@ const OrganizationOperationalAssessmentForm = () => {
           <Link href={`${currentPath}/${event._id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
             {event.title} {event.eReserveNumber && `(e-ReSERVe No: ${event.eReserveNumber})`}
           </Link>
-          <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event._id, categoryId)}>
+          {/* <button className="btn btn-ghost btn-xs ml-2" onClick={() => removeEvent(event._id, categoryId)}>
             <Trash2 size={12} />
-          </button>
+          </button> */}
         </div>
       ))}
     </>
