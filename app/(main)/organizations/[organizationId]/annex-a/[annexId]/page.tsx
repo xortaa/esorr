@@ -5,9 +5,16 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import { Plus, Save, Trash2 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
+import Link from "next/link";
+import BackButton from "@/components/BackButton";
+
+type Organization = {
+  _id: string;
+  name: string;
+};
 
 type AnnexA = {
-  organization: string;
+  organization: Organization;
   academicYearOfLastRecognition: string;
   affiliation: string;
   officialEmail: string;
@@ -24,11 +31,15 @@ type AnnexA = {
 };
 
 export default function AnnexAEditor() {
-  const [objectives, setObjectives] = useState([""]);
-  const [originalObjectives, setOriginalObjectives] = useState([""]);
+  const [objectives, setObjectives] = useState<string[]>([""]);
+  const [originalObjectives, setOriginalObjectives] = useState<string[]>([""]);
   const [annexA, setAnnexA] = useState<AnnexA | null>(null);
-  const { organizationId, annexId } = useParams();
+  const params = useParams();
+  const organizationId = params.organizationId as string;
+  const annexId = params.annexId as string;
   const [isUpdating, setIsUpdating] = useState(false);
+  const [officialWebsite, setOfficialWebsite] = useState("");
+  const [organizationSocials, setOrganizationSocials] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAnnexA = async () => {
@@ -37,6 +48,8 @@ export default function AnnexAEditor() {
         setAnnexA(response.data);
         setObjectives(response.data.objectives);
         setOriginalObjectives(response.data.objectives);
+        setOfficialWebsite(response.data.officialWebsite);
+        setOrganizationSocials(response.data.organizationSocials);
       } catch (error) {
         console.error("Error fetching Annex A:", error);
       }
@@ -81,6 +94,47 @@ export default function AnnexAEditor() {
     }
   };
 
+  const updateOfficialWebsite = async () => {
+    setIsUpdating(true);
+    try {
+      await axios.patch(`/api/annexes/${organizationId}/annex-a/${annexId}/update-website`, { officialWebsite });
+      alert("Official website updated successfully");
+    } catch (error) {
+      console.error("Error updating official website:", error);
+      alert("Failed to update official website");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const updateOrganizationSocials = async () => {
+    setIsUpdating(true);
+    try {
+      await axios.patch(`/api/annexes/${organizationId}/annex-a/${annexId}/update-socials`, { organizationSocials });
+      alert("Organization socials updated successfully");
+    } catch (error) {
+      console.error("Error updating organization socials:", error);
+      alert("Failed to update organization socials");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const addSocial = () => {
+    setOrganizationSocials([...organizationSocials, ""]);
+  };
+
+  const updateSocial = (index: number, value: string) => {
+    const newSocials = [...organizationSocials];
+    newSocials[index] = value;
+    setOrganizationSocials(newSocials);
+  };
+
+  const removeSocial = (index: number) => {
+    const newSocials = organizationSocials.filter((_, i) => i !== index);
+    setOrganizationSocials(newSocials);
+  };
+
   const hasChanges = () => {
     if (objectives.length !== originalObjectives.length) return true;
     return objectives.some((obj, index) => obj !== originalObjectives[index]);
@@ -92,6 +146,7 @@ export default function AnnexAEditor() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <h1 className="text-3xl font-bold text-center mb-8">Student Organization General Information Report</h1>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
@@ -101,7 +156,7 @@ export default function AnnexAEditor() {
               <label className="label">
                 <span className="label-text">Name of the Organization</span>
               </label>
-              <p className="text-lg font-medium">{annexA.organization}</p>
+              <p className="text-lg font-medium">{annexA.organization.name}</p>
             </div>
             <div className="form-control">
               <label className="label">
@@ -125,17 +180,41 @@ export default function AnnexAEditor() {
               <label className="label">
                 <span className="label-text">Official Website</span>
               </label>
-              <p className="text-lg font-medium">{annexA.officialWebsite}</p>
+              <input
+                type="text"
+                className="input input-bordered"
+                value={officialWebsite}
+                onChange={(e) => setOfficialWebsite(e.target.value)}
+              />
+              <button onClick={updateOfficialWebsite} className="btn btn-primary mt-2">
+                Update Website
+              </button>
             </div>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Organization's Social Networking Pages/Sites:</span>
               </label>
-              {annexA.organizationSocials.map((social, index) => (
-                <p key={index} className="text-lg font-medium">
-                  {social}
-                </p>
+              {organizationSocials.map((social, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    className="input input-bordered flex-grow"
+                    value={social}
+                    onChange={(e) => updateSocial(index, e.target.value)}
+                  />
+                  <button onClick={() => removeSocial(index)} className="btn btn-ghost btn-sm">
+                    <Trash2 className="h-4 w-4 text-error" />
+                  </button>
+                </div>
               ))}
+              <div className="flex justify-between mt-2">
+                <button onClick={addSocial} className="btn btn-outline btn-primary btn-sm">
+                  <Plus className="mr-2 h-4 w-4" /> Add Social
+                </button>
+                <button onClick={updateOrganizationSocials} className="btn btn-primary btn-sm">
+                  Update Socials
+                </button>
+              </div>
             </div>
             <div className="form-control">
               <label className="label">
@@ -235,27 +314,27 @@ export default function AnnexAEditor() {
         <div className="card-body">
           <h2 className="card-title">Officers' Information</h2>
           <p className="mb-4">Please fill out the officers' information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Officers' Information Annex</button>
+          <Link href={`/organizations/${organizationId}/annex-a1`}>
+            <button className="btn btn-primary">Go to Officers' Information Annex</button>
+          </Link>
         </div>
       </div>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title">Organization Adviser</h2>
           <p className="mb-4">Please fill out the organization adviser information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Organization Adviser Annex</button>
-        </div>
-      </div>
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Specimen Signatures</h2>
-          <p>List of signatures collected</p>
+          <Link href={`/organizations/${organizationId}/annex-g`}>
+            <button className="btn btn-primary">Go to Organization Adviser Annex</button>
+          </Link>
         </div>
       </div>
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title">Financial Status</h2>
           <p className="mb-4">Please fill out the financial status information in the designated annex.</p>
-          <button className="btn btn-primary">Go to Financial Status Annex</button>
+          <Link href={`/organizations/${organizationId}/annex-e2`}>
+            <button className="btn btn-primary">Go to Financial Status Annex</button>
+          </Link>
         </div>
       </div>
     </PageWrapper>

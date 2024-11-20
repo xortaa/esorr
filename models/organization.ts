@@ -28,6 +28,7 @@ const OrganizationSchema = new Schema({
   facebook: String, 
   isWithCentralOrganization: Boolean,
   isReligiousOrganization: Boolean,
+  academicYearofLastRecognition: String,
   levelOfRecognition: String,
   status: {
     type: String,
