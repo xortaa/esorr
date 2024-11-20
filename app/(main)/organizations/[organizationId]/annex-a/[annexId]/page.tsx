@@ -36,6 +36,8 @@ export default function AnnexAEditor() {
   const organizationId = params.organizationId as string;
   const annexId = params.annexId as string;
   const [isUpdating, setIsUpdating] = useState(false);
+  const [officialWebsite, setOfficialWebsite] = useState("");
+  const [organizationSocials, setOrganizationSocials] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAnnexA = async () => {
@@ -44,6 +46,8 @@ export default function AnnexAEditor() {
         setAnnexA(response.data);
         setObjectives(response.data.objectives);
         setOriginalObjectives(response.data.objectives);
+        setOfficialWebsite(response.data.officialWebsite);
+        setOrganizationSocials(response.data.organizationSocials);
       } catch (error) {
         console.error("Error fetching Annex A:", error);
       }
@@ -86,6 +90,47 @@ export default function AnnexAEditor() {
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const updateOfficialWebsite = async () => {
+    setIsUpdating(true);
+    try {
+      await axios.patch(`/api/annexes/${organizationId}/annex-a/${annexId}/update-website`, { officialWebsite });
+      alert("Official website updated successfully");
+    } catch (error) {
+      console.error("Error updating official website:", error);
+      alert("Failed to update official website");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const updateOrganizationSocials = async () => {
+    setIsUpdating(true);
+    try {
+      await axios.patch(`/api/annexes/${organizationId}/annex-a/${annexId}/update-socials`, { organizationSocials });
+      alert("Organization socials updated successfully");
+    } catch (error) {
+      console.error("Error updating organization socials:", error);
+      alert("Failed to update organization socials");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const addSocial = () => {
+    setOrganizationSocials([...organizationSocials, ""]);
+  };
+
+  const updateSocial = (index: number, value: string) => {
+    const newSocials = [...organizationSocials];
+    newSocials[index] = value;
+    setOrganizationSocials(newSocials);
+  };
+
+  const removeSocial = (index: number) => {
+    const newSocials = organizationSocials.filter((_, i) => i !== index);
+    setOrganizationSocials(newSocials);
   };
 
   const hasChanges = () => {
@@ -132,17 +177,41 @@ export default function AnnexAEditor() {
               <label className="label">
                 <span className="label-text">Official Website</span>
               </label>
-              <p className="text-lg font-medium">{annexA.officialWebsite}</p>
+              <input
+                type="text"
+                className="input input-bordered"
+                value={officialWebsite}
+                onChange={(e) => setOfficialWebsite(e.target.value)}
+              />
+              <button onClick={updateOfficialWebsite} className="btn btn-primary mt-2">
+                Update Website
+              </button>
             </div>
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Organization's Social Networking Pages/Sites:</span>
               </label>
-              {annexA.organizationSocials.map((social, index) => (
-                <p key={index} className="text-lg font-medium">
-                  {social}
-                </p>
+              {organizationSocials.map((social, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    className="input input-bordered flex-grow"
+                    value={social}
+                    onChange={(e) => updateSocial(index, e.target.value)}
+                  />
+                  <button onClick={() => removeSocial(index)} className="btn btn-ghost btn-sm">
+                    <Trash2 className="h-4 w-4 text-error" />
+                  </button>
+                </div>
               ))}
+              <div className="flex justify-between mt-2">
+                <button onClick={addSocial} className="btn btn-outline btn-primary btn-sm">
+                  <Plus className="mr-2 h-4 w-4" /> Add Social
+                </button>
+                <button onClick={updateOrganizationSocials} className="btn btn-primary btn-sm">
+                  Update Socials
+                </button>
+              </div>
             </div>
             <div className="form-control">
               <label className="label">
