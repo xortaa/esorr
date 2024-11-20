@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, RefreshCw } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,22 @@ export default function OrganizationsPage() {
 
   const { data: session, status } = useSession();
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [orgsResponse, affiliationsResponse] = await Promise.all([
+        axios.get("/api/organizations"),
+        axios.get("/api/affiliations"),
+      ]);
+      setOrganizations(orgsResponse.data);
+      setAffiliations(affiliationsResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (status === "loading") {
       setIsSessionLoading(true);
@@ -28,22 +44,6 @@ export default function OrganizationsPage() {
     setIsSessionLoading(false);
 
     if (status === "authenticated" && session?.user?.role) {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const [orgsResponse, affiliationsResponse] = await Promise.all([
-            axios.get("/api/organizations"),
-            axios.get("/api/affiliations"),
-          ]);
-          setOrganizations(orgsResponse.data);
-          setAffiliations(affiliationsResponse.data);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
       fetchData();
     } else {
       setIsLoading(false);
@@ -87,9 +87,14 @@ export default function OrganizationsPage() {
 
   return (
     <PageWrapper>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-primary">Organizations</h1>
-        <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-primary">Organizations</h1>
+          <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
+        </div>
+        <button onClick={fetchData} className="btn btn-ghost btn-circle" aria-label="Refresh organizations">
+          <RefreshCw size={20} />
+        </button>
       </div>
 
       <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-6">
@@ -198,16 +203,16 @@ function OrganizationCard({ organization }) {
         <div className="flex items-center text-sm">
           <span
             className={`badge ${
-              organization.status === "Active"
+              organization.calculatedStatus === "Completed"
                 ? "badge-primary"
-                : organization.status === "Incomplete"
+                : organization.calculatedStatus === "Incomplete"
                 ? "badge-ghost"
-                : organization.status === "Inactive"
-                ? "badge-error"
+                : organization.calculatedStatus === "For Review"
+                ? "badge-warning"
                 : "badge-neutral"
             }`}
           >
-            {organization.status}
+            {organization.calculatedStatus}
           </span>
         </div>
       </div>
