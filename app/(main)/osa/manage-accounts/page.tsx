@@ -244,9 +244,6 @@ export default function AccountsDashboard() {
         email: newAccount.email,
         role: newAccount.role,
         requestedBy: session?.user?.email,
-        fullName: newAccount.fullName,
-        affiliation: newAccount.affiliation,
-        isArchived: newAccount.isArchived,
       };
 
       if (newAccount.role === "RSO-SIGNATORY") {
@@ -523,18 +520,6 @@ export default function AccountsDashboard() {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text text-gray-700">Full Name</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={newAccount.fullName}
-                  onChange={(e) => setNewAccount({ ...newAccount, fullName: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="label">
                   <span className="label-text text-gray-700">Role</span>
                 </label>
                 <select
@@ -553,64 +538,36 @@ export default function AccountsDashboard() {
               </div>
               {newAccount.role === "RSO-SIGNATORY" && (
                 <>
-                  {newAccount.positions.map((pos, index) => (
-                    <div key={index} className="space-y-2">
-                      <div>
-                        <label className="label">
-                          <span className="label-text text-gray-700">Organization</span>
-                        </label>
-                        <OrganizationSearch
-                          onSelect={(org) => {
-                            const newPositions = [...newAccount.positions];
-                            newPositions[index].organization = org.name;
-                            setNewAccount({ ...newAccount, positions: newPositions });
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label className="label">
-                          <span className="label-text text-gray-700">Position</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="input input-bordered w-full"
-                          value={pos.position}
-                          onChange={(e) => {
-                            const newPositions = [...newAccount.positions];
-                            newPositions[index].position = e.target.value;
-                            setNewAccount({ ...newAccount, positions: newPositions });
-                          }}
-                          required
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() =>
-                      setNewAccount({
-                        ...newAccount,
-                        positions: [...newAccount.positions, { organization: "", position: "" }],
-                      })
-                    }
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Position
-                  </button>
+                  <div>
+                    <label className="label">
+                      <span className="label-text text-gray-700">Organization</span>
+                    </label>
+                    <OrganizationSearch
+                      onSelect={(org) => {
+                        const newPositions = [...newAccount.positions];
+                        newPositions[0].organization = org.name;
+                        setNewAccount({ ...newAccount, positions: newPositions });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text text-gray-700">Position</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={newAccount.positions[0].position}
+                      onChange={(e) => {
+                        const newPositions = [...newAccount.positions];
+                        newPositions[0].position = e.target.value;
+                        setNewAccount({ ...newAccount, positions: newPositions });
+                      }}
+                      required
+                    />
+                  </div>
                 </>
               )}
-              <div>
-                <label className="label">
-                  <span className="label-text text-gray-700">Affiliation</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={newAccount.affiliation}
-                  onChange={(e) => setNewAccount({ ...newAccount, affiliation: e.target.value })}
-                />
-              </div>
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
