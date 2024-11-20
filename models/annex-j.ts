@@ -48,9 +48,6 @@ const AnnexJSchema = new Schema(
     },
     dateSubmitted: Date,
   },
-  {
-    timestamps: true,
-  }
 );
 
 const AnnexJ = models.AnnexJ || model("AnnexJ", AnnexJSchema);
