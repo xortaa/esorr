@@ -1,4 +1,4 @@
-import Organizations from "@/models/organization";
+import Organization from "@/models/organization";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 
@@ -6,10 +6,47 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const organization = await Organizations.findById(params.organizationId);
+    const organization = await Organization.findById(params.organizationId).lean();
+
     if (!organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
+
+    // @ts-ignore
+    const currentAcademicYear = organization.academicYear;
+
+    const annexTypes = [
+      "annex01",
+      "annex02",
+      "annexA",
+      "annexA1",
+      "annexB",
+      "annexC",
+      "annexC1",
+      "annexD",
+      "annexE",
+      "annexE1",
+      "annexE2",
+      "annexE3",
+      "annexF",
+      "annexG",
+      "annexH",
+      "annexI",
+      "annexJ",
+      "annexK",
+      "annexL",
+    ];
+
+    for (const annexType of annexTypes) {
+      if (organization[annexType] && organization[annexType].length > 0) {
+        const populatedAnnex = await Organization.populate(organization, {
+          path: annexType,
+          match: { academicYear: currentAcademicYear },
+        });
+        organization[annexType] = populatedAnnex[annexType];
+      }
+    }
+
     return NextResponse.json(organization, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -23,11 +60,9 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
   const organizationInput = await req.json();
 
   try {
-    const updatedOrganization = await Organizations.findByIdAndUpdate(
-      params.organizationId,
-      organizationInput,
-      { new: true }
-    );
+    const updatedOrganization = await Organization.findByIdAndUpdate(params.organizationId, organizationInput, {
+      new: true,
+    });
     return NextResponse.json(updatedOrganization, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -39,7 +74,7 @@ export const DELETE = async (req: NextRequest, { params }: { params: { organizat
   await connectToDatabase();
 
   try {
-    const organization = await Organizations.findByIdAndDelete(params.organizationId);
+    const organization = await Organization.findByIdAndDelete(params.organizationId);
     if (!organization) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }

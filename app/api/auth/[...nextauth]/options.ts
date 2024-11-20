@@ -18,6 +18,7 @@ declare module "next-auth" {
       role: string;
       isSetup: boolean;
       fullName: string;
+      affiliation?: string; // Added affiliation
       positions?: {
         organization?: {
           _id: string;
@@ -35,6 +36,7 @@ declare module "next-auth" {
     _id: string;
     isSetup: boolean;
     fullName: string;
+    affiliation?: string; // Added affiliation
     positions?: {
       organization?: {
         _id: string;
@@ -53,6 +55,7 @@ declare module "next-auth/jwt" {
     _id: string;
     isSetup: boolean;
     fullName: string;
+    affiliation?: string; // Added affiliation
     positions?: {
       organization?: {
         _id: string;
@@ -120,6 +123,7 @@ export const options: NextAuthOptions = {
           account.role = newUser.role;
           account.isSetup = newUser.isSetup;
           account.fullName = newUser.fullName;
+          account.affiliation = newUser.affiliation; // Added affiliation
           return true;
         }
 
@@ -131,6 +135,7 @@ export const options: NextAuthOptions = {
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
           account.fullName = existingUser.fullName;
+          account.affiliation = existingUser.affiliation; // Added affiliation
           if (existingUser.positions) {
             account.positions = existingUser.positions;
           }
@@ -151,6 +156,7 @@ export const options: NextAuthOptions = {
       session.user.isSetup = token.isSetup;
       session.user.positions = token.positions;
       session.user.fullName = token.fullName;
+      session.user.affiliation = token.affiliation; // Added affiliation
 
       // Populate organization details in positions
       if (session.user.positions) {
@@ -164,7 +170,6 @@ export const options: NextAuthOptions = {
               };
             }
           }
-          // We no longer set the affiliation to the position for AU users here
         }
       }
 
@@ -177,12 +182,14 @@ export const options: NextAuthOptions = {
         token.isSetup = account.isSetup;
         token.positions = account.positions;
         token.fullName = account.fullName;
+        token.affiliation = account.affiliation; // Added affiliation
       } else if (user) {
         token.role = (user as any).role;
         token._id = (user as any)._id.toString();
         token.isSetup = (user as any).isSetup;
         token.positions = (user as any).positions;
         token.fullName = (user as any).fullName;
+        token.affiliation = (user as any).affiliation; // Added affiliation
       }
 
       // Populate organization details in positions

@@ -28,10 +28,16 @@ const OrganizationSchema = new Schema({
   facebook: String, 
   isWithCentralOrganization: Boolean,
   isReligiousOrganization: Boolean,
+  academicYearOfLastRecognition: String,
   levelOfRecognition: String,
+  academicYear: String,
+  isInactive: {
+    type: Boolean,
+    default: false,
+  },
   status: {
     type: String,
-    enum: ["Active", "Incomplete", "Inactive", "For Revision"],
+    enum: ["Incomplete", "For Review", "Complete"],
     default: "Incomplete",
   },
   annex01: [
@@ -101,6 +107,20 @@ const OrganizationSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "AnnexE1",
+      default: [],
+    },
+  ],
+  annexE2: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexE2",
+      default: [],
+    },
+  ],
+  annexE3: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "AnnexE3",
       default: [],
     },
   ],

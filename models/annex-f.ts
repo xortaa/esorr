@@ -21,10 +21,6 @@ const AnnexFSchema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   activities: {
     type: [Schema.Types.ObjectId],
     ref: "Activity",
@@ -32,6 +28,20 @@ const AnnexFSchema = new Schema({
   outgoingPresident: SignatureSchema,
   incomingPresident: SignatureSchema,
   adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexF = models.AnnexF || model("AnnexF", AnnexFSchema);

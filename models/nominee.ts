@@ -24,6 +24,15 @@ const nomineeSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Organization",
   },
+  officeAddress1: { 
+    type: String,
+  },
+  officeAddress2: { 
+    type: String,
+  },
+  signature: { 
+    type: String,
+  }
 });
 
 const Nominee = models.Nominee || model("Nominee", nomineeSchema);

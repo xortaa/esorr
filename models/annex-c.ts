@@ -16,10 +16,6 @@ const AnnexCSchema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   ratificationDate: {
     type: Date,
   },
@@ -33,6 +29,20 @@ const AnnexCSchema = new Schema({
   president: SignatureSchema,
   swdCoordinator: SignatureSchema,
   soccDirector: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexC = models.AnnexC || model("AnnexC", AnnexCSchema);

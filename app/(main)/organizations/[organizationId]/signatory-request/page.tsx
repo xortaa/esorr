@@ -1,4 +1,3 @@
-
 //C:\Users\kercwin\code\dev\esorr\app\(main)\organizations\[organizationId]\page.tsx
 "use client";
 
@@ -8,6 +7,7 @@ import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import BackButton from "@/components/BackButton";
 
 interface EmailRequest {
   _id: string;
@@ -84,12 +84,12 @@ export default function SignatoryEmailRequestPage() {
 
   return (
     <PageWrapper>
+      <BackButton />
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6">Signatory Email Requests</h1>
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Submit New Request</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            
             <div className="form-control">
               <label className="label" htmlFor="email">
                 <span className="label-text">Email</span>

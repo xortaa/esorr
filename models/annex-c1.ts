@@ -22,10 +22,6 @@ const AnnexC1Schema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   articlesOfAssociation: {
     type: Schema.Types.ObjectId,
     ref: "ArticlesOfAssociation",
@@ -61,6 +57,19 @@ const AnnexC1Schema = new Schema({
   },
   dateSubmitted: {
     type: Date,
+  },
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
   },
 });
 

@@ -1,114 +1,193 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Filter, LayoutGrid, List, Bell } from "lucide-react";
+import { Search, ChevronDown, RefreshCw } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-const OrganizationsPage = () => {
-  const [isGridView, setIsGridView] = useState(true);
+export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [organizations, setOrganizations] = useState([]);
+  const [affiliations, setAffiliations] = useState([]);
+  const [selectedAffiliation, setSelectedAffiliation] = useState("");
+  const [affiliationType, setAffiliationType] = useState("All");
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+
+  const { data: session, status } = useSession();
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [orgsResponse, affiliationsResponse] = await Promise.all([
+        axios.get("/api/organizations"),
+        axios.get("/api/affiliations"),
+      ]);
+      setOrganizations(orgsResponse.data);
+      setAffiliations(affiliationsResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    axios.get("/api/organizations").then((response) => {
-      setOrganizations(response.data);
-    });
-  }, []);
+    if (status === "loading") {
+      setIsSessionLoading(true);
+      return;
+    }
 
-  const filteredOrganizations = organizations.filter((org) =>
-    org.name.toLowerCase().includes(searchTerm.toLowerCase())
+    setIsSessionLoading(false);
+
+    if (status === "authenticated" && session?.user?.role) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [status, session]);
+
+  const filteredAffiliations = affiliations.filter((affiliation) =>
+    affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
   );
+
+  const filteredOrganizations = organizations.filter(
+    (org) =>
+      org.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (affiliationType === "All" ||
+        (affiliationType === "University Wide" && org.affiliation === "University Wide") ||
+        (affiliationType === "Other" &&
+          org.affiliation !== "University Wide" &&
+          (selectedAffiliation === "" || org.affiliation === selectedAffiliation)))
+  );
+
+  if (isSessionLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex justify-center items-center h-screen">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return (
+      <PageWrapper>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p>Please sign in to view organizations.</p>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-primary">Organizations</h1>
-        <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-primary">Organizations</h1>
+          <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
+        </div>
+        <button onClick={fetchData} className="btn btn-ghost btn-circle" aria-label="Refresh organizations">
+          <RefreshCw size={20} />
+        </button>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-        <div className="join">
-          <button className={`btn join-item ${isGridView ? "btn-active" : ""}`} onClick={() => setIsGridView(true)}>
-            <LayoutGrid size={20} />
-            Grid
-          </button>
-          <button className={`btn join-item ${!isGridView ? "btn-active" : ""}`} onClick={() => setIsGridView(false)}>
-            <List size={20} />
-            List
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn m-1">
-              <Filter size={20} />
-              Filter
-            </label>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-              <li>
-                <a>All</a>
-              </li>
-              <li>
-                <a>Active</a>
-              </li>
-              <li>
-                <a>Incomplete</a>
-              </li>
-              <li>
-                <a>For Revision</a>
-              </li>
-              <li>
-                <a>Inactive</a>
-              </li>
-            </ul>
-          </div>
-
-          <label className="input input-bordered flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-6">
+        <div className="form-control w-full lg:w-1/3">
+          <label className="label">
+            <span className="label-text">Search organizations</span>
+          </label>
+          <label className="input-group">
             <input
               type="text"
-              className="grow"
-              placeholder="Search"
+              placeholder="Search..."
+              className="input input-bordered w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="h-4 w-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
           </label>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-4 w-full lg:w-2/3">
+          <div className="form-control flex-1">
+            <label className="label">
+              <span className="label-text">Filter by type</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {["All", "University Wide", "Other"].map((type) => (
+                <label key={type} className="label cursor-pointer">
+                  <input
+                    type="radio"
+                    name="affiliation-type"
+                    className="radio radio-primary mr-2"
+                    checked={affiliationType === type}
+                    onChange={() => setAffiliationType(type)}
+                  />
+                  <span className="label-text">{type}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {affiliationType === "Other" && (
+            <div className="form-control flex-1">
+              <label className="label">
+                <span className="label-text">Select affiliation</span>
+              </label>
+              <div className="dropdown w-full">
+                <label tabIndex={0} className="btn btn-outline w-full justify-between">
+                  {selectedAffiliation || "Select affiliation"}
+                  <ChevronDown size={20} />
+                </label>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-[1]"
+                >
+                  <li className="menu-title">
+                    <span>Affiliations</span>
+                  </li>
+                  <li>
+                    <input
+                      type="text"
+                      placeholder="Search affiliations"
+                      className="input input-bordered w-full"
+                      value={affiliationSearchTerm}
+                      onChange={(e) => setAffiliationSearchTerm(e.target.value)}
+                    />
+                  </li>
+                  {filteredAffiliations.map((affiliation) => (
+                    <li key={affiliation._id}>
+                      <a onClick={() => setSelectedAffiliation(affiliation.name)}>{affiliation.name}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div
-        className={
-          isGridView
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6"
-            : "space-y-4"
-        }
-      >
-        {filteredOrganizations.map((org) =>
-          isGridView ? (
-            <OrganizationCard key={org.id} organization={org} />
-          ) : (
-            <OrganizationListItem key={org.id} organization={org} />
-          )
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          {filteredOrganizations.map((org) => (
+            <OrganizationCard key={org._id} organization={org} />
+          ))}
+        </div>
+      )}
     </PageWrapper>
   );
-};
+}
 
-const OrganizationCard = ({ organization }) => {
+function OrganizationCard({ organization }) {
   const router = useRouter();
   return (
     <div
@@ -122,53 +201,21 @@ const OrganizationCard = ({ organization }) => {
         <h2 className="card-title text-lg">{organization.name}</h2>
         <p className="text-sm text-gray-600">{organization.affiliation}</p>
         <div className="flex items-center text-sm">
-          <Bell size={16} className="mr-2" />
           <span
             className={`badge ${
-              organization.status === "Active"
+              organization.calculatedStatus === "Completed"
                 ? "badge-primary"
-                : organization.status === "Incomplete"
+                : organization.calculatedStatus === "Incomplete"
                 ? "badge-ghost"
-                : organization.status === "Inactive"
-                ? "badge-error"
+                : organization.calculatedStatus === "For Review"
+                ? "badge-warning"
                 : "badge-neutral"
             }`}
           >
-            {organization.status}
+            {organization.calculatedStatus}
           </span>
         </div>
       </div>
     </div>
   );
-};
-
-const OrganizationListItem = ({ organization }) => {
-  return (
-    <div className="card card-side bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-      <figure className="w-48">
-        <img src={organization.logo} alt={organization.name} className="h-full w-full object-cover" />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title">{organization.name}</h2>
-        <div className="flex items-center">
-          <Bell size={16} className="mr-2" />
-          <span
-            className={`badge ${
-              organization.status === "Active"
-                ? "badge-primary"
-                : organization.status === "Incomplete"
-                ? "badge-ghost"
-                : organization.status === "Inactive"
-                ? "badge-error"
-                : "badge-neutral"
-            }`}
-          >
-            {organization.status}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default OrganizationsPage;
+}

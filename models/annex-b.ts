@@ -48,7 +48,11 @@ interface IAnnexB extends Document {
     position: string;
     signatureUrl: string;
   };
+  soccRemarks: string;
+  osaRemarks: string;
   updateMemberCounts: () => Promise<void>;
+  status: "Not Submitted" | "Rejected" | "For Review" | "Approved";
+  dateSubmitted?: Date;
 }
 
 interface AnnexBModel extends Model<IAnnexB> {}
@@ -56,7 +60,6 @@ interface AnnexBModel extends Model<IAnnexB> {}
 const AnnexBSchema = new Schema<IAnnexB>({
   organization: { type: Schema.Types.ObjectId, ref: "Organization" },
   academicYear: { type: String, required: true },
-  isSubmitted: { type: Boolean, default: false },
   members: { type: [Schema.Types.ObjectId], ref: "Member", default: [] },
   numberOfOfficers: { type: Number, default: 0 },
   maleMembersBelow18: { type: Number, default: 0 },
@@ -80,6 +83,20 @@ const AnnexBSchema = new Schema<IAnnexB>({
   totalOfficersAndMembers: { type: Number, default: 0 },
   secretary: SignatureSchema,
   adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 AnnexBSchema.methods.updateMemberCounts = async function (this: IAnnexB): Promise<void> {

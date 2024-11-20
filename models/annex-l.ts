@@ -39,10 +39,21 @@ const AnnexLSchema = new Schema({
   adviser: {
     type: SignatureSchema,
   },
-  lastModified: {
-    type: Date,
-    default: Date.now,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
   },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
+  osaOfficerInCharge: String,
 });
 
 const AnnexL = models.AnnexL || model("AnnexL", AnnexLSchema);

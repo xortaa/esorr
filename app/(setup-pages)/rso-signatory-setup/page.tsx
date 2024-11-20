@@ -5,22 +5,18 @@ import { CornerDownLeft, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { signOut } from "next-auth/react";
 
 interface FormData {
-  firstName: string;
-  lastName: string;
-  middleName: string;
+  fullName: string;
 }
 
 const RSOSignatorySetupPage = () => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    middleName: "",
+    fullName: "",
   });
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   const nextStep = () => {
     setStep(step + 1);
@@ -47,8 +43,10 @@ const RSOSignatorySetupPage = () => {
       });
 
       if (response.status === 200) {
-        alert("RSO Signatory setup completed successfully!");
-        router.push("/organizations");
+        alert(
+          "RSO Signatory setup completed successfully! You will be signed out now to complete the setup. Please re-login to enter ESORR."
+        );
+        signOut();
       }
     } catch (error) {
       console.error("Error during RSO Signatory setup:", error);
@@ -59,7 +57,7 @@ const RSOSignatorySetupPage = () => {
   if (status === "loading") {
     return <div>Loading...</div>;
   }
-  
+
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
       <div>
@@ -95,7 +93,7 @@ const RSOSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: RSOSig
   };
 
   const isFormValid = () => {
-    return formData.firstName && formData.lastName;
+    return formData.fullName;
   };
 
   return (
@@ -115,48 +113,19 @@ const RSOSignatorySetupStep1 = ({ nextStep, formData, handleFormChange }: RSOSig
       >
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Name Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="firstName" className="label">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                className="input input-bordered w-full"
-                required
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="middleName" className="label">
-                Middle Name
-              </label>
-              <input
-                type="text"
-                id="middleName"
-                name="middleName"
-                className="input input-bordered w-full"
-                value={formData.middleName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastName" className="label">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className="input input-bordered w-full"
-                required
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
-            </div>
+          <div>
+            <label htmlFor="fullName" className="label">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              className="input input-bordered w-full"
+              required
+              value={formData.fullName}
+              onChange={handleInputChange}
+            />
           </div>
         </div>
 
@@ -187,9 +156,7 @@ const RSOSignatorySetupStep2 = ({
         <h3 id="name-details" className="text-xl font-semibold mb-2 text-gray-700">
           Name Details
         </h3>
-        <p className="text-lg">
-          {formData.firstName} {formData.middleName} {formData.lastName}
-        </p>
+        <p className="text-lg">{formData.fullName}</p>
       </section>
 
       <div className="flex justify-between mt-8">

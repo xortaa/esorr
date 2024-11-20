@@ -1,4 +1,3 @@
-// C:\Users\kercw\code\dev\esorr\app\api\annexes\[organizationId]\annex-g\[annexId]\nominee\[nomineeId]\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Nominee from "@/models/nominee";
@@ -11,11 +10,11 @@ export async function PUT(
 
   try {
     const body = await req.json();
-    const { name, faculty, email, landline, mobile, cv } = body;
+    const { name, faculty, email, landline, mobile, cv, officeAddress1, officeAddress2, signature } = body;
 
     const updatedNominee = await Nominee.findByIdAndUpdate(
       params.nomineeId,
-      { name, faculty, email, landline, mobile, cv },
+      { name, faculty, email, landline, mobile, cv, officeAddress1, officeAddress2, signature },
       { new: true }
     );
 

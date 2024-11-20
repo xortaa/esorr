@@ -15,33 +15,36 @@ const SignatureSchema = new Schema({
   },
 });
 
-const AnnexKSchema = new Schema(
-  {
-    organization: {
-      type: Schema.Types.ObjectId,
-      ref: "Organization",
-      required: true,
-    },
-    academicYear: {
-      type: String,
-      required: true,
-    },
-    isSubmitted: {
-      type: Boolean,
-      default: false,
-    },
-    submissionDate: {
-      type: Date,
-    },
-    greenMarshall: SignatureSchema,
-    secretary: SignatureSchema,
-    president: SignatureSchema,
-    adviser: SignatureSchema,
+const AnnexKSchema = new Schema({
+  organization: {
+    type: Schema.Types.ObjectId,
+    ref: "Organization",
+    required: true,
   },
-  {
-    timestamps: true,
-  }
-);
+  academicYear: {
+    type: String,
+    required: true,
+  },
+  greenMarshall: SignatureSchema,
+  secretary: SignatureSchema,
+  president: SignatureSchema,
+  adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
+  osaOfficerInCharge: String,
+});
 
 const AnnexK = models.AnnexK || model("AnnexK", AnnexKSchema);
 

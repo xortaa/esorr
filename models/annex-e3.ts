@@ -27,6 +27,20 @@ const AnnexE3Schema = new Schema({
   secretary: SignatureSchema,
   president: SignatureSchema,
   adviser: SignatureSchema,
+  status: {
+    type: String,
+    enum: ["Not Submitted", "Rejected", "For Review", "Approved"],
+    default: "Not Submitted",
+  },
+  soccRemarks: {
+    type: String,
+    default: "",
+  },
+  osaRemarks: {
+    type: String,
+    default: "",
+  },
+  dateSubmitted: Date,
 });
 
 const AnnexE3 = models.AnnexE3 || model("AnnexE3", AnnexE3Schema);
