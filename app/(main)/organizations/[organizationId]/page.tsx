@@ -6,6 +6,7 @@ import { Printer, PlusCircle, CheckCircle, AlertCircle, Clock } from "lucide-rea
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import BackButton from "@/components/BackButton";
+import { useRouter } from "next/navigation";
 
 type AnnexStatus = "Not Submitted" | "Rejected" | "For Review" | "Approved";
 
@@ -52,6 +53,11 @@ export default function Component() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const params = useParams();
   const organizationId = params.organizationId as string;
+  const router = useRouter();
+
+  const handleRedirectToSignatoryRequest = () => {
+    router.push(`/organizations/${organizationId}/signatory-request/`);
+  };
 
   useEffect(() => {
     const fetchAnnexes = async () => {
@@ -82,11 +88,7 @@ export default function Component() {
         console.log(`Latest ${annex.link} status:`, latestAnnex.status);
         return { ...annex, status: latestAnnex.status as AnnexStatus };
       }
-      // If annexData is undefined or empty, check if it exists in organizationData
-      if (annexKey in organizationData) {
-        return { ...annex, status: "Not Submitted" };
-      }
-      // If the annex doesn't exist in organizationData, keep the current status
+      // If annexData is undefined or empty, keep the current status
       return annex;
     });
     console.log("Updated annexes:", updatedAnnexes);
@@ -126,9 +128,16 @@ export default function Component() {
       <BackButton />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
-        <button className="btn btn-outline" onClick={() => setIsModalOpen(true)}>
-          Create New Academic Year ({nextAcademicYear})
-        </button>
+        <div>
+          <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
+            Create New Academic Year ({nextAcademicYear})
+          </button>
+
+          <button className="btn btn-primary" onClick={() => handleRedirectToSignatoryRequest()}>
+            {" "}
+            Request Signatories
+          </button>
+        </div>
       </div>
 
       {isModalOpen && (
