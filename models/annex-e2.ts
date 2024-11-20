@@ -57,10 +57,6 @@ const AnnexE2Schema = new Schema({
     type: String,
     required: true,
   },
-  isSubmitted: {
-    type: Boolean,
-    default: false,
-  },
   january: MonthlyReportSchema,
   february: MonthlyReportSchema,
   march: MonthlyReportSchema,
