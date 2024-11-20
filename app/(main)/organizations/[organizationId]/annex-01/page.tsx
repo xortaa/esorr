@@ -214,7 +214,6 @@ type Annex01 = {
   osaRemarks: string;
   status: "Not Started" | "In Progress" | "For Review" | "Approved";
   dateSubmitted: Date;
-  lastModified: Date;
 };
 
 type MyDocumentProps = {
@@ -1061,7 +1060,6 @@ function AnnexCard({
               Date Submitted: {new Date(annex.dateSubmitted).toLocaleString()}
             </div>
           )}
-          <div className="text-sm text-gray-500">Last Modified: {new Date(annex.lastModified).toLocaleString()}</div>
         </div>
       </div>
     </div>

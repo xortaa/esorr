@@ -29,8 +29,7 @@ const Annex01Schema = new Schema({
     enum: ["Not Started", "In Progress", "For Review", "Approved"],
     default: "Not Started",
   },
-  dateSubmitted: Date, 
-  lastModified: Date,
+  dateSubmitted: Date,
 });
 
 const Annex01 = models.Annex01 || model("Annex01", Annex01Schema);
