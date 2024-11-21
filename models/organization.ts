@@ -173,6 +173,10 @@ const OrganizationSchema = new Schema({
       default: [],
     },
   ],
+  isAccredited: { 
+    type: Boolean,
+    default: false,
+  }
 });
 
 const Organization = models.Organization || model("Organization", OrganizationSchema);

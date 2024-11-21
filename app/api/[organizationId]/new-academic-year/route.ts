@@ -61,6 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     const previousAcademicYear = `${startYear - 1}-${endYear - 1}`;
 
     currentOrganization.academicYear = currentAcademicYear;
+    currentOrganization.isAccredited = false;
     await currentOrganization.save();
 
     const previousAnnexA = await AnnexA.findOne({
