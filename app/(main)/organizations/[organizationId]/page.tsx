@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import PageWrapper from "@/components/PageWrapper";
 import { Printer, PlusCircle, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
+import { usePathname, useParams, useRouter } from "next/navigation";
 import BackButton from "@/components/BackButton";
-import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 type AnnexStatus = "Not Submitted" | "Rejected" | "For Review" | "Approved";
 
@@ -15,6 +15,11 @@ interface Annex {
   title: string;
   link: string;
   status: AnnexStatus;
+}
+
+interface Organization {
+  _id: string;
+  name: string;
 }
 
 export default function Component() {
@@ -51,13 +56,15 @@ export default function Component() {
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const currentYear = new Date().getFullYear();
+  const [yearOfAccreditation, setYearOfAccreditation] = useState(`${currentYear}-${currentYear + 1}`);
+  const [grade, setGrade] = useState("A");
+  const [accreditationCode, setAccreditationCode] = useState("");
   const params = useParams();
   const organizationId = params.organizationId as string;
   const router = useRouter();
-
-  const handleRedirectToSignatoryRequest = () => {
-    router.push(`/organizations/${organizationId}/signatory-request/`);
-  };
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchAnnexes = async () => {
@@ -74,8 +81,34 @@ export default function Component() {
       }
     };
 
+    const fetchOrganizations = async () => {
+      try {
+        const response = await fetch("/api/organizations/fetch-organizations-no-populate");
+        if (response.ok) {
+          const data = await response.json();
+          setOrganizations(data);
+        } else {
+          console.error("Failed to fetch organizations");
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+
     fetchAnnexes();
+    fetchOrganizations();
   }, [organizationId]);
+
+  useEffect(() => {
+    if (organizations.length > 0) {
+      const sortedOrganizations = [...organizations].sort((a, b) => a.name.localeCompare(b.name));
+      const index = sortedOrganizations.findIndex((org) => org._id === organizationId);
+      const paddedIndex = (index + 1).toString().padStart(2, "0");
+      setAccreditationCode(
+        `RSO-${grade}-${yearOfAccreditation.slice(2, 4)}-${yearOfAccreditation.slice(7, 9)}-${paddedIndex}`
+      );
+    }
+  }, [organizations, organizationId, grade, yearOfAccreditation]);
 
   const updateAnnexesStatus = (organizationData: any) => {
     console.log("Received organization data:", organizationData);
@@ -88,7 +121,6 @@ export default function Component() {
         console.log(`Latest ${annex.link} status:`, latestAnnex.status);
         return { ...annex, status: latestAnnex.status as AnnexStatus };
       }
-      // If annexData is undefined or empty, keep the current status
       return annex;
     });
     console.log("Updated annexes:", updatedAnnexes);
@@ -98,7 +130,6 @@ export default function Component() {
   const completedAnnexes = annexes.filter((annex) => annex.status === "Approved").length;
   const progress = (completedAnnexes / annexes.length) * 100;
 
-  const currentYear = new Date().getFullYear();
   const nextAcademicYear = `${currentYear + 1}-${currentYear + 2}`;
 
   const handleCreateNewAcademicYear = async () => {
@@ -123,6 +154,33 @@ export default function Component() {
     }
   };
 
+  const handleSubmitAccreditation = async () => {
+    try {
+      const fullYearOfAccreditation = `${yearOfAccreditation.split("-")[0]}-${yearOfAccreditation.split("-")[1]}`;
+      const response = await fetch(`/api/organizations/${organizationId}/add-accreditation`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accreditationCode,
+          yearOfAccreditation: fullYearOfAccreditation,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Accreditation updated successfully");
+        // Refresh the page
+        window.location.reload();
+      } else {
+        alert("Failed to update accreditation");
+      }
+    } catch (error) {
+      console.error("Error updating accreditation:", error);
+      alert("An error occurred while updating accreditation");
+    }
+  };
+
   return (
     <PageWrapper>
       <BackButton />
@@ -132,9 +190,10 @@ export default function Component() {
           <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
             Create New Academic Year ({nextAcademicYear})
           </button>
-
-          <button className="btn btn-primary" onClick={() => handleRedirectToSignatoryRequest()}>
-            {" "}
+          <button
+            className="btn btn-primary"
+            onClick={() => router.push(`/organizations/${organizationId}/signatory-request/`)}
+          >
             Request Signatories
           </button>
         </div>
@@ -158,10 +217,69 @@ export default function Component() {
           </div>
         </div>
       )}
+      {session?.user?.role === "OSA" && (
+        <div className="mb-6 space-y-4">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Year of Accreditation</span>
+            </label>
+            <select
+              className="select select-bordered w-full max-w-xs"
+              value={yearOfAccreditation}
+              onChange={(e) => setYearOfAccreditation(e.target.value)}
+            >
+              <option disabled value="">
+                Select year
+              </option>
+              {[...Array(5)].map((_, i) => {
+                const year = currentYear + i;
+                const nextYear = year + 1;
+                const academicYear = `${year}-${nextYear}`;
+                return (
+                  <option key={academicYear} value={academicYear}>
+                    {academicYear.slice(2, 4)}-{nextYear.toString().slice(-2)}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Grade</span>
+            </label>
+            <select
+              className="select select-bordered w-full max-w-xs"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+            >
+              {["A", "B", "C", "D"].map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Accreditation Code</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Accreditation Code"
+              className="input input-bordered w-full max-w-xs"
+              value={accreditationCode}
+              onChange={(e) => setAccreditationCode(e.target.value)}
+            />
+            <button className="btn btn-primary mt-4" onClick={handleSubmitAccreditation}>
+              Submit Accreditation
+            </button>
+          </div>
+        </div>
+      )}
 
       <p className="text-slate-500 mb-4">
         Welcome to the Annexes Dashboard! Here you can find all the annexes that you need to submit for your
-        organization's recognition. You can print or download all annexes at once or individually.
+        organization's recognition.
       </p>
 
       <div className="mb-6">
