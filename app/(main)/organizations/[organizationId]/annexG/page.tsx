@@ -510,7 +510,7 @@ function AnnexCard({
   onDisapprove,
   onOpenSignatureModal,
   onGeneratePDF,
-  session
+  session,
 }: AnnexCardProps) {
   const router = useRouter();
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
@@ -548,10 +548,10 @@ function AnnexCard({
               <Edit className="h-4 w-4 mr-2" />
               Edit Nomination
             </button>
-            <button className="btn btn-sm" onClick={() => onOpenSignatureModal(annex)}>
+            {/* <button className="btn btn-sm" onClick={() => onOpenSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-sm" onClick={() => onGeneratePDF(annex)}>
               <Eye className="h-4 w-4 mr-2" />
               View PDF

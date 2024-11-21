@@ -255,10 +255,10 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => (
 
       <View style={styles.section}>
         <Text style={styles.text}>
-          We, the officers and members of {annex.organization.name}, do hereby read and understand the attached
-          policies and guidelines on the Anti-Hazing Law (Republic Act No. 8049 as amended by Republic Act No. 11053).
-          We commit to abide by these policies and guidelines and ensure that no form of hazing or initiation rites
-          that may endanger the life or safety of our members will be conducted by our organization.
+          We, the officers and members of {annex.organization.name}, do hereby read and understand the attached policies
+          and guidelines on the Anti-Hazing Law (Republic Act No. 8049 as amended by Republic Act No. 11053). We commit
+          to abide by these policies and guidelines and ensure that no form of hazing or initiation rites that may
+          endanger the life or safety of our members will be conducted by our organization.
         </Text>
       </View>
 
@@ -698,10 +698,10 @@ function AnnexCard({
             <h2 className="card-title">COMMITMENT TO ANTI-HAZING LAW Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

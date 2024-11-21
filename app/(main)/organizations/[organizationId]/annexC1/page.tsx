@@ -827,7 +827,6 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
     }
   };
 
-
   const generatePDFBlob = async (annex: AnnexC1) => {
     if (annex.pdf) {
       const response = await fetch(annex.pdf);
@@ -1026,55 +1025,55 @@ export default function AnnexC1Manager({ params }: { params: { organizationId: s
     }
   };
 
-   const handleSubmitAnnex = async (annexId: string) => {
-     try {
-       const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/submit`);
-       const updatedAnnex = response.data;
-       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-       alert("Annex submitted successfully.");
-     } catch (error) {
-       console.error("Error submitting annex:", error);
-       alert("Failed to submit annex. Please try again.");
-     }
-   };
+  const handleSubmitAnnex = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/submit`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex submitted successfully.");
+    } catch (error) {
+      console.error("Error submitting annex:", error);
+      alert("Failed to submit annex. Please try again.");
+    }
+  };
 
-   const handleUpdateRemarks = async (annexId: string, type: "socc" | "osa", remarks: string) => {
-     try {
-       const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/${type}-remarks`, {
-         remarks,
-       });
-       const updatedAnnex = response.data;
-       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-       alert(`${type.toUpperCase()} remarks updated successfully.`);
-     } catch (error) {
-       console.error(`Error updating ${type} remarks:`, error);
-       alert(`Failed to update ${type.toUpperCase()} remarks. Please try again.`);
-     }
-   };
+  const handleUpdateRemarks = async (annexId: string, type: "socc" | "osa", remarks: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/${type}-remarks`, {
+        remarks,
+      });
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert(`${type.toUpperCase()} remarks updated successfully.`);
+    } catch (error) {
+      console.error(`Error updating ${type} remarks:`, error);
+      alert(`Failed to update ${type.toUpperCase()} remarks. Please try again.`);
+    }
+  };
 
-   const handleApprove = async (annexId: string) => {
-     try {
-       const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/approve`);
-       const updatedAnnex = response.data;
-       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-       alert("Annex approved successfully.");
-     } catch (error) {
-       console.error("Error approving annex:", error);
-       alert("Failed to approve annex. Please try again.");
-     }
-   };
+  const handleApprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/approve`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex approved successfully.");
+    } catch (error) {
+      console.error("Error approving annex:", error);
+      alert("Failed to approve annex. Please try again.");
+    }
+  };
 
-   const handleDisapprove = async (annexId: string) => {
-     try {
-       const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/disapprove`);
-       const updatedAnnex = response.data;
-       setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-       alert("Annex disapproved successfully.");
-     } catch (error) {
-       console.error("Error disapproving annex:", error);
-       alert("Failed to disapprove annex. Please try again.");
-     }
-   };
+  const handleDisapprove = async (annexId: string) => {
+    try {
+      const response = await axios.post(`/api/annexes/${params.organizationId}/annex-c1/${annexId}/disapprove`);
+      const updatedAnnex = response.data;
+      setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
+      alert("Annex disapproved successfully.");
+    } catch (error) {
+      console.error("Error disapproving annex:", error);
+      alert("Failed to disapprove annex. Please try again.");
+    }
+  };
 
   return (
     <PageWrapper>
@@ -1232,9 +1231,8 @@ interface AnnexCardProps {
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
-  session: any
+  session: any;
 }
-
 
 function AnnexCard({
   annex,
@@ -1247,7 +1245,7 @@ function AnnexCard({
   onUpdateRemarks,
   onApprove,
   onDisapprove,
-  session
+  session,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -1268,14 +1266,14 @@ function AnnexCard({
               <Edit className="h-4 w-4 mr-2" />
               Edit Articles
             </button>
-            <button
+            {/* <button
               className={`btn btn-ghost btn-sm ${annex.pdf ? "btn-disabled" : ""}`}
               onClick={() => openSignatureModal(annex)}
               disabled={!!annex.pdf}
             >
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

@@ -708,7 +708,7 @@ interface AnnexCardProps {
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
-  session: any
+  session: any;
 }
 
 function AnnexCard({
@@ -719,7 +719,7 @@ function AnnexCard({
   onUpdateRemarks,
   onApprove,
   onDisapprove,
-  session
+  session,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -734,10 +734,10 @@ function AnnexCard({
             </h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

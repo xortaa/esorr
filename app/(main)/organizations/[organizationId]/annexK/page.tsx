@@ -666,7 +666,16 @@ interface AnnexCardProps {
   session: any;
 }
 
-function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove, session }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
+}: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
@@ -678,10 +687,10 @@ function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateR
             <h2 className="card-title">COMMITMENT TO CARE FOR THE ENVIRONMENT Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

@@ -1107,10 +1107,10 @@ function AnnexCard({
               <Edit className="h-4 w-4 mr-2" />
               Edit Member List
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

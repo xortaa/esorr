@@ -389,25 +389,24 @@ export default function AnnexCManager() {
     }
   };
 
-const openSignatureModal = async (annex: AnnexC) => {
-  try {
-    setIsLoading(true);
-    const updatedAnnex = await fetchUpdatedAnnex(annex._id);
-    setSelectedAnnex(updatedAnnex);
-    setRatificationDate(updatedAnnex.ratificationDate ? formatDateForInput(updatedAnnex.ratificationDate) : "");
-    setRatificationVenue(updatedAnnex.ratificationVenue || "");
-    setSecretaryRatificationVenue(updatedAnnex.secretaryRatificationVenue || "");
-    const blob = await generatePDFBlob(updatedAnnex);
-    setPdfBlob(blob);
-    setIsModalOpen(true);
-  } catch (error) {
-    console.error("Error opening signature modal:", error);
-    alert("Failed to open signature modal. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  const openSignatureModal = async (annex: AnnexC) => {
+    try {
+      setIsLoading(true);
+      const updatedAnnex = await fetchUpdatedAnnex(annex._id);
+      setSelectedAnnex(updatedAnnex);
+      setRatificationDate(updatedAnnex.ratificationDate ? formatDateForInput(updatedAnnex.ratificationDate) : "");
+      setRatificationVenue(updatedAnnex.ratificationVenue || "");
+      setSecretaryRatificationVenue(updatedAnnex.secretaryRatificationVenue || "");
+      const blob = await generatePDFBlob(updatedAnnex);
+      setPdfBlob(blob);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error opening signature modal:", error);
+      alert("Failed to open signature modal. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const generatePDF = async (annex: AnnexC) => {
     try {
@@ -788,7 +787,16 @@ interface AnnexCardProps {
   session: any;
 }
 
-function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove, session }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
+}: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
@@ -802,10 +810,10 @@ function AnnexCard({ annex, openSignatureModal, generatePDF, onSubmit, onUpdateR
             </h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-sm btn-outline" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-sm btn-outline" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

@@ -790,7 +790,17 @@ interface AnnexCardProps {
   session: any;
 }
 
-function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove, session }: AnnexCardProps) {
+function AnnexCard({
+  annex,
+  editAnnex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
+}: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
@@ -809,10 +819,10 @@ function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit
               <Edit className="h-4 w-4 mr-2" />
               Edit Activities
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF

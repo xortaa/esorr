@@ -322,7 +322,7 @@ const MyDocument: React.FC<{ annex: Annex02 }> = ({ annex }) => (
               },
             ]}
           >
-            {annex.affiliation === "University Wide"? (
+            {annex.affiliation === "University Wide" ? (
               <Text>
                 FOR RECOGNITION {"\n"}
                 WITH APPLICATION FOR OFFICE SPACE
@@ -1162,7 +1162,7 @@ interface AnnexCardProps {
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
-  session: any
+  session: any;
 }
 
 function AnnexCard({
@@ -1173,7 +1173,7 @@ function AnnexCard({
   onUpdateRemarks,
   onApprove,
   onDisapprove,
-  session
+  session,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -1186,10 +1186,10 @@ function AnnexCard({
             <h2 className="card-title">Petition for Recognition Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-ghost btn-sm" onClick={openSignatureModal}>
+            {/* <button className="btn btn-ghost btn-sm" onClick={openSignatureModal}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-ghost btn-sm" onClick={generatePDF}>
               <Download className="h-4 w-4 mr-2" />
               Generate PDF

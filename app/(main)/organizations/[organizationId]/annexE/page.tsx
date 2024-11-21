@@ -1530,7 +1530,7 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
               borderTop: 1,
             }}
           >
-            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}>{" "}</Text>
+            <Text style={{ padding: 2, width: "17%", borderRight: 1 }}> </Text>
             <Text style={{ padding: 2, width: "17%", borderRight: 1 }}></Text>
             <Text style={{ padding: 2, width: "17%", borderRight: 1 }}></Text>
             <Text style={{ borderRight: 1, width: "12.25%", padding: 2 }}>
@@ -1670,7 +1670,6 @@ const AnnexEManager: React.FC = () => {
   const editAnnex = (id: string) => {
     router.push(`${currentPath}/${id}`);
   };
-
 
   const openSignatureModal = async (annex: AnnexE) => {
     try {
@@ -2112,9 +2111,19 @@ interface AnnexCardProps {
   session: any;
 }
 
-function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit, onUpdateRemarks, onApprove, onDisapprove, session }: AnnexCardProps) {
-   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
-   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+function AnnexCard({
+  annex,
+  editAnnex,
+  openSignatureModal,
+  generatePDF,
+  onSubmit,
+  onUpdateRemarks,
+  onApprove,
+  onDisapprove,
+  session,
+}: AnnexCardProps) {
+  const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
+  const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -2131,10 +2140,10 @@ function AnnexCard({ annex, editAnnex, openSignatureModal, generatePDF, onSubmit
               <Edit className="h-4 w-4 mr-2" />
               Edit Assessment
             </button>
-            <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
+            {/* <button className="btn btn-outline btn-sm" onClick={() => openSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
-            </button>
+            </button> */}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF
