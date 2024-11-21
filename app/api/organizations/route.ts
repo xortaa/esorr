@@ -4,9 +4,7 @@ import connectToDatabase from "@/utils/mongodb";
 import Organizations from "@/models/organization";
 import User from "@/models/user";
 
-export const config = {
-  maxDuration: 60,
-};
+export const maxDuration = 60;
 
 export const GET = async (req: NextRequest) => {
   await connectToDatabase();
