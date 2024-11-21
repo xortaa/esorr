@@ -2,6 +2,10 @@ import Organization from "@/models/organization";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 
+export const config = {
+  maxDuration: 60,
+};
+
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string } }) => {
   await connectToDatabase();
 
