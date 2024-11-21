@@ -15,12 +15,14 @@ export default function OrganizationsPage() {
   const [affiliationType, setAffiliationType] = useState("All");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   const fetchData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const [orgsResponse, affiliationsResponse] = await Promise.all([
         axios.get("/api/organizations"),
@@ -30,23 +32,15 @@ export default function OrganizationsPage() {
       setAffiliations(affiliationsResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setError("Failed to fetch data. Please try again later.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (status === "loading") {
-      setIsSessionLoading(true);
-      return;
-    }
-
-    setIsSessionLoading(false);
-
     if (status === "authenticated" && session?.user?.role) {
       fetchData();
-    } else {
-      setIsLoading(false);
     }
   }, [status, session]);
 
@@ -64,7 +58,7 @@ export default function OrganizationsPage() {
           (selectedAffiliation === "" || org.affiliation === selectedAffiliation)))
   );
 
-  if (isSessionLoading) {
+  if (status === "loading") {
     return (
       <PageWrapper>
         <div className="flex justify-center items-center h-screen">
@@ -172,6 +166,12 @@ export default function OrganizationsPage() {
         </div>
       </div>
 
+      {error && (
+        <div className="alert alert-error mb-4">
+          <p>{error}</p>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <span className="loading loading-spinner loading-lg"></span>
@@ -195,7 +195,11 @@ function OrganizationCard({ organization }) {
       onClick={() => router.push(`/organizations/${organization._id}`)}
     >
       <figure className="px-4 pt-4">
-        <img src={organization.logo} alt={organization.name} className="rounded-xl h-48 w-full object-cover" />
+        <img
+          src={organization.logo || "/placeholder.svg?height=192&width=256"}
+          alt={organization.name}
+          className="rounded-xl h-48 w-full object-cover"
+        />
       </figure>
       <div className="card-body">
         <h2 className="card-title text-lg">{organization.name}</h2>
