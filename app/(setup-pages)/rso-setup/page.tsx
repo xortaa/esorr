@@ -689,7 +689,7 @@ const OrganizationSetupStep1 = ({
             required
           >
             <option value="">Select a category</option>
-            {["Academic", "Cultural", "Religious", "Sports"].map((category) => (
+            {["Religous", "Socio-Civic", "Arts & Culture", "Sports and Wellness, Academic"].map((category) => (
               <option key={category} value={category}>
                 {category}
               </option>
@@ -707,7 +707,7 @@ const OrganizationSetupStep1 = ({
             </label>
             {isSDAreaDropdownOpen && (
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                {["Research", "Innovation", "Community Engagement", "Sustainability"].map((area) => (
+                {["Thomasian Identity", "Leadership and Governance", "Teaching and Learning", "Research and Innovation", "Community Development and Advocacy", "Student Welfare and Services", "Public Presence", "Resource Management", "Internationalization"].map((area) => (
                   <li key={area}>
                     <label className="label cursor-pointer justify-start">
                       <input
