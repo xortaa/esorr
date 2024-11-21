@@ -595,7 +595,6 @@ export default function AccountsDashboard() {
                   className="input input-bordered w-full"
                   value={editingAccount.email}
                   onChange={(e) => setEditingAccount({ ...editingAccount, email: e.target.value })}
-                  required
                 />
               </div>
               <div>
@@ -607,7 +606,6 @@ export default function AccountsDashboard() {
                   className="input input-bordered w-full"
                   value={editingAccount.fullName || ""}
                   onChange={(e) => setEditingAccount({ ...editingAccount, fullName: e.target.value })}
-                  required
                 />
               </div>
               <div>
@@ -618,7 +616,6 @@ export default function AccountsDashboard() {
                   className="select select-bordered w-full"
                   value={editingAccount.role}
                   onChange={(e) => setEditingAccount({ ...editingAccount, role: e.target.value })}
-                  required
                 >
                   <option value="OSA">OSA</option>
                   <option value="SOCC">SOCC</option>
@@ -656,7 +653,6 @@ export default function AccountsDashboard() {
                           newPositions[index].position = e.target.value;
                           setEditingAccount({ ...editingAccount, positions: newPositions });
                         }}
-                        required
                       />
                     </div>
                   </div>
