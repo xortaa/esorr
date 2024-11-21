@@ -828,12 +828,12 @@ const OrganizationSetupStep1 = ({
         {formData.academicYearOfLastRecognition !== "Not yet recognized" && (
           <div className="form-control">
             <label className="label" htmlFor="level-of-recognition">
-              <span className="label-text">Level of Recognition (Required)</span>
+              <span className="label-text">RSO CODE (Required)</span>
             </label>
             <input
               type="text"
               id="level-of-recognition"
-              placeholder="Enter level of recognition"
+              placeholder="RSO-A-24-25-01"
               className="input input-bordered w-full"
               value={formData.levelOfRecognition}
               onChange={handleLevelOfRecognitionChange}
