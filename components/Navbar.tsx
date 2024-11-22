@@ -115,6 +115,11 @@ const Navbar = () => {
                   Manage Officer In Charge
                 </Link>
               </li>
+              <li>
+                <Link href="/osa/announcement" className="hover:text-primary">
+                  Announcement
+                </Link>
+              </li>
             </>
           )}
         </ul>
@@ -147,6 +152,11 @@ const Navbar = () => {
                     Logout
                   </a>
                 </li>
+                <li>
+                    <Link href="app/osa/announcement">
+                    Announcement
+                    </Link>
+                  </li>
               </ul>
             )}
           </div>

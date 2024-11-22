@@ -2,7 +2,7 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 export { default } from "next-auth/middleware";
-
+/*
 export async function middleware(req: NextRequest) {
   console.log("Middleware executed");
 
@@ -33,8 +33,8 @@ export async function middleware(req: NextRequest) {
     RSO: ["/organizations", "/rso-setup"],
     SOCC: ["/organizations", "/socc-setup"],
     AU: ["/organizations", "/au-setup"],
-    "RSO-SIGNATORY": ["/organizations", "/rso-signatory-setup"],
-    "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
+   // "RSO-SIGNATORY": ["/organizations", "/rso-signatory-setup"],
+   // "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
   };
 
   // Define setup pages for each role
@@ -80,3 +80,4 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public/).*)"],
 };
+*/
