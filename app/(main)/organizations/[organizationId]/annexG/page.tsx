@@ -510,6 +510,7 @@ function AnnexCard({
   onDisapprove,
   onOpenSignatureModal,
   onGeneratePDF,
+
   session,
 }: AnnexCardProps) {
   const router = useRouter();
@@ -543,7 +544,7 @@ function AnnexCard({
           <div className="flex items-center space-x-2">
             <button
               className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
-              onClick={() => router.push(`/organizations/${annex.organization}/annex-g/${annex._id}`)}
+              onClick={() => router.push(`/organizations/${annex.organization}/annexG/${annex._id}`)}
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Nomination
