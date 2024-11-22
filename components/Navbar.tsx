@@ -152,11 +152,6 @@ const Navbar = () => {
                     Logout
                   </a>
                 </li>
-                <li>
-                    <Link href="app/osa/announcement">
-                    Announcement
-                    </Link>
-                  </li>
               </ul>
             )}
           </div>
