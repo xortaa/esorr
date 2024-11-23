@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Save, Trash2, Upload, X } from 'lucide-react';
+import { Save, Trash2, Upload, X } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import { uploadImage } from "@/utils/storage";
 import { useParams } from "next/navigation";
@@ -91,15 +91,15 @@ export default function Component() {
   const fetchAffiliations = async () => {
     setAffiliationsLoading(true);
     try {
-      const response = await fetch('/api/affiliations');
+      const response = await fetch("/api/affiliations");
       if (!response.ok) {
-        throw new Error('Failed to fetch affiliations');
+        throw new Error("Failed to fetch affiliations");
       }
       const data = await response.json();
       setAffiliations(data);
     } catch (error) {
-      console.error('Error fetching affiliations:', error);
-      setError('Failed to load affiliations. Please try again.');
+      console.error("Error fetching affiliations:", error);
+      setError("Failed to load affiliations. Please try again.");
     } finally {
       setAffiliationsLoading(false);
     }
@@ -120,12 +120,12 @@ export default function Component() {
     updatedDropdownStates[index] = true;
     setIsAffiliationDropdownOpen(updatedDropdownStates);
 
-    handleInputChange(index, 'faculty', value);
+    handleInputChange(index, "faculty", value);
   };
 
   const handleSelectAffiliation = (index: number, affiliation: Affiliation) => {
-    handleInputChange(index, 'faculty', affiliation.name);
-    
+    handleInputChange(index, "faculty", affiliation.name);
+
     const updatedSearchTerms = [...affiliationSearchTerms];
     updatedSearchTerms[index] = affiliation.name;
     setAffiliationSearchTerms(updatedSearchTerms);
@@ -136,7 +136,7 @@ export default function Component() {
   };
 
   const filteredAffiliations = (index: number) => {
-    return affiliations.filter(affiliation =>
+    return affiliations.filter((affiliation) =>
       affiliation.name.toLowerCase().includes(affiliationSearchTerms[index].toLowerCase())
     );
   };
@@ -306,7 +306,7 @@ export default function Component() {
       </PageWrapper>
     );
   }
-  
+
   if (error) {
     return (
       <PageWrapper>
@@ -315,7 +315,7 @@ export default function Component() {
       </PageWrapper>
     );
   }
-  
+
   return (
     <PageWrapper>
       <BackButton />
@@ -371,11 +371,13 @@ export default function Component() {
                         updatedDropdownStates[index] = true;
                         setIsAffiliationDropdownOpen(updatedDropdownStates);
                       }}
-                      onBlur={() => setTimeout(() => {
-                        const updatedDropdownStates = [...isAffiliationDropdownOpen];
-                        updatedDropdownStates[index] = false;
-                        setIsAffiliationDropdownOpen(updatedDropdownStates);
-                      }, 200)}
+                      onBlur={() =>
+                        setTimeout(() => {
+                          const updatedDropdownStates = [...isAffiliationDropdownOpen];
+                          updatedDropdownStates[index] = false;
+                          setIsAffiliationDropdownOpen(updatedDropdownStates);
+                        }, 200)
+                      }
                       disabled={affiliationsLoading}
                       required
                     />
@@ -476,7 +478,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "officeAddress2", e.target.value)}
                   />
                 </div>
-                <div className="form-control">
+                {/* <div className="form-control">
                   <label className="label" htmlFor={`cv-${index}`}>
                     <span className="label-text">Upload CV</span>
                   </label>
@@ -546,8 +548,8 @@ export default function Component() {
                       accept=".pdf,.doc,.docx"
                     />
                   )}
-                </div>
-                <div className="form-control">
+                </div> */}
+                {/* <div className="form-control">
                   <label className="label">
                     <span className="label-text">Signature</span>
                   </label>
@@ -613,7 +615,7 @@ export default function Component() {
                       </div>
                     </div>
                   )}
-                </div>
+                </div> */}
                 <button
                   type="button"
                   className="btn btn-primary mt-4"
