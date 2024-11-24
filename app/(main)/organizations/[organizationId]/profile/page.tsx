@@ -193,19 +193,6 @@ export default function OrganizationProfile() {
 
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-bold">Change Level of Recognition (Admin only)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={newLevelOfRecognition}
-                    onChange={(e) => setNewLevelOfRecognition(e.target.value)}
-                    className="input input-bordered w-full"
-                    placeholder="Enter new level of recognition"
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
                     <span className="label-text font-bold">Affiliation</span>
                   </label>
                   <div className="flex space-x-4 mb-2">

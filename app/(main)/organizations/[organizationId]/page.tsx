@@ -65,6 +65,7 @@ export default function Component() {
   const organizationId = params.organizationId as string;
   const router = useRouter();
   const { data: session } = useSession();
+  const currentPath = usePathname();
 
   useEffect(() => {
     const fetchAnnexes = async () => {
@@ -201,6 +202,9 @@ export default function Component() {
           </button> */}
         </div>
       </div>
+      <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
+        Organization Profile
+      </Link>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

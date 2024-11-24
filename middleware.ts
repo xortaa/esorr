@@ -10,48 +10,50 @@ export async function middleware(req: NextRequest) {
   console.log("Pathname:", pathname);
 
   // Allow access to public resources
-  if (pathname.startsWith("/public/") || pathname.startsWith("/_next/") || pathname.includes(".")) {
+  if (
+    pathname.startsWith("/public/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.includes(".") ||
+    pathname === "/test"
+  ) {
     return NextResponse.next();
   }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  console.log("Token:", token);
+  console.log("Middleware Token:", token);
 
   // Handle unauthenticated users
   if (!token) {
     console.log("No token, redirecting to home");
-    // Allow access to the home page, redirect others to home
     return pathname === "/" ? NextResponse.next() : NextResponse.redirect(new URL("/", req.url));
   }
 
-  // From this point on, we know we have a token
   console.log("Token Role:", token.role);
+  console.log("Token isSetup:", token.isSetup);
+  console.log("Token Organization:", token.organization);
 
   // Define allowed pages for each role
   const rolePages = {
-    OSA: ["/osa/manage-accounts", "/osa/manage-affiliation", "/organizations", "/osa/manage-officer-in-charge"],
-    RSO: ["/organizations", "/rso-setup"],
-    SOCC: ["/organizations", "/socc-setup"],
-    AU: ["/organizations", "/au-setup"],
-    "RSO-SIGNATORY": ["/organizations", "/rso-signatory-setup"],
-    "SOCC-SIGNATORY": ["/organizations", "/socc-signatory-setup"],
+    OSA: ["/osa", "/organizations"],
+    RSO: [`/organizations/${token.organization}`, "/rso-setup"],
+    SOCC: ["/organizations"],
+    AU: ["/organizations"],
   };
 
   // Define setup pages for each role
   const setupPages = {
     RSO: "/rso-setup",
-    SOCC: "/socc-setup",
-    AU: "/au-setup",
-    "RSO-SIGNATORY": "/rso-signatory-setup",
-    "SOCC-SIGNATORY": "/socc-signatory-setup",
   };
 
-  // Check if the user needs to complete setup
-  if (token.role !== "OSA" && token.isSetup === false) {
-    const setupPage = setupPages[token.role as keyof typeof setupPages];
-    if (setupPage && !pathname.startsWith(setupPage)) {
-      console.log(`${token.role} needs setup, redirecting to ${setupPage}`);
-      return NextResponse.redirect(new URL(setupPage, req.url));
+  // Handle RSO specific redirection
+  if (token.role === "RSO" && token.isSetup && token.organization) {
+    if (pathname === "/organizations" || pathname === "/login-redirect") {
+      console.log("RSO user redirected to specific organization page");
+      return NextResponse.redirect(new URL(`/organizations/${token.organization}`, req.url));
+    }
+    if (!pathname.startsWith(`/organizations/${token.organization}`)) {
+      console.log("RSO user accessing unauthorized page, redirecting");
+      return NextResponse.redirect(new URL(`/organizations/${token.organization}`, req.url));
     }
   }
 
@@ -63,14 +65,26 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(allowedPages[0] || "/", req.url));
   }
 
+  // Check if the user needs to complete setup (only for roles with setup pages)
+  if (token.isSetup === false && setupPages[token.role as keyof typeof setupPages]) {
+    console.log(`${token.role} user not set up, redirecting to setup page`);
+    return NextResponse.redirect(new URL(setupPages[token.role as keyof typeof setupPages], req.url));
+  }
+
   if (pathname === "/login-redirect") {
-    if (token.role === "OSA") {
-      return NextResponse.redirect(new URL("/osa/manage-accounts", req.url));
+    if (token.role === "AU" || token.role === "SOCC" || token.isSetup) {
+      console.log("User is set up or AU/SOCC, redirecting to appropriate page");
+      return NextResponse.redirect(new URL(allowedPages[0], req.url));
     } else {
-      const setupPage = setupPages[token.role as keyof typeof setupPages];
-      const redirectPage = token.isSetup ? "/organizations" : setupPage;
-      return NextResponse.redirect(new URL(redirectPage, req.url));
+      console.log(`${token.role} user is not set up, redirecting to setup page`);
+      return NextResponse.redirect(new URL(setupPages[token.role as keyof typeof setupPages] || "/", req.url));
     }
+  }
+
+  // Block RSO access to general /api/organizations
+  if (token.role === "RSO" && pathname === "/api/organizations") {
+    console.log("RSO attempting to access /api/organizations, blocked");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   console.log("Next response");

@@ -5,14 +5,11 @@ import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X,
 import Image from "next/image";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { uploadImage } from "@/utils/storage";
 import { signOut } from "next-auth/react";
 
-
 const RSOSetupPage = () => {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [affiliationOptions, setAffiliationOptions] = useState([]);
   const [affiliationOptionsLoading, setAffiliationOptionsLoading] = useState<boolean>(true);
@@ -22,7 +19,6 @@ const RSOSetupPage = () => {
     name: "",
     logo: null as File | null,
     socials: [] as string[],
-    signatoryRequests: [],
     website: "",
     category: "",
     strategicDirectionalAreas: [],
@@ -116,7 +112,6 @@ const RSOSetupPage = () => {
         name: formData.name,
         logo: formData.logo,
         socials: formData.socials,
-        signatoryRequests: formData.signatoryRequests,
         isNotUniversityWide,
         affiliation: isNotUniversityWide && selectedAffiliation ? selectedAffiliation.name : "University Wide",
         email: session?.user?.email,
@@ -142,7 +137,9 @@ const RSOSetupPage = () => {
       });
 
       if (response.status === 201) {
-        alert("Organization created successfully! You will be signed out now to complete the setup. Please re-login to enter ESORR.");
+        alert(
+          "Organization created successfully! You will be signed out now to complete the setup. Please re-login to enter ESORR."
+        );
         signOut();
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
@@ -214,13 +211,6 @@ const RSOSetupPage = () => {
             />
           ) : step === 2 ? (
             <OrganizationSetupStep2
-              prevStep={prevStep}
-              nextStep={nextStep}
-              formData={formData}
-              setFormData={setFormData}
-            />
-          ) : step === 3 ? (
-            <OrganizationSetupStep3
               prevStep={prevStep}
               nextStep={nextStep}
               formData={formData}
@@ -707,7 +697,17 @@ const OrganizationSetupStep1 = ({
             </label>
             {isSDAreaDropdownOpen && (
               <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                {["Thomasian Identity", "Leadership and Governance", "Teaching and Learning", "Research and Innovation", "Community Development and Advocacy", "Student Welfare and Services", "Public Presence", "Resource Management", "Internationalization"].map((area) => (
+                {[
+                  "Thomasian Identity",
+                  "Leadership and Governance",
+                  "Teaching and Learning",
+                  "Research and Innovation",
+                  "Community Development and Advocacy",
+                  "Student Welfare and Services",
+                  "Public Presence",
+                  "Resource Management",
+                  "Internationalization",
+                ].map((area) => (
                   <li key={area}>
                     <label className="label cursor-pointer justify-start">
                       <input
@@ -980,126 +980,6 @@ const OrganizationSetupStep2 = ({
   );
 };
 
-interface OrganizationSetupStep3Props {
-  prevStep: () => void;
-  nextStep: () => void;
-  formData: any;
-  setFormData: React.Dispatch<React.SetStateAction<any>>;
-}
-
-const OrganizationSetupStep3: React.FC<OrganizationSetupStep3Props> = ({
-  prevStep,
-  nextStep,
-  formData,
-  setFormData,
-}) => {
-  const handleAddSignatoryInput = () => {
-    setFormData({
-      ...formData,
-      signatoryRequests: [...formData.signatoryRequests, { email: "", position: "" }],
-    });
-  };
-
-  const handleRemoveSignatoryInput = (index: number) => {
-    const newSignatoryRequests = formData.signatoryRequests.filter((_: any, i: number) => i !== index);
-    setFormData({ ...formData, signatoryRequests: newSignatoryRequests });
-  };
-
-  const handleSignatoryInputChange = (index: number, field: "email" | "position", value: string | boolean) => {
-    const newSignatoryRequests = [...formData.signatoryRequests];
-    newSignatoryRequests[index][field] = value;
-    setFormData({ ...formData, signatoryRequests: newSignatoryRequests });
-  };
-
-  const isFormValid = () => {
-    if (formData.signatoryRequests.length === 0) {
-      return true; // Allow skipping if no signatories are added
-    }
-    return formData.signatoryRequests.every(
-      (signatory: any) => signatory.email.trim() !== "" && signatory.position.trim() !== ""
-    );
-  };
-
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Request Signatory Accounts (Optional)</h2>
-        <p className="text-primary">
-          Only executive signatories, whose signatures are required, need to have ESORR accounts. Please wait for an
-          email confirming account approval once your request is submitted. Requesting accounts for executive
-          signatories is optional and can also be done after the setup is complete.
-        </p>
-      </div>
-      <form className="space-y-6">
-        {formData.signatoryRequests.map((input: any, index: number) => (
-          <div key={index} className="p-6 rounded-lg border">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Signatory {index + 1}</h3>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm text-error"
-                onClick={() => handleRemoveSignatoryInput(index)}
-              >
-                <XCircle className="mr-2" /> Remove
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label" htmlFor={`signatory-email-${index}`}>
-                  <span className="label-text">Signatory Email</span>
-                </label>
-                <input
-                  type="email"
-                  id={`signatory-email-${index}`}
-                  placeholder="email@ust.edu.ph"
-                  className="input input-bordered w-full"
-                  value={input.email}
-                  onChange={(e) => handleSignatoryInputChange(index, "email", e.target.value)}
-                  required
-                />
-                <label className="label">
-                  <span className="label-text-alt text-info flex items-center">
-                    <BadgeInfo className="w-4 h-4 mr-1" />
-                    only ust.edu.ph emails are allowed
-                  </span>
-                </label>
-              </div>
-              <div className="form-control">
-                <label className="label" htmlFor={`signatory-position-${index}`}>
-                  <span className="label-text">Position</span>
-                </label>
-                <input
-                  type="text"
-                  id={`signatory-position-${index}`}
-                  placeholder="e.g., President"
-                  className="input input-bordered w-full"
-                  value={input.position}
-                  onChange={(e) => handleSignatoryInputChange(index, "position", e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-        ))}
-        <button type="button" className="btn btn-outline btn-primary w-full" onClick={handleAddSignatoryInput}>
-          <CircleFadingPlus className="mr-2" />
-          Add Signatory
-        </button>
-        <div className="flex justify-between mt-8">
-          <button className="btn btn-outline" type="button" onClick={prevStep}>
-            <CornerDownLeft className="mr-2" />
-            Previous Step
-          </button>
-          <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
-            {formData.signatoryRequests.length === 0 ? "Skip Step" : "Next Step"}
-            <CornerDownLeft className="ml-2 rotate-180" />
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
 interface OrganizationSetupStep4Props {
   prevStep: () => void;
   formData: any;
@@ -1189,32 +1069,6 @@ function OrganizationSetupStep4({
         )}
       </section>
 
-      <section className="mb-4">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Signatory Accounts</h3>
-        {formData.signatoryRequests.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Position</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.signatoryRequests.map((signatory: any, index: number) => (
-                  <tr key={index}>
-                    <td>{signatory.email}</td>
-                    <td>{signatory.position}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p>N/A</p>
-        )}
-      </section>
-
       <div className="flex justify-between mt-8">
         <button className="btn btn-outline" onClick={prevStep} disabled={isSubmitting}>
           <CornerDownLeft className="mr-2" />
@@ -1294,35 +1148,10 @@ const SetupStepper = ({ step }: { step: number }) => {
       <li className={`flex items-center ${step >= 3 ? "text-primary" : ""}`}>
         <span
           className={`flex items-center justify-center w-5 h-5 me-2 text-xs border ${
-            step >= 3 ? "border-primary" : "border-slate-500"
-          } rounded-full shrink-0`}
-        >
-          3
-        </span>
-        Signatory Accounts
-        <svg
-          className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 12 10"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m7 9 4-4-4-4M1 9l4-4-4-4"
-          />
-        </svg>
-      </li>
-      <li className={`flex items-center ${step >= 4 ? "text-primary" : ""}`}>
-        <span
-          className={`flex items-center justify-center w-5 h-5 me-2 text-xs border ${
             step >= 4 ? "border-primary" : "border-slate-500"
           } rounded-full shrink-0`}
         >
-          4
+          3
         </span>
         Confirm
       </li>

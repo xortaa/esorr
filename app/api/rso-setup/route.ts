@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Organization from "@/models/organization";
-import SignatoryRequest from "@/models/signatory-request";
 import User from "@/models/user";
 import Annex01 from "@/models/annex-01";
 import Annex02 from "@/models/annex-02";
@@ -49,10 +48,8 @@ export async function POST(req: NextRequest) {
   await connectToDatabase();
   console.log("Database connection established");
 
-  // get the officer in charge 
+  // get the officer in charge
   const officerInCharge = await OfficerInCharge.findOne();
-
-
 
   try {
     const body = await req.json();
@@ -63,7 +60,6 @@ export async function POST(req: NextRequest) {
       logo,
       socials,
       facebook,
-      signatoryRequests,
       isNotUniversityWide,
       affiliation,
       email,
@@ -525,20 +521,6 @@ export async function POST(req: NextRequest) {
     await newOrganization.save();
     console.log("Organization saved successfully");
 
-    if (signatoryRequests.length > 0) {
-      console.log("Creating signatory requests");
-      await Promise.all(
-        signatoryRequests.map(async (request: any) => {
-          return await SignatoryRequest.create({
-            ...request,
-            organization: newOrganization._id,
-            requestedBy: email,
-            role: "RSO-SIGNATORY",
-          });
-        })
-      );
-      console.log("Signatory requests created");
-    }
 
     console.log("Finding current user");
     const currentUser = await User.findOne({ role: "RSO", email });
@@ -548,23 +530,9 @@ export async function POST(req: NextRequest) {
     }
     console.log("Current user found:", currentUser);
 
-    console.log("Updating user's organizations and positions");
-    const existingPositionIndex = currentUser.positions.findIndex(
-      (pos) => pos.organization.toString() === newOrganization._id.toString()
-    );
+    console.log("adding organization to user");
+    currentUser.organization = newOrganization._id;
 
-    if (existingPositionIndex !== -1) {
-      console.log("Updating existing position");
-      currentUser.positions[existingPositionIndex].position = "RSO-SIGNATORY";
-    } else {
-      console.log("Adding new position");
-      currentUser.positions.push({
-        organization: newOrganization._id,
-        position: "OFFICIAL EMAIL",
-      });
-    }
-
-    currentUser.organizations.push(newOrganization._id);
     currentUser.isSetup = true;
 
     console.log("Saving updated user");

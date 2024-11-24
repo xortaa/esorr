@@ -1,12 +1,9 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/utils/mongodb";
 import User from "@/models/user";
-import bcrypt from "bcryptjs";
 import { encode, decode } from "next-auth/jwt";
 import { DefaultSession, DefaultUser } from "next-auth";
-import Organization from "@/models/organization";
 
 declare module "next-auth" {
   export interface Profile {
@@ -17,17 +14,7 @@ declare module "next-auth" {
       _id: string;
       role: string;
       isSetup: boolean;
-      fullName: string;
-      affiliation?: string; // Added affiliation
-      positions?: {
-        organization?: {
-          _id: string;
-          name: string;
-        };
-        position: string;
-        affiliation?: string;
-        _id: string;
-      }[];
+      organization: string;
     } & DefaultSession["user"];
   }
 
@@ -35,17 +22,7 @@ declare module "next-auth" {
     role: string;
     _id: string;
     isSetup: boolean;
-    fullName: string;
-    affiliation?: string; // Added affiliation
-    positions?: {
-      organization?: {
-        _id: string;
-        name: string;
-      };
-      position: string;
-      affiliation?: string;
-      _id: string;
-    }[];
+    organization: string;
   }
 }
 
@@ -54,17 +31,7 @@ declare module "next-auth/jwt" {
     role: string;
     _id: string;
     isSetup: boolean;
-    fullName: string;
-    affiliation?: string; // Added affiliation
-    positions?: {
-      organization?: {
-        _id: string;
-        name: string;
-      };
-      position: string;
-      affiliation?: string;
-      _id: string;
-    }[];
+    organization: string;
   }
 }
 
@@ -75,30 +42,6 @@ export const options: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: { access_type: "offline", prompt: "consent" },
-      },
-    }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text", placeholder: "Enter email" },
-        password: { label: "Password", type: "password", placeholder: "Enter password" },
-      },
-      async authorize(credentials): Promise<any> {
-        if (!credentials) return null;
-
-        await dbConnect();
-
-        const userFound = await User.findOne({
-          email: credentials.email,
-        }).select("+password");
-
-        if (userFound) {
-          const passwordMatch = await bcrypt.compare(credentials.password, userFound.password);
-          if (!passwordMatch) throw new Error("Invalid Password");
-          return userFound;
-        } else {
-          throw new Error("Invalid Email");
-        }
       },
     }),
   ],
@@ -116,14 +59,12 @@ export const options: NextAuthOptions = {
             image: profile.picture,
             role: "OSA",
             isSetup: false,
-            fullName: profile.name,
           });
           await newUser.save();
           account._id = newUser._id.toString();
           account.role = newUser.role;
           account.isSetup = newUser.isSetup;
-          account.fullName = newUser.fullName;
-          account.affiliation = newUser.affiliation; // Added affiliation
+          account.organization = newUser.organization ? newUser.organization.toString() : "";
           return true;
         }
 
@@ -134,13 +75,11 @@ export const options: NextAuthOptions = {
           account._id = existingUser._id.toString();
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
-          account.fullName = existingUser.fullName;
-          account.affiliation = existingUser.affiliation; // Added affiliation
-          if (existingUser.positions) {
-            account.positions = existingUser.positions;
-          }
+          account.organization = existingUser.organization ? existingUser.organization.toString() : "";
           return true;
         }
+
+        return false; // Deny sign in if user doesn't exist and is not OSA email
       } catch (error) {
         console.error("Error signing in", error);
         return false;
@@ -154,24 +93,9 @@ export const options: NextAuthOptions = {
       }
       session.user.role = token.role;
       session.user.isSetup = token.isSetup;
-      session.user.positions = token.positions;
-      session.user.fullName = token.fullName;
-      session.user.affiliation = token.affiliation; // Added affiliation
+      session.user.organization = token.organization;
 
-      // Populate organization details in positions
-      if (session.user.positions) {
-        for (const position of session.user.positions) {
-          if (position.organization) {
-            const organization = await Organization.findById(position.organization._id).select("name");
-            if (organization) {
-              position.organization = {
-                _id: organization._id.toString(),
-                name: organization.name,
-              };
-            }
-          }
-        }
-      }
+      console.log("Session:", session);
 
       return session;
     },
@@ -180,32 +104,18 @@ export const options: NextAuthOptions = {
         token.role = account.role;
         token._id = account._id;
         token.isSetup = account.isSetup;
-        token.positions = account.positions;
-        token.fullName = account.fullName;
-        token.affiliation = account.affiliation; // Added affiliation
+        token.organization = account.organization;
       } else if (user) {
-        token.role = (user as any).role;
-        token._id = (user as any)._id.toString();
-        token.isSetup = (user as any).isSetup;
-        token.positions = (user as any).positions;
-        token.fullName = (user as any).fullName;
-        token.affiliation = (user as any).affiliation; // Added affiliation
-      }
-
-      // Populate organization details in positions
-      if (token.positions) {
-        for (const position of token.positions) {
-          if (position.organization) {
-            const organization = await Organization.findById(position.organization).select("name");
-            if (organization) {
-              position.organization = {
-                _id: organization._id.toString(),
-                name: organization.name,
-              };
-            }
-          }
+        const dbUser = await User.findById((user as any)._id);
+        if (dbUser) {
+          token.role = dbUser.role;
+          token._id = dbUser._id.toString();
+          token.isSetup = dbUser.isSetup;
+          token.organization = dbUser.organization ? dbUser.organization.toString() : "";
         }
       }
+
+      console.log("JWT Token:", token);
 
       return token;
     },

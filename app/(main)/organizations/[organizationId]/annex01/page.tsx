@@ -639,22 +639,6 @@ export default function EnhancedAnnex01Manager() {
     }
   };
 
-  const openSignatureModal = async (annex: Annex01) => {
-    try {
-      setIsLoading(true);
-      const updatedAnnex = await fetchUpdatedAnnex(annex._id);
-      setSelectedAnnex(updatedAnnex);
-      setIsModalOpen(true);
-      const blob = await generatePDFBlob(updatedAnnex);
-      setPdfBlob(blob);
-    } catch (error) {
-      console.error("Error opening signature modal:", error);
-      alert("Failed to open signature modal. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const generatePDF = async (annex: Annex01) => {
     try {
       setIsLoading(true);
@@ -677,96 +661,6 @@ export default function EnhancedAnnex01Manager() {
     }
     const response = await axios.get(`/api/annexes/${organizationId}/annex-01/${annexId}`);
     return response.data;
-  };
-
-  const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSignatureFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSignaturePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmitSignature = async () => {
-    if (!selectedUserPosition || !selectedAnnex || !selectedSignaturePosition) {
-      alert("Please select a role, an annex, and a signature position");
-      return;
-    }
-
-    let signatureData: File;
-    if (signatureFile) {
-      signatureData = signatureFile;
-    } else if (signatureRef.current) {
-      const canvas = signatureRef.current.getCanvas();
-      const blob = await new Promise<Blob>((resolve) => canvas.toBlob(resolve, "image/png"));
-      signatureData = new File([blob], "signature.png", { type: "image/png" });
-    } else {
-      alert("Please provide a signature");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", signatureData);
-    formData.append("annexId", selectedAnnex._id);
-    formData.append("position", selectedSignaturePosition);
-
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/upload-signature", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload signature");
-      }
-
-      const { url } = await response.json();
-
-      const updateResponse = await axios.patch(`/api/annexes/${organizationId}/annex-01/${selectedAnnex._id}`, {
-        [selectedSignaturePosition]: {
-          name: session?.user?.fullName || "",
-          position: selectedUserPosition.role,
-          signatureUrl: url,
-          dateSigned: new Date(),
-        },
-      });
-
-      if (updateResponse.data) {
-        const updatedAnnex = updateResponse.data;
-        setAnnexList(annexList.map((annex) => (annex._id === updatedAnnex._id ? updatedAnnex : annex)));
-        setSelectedAnnex(updatedAnnex);
-
-        const newBlob = await generatePDFBlob(updatedAnnex);
-        setPdfBlob(newBlob);
-
-        alert("Signature added successfully");
-      } else {
-        throw new Error("Failed to update Annex 01");
-      }
-    } catch (error) {
-      console.error("Error adding signature:", error);
-      alert(`Error adding signature: ${error instanceof Error ? error.message : "Unknown error"}`);
-    } finally {
-      setIsLoading(false);
-    }
-
-    setSignatureFile(null);
-    setSignaturePreview(null);
-    setSelectedSignaturePosition("");
-    if (signatureRef.current) {
-      signatureRef.current.clear();
-    }
-  };
-
-  const clearUploadedSignature = () => {
-    setSignatureFile(null);
-    setSignaturePreview(null);
   };
 
   const handleSubmitAnnex = async (annexId: string) => {
@@ -823,38 +717,6 @@ export default function EnhancedAnnex01Manager() {
     <PageWrapper>
       <BackButton />
       <h1 className="text-2xl font-bold mb-6">ANNEX 01 Rules of Procedure for Recognition</h1>
-      {!isCreatingAnnex ? (
-        <button onClick={() => setIsCreatingAnnex(true)} className="btn btn-primary mb-6">
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Annex
-        </button>
-      ) : (
-        <div className="card bg-base-100 shadow-xl mb-6">
-          <div className="card-body">
-            <h2 className="card-title">Create New Annex</h2>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Academic Year</span>
-              </label>
-              <input
-                type="text"
-                value={newAcademicYear}
-                onChange={(e) => setNewAcademicYear(e.target.value)}
-                className="input input-bordered"
-                placeholder="e.g., 2023-2024"
-              />
-            </div>
-            <div className="card-actions justify-end mt-4">
-              <button onClick={() => setIsCreatingAnnex(false)} className="btn btn-ghost">
-                Cancel
-              </button>
-              <button onClick={createNewAnnex} className="btn btn-primary">
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center mt-8">
@@ -867,7 +729,6 @@ export default function EnhancedAnnex01Manager() {
             <AnnexCard
               key={annex._id}
               annex={annex}
-              openSignatureModal={openSignatureModal}
               generatePDF={generatePDF}
               onSubmit={handleSubmitAnnex}
               onUpdateRemarks={handleUpdateRemarks}
@@ -885,7 +746,7 @@ export default function EnhancedAnnex01Manager() {
         </div>
       )}
 
-      {isModalOpen && selectedAnnex && pdfBlob && (
+      {/* {isModalOpen && selectedAnnex && pdfBlob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
           <div className="relative w-auto max-w-7xl mx-auto my-6">
             <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
@@ -988,14 +849,13 @@ export default function EnhancedAnnex01Manager() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </PageWrapper>
   );
 }
 
 interface AnnexCardProps {
   annex: Annex01;
-  openSignatureModal: (annex: Annex01) => void;
   generatePDF: (annex: Annex01) => void;
   onSubmit: (annexId: string) => void;
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
@@ -1006,7 +866,6 @@ interface AnnexCardProps {
 
 function AnnexCard({
   annex,
-  openSignatureModal,
   generatePDF,
   onSubmit,
   onUpdateRemarks,
@@ -1040,10 +899,6 @@ function AnnexCard({
             <h2 className="card-title">Rules of Procedure for Recognition Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            {/* <button className="btn btn-ghost btn-sm" onClick={() => openSignatureModal(annex)}>
-              <PenTool className="h-4 w-4 mr-2" />
-              Add Signature
-            </button> */}
             <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF
@@ -1059,7 +914,6 @@ function AnnexCard({
           </div>
           {(session?.user?.role === "OSA" ||
             session?.user?.role === "RSO" ||
-            session?.user?.role === "RSO-SIGNATORY" ||
             session?.user?.role === "AU" ||
             session?.user?.role === "SOCC") && (
             <div>
@@ -1082,10 +936,7 @@ function AnnexCard({
               )}
             </div>
           )}
-          {(session?.user?.role === "OSA" ||
-            session?.user?.role === "RSO" ||
-            session?.user?.role === "RSO-SIGNATORY" ||
-            session?.user?.role === "AU") && (
+          {(session?.user?.role === "OSA" || session?.user?.role === "RSO" || session?.user?.role === "AU") && (
             <div>
               <label className="label">
                 <span className="label-text font-semibold">OSA Remarks</span>

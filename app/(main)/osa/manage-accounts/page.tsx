@@ -11,31 +11,12 @@ interface Organization {
   name: string;
 }
 
-interface Position {
-  _id?: string;
-  organization?: Organization;
-  position: string;
-  affiliation?: string;
-}
-
 interface Account {
   _id: string;
   email: string;
   role: string;
-  positions: Position[];
   affiliation?: string;
-  fullName?: string;
   isArchived: boolean;
-}
-
-interface SignatoryRequest {
-  _id: string;
-  email: string;
-  role: string;
-  position: string;
-  organization: Organization;
-  requestedBy: string;
-  submittedAt: string;
 }
 
 interface OrganizationSearchProps {
@@ -114,7 +95,6 @@ function OrganizationSearch({ onSelect, initialValue = "" }: OrganizationSearchP
 export default function AccountsDashboard() {
   const { data: session } = useSession();
   const [accounts, setAccounts] = useState([]);
-  const [signatoryRequests, setSignatoryRequests] = useState([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [showArchived, setShowArchived] = useState(false);
@@ -124,18 +104,13 @@ export default function AccountsDashboard() {
   const [newAccount, setNewAccount] = useState({
     email: "",
     role: "",
-    positions: [{ organization: "", position: "" }],
-    affiliation: "",
-    fullName: "",
+    organization: "",
     isArchived: false,
   });
-  const [activeTab, setActiveTab] = useState<"signatory" | "accounts">("signatory");
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
-  const [isLoadingSignatoryRequests, setIsLoadingSignatoryRequests] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
-    fetchSignatoryRequests();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
@@ -153,20 +128,6 @@ export default function AccountsDashboard() {
     }
   };
 
-  const fetchSignatoryRequests = async () => {
-    setIsLoadingSignatoryRequests(true);
-    try {
-      const response = await axios.get("/api/signatory-request");
-      if (response.status === 200) {
-        setSignatoryRequests(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching signatory requests:", error);
-    } finally {
-      setIsLoadingSignatoryRequests(false);
-    }
-  };
-
   const filteredAccounts = useMemo(() => {
     return accounts.filter(
       (account) =>
@@ -175,19 +136,8 @@ export default function AccountsDashboard() {
     );
   }, [accounts, accountSearchTerm, filterRole]);
 
-  const filteredSignatoryRequests = useMemo(() => {
-    return signatoryRequests.filter(
-      (request) =>
-        request.email.toLowerCase().includes(accountSearchTerm.toLowerCase()) &&
-        (filterRole === "All" || request.role === filterRole)
-    );
-  }, [signatoryRequests, accountSearchTerm, filterRole]);
-
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
-    if (newAccount.role === "RSO-SIGNATORY" && newAccount.positions.some((pos) => !pos.organization || !pos.position))
-      return true;
-    return false;
   };
 
   const handleArchiveAccount = async (accountId: string) => {
@@ -212,29 +162,6 @@ export default function AccountsDashboard() {
     }
   };
 
-  const handleApproveSignatoryRequest = async (requestId: string) => {
-    try {
-      const response = await axios.patch(`/api/signatory-request/${requestId}`);
-      if (response.status === 200) {
-        setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
-        fetchAccounts();
-      }
-    } catch (error) {
-      console.error("Error approving signatory request:", error);
-    }
-  };
-
-  const handleRejectSignatoryRequest = async (requestId: string) => {
-    try {
-      const response = await axios.delete(`/api/signatory-request/${requestId}`);
-      if (response.status === 200) {
-        setSignatoryRequests((prevRequests) => prevRequests.filter((request) => request._id !== requestId));
-      }
-    } catch (error) {
-      console.error("Error rejecting signatory request:", error);
-    }
-  };
-
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isCreateButtonDisabled()) return;
@@ -246,10 +173,6 @@ export default function AccountsDashboard() {
         requestedBy: session?.user?.email,
       };
 
-      if (newAccount.role === "RSO-SIGNATORY") {
-        accountData.positions = newAccount.positions;
-      }
-
       const response = await axios.post("/api/users", accountData);
       if (response.status === 201) {
         const newAccountData = response.data;
@@ -257,9 +180,7 @@ export default function AccountsDashboard() {
         setNewAccount({
           email: "",
           role: "",
-          positions: [{ organization: "", position: "" }],
-          affiliation: "",
-          fullName: "",
+          organization: "",
           isArchived: false,
         });
         setIsCreatingAccount(false);
@@ -276,10 +197,6 @@ export default function AccountsDashboard() {
     try {
       const updatedAccount = {
         ...editingAccount,
-        positions: editingAccount.positions.map((pos) => ({
-          ...pos,
-          organization: pos.organization?._id || pos.organization,
-        })),
       };
 
       const response = await axios.put(`/api/users/${editingAccount._id}`, updatedAccount);
@@ -301,9 +218,7 @@ export default function AccountsDashboard() {
     setNewAccount({
       email: "",
       role: "",
-      positions: [{ organization: "", position: "" }],
-      affiliation: "",
-      fullName: "",
+      organization: "",
       isArchived: false,
     });
   };
@@ -343,7 +258,6 @@ export default function AccountsDashboard() {
               <option value="SOCC">SOCC</option>
               <option value="AU">AU</option>
               <option value="RSO">RSO</option>
-              <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
             </select>
           </div>
           <div className="flex-1">
@@ -362,143 +276,58 @@ export default function AccountsDashboard() {
           </button>
         </div>
 
-        <div className="flex mb-6">
-          <button
-            className={`flex-1 py-2 px-4 text-center ${
-              activeTab === "signatory" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"
-            } rounded-l-lg transition-colors duration-200`}
-            onClick={() => setActiveTab("signatory")}
-          >
-            Signatory Requests
-          </button>
-          <button
-            className={`flex-1 py-2 px-4 text-center ${
-              activeTab === "accounts" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"
-            } rounded-r-lg transition-colors duration-200`}
-            onClick={() => setActiveTab("accounts")}
-          >
-            Accounts
-          </button>
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-gray-700">Accounts</h2>
+          {isLoadingAccounts ? (
+            <div className="flex justify-center items-center h-32">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          ) : (
+            <div className="overflow-x-auto bg-white rounded-lg">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
+                    <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAccounts.map((account) => (
+                    <tr key={account._id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="py-3 px-4">{account.email}</td>
+                      <td className="py-3 px-4">{account.fullName}</td>
+                      <td className="py-3 px-4">{account.role}</td>
+                      <td className="py-3 px-4">
+                        <button
+                          className="btn btn-primary btn-xs mr-2"
+                          onClick={() => {
+                            setEditingAccount(account);
+                            setIsEditingAccount(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        {showArchived ? (
+                          <button
+                            className="btn btn-success btn-xs"
+                            onClick={() => handleUnarchiveAccount(account._id)}
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <button className="btn btn-error btn-xs" onClick={() => handleArchiveAccount(account._id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-
-        {activeTab === "signatory" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-700">Signatory Requests</h2>
-            {isLoadingSignatoryRequests ? (
-              <div className="flex justify-center items-center h-32">
-                <span className="loading loading-spinner loading-lg"></span>
-              </div>
-            ) : (
-              <div className="overflow-x-auto bg-white rounded-lg">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Position</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Organization</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Requested By</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Submitted At</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredSignatoryRequests.map((request) => (
-                      <tr key={request._id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4">{request.email}</td>
-                        <td className="py-3 px-4">{request.role}</td>
-                        <td className="py-3 px-4">{request.position}</td>
-                        <td className="py-3 px-4">{request.organization?.name || "-"}</td>
-                        <td className="py-3 px-4">{request.requestedBy}</td>
-                        <td className="py-3 px-4">{formatDateTime(request.submittedAt)}</td>
-                        <td className="py-3 px-4">
-                          <button
-                            className="btn btn-success btn-xs mr-2"
-                            onClick={() => handleApproveSignatoryRequest(request._id)}
-                          >
-                            <Check className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="btn btn-error btn-xs"
-                            onClick={() => handleRejectSignatoryRequest(request._id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "accounts" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-700">Accounts</h2>
-            {isLoadingAccounts ? (
-              <div className="flex justify-center items-center h-32">
-                <span className="loading loading-spinner loading-lg"></span>
-              </div>
-            ) : (
-              <div className="overflow-x-auto bg-white rounded-lg">
-                <table className="table w-full">
-                  <thead>
-                    <tr>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Email</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Full Name</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Role</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Affiliations and Positions</th>
-                      <th className="bg-gray-100 text-left text-gray-600 py-3 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAccounts.map((account) => (
-                      <tr key={account._id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="py-3 px-4">{account.email}</td>
-                        <td className="py-3 px-4">{account.fullName}</td>
-                        <td className="py-3 px-4">{account.role}</td>
-                        <td className="py-3 px-4">
-                          <ul>
-                            {account.positions.map((pos, index) => (
-                              <li key={pos._id || index}>
-                                {pos.affiliation || pos.organization?.name}: {pos.position}
-                              </li>
-                            ))}
-                          </ul>
-                        </td>
-                        <td className="py-3 px-4">
-                          <button
-                            className="btn btn-primary btn-xs mr-2"
-                            onClick={() => {
-                              setEditingAccount(account);
-                              setIsEditingAccount(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          {showArchived ? (
-                            <button
-                              className="btn btn-success btn-xs"
-                              onClick={() => handleUnarchiveAccount(account._id)}
-                            >
-                              <RefreshCw className="h-4 w-4" />
-                            </button>
-                          ) : (
-                            <button className="btn btn-error btn-xs" onClick={() => handleArchiveAccount(account._id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {isCreatingAccount && (
@@ -533,41 +362,8 @@ export default function AccountsDashboard() {
                   <option value="SOCC">SOCC</option>
                   <option value="AU">AU</option>
                   <option value="RSO">RSO</option>
-                  <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
                 </select>
               </div>
-              {newAccount.role === "RSO-SIGNATORY" && (
-                <>
-                  <div>
-                    <label className="label">
-                      <span className="label-text text-gray-700">Organization</span>
-                    </label>
-                    <OrganizationSearch
-                      onSelect={(org) => {
-                        const newPositions = [...newAccount.positions];
-                        newPositions[0].organization = org.name;
-                        setNewAccount({ ...newAccount, positions: newPositions });
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="label">
-                      <span className="label-text text-gray-700">Position</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered w-full"
-                      value={newAccount.positions[0].position}
-                      onChange={(e) => {
-                        const newPositions = [...newAccount.positions];
-                        newPositions[0].position = e.target.value;
-                        setNewAccount({ ...newAccount, positions: newPositions });
-                      }}
-                      required
-                    />
-                  </div>
-                </>
-              )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
@@ -600,18 +396,6 @@ export default function AccountsDashboard() {
               </div>
               <div>
                 <label className="label">
-                  <span className="label-text text-gray-700">Full Name</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={editingAccount.fullName || ""}
-                  onChange={(e) => setEditingAccount({ ...editingAccount, fullName: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className="label">
                   <span className="label-text text-gray-700">Role</span>
                 </label>
                 <select
@@ -624,58 +408,8 @@ export default function AccountsDashboard() {
                   <option value="SOCC">SOCC</option>
                   <option value="AU">AU</option>
                   <option value="RSO">RSO</option>
-                  <option value="RSO-SIGNATORY">RSO-SIGNATORY</option>
                 </select>
               </div>
-              {editingAccount.role === "RSO-SIGNATORY" &&
-                editingAccount.positions.map((pos, index) => (
-                  <div key={index} className="space-y-2">
-                    <div>
-                      <label className="label">
-                        <span className="label-text text-gray-700">Organization</span>
-                      </label>
-                      <OrganizationSearch
-                        initialValue={pos.organization?.name || ""}
-                        onSelect={(org) => {
-                          const newPositions = [...editingAccount.positions];
-                          newPositions[index].organization = org;
-                          setEditingAccount({ ...editingAccount, positions: newPositions });
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="label">
-                        <span className="label-text text-gray-700">Position</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="input input-bordered w-full"
-                        value={pos.position}
-                        onChange={(e) => {
-                          const newPositions = [...editingAccount.positions];
-                          newPositions[index].position = e.target.value;
-                          setEditingAccount({ ...editingAccount, positions: newPositions });
-                        }}
-                        required
-                      />
-                    </div>
-                  </div>
-                ))}
-              {editingAccount.role === "RSO-SIGNATORY" && (
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() =>
-                    setEditingAccount({
-                      ...editingAccount,
-                      positions: [...editingAccount.positions, { organization: { _id: "", name: "" }, position: "" }],
-                    })
-                  }
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Position
-                </button>
-              )}
               <div>
                 <label className="label">
                   <span className="label-text text-gray-700">Affiliation</span>

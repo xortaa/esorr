@@ -456,23 +456,12 @@ export default function AnnexA1Manager({ params }: { params: { organizationId: s
     router.push(`${currentPath}/${id}`);
   };
 
-  const submitAnnexForReview = async (id: string) => {
-    try {
-      const response = await axios.patch(`/api/annexes/${params.organizationId}/annex-a1/${id}`, {
-        isSubmitted: true,
-      });
-      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
-    } catch (error) {
-      console.error("Error submitting annex:", error);
-    }
-  };
-
   const generatePDFBlob = async (organizationId: string, annexId: string) => {
     try {
       const response = await axios.get(`/api/annexes/${params.organizationId}/annex-a1/${annexId}`);
       const annex = response.data;
 
-      if (!annex || !annex.officers || annex.officers.length === 0) {
+      if (!annex) {
         throw new Error("Invalid annex data");
       }
 
