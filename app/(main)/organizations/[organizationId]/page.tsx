@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname, useParams, useRouter } from "next/navigation";
 import BackButton from "@/components/BackButton";
 import { useSession } from "next-auth/react";
+import { pdf } from "@react-pdf/renderer";
+import MyDocument from "@/components/AccredPDF";
 
 type AnnexStatus = "Not Submitted" | "Rejected" | "For Review" | "Approved";
 
@@ -20,6 +22,23 @@ interface Annex {
 interface Organization {
   _id: string;
   name: string;
+}
+
+interface SingleOrganization {
+  name: string;
+  logo?: string;
+  isArchived: boolean;
+  affiliation: string;
+  officialEmail?: string;
+  facebook?: string;
+  isWithCentralOrganization?: boolean;
+  isReligiousOrganization?: boolean;
+  academicYearOfLastRecognition?: string;
+  levelOfRecognition?: string;
+  academicYear?: string;
+  isInactive: boolean;
+  status: "Incomplete" | "For Review" | "Complete";
+  isAccredited: boolean;
 }
 
 export default function Component() {
@@ -58,14 +77,15 @@ export default function Component() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const currentYear = new Date().getFullYear();
-  const [yearOfAccreditation, setYearOfAccreditation] = useState(`${currentYear}-${currentYear + 1}`);
-  const [grade, setGrade] = useState("A");
-  const [accreditationCode, setAccreditationCode] = useState("");
+  const [yearOfAccreditation, setYearOfAccreditation] = useState("");
+  const [grade, setGrade] = useState("");
   const params = useParams();
   const organizationId = params.organizationId as string;
   const router = useRouter();
   const { data: session } = useSession();
   const currentPath = usePathname();
+  const [organization, setOrganization] = useState<SingleOrganization>();
+  const [accreditationCode, setAccreditationCode] = useState("");
 
   useEffect(() => {
     const fetchAnnexes = async () => {
@@ -96,18 +116,35 @@ export default function Component() {
       }
     };
 
+    const fetchOrganization = async () => {
+      try {
+        const response = await fetch(`/api/organizations/${organizationId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setOrganization(data);
+        } else {
+          console.error("Failed to fetch organization data");
+        }
+      } catch (error) {
+        console.error("Error fetching organization data:", error);
+      }
+    };
+
     fetchAnnexes();
     fetchOrganizations();
+    fetchOrganization();
   }, [organizationId]);
 
   useEffect(() => {
-    if (organizations.length > 0) {
+    if (yearOfAccreditation && grade && organizations.length > 0) {
       const sortedOrganizations = [...organizations].sort((a, b) => a.name.localeCompare(b.name));
       const index = sortedOrganizations.findIndex((org) => org._id === organizationId);
       const paddedIndex = (index + 1).toString().padStart(2, "0");
-      setAccreditationCode(
-        `RSO-${grade}-${yearOfAccreditation.slice(2, 4)}-${yearOfAccreditation.slice(7, 9)}-${paddedIndex}`
-      );
+      const newAccreditationCode = `RSO-${grade}-${yearOfAccreditation.slice(2, 4)}-${yearOfAccreditation.slice(
+        7,
+        9
+      )}-${paddedIndex}`;
+      setAccreditationCode(newAccreditationCode);
     }
   }, [organizations, organizationId, grade, yearOfAccreditation]);
 
@@ -182,6 +219,27 @@ export default function Component() {
     }
   };
 
+  const generatePDFBlob = async (organization) => {
+    try {
+      console.log("Generating PDF...", organization);
+      const blob = await pdf(<MyDocument organization={organization} />).toBlob();
+      return blob;
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      throw error;
+    }
+  };
+
+  const generatePDF = async (organization) => {
+    try {
+      const blob = await generatePDFBlob(organization);
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   return (
     <PageWrapper>
       <BackButton />
@@ -193,13 +251,6 @@ export default function Component() {
               Create New Academic Year ({nextAcademicYear})
             </button>
           )}
-
-          {/* <button
-            className="btn btn-primary"
-            onClick={() => router.push(`/organizations/${organizationId}/signatory-request/`)}
-          >
-            Request Signatories
-          </button> */}
         </div>
       </div>
       <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
@@ -226,61 +277,62 @@ export default function Component() {
       )}
       {session?.user?.role === "OSA" && (
         <div className="mb-6 space-y-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Year of Accreditation</span>
-            </label>
-            <select
-              className="select select-bordered w-full max-w-xs"
-              value={yearOfAccreditation}
-              onChange={(e) => setYearOfAccreditation(e.target.value)}
-            >
-              <option disabled value="">
-                Select year
-              </option>
-              {[...Array(5)].map((_, i) => {
-                const year = currentYear + i;
-                const nextYear = year + 1;
-                const academicYear = `${year}-${nextYear}`;
-                return (
-                  <option key={academicYear} value={academicYear}>
-                    {academicYear.slice(2, 4)}-{nextYear.toString().slice(-2)}
+          <div className="flex items-center justify-start gap-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Year of Accreditation</span>
+              </label>
+              <select
+                className="select select-bordered w-full max-w-xs"
+                value={yearOfAccreditation}
+                onChange={(e) => setYearOfAccreditation(e.target.value)}
+              >
+                <option value="">Select year</option>
+                {[...Array(5)].map((_, i) => {
+                  const year = currentYear + i;
+                  const nextYear = year + 1;
+                  const academicYear = `${year}-${nextYear}`;
+                  return (
+                    <option key={academicYear} value={academicYear}>
+                      {academicYear.slice(2, 4)}-{nextYear.toString().slice(-2)}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Grade</span>
+              </label>
+              <select
+                className="select select-bordered w-full max-w-xs"
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+              >
+                <option value="">Select grade</option>
+                {["A", "B", "C", "D"].map((g) => (
+                  <option key={g} value={g}>
+                    {g}
                   </option>
-                );
-              })}
-            </select>
+                ))}
+              </select>
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Accreditation Code</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Accreditation Code"
+                className="input input-bordered w-full max-w-xs"
+                value={organization?.levelOfRecognition || accreditationCode}
+                disabled
+              />
+            </div>
           </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Grade</span>
-            </label>
-            <select
-              className="select select-bordered w-full max-w-xs"
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-            >
-              {["A", "B", "C", "D"].map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Accreditation Code</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Accreditation Code"
-              className="input input-bordered w-full max-w-xs"
-              value={accreditationCode}
-              onChange={(e) => setAccreditationCode(e.target.value)}
-            />
-            <button className="btn btn-primary mt-4" onClick={handleSubmitAccreditation}>
-              Submit Accreditation
-            </button>
-          </div>
+          <button className="btn btn-primary mt-4 max-w-xs" onClick={handleSubmitAccreditation}>
+            Submit Accreditation
+          </button>
         </div>
       )}
 
@@ -289,6 +341,14 @@ export default function Component() {
         organization's recognition.
       </p>
 
+      {organization?.academicYearOfLastRecognition === organization?.academicYear ? (
+        <button className="btn btn-primary w-full" onClick={() => generatePDF(organization)}>
+          Download Certificate of Recognition
+        </button>
+      ) : (
+        <p>Certificate not available for the current academic year. All annexes need to be approved</p>
+      )}
+
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Overall Progress</h2>
@@ -296,7 +356,10 @@ export default function Component() {
             {completedAnnexes} / {annexes.length} completed
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+        <div
+          className="w-full bg-gray-200 rounded-full h-2.5
+dark:bg-gray-700"
+        >
           <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
       </div>
