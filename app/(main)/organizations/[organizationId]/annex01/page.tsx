@@ -602,31 +602,6 @@ export default function EnhancedAnnex01Manager() {
     }
   };
 
-  const createNewAnnex = async () => {
-    try {
-      const response = await axios.post(`/api/annexes/${organizationId}/annex-01`, {
-        academicYear: newAcademicYear,
-      });
-      setAnnexList([...annexList, response.data]);
-      setIsCreatingAnnex(false);
-    } catch (error) {
-      console.error("Error creating annex:", error);
-    }
-  };
-
-  const submitAnnexForReview = async (id: string) => {
-    try {
-      console.log("hey");
-      const response = await axios.patch(`/api/annexes/${organizationId}/annex-01/${id}`, {
-        status: "For Review",
-        dateSubmitted: new Date(),
-      });
-      setAnnexList(annexList.map((annex) => (annex._id === id ? response.data : annex)));
-    } catch (error) {
-      console.error("Error submitting annex:", error);
-    }
-  };
-
   const generatePDFBlob = async (annex: Annex01): Promise<Blob> => {
     try {
       console.log("Generating PDF for annex:", annex);
