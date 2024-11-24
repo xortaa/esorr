@@ -71,6 +71,11 @@ const Navbar = () => {
                       Manage Officer In Charge
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/osa/announcement" className="hover:text-primary">
+                      Announcement
+                    </Link>
+                  </li>
                 </>
               )}
               <li>
@@ -114,6 +119,11 @@ const Navbar = () => {
               <li>
                 <Link href="/osa/manage-officer-in-charge" className="hover:text-primary">
                   Manage Officer In Charge
+                </Link>
+              </li>
+              <li>
+                <Link href="/osa/announcement" className="hover:text-primary">
+                  Announcement
                 </Link>
               </li>
             </>
