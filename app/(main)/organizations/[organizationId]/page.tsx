@@ -187,15 +187,18 @@ export default function Component() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
         <div>
-          <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
-            Create New Academic Year ({nextAcademicYear})
-          </button>
-          <button
+          {session?.user?.role === "RSO" && (
+            <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
+              Create New Academic Year ({nextAcademicYear})
+            </button>
+          )}
+
+          {/* <button
             className="btn btn-primary"
             onClick={() => router.push(`/organizations/${organizationId}/signatory-request/`)}
           >
             Request Signatories
-          </button>
+          </button> */}
         </div>
       </div>
 

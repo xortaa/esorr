@@ -314,7 +314,7 @@ export default function AnnexAEditor() {
         <div className="card-body">
           <h2 className="card-title">Officers' Information</h2>
           <p className="mb-4">Please fill out the officers' information in the designated annex.</p>
-          <Link href={`/organizations/${organizationId}/annex-a1`}>
+          <Link href={`/organizations/${organizationId}/annexA1`}>
             <button className="btn btn-primary">Go to Officers' Information Annex</button>
           </Link>
         </div>
@@ -323,7 +323,7 @@ export default function AnnexAEditor() {
         <div className="card-body">
           <h2 className="card-title">Organization Adviser</h2>
           <p className="mb-4">Please fill out the organization adviser information in the designated annex.</p>
-          <Link href={`/organizations/${organizationId}/annex-g`}>
+          <Link href={`/organizations/${organizationId}/annexG`}>
             <button className="btn btn-primary">Go to Organization Adviser Annex</button>
           </Link>
         </div>
@@ -332,7 +332,7 @@ export default function AnnexAEditor() {
         <div className="card-body">
           <h2 className="card-title">Financial Status</h2>
           <p className="mb-4">Please fill out the financial status information in the designated annex.</p>
-          <Link href={`/organizations/${organizationId}/annex-e2`}>
+          <Link href={`/organizations/${organizationId}/annexE2`}>
             <button className="btn btn-primary">Go to Financial Status Annex</button>
           </Link>
         </div>

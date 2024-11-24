@@ -516,6 +516,20 @@ function AnnexCard({
   const router = useRouter();
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+  const [submissionsStatus, setSubmissionsStatus] = useState({ submissionAllowed: true });
+
+  useEffect(() => {
+    toggledSubmissions();
+  }, [session]);
+
+  const toggledSubmissions = async () => {
+    try {
+      const response = await axios.get("/api/organizations/fetch-submission-status");
+      setSubmissionsStatus(response.data);
+    } catch (error) {
+      console.error("Error toggling submissions:", error);
+    }
+  };
 
   const handleSoccRemarksChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSoccRemarks(e.target.value);
@@ -542,13 +556,15 @@ function AnnexCard({
             <h2 className="card-title">Organization Adviser Nomination Form Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
-              onClick={() => router.push(`/organizations/${annex.organization}/annexG/${annex._id}`)}
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Nomination
-            </button>
+            {session?.user?.role === "RSO" && (
+              <button
+                className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
+                onClick={() => router.push(`/organizations/${annex.organization}/annexG/${annex._id}`)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Nomination
+              </button>
+            )}
             {/* <button className="btn btn-sm" onClick={() => onOpenSignatureModal(annex)}>
               <PenTool className="h-4 w-4 mr-2" />
               Add Signature
@@ -623,13 +639,11 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {(session?.user?.role === "RSO" ||
-              session?.user?.role === "RSO-SIGNATORY" ||
-              session?.user?.role === "AU") && (
+            {session?.user?.role === "RSO" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={session?.user?.role === "AU"}
+                disabled={!submissionsStatus.submissionAllowed}
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit

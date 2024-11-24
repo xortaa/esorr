@@ -1249,6 +1249,20 @@ function AnnexCard({
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+  const [submissionsStatus, setSubmissionsStatus] = useState({ submissionAllowed: true });
+
+  useEffect(() => {
+    toggledSubmissions();
+  }, [session]);
+
+  const toggledSubmissions = async () => {
+    try {
+      const response = await axios.get("/api/organizations/fetch-submission-status");
+      setSubmissionsStatus(response.data);
+    } catch (error) {
+      console.error("Error toggling submissions:", error);
+    }
+  };
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -1258,14 +1272,16 @@ function AnnexCard({
             <h2 className="card-title">Articles of Association for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              className={`btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200 ${annex.pdf ? "btn-disabled" : ""}`}
-              onClick={() => editAnnex(annex._id)}
-              disabled={!!annex.pdf}
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Articles
-            </button>
+            {session?.user?.role === "RSO" && (
+              <button
+                className={`btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200 ${annex.pdf ? "btn-disabled" : ""}`}
+                onClick={() => editAnnex(annex._id)}
+                disabled={!!annex.pdf}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Articles
+              </button>
+            )}
             {/* <button
               className={`btn btn-ghost btn-sm ${annex.pdf ? "btn-disabled" : ""}`}
               onClick={() => openSignatureModal(annex)}
@@ -1378,7 +1394,7 @@ function AnnexCard({
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={session?.user?.role === "AU"}
+                disabled={!submissionsStatus.submissionAllowed}
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit

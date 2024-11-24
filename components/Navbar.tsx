@@ -98,6 +98,7 @@ const Navbar = () => {
               Organizations
             </Link>
           </li>
+
           {session?.user?.role === "OSA" && (
             <>
               <li>

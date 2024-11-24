@@ -14,6 +14,8 @@ export default function OrganizationsPage() {
   const [selectedAffiliation, setSelectedAffiliation] = useState("");
   const [affiliationType, setAffiliationType] = useState("All");
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [submissionsStatus, setSubmissionsStatus] = useState({ submissionAllowed: true });
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -24,12 +26,14 @@ export default function OrganizationsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [orgsResponse, affiliationsResponse] = await Promise.all([
+      const [orgsResponse, affiliationsResponse, submissionStatusResponse] = await Promise.all([
         axios.get("/api/organizations"),
         axios.get("/api/affiliations"),
+        axios.get("/api/organizations/fetch-submission-status"),
       ]);
       setOrganizations(orgsResponse.data);
       setAffiliations(affiliationsResponse.data);
+      setSubmissionsStatus(submissionStatusResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Failed to fetch data. Please try again later.");
@@ -57,6 +61,17 @@ export default function OrganizationsPage() {
           org.affiliation !== "University Wide" &&
           (selectedAffiliation === "" || org.affiliation === selectedAffiliation)))
   );
+
+  const toggleSubmission = async () => {
+    axios
+      .post("/api/organizations/toggle-submissions", {
+        status: "ehe",
+      })
+      .then(() => {
+        const isAllowed = submissionsStatus.submissionAllowed;
+        setSubmissionsStatus({ submissionAllowed: !isAllowed });
+      });
+  };
 
   if (status === "loading") {
     return (
@@ -86,6 +101,11 @@ export default function OrganizationsPage() {
           <h1 className="text-4xl font-bold text-primary">Organizations</h1>
           <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
         </div>
+        {session.user.role === "OSA" && !isLoading && (
+          <button onClick={toggleSubmission} className="btn btn-primary" aria-label="Toggle submissions">
+            {submissionsStatus.submissionAllowed ? "Disable" : "Enable"} Submissions
+          </button> 
+        )}
         <button onClick={fetchData} className="btn btn-ghost btn-circle" aria-label="Refresh organizations">
           <RefreshCw size={20} />
         </button>

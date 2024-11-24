@@ -689,6 +689,7 @@ function AnnexCard({
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+  const [submissionsStatus, setSubmissionsStatus] = useState({ submissionAllowed: true });
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
@@ -772,13 +773,11 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {(session?.user?.role === "RSO" ||
-              session?.user?.role === "RSO-SIGNATORY" ||
-              session?.user?.role === "AU") && (
+            {session?.user?.role === "RSO" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={session?.user?.role === "AU"}
+                disabled={!submissionsStatus.submissionAllowed}
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit

@@ -120,7 +120,7 @@ type AnnexE2 = {
   status: string;
   soccRemarks: string;
   osaRemarks: string;
-  dateSubmitted: Date
+  dateSubmitted: Date;
 };
 
 type SignaturePosition = keyof MonthlyReport;
@@ -1120,6 +1120,20 @@ function AnnexCard({
   ];
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
+  const [submissionsStatus, setSubmissionsStatus] = useState({ submissionAllowed: true });
+
+  useEffect(() => {
+    toggledSubmissions();
+  }, [session]);
+
+  const toggledSubmissions = async () => {
+    try {
+      const response = await axios.get("/api/organizations/fetch-submission-status");
+      setSubmissionsStatus(response.data);
+    } catch (error) {
+      console.error("Error toggling submissions:", error);
+    }
+  };
 
   return (
     <div className="card bg-base-100 shadow-sm border border-gray-200">
@@ -1156,9 +1170,7 @@ function AnnexCard({
         )}
         <div className="card-actions justify-between items-center mt-4">
           <div className="space-x-2">
-            {(session?.user?.role === "RSO" ||
-              session?.user?.role === "RSO-SIGNATORY" ||
-              session?.user?.role === "AU") && (
+            {session?.user?.role === "RSO" && (
               <button className="btn btn-primary btn-sm" onClick={() => editAnnex(annex._id)}>
                 <Edit size={14} className="mr-1" />
                 Edit Liquidation Report
@@ -1227,7 +1239,11 @@ function AnnexCard({
             </>
           )}
           {(session?.user?.role === "RSO" || session?.user?.role === "RSO-SIGNATORY") && (
-            <button className="btn btn-primary" onClick={() => onSubmit(annex._id)}>
+            <button
+              className="btn btn-primary"
+              onClick={() => onSubmit(annex._id)}
+              disabled={!submissionsStatus.submissionAllowed}
+            >
               <Send className="h-4 w-4 mr-2" />
               Submit
             </button>

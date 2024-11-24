@@ -648,7 +648,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
               ))}
             </div>
 
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="label mb-1">Officer's Signature</label>
               {editedOfficer.signature && !isChangingSignature ? (
                 <div>
@@ -700,7 +700,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   </div>
                 </div>
               )}
-            </div>
+            </div> */}
 
             <button
               type="submit"
