@@ -6,6 +6,9 @@ import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import MyDocument from "@/components/ResoPDF";
+import { pdf } from "@react-pdf/renderer";
 
 export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,12 +66,10 @@ export default function OrganizationsPage() {
   );
 
   const toggleSubmission = async () => {
-    axios
-      .post("/api/organizations/toggle-submissions")
-      .then(() => {
-        const isAllowed = submissionsStatus.submissionAllowed;
-        setSubmissionsStatus({ submissionAllowed: !isAllowed });
-      });
+    axios.post("/api/organizations/toggle-submissions").then(() => {
+      const isAllowed = submissionsStatus.submissionAllowed;
+      setSubmissionsStatus({ submissionAllowed: !isAllowed });
+    });
   };
 
   if (status === "loading") {
@@ -87,10 +88,35 @@ export default function OrganizationsPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
           <p>Please sign in to view organizations.</p>
+          <Link href="/" className="btn btn-neutral">
+            Back to Sign In Page
+          </Link>
         </div>
       </PageWrapper>
     );
   }
+
+  const generatePDFBlob = async (organizations) => {
+    try {
+      console.log("Generating PDF...", organizations);
+      const blob = await pdf(<MyDocument organizations={organizations} />).toBlob();
+      return blob;
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      throw error;
+    }
+  };
+
+  const generatePDF = async (organizations) => {
+    try {
+      const blob = await generatePDFBlob(organizations);
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      setError("Failed to generate PDF. Please try again.");
+    }
+  };
 
   return (
     <PageWrapper>
@@ -104,13 +130,16 @@ export default function OrganizationsPage() {
         </button>
       </div>
 
-      <div>
-        {session.user.role === "OSA" && !isLoading && (
+      {session.user.role === "OSA" && !isLoading && (
+        <div className="flex items-center justify-start gap-2">
           <button onClick={toggleSubmission} className="btn btn-primary" aria-label="Toggle submissions">
             {submissionsStatus.submissionAllowed ? "Disable" : "Enable"} Submissions
           </button>
-        )}
-      </div>
+          <button className="btn btn-outline" onClick={() => generatePDF(organizations)}>
+            Download List of Accredited Organizations
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-6">
         <div className="form-control w-full lg:w-1/3">
