@@ -64,9 +64,7 @@ export default function OrganizationsPage() {
 
   const toggleSubmission = async () => {
     axios
-      .post("/api/organizations/toggle-submissions", {
-        status: "ehe",
-      })
+      .post("/api/organizations/toggle-submissions")
       .then(() => {
         const isAllowed = submissionsStatus.submissionAllowed;
         setSubmissionsStatus({ submissionAllowed: !isAllowed });
@@ -101,14 +99,17 @@ export default function OrganizationsPage() {
           <h1 className="text-4xl font-bold text-primary">Organizations</h1>
           <p className="text-lg text-gray-600 mt-2">Browse all student organizations</p>
         </div>
-        {session.user.role === "OSA" && !isLoading && (
-          <button onClick={toggleSubmission} className="btn btn-primary" aria-label="Toggle submissions">
-            {submissionsStatus.submissionAllowed ? "Disable" : "Enable"} Submissions
-          </button> 
-        )}
         <button onClick={fetchData} className="btn btn-ghost btn-circle" aria-label="Refresh organizations">
           <RefreshCw size={20} />
         </button>
+      </div>
+
+      <div>
+        {session.user.role === "OSA" && !isLoading && (
+          <button onClick={toggleSubmission} className="btn btn-primary" aria-label="Toggle submissions">
+            {submissionsStatus.submissionAllowed ? "Disable" : "Enable"} Submissions
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-6">

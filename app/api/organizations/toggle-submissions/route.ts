@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
+import connectToDatabase from "@/utils/mongodb";
+import SubmissionAllowed from "@/models/submissionStatus";
 
-export async function POST(request: NextRequest) {
-  const filePath = path.join(process.cwd(), "/public/submission.json");
-
+export async function POST(req: NextRequest) {
   try {
-    const jsonData = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(jsonData);
+    await connectToDatabase();
 
-    data.submissionAllowed = !data.submissionAllowed;
+    const submissionAllowed = await SubmissionAllowed.findOne();
 
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    // if submissionAllowed is not found, create a new one
 
-    return NextResponse.json(data, { status: 200 });
+    if (!submissionAllowed) {
+      const newSubmissionAllowed = new SubmissionAllowed({ submissionAllowed: false });
+      await newSubmissionAllowed.save();
+      return NextResponse.json({ submissionStatus: newSubmissionAllowed }, { status: 200 });
+    }
+
+    // if submissionAllowed of submissionAllowed is true, set it to false and vice versa
+    submissionAllowed.submissionAllowed = !submissionAllowed.submissionAllowed;
+
+    const submissionStatus = await submissionAllowed.save();
+
+    return NextResponse.json({ submissionStatus }, { status: 200 });
   } catch (error) {
     console.error("Error updating JSON file: ", error);
     return NextResponse.json({ error: "Failed to update submission status" }, { status: 500 });
