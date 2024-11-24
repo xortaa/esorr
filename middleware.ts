@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/public/") ||
     pathname.startsWith("/_next/") ||
     pathname.includes(".") ||
-    pathname === "/test"
+    pathname.startsWith("/test")
   ) {
     return NextResponse.next();
   }
@@ -34,7 +34,13 @@ export async function middleware(req: NextRequest) {
 
   // Define allowed pages for each role
   const rolePages = {
-    OSA: ["/osa", "/organizations"],
+    OSA: [
+      "/organizations",
+      "/osa/manage-accounts",
+      "/osa/manage-affiliation",
+      "/osa/manage-officer-in-charge",
+      "/osa/announcement",
+    ],
     RSO: [`/organizations/${token.organization}`, "/rso-setup"],
     SOCC: ["/organizations"],
     AU: ["/organizations"],
