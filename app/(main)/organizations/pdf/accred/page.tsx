@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: "100%",
     height: "100%",
-    objectFit: "cover", // Ensures the image covers the entire page without stretching
+    //objectFit: "cover", // Ensures the image covers the entire page without stretching
     zIndex: -1, // Keeps the image in the background
   },
   section: {
@@ -98,11 +98,11 @@ const styles = StyleSheet.create({
 const MyDocument = () => {
   return (
     <Document>
-      <Page style={styles.page} size="A4" orientation="portrait">
+      <Page style={styles.page} size="LEGAL" orientation="portrait">
         {/* Background Image */}
         <Image
           style={styles.backgroundImage}
-          src="/images/RecognitionCertification.jpg" // Path to the image in the public folder
+          src="/images/certificate.jpg" // Path to the image in the public folder
         />
         {/* Content */}
         <View style={styles.section}>
@@ -115,10 +115,6 @@ const MyDocument = () => {
 
         <View style={styles.section}>
           <Text style={styles.year}>2025</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.signature}>signature</Text>
         </View>
       </Page>
     </Document>
