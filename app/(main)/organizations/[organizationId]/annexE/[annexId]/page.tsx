@@ -274,6 +274,7 @@ const OrganizationOperationalAssessmentForm = () => {
             title: newEvent.title,
             eReserveNumber: newEvent.eReserveNo,
             categories: newEvent.categories,
+            organization: organizationId,
           }
         );
         console.log({ title: newEvent.title, eReserveNumber: newEvent.eReserveNo, categories: newEvent.categories });

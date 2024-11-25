@@ -21,7 +21,7 @@ export const POST = async (
       "organization academicYear"
     );
 
-    const newEventData = { ...eventData, organization: annexE.organization, academicYear: annexE.academicYear };
+    const newEventData = { ...eventData, academicYear: annexE.academicYear };
 
     const operationalAssessment = await OperationalAssessment.findById(operationalAssessmentId);
 

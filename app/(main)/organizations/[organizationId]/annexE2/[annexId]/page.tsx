@@ -151,12 +151,7 @@ export default function AnnexE2FinancialLiquidationReport() {
 
   const fetchEvents = async () => {
     try {
-      const academicYearResponse = await axios.get(
-        `/api/annexes/${organizationId}/annex-e2/${annexId}/get-academic-year`
-      );
-      const academicYear = academicYearResponse.data.academicYear;
-
-      const eventResponse = await axios.get(`/api/${organizationId}/${academicYear}/get-events-for-academic-year`);
+      const eventResponse = await axios.get(`/api/organizations/${organizationId}/get-events-for-academic-year`);
       setEvents(eventResponse.data);
       console.log("Events:", eventResponse.data);
     } catch (error) {
