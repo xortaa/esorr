@@ -19,7 +19,6 @@ import {
   CalendarDays,
   PhilippinePeso,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { uploadImage } from "@/utils/storage";
 import { parseISO, isValid, format } from "date-fns";
@@ -513,11 +512,7 @@ export default function AnnexE2FinancialLiquidationReport() {
           {activeTab === "outflow" && (
             <>
               {!currentOutflow && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-8 bg-white p-8 rounded-lg shadow-md"
-                >
+                <div className="mb-8 bg-white p-8 rounded-lg shadow-md">
                   <h2 className="text-2xl font-semibold mb-4 flex items-center text-neutral">
                     <Receipt className="mr-2" /> Upload a new receipt
                   </h2>
@@ -526,17 +521,12 @@ export default function AnnexE2FinancialLiquidationReport() {
                     onChange={handleFileChange}
                     className="file-input file-input-bordered file w-full"
                   />
-                </motion.div>
+                </div>
               )}
 
-              <AnimatePresence>
+              <div>
                 {currentOutflow && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="bg-white p-8 rounded-lg shadow-md mb-8"
-                  >
+                  <div className="bg-white p-8 rounded-lg shadow-md mb-8">
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-2xl font-semibold flex items-center text-neutral">
                         <FileText className="mr-2" /> Receipt Description
@@ -613,12 +603,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                         </h3>
                         <div className="space-y-4 max-h-96 overflow-y-auto mb-4">
                           {currentOutflow.items.map((item) => (
-                            <motion.div
-                              key={item._id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              className="border p-4 rounded-md shadow-sm"
-                            >
+                            <div key={item._id} className="border p-4 rounded-md shadow-sm">
                               {editingItem && editingItem._id === item._id ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div className="form-control">
@@ -751,7 +736,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   </>
                                 )}
                               </div>
-                            </motion.div>
+                            </div>
                           ))}
                         </div>
 
@@ -760,12 +745,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                             <Plus size={20} className="mr-2" /> Add Item
                           </button>
                         ) : (
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="bg-base-200 p-6 rounded-md shadow-sm mt-6"
-                          >
+                          <div className="bg-base-200 p-6 rounded-md shadow-sm mt-6">
                             <h4 className="font-semibold text-lg mb-4 flex items-center text-neutral">
                               <Plus className="mr-2" /> New Item
                             </h4>
@@ -872,7 +852,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                 Cancel
                               </button>
                             </div>
-                          </motion.div>
+                          </div>
                         )}
                       </div>
                       <div className="flex-1">
@@ -895,25 +875,18 @@ export default function AnnexE2FinancialLiquidationReport() {
                         {isLoading ? "Saving..." : isEditing ? "Update Receipt" : "Save Receipt"}
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mt-12"
-              >
+              <div className="mt-12">
                 <h2 className="text-3xl font-bold mb-6 flex items-center text-neutral">
                   <Receipt className="mr-2" /> Saved Outflows
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {outflows.map((outflow) => (
-                    <motion.div
+                    <div
                       key={outflow._id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
                       className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
                       onClick={() => editOutflow(outflow)}
                     >
@@ -933,19 +906,15 @@ export default function AnnexE2FinancialLiquidationReport() {
                       >
                         <Trash size={16} className="mr-1" /> Delete
                       </button>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </>
           )}
 
           {activeTab === "inflow" && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white p-8 rounded-lg shadow-md mb-8"
-            >
+            <div className="bg-white p-8 rounded-lg shadow-md mb-8">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold flex items-center text-neutral">
                   <Plus className="mr-2" /> {isEditingInflow ? "Edit" : "Add"} Inflow Transaction
@@ -1068,12 +1037,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                 </div>
               </form>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mt-12"
-              >
+              <div className="mt-12">
                 <h2 className="text-3xl font-bold mb-6 flex items-center text-neutral">
                   <Receipt className="mr-2" /> Inflow Transactions
                 </h2>
@@ -1113,8 +1077,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                     </tbody>
                   </table>
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           )}
         </div>
       </div>
