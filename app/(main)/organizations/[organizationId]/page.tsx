@@ -86,6 +86,8 @@ export default function Component() {
   const currentPath = usePathname();
   const [organization, setOrganization] = useState<SingleOrganization>();
   const [accreditationCode, setAccreditationCode] = useState("");
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAnnexes = async () => {
@@ -117,6 +119,7 @@ export default function Component() {
     };
 
     const fetchOrganization = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`/api/organizations/${organizationId}`);
         if (response.ok) {
@@ -127,6 +130,8 @@ export default function Component() {
         }
       } catch (error) {
         console.error("Error fetching organization data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -231,12 +236,15 @@ export default function Component() {
   };
 
   const generatePDF = async (organization) => {
+    setIsGeneratingPDF(true);
     try {
       const blob = await generatePDFBlob(organization);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error generating PDF:", error);
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -341,12 +349,33 @@ export default function Component() {
         organization's recognition.
       </p>
 
-      {organization?.academicYearOfLastRecognition === organization?.academicYear ? (
-        <button className="btn btn-primary w-full" onClick={() => generatePDF(organization)}>
-          Download Certificate of Recognition
-        </button>
+      {isLoading ? (
+        <div className="w-full flex justify-center items-center py-4">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : organization ? (
+        organization.academicYearOfLastRecognition === organization.academicYear ? (
+          <button
+            className="btn btn-primary w-full"
+            onClick={() => generatePDF(organization)}
+            disabled={isGeneratingPDF}
+          >
+            {isGeneratingPDF ? (
+              <>
+                <span className="loading loading-spinner"></span>
+                Generating Certificate...
+              </>
+            ) : (
+              "Download Certificate of Recognition"
+            )}
+          </button>
+        ) : (
+          <p className="text-center py-4">
+            Certificate not available for the current academic year. All annexes need to be approved
+          </p>
+        )
       ) : (
-        <p>Certificate not available for the current academic year. All annexes need to be approved</p>
+        <p className="text-center py-4">Failed to load organization data. Please try again later.</p>
       )}
 
       <div className="mb-6">
