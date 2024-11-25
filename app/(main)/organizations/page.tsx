@@ -7,8 +7,10 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import MyDocument from "@/components/ResoPDF";
 import { pdf } from "@react-pdf/renderer";
+import dynamic from "next/dynamic";
+
+const MyDocument = dynamic(() => import("@/components/ResoPDF"), { ssr: false });
 
 export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
