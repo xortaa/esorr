@@ -8,6 +8,12 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Page, Text, View, Document, StyleSheet, pdf, Font } from "@react-pdf/renderer";
+import dynamic from "next/dynamic";
+
+const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
+  ssr: false,
+  loading: () => <p>Loading PDF viewer...</p>,
+});
 
 type Organization = {
   name: string;
