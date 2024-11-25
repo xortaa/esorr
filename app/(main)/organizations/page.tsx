@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Page, Text, View, Document, StyleSheet, pdf, Font } from "@react-pdf/renderer";
 import dynamic from "next/dynamic";
 
+
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
   loading: () => <p>Loading PDF viewer...</p>,
@@ -784,12 +785,18 @@ export default function OrganizationsPage() {
     try {
       setIsLoading(true);
       const accreditedOrgs = await fetchAccreditedOrgs();
-      const blob = await generatePDFBlob(accreditedOrgs);
+
+      // Dynamically import the pdf function
+      const { pdf } = await import("@react-pdf/renderer");
+
+      const blob = await pdf(<MyDocument organizations={accreditedOrgs} />).toBlob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error generating PDF:", error);
       setError("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
