@@ -109,12 +109,15 @@ export default function OrganizationsPage() {
 
   const generatePDF = async (organizations) => {
     try {
+      setIsLoading(true);
       const blob = await generatePDFBlob(organizations);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error) {
       console.error("Error generating PDF:", error);
       setError("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
