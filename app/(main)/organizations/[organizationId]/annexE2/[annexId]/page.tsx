@@ -140,6 +140,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
   const isReceiptSaveDisabled =
     !currentOutflow?.establishment || !currentOutflow?.date || currentOutflow?.items.length === 0;
 
@@ -151,11 +152,14 @@ export default function AnnexE2FinancialLiquidationReport() {
 
   const fetchEvents = async () => {
     try {
+      setEventsLoading(true);
       const eventResponse = await axios.get(`/api/organizations/${organizationId}/get-events-for-academic-year`);
       setEvents(eventResponse.data);
       console.log("Events:", eventResponse.data);
     } catch (error) {
       console.error("Error fetching events:", error);
+    } finally {
+      setEventsLoading(false);
     }
   };
 
@@ -577,23 +581,30 @@ export default function AnnexE2FinancialLiquidationReport() {
                           <div className="form-control">
                             <label className="label">
                               <span className="label-text flex items-center">
-                                <CalendarDays className="mr-2" /> Event (Create an event under annex E to be able to make an outflow)
+                                <CalendarDays className="mr-2" /> Event (Create an event under annex E to be able to
+                                make an outflow)
                               </span>
                             </label>
-                            <select
-                              name="event"
-                              value={currentOutflow.event}
-                              onChange={handleOutflowDescriptionChange}
-                              className="select select-bordered w-full"
-                              required
-                            >
-                              <option value="">Select an event</option>
-                              {events.map((event) => (
-                                <option key={event._id} value={event._id}>
-                                  {event.title} (E-Reserve: {event.eReserveNumber})
-                                </option>
-                              ))}
-                            </select>
+                            {eventsLoading ? (
+                              <div className="flex items-center justify-center h-10">
+                                <span className="loading loading-dots loading-md"></span>
+                              </div>
+                            ) : (
+                              <select
+                                name="event"
+                                value={currentOutflow.event}
+                                onChange={handleOutflowDescriptionChange}
+                                className="select select-bordered w-full"
+                                required
+                              >
+                                <option value="">Select an event</option>
+                                {events.map((event) => (
+                                  <option key={event._id} value={event._id}>
+                                    {event.title} (E-Reserve: {event.eReserveNumber})
+                                  </option>
+                                ))}
+                              </select>
+                            )}
                           </div>
                         </div>
 
