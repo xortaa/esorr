@@ -52,14 +52,18 @@ export async function middleware(req: NextRequest) {
   };
 
   // Handle RSO specific redirection
-  if (token.role === "RSO" && token.isSetup && token.organization) {
-    if (pathname === "/organizations" || pathname === "/login-redirect") {
-      console.log("RSO user redirected to specific organization page");
-      return NextResponse.redirect(new URL(`/organizations/${token.organization}`, req.url));
-    }
-    if (!pathname.startsWith(`/organizations/${token.organization}`)) {
-      console.log("RSO user accessing unauthorized page, redirecting");
-      return NextResponse.redirect(new URL(`/organizations/${token.organization}`, req.url));
+  if (token.role === "RSO") {
+    if (!token.isSetup) {
+      if (pathname !== "/rso-setup") {
+        console.log("RSO user not set up, redirecting to setup page");
+        return NextResponse.redirect(new URL("/rso-setup", req.url));
+      }
+    } else if (token.organization) {
+      const orgPath = `/organizations/${token.organization}`;
+      if (pathname === "/organizations" || pathname === "/login-redirect" || !pathname.startsWith(orgPath)) {
+        console.log("RSO user redirected to specific organization page");
+        return NextResponse.redirect(new URL(orgPath, req.url));
+      }
     }
   }
 
@@ -71,20 +75,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(allowedPages[0] || "/", req.url));
   }
 
-  // Check if the user needs to complete setup (only for roles with setup pages)
-  if (token.isSetup === false && setupPages[token.role as keyof typeof setupPages]) {
-    console.log(`${token.role} user not set up, redirecting to setup page`);
-    return NextResponse.redirect(new URL(setupPages[token.role as keyof typeof setupPages], req.url));
-  }
-
-  if (pathname === "/login-redirect") {
-    if (token.role === "AU" || token.role === "SOCC" || token.isSetup) {
-      console.log("User is set up or AU/SOCC, redirecting to appropriate page");
-      return NextResponse.redirect(new URL(allowedPages[0], req.url));
-    } else {
-      console.log(`${token.role} user is not set up, redirecting to setup page`);
-      return NextResponse.redirect(new URL(setupPages[token.role as keyof typeof setupPages] || "/", req.url));
-    }
+  // Handle login-redirect for non-RSO roles
+  if (pathname === "/login-redirect" && token.role !== "RSO") {
+    console.log(`${token.role} user on login-redirect, redirecting to appropriate page`);
+    return NextResponse.redirect(new URL(allowedPages[0], req.url));
   }
 
   // Block RSO access to general /api/organizations
