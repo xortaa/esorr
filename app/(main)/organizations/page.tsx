@@ -9,12 +9,6 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import MyDocument from "@/components/ResoPDF";
 import { pdf } from "@react-pdf/renderer";
-import dynamic from "next/dynamic";
-
-const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
-  ssr: false,
-  loading: () => <p>Loading PDF viewer...</p>,
-});
 
 export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-const MyDocument = ({ organizations }: { organizations: Organization[] }) => {
+const MyDocument: React.FC<{ organizations: Organization[]}> = ({ organizations }) => {
   const currentYear = new Date().getFullYear();
   const currentAcademicYear = `${currentYear}-${currentYear + 1}`;
   const previousAcademicYear = `${currentYear - 1}-${currentYear}`;
