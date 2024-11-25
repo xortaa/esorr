@@ -26,7 +26,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
 
     console.log("logging annexa: ", annexA);
 
-    const annexE2 = await AnnexE2.findOne({ academicYear: annexA.academicYear, organizationId: params.organizationId });
+    const annexE2 = await AnnexE2.findOne({ academicYear: annexA.academicYear, organization: params.organizationId });
 
     const allInflows = [];
     for (const month of monthNames) {

@@ -455,7 +455,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
                 },
               ]}
             >
-              {annex.startingBalance}
+              {annex.startingBalance.toFixed(2)}
             </Text>
           </View>
 
