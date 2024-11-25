@@ -11,12 +11,17 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        module: false, // Add this for react-pdf
       };
     }
+    // Add these configurations for react-pdf
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
+
     return config;
   },
+  // Add transpilePackages for react-pdf
+  transpilePackages: ["@react-pdf/renderer"],
 };
 
 module.exports = nextConfig;
