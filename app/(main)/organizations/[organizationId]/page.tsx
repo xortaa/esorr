@@ -5,7 +5,6 @@ import PageWrapper from "@/components/PageWrapper";
 import { Printer, PlusCircle, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useParams, useRouter } from "next/navigation";
-import BackButton from "@/components/BackButton";
 import { useSession } from "next-auth/react";
 import { pdf } from "@react-pdf/renderer";
 import MyDocument from "@/components/AccredPDF";
@@ -250,7 +249,6 @@ export default function Component() {
 
   return (
     <PageWrapper>
-      <BackButton />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
         <div>
