@@ -651,10 +651,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
       </Text>
 
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image
-          src={annex.president?.signatureUrl || ""}
-          style={{ width: 200, height: 50, marginHorizontal: "auto" }}
-        />
+        <Image src={annex.president?.signatureUrl || ""} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.president?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>President</Text> {annex.organization.name}{" "}
@@ -1065,13 +1062,15 @@ function AnnexCard({
               Download PDF
             </button>
             {annex.pdf ? (
-              <button
-                className="btn btn-ghost btn-sm text-red-500"
-                onClick={() => handleRemoveArticlesOfAssociation(annex._id)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Remove PDF
-              </button>
+              session?.user?.role === "RSO" && (
+                <button
+                  className="btn btn-ghost btn-sm text-red-500"
+                  onClick={() => handleRemoveArticlesOfAssociation(annex._id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Remove PDF
+                </button>
+              )
             ) : (
               <div className="relative">
                 <input
