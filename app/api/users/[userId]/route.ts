@@ -34,11 +34,6 @@ export const PUT = async (req: NextRequest, { params }: { params: { userId: stri
     positions: [],
   };
 
-  const existingUser = await Users.findById(params.userId);
-  if (existingUser && existingUser.role !== role) {
-    updateData.isSetup = false;
-  }
-
   if (role === "RSO-SIGNATORY" && Array.isArray(positions)) {
     updateData.positions = positions.map((pos) => ({
       organization: pos.organization,
