@@ -259,9 +259,11 @@ export default function Component() {
           )}
         </div>
       </div>
-      <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
-        Organization Profile
-      </Link>
+      {(session?.user?.role === "RSO" || session?.user?.role === "OSA") && (
+        <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
+          Organization Profile
+        </Link>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
