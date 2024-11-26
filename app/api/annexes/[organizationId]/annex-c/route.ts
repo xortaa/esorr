@@ -6,7 +6,10 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexC = await AnnexC.find({ organization: params.organizationId });
+    const annexC = await AnnexC.find({ organization: params.organizationId }).populate({
+      path: "organization",
+      select: "name affiliation",
+    });
     return NextResponse.json(annexC, { status: 200 });
   } catch (error) {
     console.error(error);

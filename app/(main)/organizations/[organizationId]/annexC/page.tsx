@@ -5,7 +5,7 @@ import { FileText, Send, Download, PenTool, Plus, Upload, X } from "lucide-react
 import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Document, Page, Text, View, StyleSheet, Font, Image } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
@@ -184,11 +184,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const formatDateForInput = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toISOString().split("T")[0]; // This will return the date in "yyyy-MM-dd" format
-};
-
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -260,7 +255,7 @@ const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Ratification Date:</Text>
-            <Text style={styles.value}></Text>
+            <Text style={styles.value}>{new Date(annex.ratificationDate).toLocaleDateString()}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Ratification Venue:</Text>
@@ -288,7 +283,7 @@ const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
           <Text style={styles.listItemNumber}>2.</Text>
           <Text style={styles.listItemContent}>
             At the General Assembly of the Representatives of Recognized Student Organization duly held and convened on{" "}
-            {formatDate(annex.ratificationDate)} at {annex.ratificationVenue} which assembly a quorum was present and
+            {new Date(annex.ratificationDate).toLocaleDateString()} at {annex.ratificationVenue} which assembly a quorum was present and
             acted throughout, the General Assembly approved the proposed {annex.academicYear} {annex.organization.name}{" "}
             Article of Association by a majority vote of its members.
           </Text>
@@ -351,6 +346,8 @@ export default function AnnexCManager() {
   const [ratificationDate, setRatificationDate] = useState<string>("");
   const [ratificationVenue, setRatificationVenue] = useState<string>("");
   const [secretaryRatificationVenue, setSecretaryRatificationVenue] = useState<string>("");
+  const currentPath = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     fetchAnnexes();
@@ -366,6 +363,10 @@ export default function AnnexCManager() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const editAnnex = (id: string) => {
+    router.push(`${currentPath}/${id}`);
   };
 
   const generatePDFBlob = async (annex: AnnexC): Promise<Blob> => {
@@ -477,6 +478,7 @@ export default function AnnexCManager() {
             <AnnexCard
               key={annex._id}
               annex={annex}
+              editAnnex={editAnnex}
               generatePDF={generatePDF}
               onSubmit={handleSubmitAnnex}
               onUpdateRemarks={handleUpdateRemarks}
@@ -499,6 +501,7 @@ export default function AnnexCManager() {
 
 interface AnnexCardProps {
   annex: AnnexC;
+  editAnnex: (id: string) => void;
   generatePDF: (annex: AnnexC) => void;
   onSubmit: (annexId: string) => void;
   onUpdateRemarks: (annexId: string, type: "socc" | "osa", remarks: string) => void;
@@ -509,6 +512,7 @@ interface AnnexCardProps {
 
 function AnnexCard({
   annex,
+  editAnnex,
   generatePDF,
   onSubmit,
   onUpdateRemarks,
@@ -544,6 +548,15 @@ function AnnexCard({
             </h2>
           </div>
           <div className="flex items-center space-x-2">
+            {session?.user?.role === "RSO" && (
+              <button
+                className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
+                onClick={() => editAnnex(annex._id)}
+              >
+                <PenTool className="h-4 w-4 mr-2" />
+                Edit Ratification Details
+              </button>
+            )}
             <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF
