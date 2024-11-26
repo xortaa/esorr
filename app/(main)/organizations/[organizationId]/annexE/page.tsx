@@ -1547,8 +1547,8 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
           <Text style={{ fontFamily: "Arial Narrow Bold Italic", marginTop: 10 }}>
             <Text style={{ backgroundColor: "black", color: "white" }}>OUTGOING OFFICERS:</Text>
           </Text>
-          <View style={{ flexDirection: "column", marginTop: 20 }}>
-            <View style={{ width: "50%" }}>
+          <View style={{ flexDirection: "column" }}>
+            <View style={{ width: "50%", paddingTop: 30 }}>
               {annex.outgoingSecretary && (
                 <Image src={annex.outgoingSecretary.signatureUrl} style={{ width: 100, height: 50 }} />
               )}
@@ -1557,7 +1557,7 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
               </Text>
               <Text>{annex.outgoingSecretary && annex.outgoingSecretary.position}</Text>
             </View>
-            <View style={{ width: "50%" }}>
+            <View style={{ width: "50%", paddingTop: 30 }}>
               {annex.outgoingPresident && (
                 <Image src={annex.outgoingPresident.signatureUrl} style={{ width: 100, height: 50 }} />
               )}
@@ -1572,8 +1572,8 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
             <Text style={{ backgroundColor: "black", color: "white" }}>INCOMING OFFICERS:</Text>
           </Text>
 
-          <View style={{ flexDirection: "column", marginTop: 20 }}>
-            <View style={{ width: "50%" }}>
+          <View style={{ flexDirection: "column" }}>
+            <View style={{ width: "50%", paddingTop: 30 }}>
               {annex.incomingSecretary && (
                 <Image src={annex.incomingSecretary.signatureUrl} style={{ width: 100, height: 50 }} />
               )}
@@ -1582,7 +1582,7 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
               </Text>
               <Text>{annex.incomingSecretary && annex.incomingSecretary.position}</Text>
             </View>
-            <View style={{ width: "50%" }}>
+            <View style={{ width: "50%", paddingTop: 30 }}>
               {annex.incomingPresident && (
                 <Image src={annex.incomingPresident.signatureUrl} style={{ width: 100, height: 50 }} />
               )}
@@ -1597,7 +1597,7 @@ const MyDocument: React.FC<MyDocumentProps> = ({ annex }) => {
             <Text style={{ backgroundColor: "black", color: "white" }}> Certified by:</Text>
           </Text>
 
-          <View style={{ marginTop: 20 }}>
+          <View style={{ paddingTop: 30 }}>
             {annex.adviser && <Image src={annex.adviser.signatureUrl} style={{ width: 100, height: 50 }} />}
             <Text style={{ fontFamily: "Arial Narrow Bold", width: "50%", borderTop: 1 }}>
               {annex.adviser ? annex.adviser.name : "SIGNATURE OVER PRINTED NAME OF ADVISER"}
