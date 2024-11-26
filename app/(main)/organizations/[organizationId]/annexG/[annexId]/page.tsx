@@ -478,9 +478,9 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "officeAddress2", e.target.value)}
                   />
                 </div>
-                {/* <div className="form-control">
+                <div className="form-control">
                   <label className="label" htmlFor={`cv-${index}`}>
-                    <span className="label-text">Upload CV</span>
+                    <span className="label-text">Upload CV (.pdf only)</span>
                   </label>
                   {nominee.cv && typeof nominee.cv === "string" ? (
                     <div className="flex items-center space-x-4 p-4 bg-slate-100 rounded-lg">
@@ -542,80 +542,18 @@ export default function Component() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          handleInputChange(index, "cv", file);
+                          if (file.size <= 10 * 1024 * 1024) {
+                            handleInputChange(index, "cv", file);
+                          } else {
+                            alert("File size exceeds 10MB limit.");
+                          }
                         }
                       }}
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf"
                     />
                   )}
-                </div> */}
-                {/* <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Signature</span>
-                  </label>
-                  {nominee.signature ? (
-                    <div className="flex items-center space-x-4 p-4 bg-slate-100 rounded-lg">
-                      <img src={nominee.signature} alt="Signature" className="h-20" />
-                      <button
-                        type="button"
-                        className="btn btn-sm bg-red-100 text-red-800"
-                        onClick={() => deleteSignature(index)}
-                      >
-                        Delete Signature
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <SignatureCanvas
-                        ref={signatureRefs[index]}
-                        canvasProps={{
-                          className: "signature-canvas border border-gray-300 rounded-md",
-                          width: 500,
-                          height: 200,
-                        }}
-                      />
-                      <div className="flex space-x-2 mt-2">
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          onClick={() => saveSignature(index)}
-                        >
-                          Save Signature
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-ghost"
-                          onClick={() => {
-                            const signatureCanvas = signatureRefs[index].current;
-                            if (signatureCanvas) {
-                              signatureCanvas.clear();
-                            }
-                          }}
-                        >
-                          Clear
-                        </button>
-                      </div>
-                      <div className="mt-4">
-                        <label htmlFor={`signature-upload-${index}`} className="btn btn-outline">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Upload Signature
-                        </label>
-                        <input
-                          id={`signature-upload-${index}`}
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              uploadSignature(index, file);
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div> */}
+                </div>
+
                 <button
                   type="button"
                   className="btn btn-primary mt-4"
