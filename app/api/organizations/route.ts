@@ -11,7 +11,7 @@ export const GET = async (req: NextRequest) => {
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    if (token.role === "RSO") { 
+    if (token.role === "RSO") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
