@@ -7,9 +7,8 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Page, Text, View, Document, StyleSheet, pdf, Font } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, pdf, Font, Image } from "@react-pdf/renderer";
 import dynamic from "next/dynamic";
-
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -259,12 +258,12 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
 
   // Filter organizations for Petitioning New Organizations section
   const petitioningNewOrgs = organizations.filter((org) => org.academicYearOfLastRecognition === previousAcademicYear);
-
   return (
     <Document>
-      <Page style={styles.page} size="LEGAL" orientation="portrait">
+      <Page style={[styles.page, { fontFamily: "Times-Roman" }]} size="LEGAL" orientation="portrait">
         {/* Header */}
-        <View style={[styles.header, { textAlign: "center" }]}>
+        <Image src="/assets/UST.png" style={{ width: 75, height: 75, marginHorizontal: "auto" }} />
+        <View style={[styles.header, { textAlign: "center", fontFamily: "Times-Bold" }]}>
           <Text>UNIVERSITY OF SANTO TOMAS</Text>
           <Text>Office for Student Affairs</Text>
           <Text>Espana Boulevard, Manila</Text>
@@ -277,6 +276,7 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
               fontSize: 12,
               fontWeight: "bold",
               textAlign: "left",
+              fontFamily: "Times-Bold",
             }}
           >
             IN THE MATTER OF ACCREDITATION{"\n"}
@@ -287,7 +287,7 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
           </Text>
         </View>
 
-        <View style={styles.section}>
+        <View style={[styles.section, { fontFamily: "Times-Bold" }]}>
           <Text style={{ textAlign: "center", textDecoration: "underline" }}>
             Accreditation Control Number{"\n"}
             Inaugural Effectivity: last AY 2019-2020
@@ -295,55 +295,67 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
           <Text style={{ textAlign: "left" }}>Legend:</Text>
         </View>
 
-        <View style={styles.tablelegend}>
+        <View style={[styles.tablelegend, { marginHorizontal: "auto" }]}>
           {/* Row 1 */}
           <View style={styles.tableRow}>
             {/* Column 1 */}
             <Text style={[styles.tableCell, { flex: 0.5 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>RSO-A-24-25-01</Text>
+              <Text style={{ fontSize: 11, textAlign: "left" }}>
+                <Text style={{ fontFamily: "Times-Bold" }}>RSO</Text>-A-24-25-01
+              </Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>RSO stands for Recognized Student Organization</Text>
+              <Text style={{ fontSize: 11, textAlign: "left" }}>
+                RSO stands for <Text style={{ fontFamily: "Times-Bold" }}>R</Text>ecognized{" "}
+                <Text style={{ fontFamily: "Times-Bold" }}>S</Text>tudent{" "}
+                <Text style={{ fontFamily: "Times-Bold" }}>O</Text>rganization
+              </Text>
             </Text>
           </View>
 
           {/* Row 2 */}
           <View style={styles.tableRow}>
             {/* Column 1 */}
-            <Text style={[styles.tableCell, { flex: 0.5 }]}>
+            <View style={[styles.tableCell, { flex: 0.5 }]}>
               <Text style={{ fontSize: 11, textAlign: "left" }}>
-                RSO-A-24-25-01{"\n"}
-                RSO-B-24-25-01{"\n"}
-                RSO-C-24-25-01
+                RSO-<Text style={{ fontFamily: "Times-Bold" }}>A</Text>-24-25-01{"\n"}
+                RSO-<Text style={{ fontFamily: "Times-Bold" }}>B</Text>-24-25-01{"\n"}
+                RSO-<Text style={{ fontFamily: "Times-Bold" }}>C</Text>-24-25-01
               </Text>
-            </Text>
+            </View>
 
             {/* Column 2 */}
-            <Text style={[styles.tableCell, {}]}>
+            <View style={[styles.tableCell, {}]}>
               <Text style={{ fontSize: 11, textAlign: "left" }}>
                 A, B, C, D refers to the Accreditation Status of the Student{"\n"}
                 Organization described in this Resolution{"\n"}
+              </Text>
+              <Text style={{ fontSize: 11, textAlign: "left", paddingLeft: 10 }}>
                 A- Full Accreditation for 3 years{"\n"}
                 B- Full Accreditation for 2 years{"\n"}
                 C- Full Accreditation for 1 year (Probationary)
               </Text>
-            </Text>
+            </View>
           </View>
 
           {/* Row 3 */}
           <View style={styles.tableRow}>
             {/* Column 1 */}
             <Text style={[styles.tableCell, { flex: 0.5 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>RSO-A-24-25-01{"\n"}</Text>
+              <Text style={{ fontSize: 11, textAlign: "left" }}>
+                RSO-A-<Text style={{ fontFamily: "Times-Bold" }}>24-25</Text>-01{"\n"}
+              </Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={[styles.tableCell, {}]}>
               <Text style={{ fontSize: 11, textAlign: "left" }}>
-                24-25 indicates the coverage academic year of recognition{"\n"}
-                i.e. Academic Year 2024-2025
+                <Text style={{ fontFamily: "Times-Bold" }}>24-25</Text> indicates the coverage academic year of
+                recognition{"\n"}
+                i.e. Academic Year 20<Text style={{ fontFamily: "Times-Bold" }}>24</Text>-20
+                <Text style={{ fontFamily: "Times-Bold" }}>25</Text>
               </Text>
             </Text>
           </View>
@@ -352,34 +364,37 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
           <View style={styles.tableRow}>
             {/* Column 1 */}
             <Text style={[styles.tableCell, { flex: 0.5 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>RSO-A-24-25-01{"\n"}</Text>
+              <Text style={{ fontSize: 11, textAlign: "left" }}>
+                RSO-A-24-25-<Text style={{ fontFamily: "Times-Bold" }}>01</Text>
+                {"\n"}
+              </Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>
-                01 refers to the identification number (ID number) of the student {"\n"}
-                organization who submitted the documentary requirements for {"\n"}
-                recognition for this AY 2024-2025
+              <Text style={{ fontSize: 11, textAlign: "justify" }}>
+                <Text style={{ fontFamily: "Times-Bold" }}>01</Text> refers to the identification number (ID number) of
+                the student organization who submitted the documentary requirements for recognition for this AY
+                2024-2025
               </Text>
             </Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={{ textAlign: "center", textDecoration: "underline" }}>
-            RESOLUTION{"\n"}
+          <Text style={{ textAlign: "center", fontFamily: "Times-Bold" }}>
+            <Text style={{ fontSize: 20 }}>RESOLUTION</Text>
+            {"\n"}
             (as of 30 September 2024){"\n"}
             {"\n"}
           </Text>
           <Text style={{ textAlign: "justify" }}>
-            Before this Office are petitions filed by thirty-one (31) University-wide Organization (USO){"\n"}
-            and one hundred and twenty-four (124) College-based Student Organizations (CBO){"\n"}
-            requesting that they be granted recognition pursuant to the provisions of the Rules and{"\n"}
-            Procedures for Recognition of Student Organizations issued by this Office. After considering all{"\n"}
-            the documents submitted and their active participation in the 2024 Student Organizations’{"\n"}
-            Coordinating Council’s Leadership Training Seminar, this Office determined the following{"\n"}
-            Accreditation Status:
+            Before this Office are petitions filed by thirty-one (31) University-wide Organization (USO)and one hundred
+            and twenty-four (124) College-based Student Organizations (CBO) requesting that they be granted recognition
+            pursuant to the provisions of the Rules and Procedures for Recognition of Student Organizations issued by
+            this Office. After considering all the documents submitted and their active participation in the 2024
+            Student Organizations’ Coordinating Council’s Leadership Training Seminar, this Office determined the
+            following Accreditation Status:
           </Text>
         </View>
 
@@ -388,150 +403,304 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
           <View style={styles.tableRow}>
             {/* Column 1 */}
             <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>ACCREDITATION STATUS</Text>
+              <Text style={{ fontSize: 11, textAlign: "center", fontFamily: "Times-Bold" }}>ACCREDITATION STATUS</Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>DESCRIPTION</Text>
+              <Text style={{ fontSize: 11, textAlign: "center", fontFamily: "Times-Bold" }}>DESCRIPTION</Text>
             </Text>
           </View>
 
           {/* Row 2 */}
-          <View style={styles.tableRow}>
+          <View style={[styles.tableRow, { fontSize: 9 }]}>
             {/* Column 1 */}
-            <Text style={[styles.tableCell, { flex: 0.2 }]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>A</Text>
-            </Text>
+            <View style={[styles.tableCell, { flex: 0.2 }]}>
+              <Text style={{ fontSize: 11, textAlign: "center", fontFamily: "Times-Bold" }}>A</Text>
+            </View>
 
             {/* Column 2 */}
-            <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>
-                Full Accreditation for 3{"\n"}
-                years
+            <View style={[styles.tableCell, {}]}>
+              <Text style={{ fontSize: 11, textAlign: "left", fontFamily: "Times-Bold" }}>
+                Full Accreditation for 3 years
               </Text>
-            </Text>
+            </View>
 
-            <Text style={[styles.tableCell, { flex: 1.275 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>
-                Student organizations that complied with the Rules{"\n"}
-                and Procedures for Recognition of Student{"\n"}
-                Organizations. They need to accomplish activities{"\n"}
-                (OSG-approved), including but not limited to:{"\n"}
-                {"\n"}● 1 General Assembly (during the 1st Term - OSG C189){"\n"}● 1 Year-end Assembly and Report{"\n"}●
-                2 Major Activities as main organizers{"\n"}● 1 Community Service (complete phases){"\n"}● Proof of
-                Participation during the recruitment{"\n"}
-                period{"\n"}● Active Involvement in OSA-initiated or{"\n"}
-                University-wide activities{"\n"}
-                The organization will be granted 3 years of full{"\n"}
-                accreditation, provided that they will need to submit a{"\n"}
-                Financial Liquidation Report for every activity, a{"\n"}
-                Summary of Receipts and Disbursements (Annex{"\n"}
-                E-1/E-2), and an Activities’ Monitoring Form (Annex{"\n"}
-                F) at the end of the academic year. This will be closely{"\n"}
-                monitored and administered by the following offices:{"\n"}
-                1. for University-wide Organizations - Office for{"\n"}
-                Student Affairs{"\n"}
-                2. for College-based Organizations - Office of the{"\n"}
-                Dean{"\n"}
-                3. for Student Religious Organizations which are{"\n"}
-                College-based - Dean’s office in coordination{"\n"}
-                with Center for Campus Ministry{"\n"}
-                4. for Student Religious Organizations which are{"\n"}
-                University-wide Organizations - Center for{"\n"}
-                Campus Ministry for submission to OSA{"\n"}
+            <View style={[styles.tableCell, { flex: 1.275, textAlign: "justify" }]}>
+              <Text style={{ fontSize: 11 }}>
+                Student organizations that complied with the Rules and Procedures for Recognition of Student
+                Organizations. They need to accomplish activities (OSG-approved), including but not limited to:
               </Text>
-            </Text>
+              {"\n"}
+              <View style={{ paddingLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    1 General Assembly{" "}
+                    <Text style={{ fontFamily: "Times-BoldItalic", fontSize: 8 }}>
+                      (during the 1st Term - OSG C189)
+                    </Text>{" "}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Year-end Assembly and Report</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>2 Major Activities as main organizers</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Community Service (complete phases)</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>Proof of Participation during the recruitment period</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    Active Involvement in OSA-initiated or University-wide activities
+                  </Text>
+                </View>
+              </View>
+              <Text>
+                {"\n"}
+                The organization will be granted 3 years of full accreditation, provided that they will need to submit a
+                Financial Liquidation Report for every activity, a Summary of Receipts and Disbursements (Annex
+                E-1/E-2), and an Activities’ Monitoring Form (Annex F) at the end of the academic year. This will be
+                closely monitored and administered by the following offices:
+              </Text>
+              <View style={{ marginLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row", marginRight: 2 }}>
+                  <Text>1.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for University-wide Organizations - {"\n"}Office for Student Affairs
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>2.</Text>
+                  <Text style={{ paddingLeft: 7 }}>for College-based Organizations - {"\n"}Office of the Dean</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>3.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are College-based - {"\n"}Dean’s office in coordination
+                    with Center for Campus Ministry
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>4.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are University-wide Organizations - {"\n"}Center for
+                    Campus Ministry for submission to OSA
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           {/* Row 3 */}
           <View style={styles.tableRow}>
             {/* Column 1 */}
-            <Text style={[styles.tableCell, { flex: 0.2 }]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>B</Text>
-            </Text>
+            <View style={[styles.tableCell, { flex: 0.2 }]}>
+              <Text style={{ fontSize: 11, textAlign: "center", fontFamily: "Times-Bold" }}>B</Text>
+            </View>
 
             {/* Column 2 */}
-            <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>
-                Full Accreditation for 2{"\n"}
-                years
+            <View style={[styles.tableCell, {}]}>
+              <Text style={{ fontSize: 11, textAlign: "left", fontFamily: "Times-Bold" }}>
+                Full Accreditation for 2 years
               </Text>
-            </Text>
+            </View>
 
-            <Text style={[styles.tableCell, { flex: 1.275 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>
-                Student organizations that complied with the Rules{"\n"}
-                and Procedures for Recognition of Student{"\n"}
-                Organizations for AY 2024-2025 but failed to comply{"\n"}
-                and conduct required activities based on e-ReSERVe.{"\n"}
-                They need to accomplish activities (OSG-approved),{"\n"}
-                including but not limited to:{"\n"}● 1 General Assembly (during the 1st Term - OSG C189){"\n"}● 1
-                Year-end Assembly and Report{"\n"}● 3 Major Activities as main organizers{"\n"}● 1 Community Service
-                (complete phases){"\n"}● Proof of Participation during the recruitment{"\n"}
-                period{"\n"}● Active Involvement in OSA-initiated or{"\n"}
-                University-wide activities{"\n"}
-                The organization will be granted 2 years of full{"\n"}
-                accreditation, provided that they will need to submit a{"\n"}
-                Financial Liquidation Report for every activity, a{"\n"}
-                Summary of Receipts and Disbursements (Annex {"\n"}
-                E-1/E-2), and an Activities’ Monitoring Form (Annex{"\n"}
-                F) at the end of the academic year. This will be closely{"\n"}
-                monitored and administered by the following offices:{"\n"}
-                1. for University-wide Organizations - Office for{"\n"}
-                Student Affairs{"\n"}
-                2. for College-based Organizations - Office of the{"\n"}
-                Dean{"\n"}
-                3. for Student Religious Organizations which are{"\n"}
-                College-Based - Dean’s office in coordination{"\n"}
-                with Center for Campus Ministry{"\n"}
-                4. for Student Religious Organizations which are{"\n"}
-                University-wide Organizations - Center for{"\n"}
-                Campus Ministry for submission to OSA
+            <View style={[styles.tableCell, { flex: 1.275, textAlign: "justify" }]}>
+              <Text style={{ fontSize: 11 }}>
+                Student organizations that complied with the Rules and Procedures for Recognition of Student
+                Organizations. They need to accomplish activities (OSG-approved), including but not limited to:
               </Text>
-            </Text>
+              {"\n"}
+              <View style={{ paddingLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    1 General Assembly{" "}
+                    <Text style={{ fontFamily: "Times-BoldItalic", fontSize: 8 }}>
+                      (during the 1st Term - OSG C189)
+                    </Text>{" "}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Year-end Assembly and Report</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>3 Major Activities as main organizers</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Community Service (complete phases)</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>Proof of Participation during the recruitment period</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    Active Involvement in OSA-initiated or University-wide activities
+                  </Text>
+                </View>
+              </View>
+              <Text>
+                {"\n"}
+                The organization will be granted 3 years of full accreditation, provided that they will need to submit a
+                Financial Liquidation Report for every activity, a Summary of Receipts and Disbursements (Annex
+                E-1/E-2), and an Activities’ Monitoring Form (Annex F) at the end of the academic year. This will be
+                closely monitored and administered by the following offices:
+              </Text>
+              <View style={{ marginLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row", marginRight: 2 }}>
+                  <Text>1.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for University-wide Organizations - {"\n"}Office for Student Affairs
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>2.</Text>
+                  <Text style={{ paddingLeft: 7 }}>for College-based Organizations - {"\n"}Office of the Dean</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>3.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are College-based - {"\n"}Dean’s office in coordination
+                    with Center for Campus Ministry
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>4.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are University-wide Organizations - {"\n"}Center for
+                    Campus Ministry for submission to OSA
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           {/* Row 4 */}
           <View style={styles.tableRow}>
             {/* Column 1 */}
             <Text style={[styles.tableCell, { flex: 0.2 }]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>C</Text>
+              <Text style={{ fontSize: 11, textAlign: "center", fontFamily: "Times-Bold" }}>C</Text>
             </Text>
 
             {/* Column 2 */}
             <Text style={[styles.tableCell, {}]}>
-              <Text style={{ fontSize: 11, textAlign: "center" }}>
-                Full Accreditation {"\n"}
-                For 1 year (Probationary)
+              <Text style={{ fontSize: 11, textAlign: "left", fontFamily: "Times-Bold" }}>
+                Full Accreditation For 1 year {"\n"} (Probationary)
               </Text>
             </Text>
 
-            <Text style={[styles.tableCell, { flex: 1.275 }]}>
-              <Text style={{ fontSize: 11, textAlign: "left" }}>
-                This applies to the following:{"\n"}● Returning Student Organization(s) whose{"\n"}
-                status was/were suspended/denied and/or{"\n"}
-                remained inactive for 1 to 4 years.{"\n"}● New Student Organizations that successfully{"\n"}
-                passed the preliminary screening and{"\n"}
-                evaluation of its Articles of Association{"\n"}
-                conducted by the OSA Panel of{"\n"}
-                Coordinators/Evaluators.{"\n"}● Student Organizations who failed to{"\n"}
-                accomplish all required activities.{"\n"}
-                Student organizations that complied with the Rules{"\n"}
-                and Procedures for Recognition of Student{"\n"}
-                Organizations for AY 2024-2025. They need to strictly{"\n"}
-                accomplish activities (OSG-approved), including but{"\n"}
-                not limited to:{"\n"}● 1 General Assembly (during the 1st Term - OSG C189){"\n"}● 1 Year-end Assembly
-                and Report{"\n"}● 2 Major Activities as main organizers{"\n"}● 1 Community Service (complete phases)
-                {"\n"}● Proof of Participation during the recruitment{"\n"}
-                period{"\n"}● Active Involvement in OSA-initiated or{"\n"}
-                University-wide activities{"\n"}
-                For Academic Year 2024-2025 only, organizations{"\n"}
-                who were not able to fully comply with all the{"\n"}
-                required activity during the AY 2023-2024, are to be{"\n"}
-                monitored and put under PROBATIONARY period for{"\n"}a maximum of two (2) academic years.{"\n"}
+            <View style={[styles.tableCell, { flex: 1.275, textAlign: "justify" }]}>
+              <Text style={{ fontSize: 11 }}>This applies to the following:</Text>
+              <View style={{ paddingLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    Returning Student Organization(s) whose status was/were suspended/denied and/or remained inactive
+                    for 1 to 4 years.
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    New Student Organizations that successfully passed the preliminary screening and evaluation of its
+                    Articles of Association conducted by the OSA Panel of Coordinators/Evaluators
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    Student Organizations who failed to accomplish all required activities.
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={{ fontSize: 11 }}>
+                Student organizations that complied with the Rules and Procedures for Recognition of Student
+                Organizations. They need to accomplish activities (OSG-approved), including but not limited to:
               </Text>
-            </Text>
+              {"\n"}
+              <View style={{ paddingLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    1 General Assembly{" "}
+                    <Text style={{ fontFamily: "Times-BoldItalic", fontSize: 8 }}>
+                      (during the 1st Term - OSG C189)
+                    </Text>{" "}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Year-end Assembly and Report</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>2 Major Activities as main organizers</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>1 Community Service (complete phases)</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>Proof of Participation during the recruitment period</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>•</Text>
+                  <Text style={{ paddingLeft: 10 }}>
+                    Active Involvement in OSA-initiated or University-wide activities
+                  </Text>
+                </View>
+              </View>
+              <Text>
+                {"\n"}
+                The organization will be granted 3 years of full accreditation, provided that they will need to submit a
+                Financial Liquidation Report for every activity, a Summary of Receipts and Disbursements (Annex
+                E-1/E-2), and an Activities’ Monitoring Form (Annex F) at the end of the academic year. This will be
+                closely monitored and administered by the following offices:
+              </Text>
+              <View style={{ marginLeft: 10, width: "90%", paddingTop: 10 }}>
+                <View style={{ flexDirection: "row", marginRight: 2 }}>
+                  <Text>1.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for University-wide Organizations - {"\n"}Office for Student Affairs
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>2.</Text>
+                  <Text style={{ paddingLeft: 7 }}>for College-based Organizations - {"\n"}Office of the Dean</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>3.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are College-based - {"\n"}Dean’s office in coordination
+                    with Center for Campus Ministry
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text>4.</Text>
+                  <Text style={{ paddingLeft: 7 }}>
+                    for Student Religious Organizations which are University-wide Organizations - {"\n"}Center for
+                    Campus Ministry for submission to OSA
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           <View style={styles.tableRow}>
@@ -549,23 +718,24 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
               <Text style={{ fontSize: 11, textAlign: "left" }}>
                 Student Organizations that have either:{"\n"}
                 {"\n"}
-                [#1] FAILED to attend the Office for Student Affairs’{"\n"}
+                <Text style={{ fontFamily: "Times-Bold" }}>[#1] FAILED</Text> to attend the Office for Student Affairs’
+                {"\n"}
                 initiated activities as required by the Rules and{"\n"}
                 Procedures for Recognition of Student Organizations{"\n"}
                 for AY 2024-2025.{"\n"}
                 {"\n"}
-                [#2] FAILED to send representatives to the{"\n"}
+                <Text style={{ fontFamily: "Times-Bold" }}>[#2] FAILED</Text> to send representatives to the{"\n"}
                 Leadership Training Seminar (LTS) as required by the{"\n"}
                 Rules and Procedures for Recognition of Student{"\n"}
                 Organizations for AY 2024-2025.{"\n"}
                 {"\n"}
-                [#3] FAILED to file the complete sets of documents.
+                <Text style={{ fontFamily: "Times-Bold" }}>[#3] FAILED </Text>to file the complete sets of documents.
               </Text>
             </Text>
           </View>
         </View>
 
-        <View style={styles.tablelist}>
+        <View break style={styles.tablelist}>
           {renderAffiliationSection("University Wide Organizations", "University Wide")}
           {renderAffiliationSection("AMV - College of Accountancy", "College of Accountancy (ACCT)")}
           {renderAffiliationSection("Architecture", "College of Architecture (ARCHI)")}
@@ -620,21 +790,31 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
             style={{
               fontSize: 12,
               fontWeight: "bold",
-              textAlign: "left",
+              textAlign: "justify",
             }}
           >
-            WHEREFORE, the petition for recognition of eight (8) student organizations listed under Group A, pursuant to
-            the provisions of the Rules and Procedures for Recognition of Student Organizations, is hereby granted FULL
-            ACCREDITATION for 3 years. The petition for recognition of one hundred twenty-six (126) student
-            organizations listed under Group B is hereby granted FULL ACCREDITATION for 2 years; the petition for
-            recognition of twenty-one (21) student organizations listed under Group C is hereby granted Probationary for
-            1 year. {"\n"}
-            WHEREFORE, the petitioning New Organizations listed under Group C is hereby granted Probationary for 1 year.
+            WHEREFORE, the petition for recognition of<Text style={{ fontFamily: "Times-Bold" }}> eight (8)</Text>{" "}
+            student organizations listed under <Text style={{ fontFamily: "Times-Bold" }}>Group A</Text>, pursuant to
+            the provisions of the Rules and Procedures for Recognition of Student Organizations, is hereby granted{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>FULL ACCREDITATION for 3 years</Text>. The petition for
+            recognition of one hundred twenty-six (126) student organizations listed under{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>Group B</Text> is hereby granted{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>FULL ACCREDITATION for 2 years</Text>; the petition for
+            recognition of twenty-one (21) student organizations listed under Group C is hereby granted{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>Probationary for 1 year</Text>
+            {"\n"}
+            {"\n"}
+            WHEREFORE, the petitioning New Organizations listed under{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>Group C</Text> is hereby granted{" "}
+            <Text style={{ fontFamily: "Times-Bold" }}>Probationary for 1 year</Text>
+            {"\n"}
             {"\n"}
             WHEREFORE, all recognized student organizations, pursuant to the provisions in the Rules and Procedures for
             Recognition of Student Organizations, must comply with the Implementing Rules and Regulations for
             Accreditation status of the Office for Student Affairs (Annex A).{"\n"}
+            {"\n"}
             So Ordered.{"\n"}
+            {"\n"}
             30 September 2024
           </Text>
         </View>
@@ -682,7 +862,6 @@ const Footer = () => (
     <Text>RESOLUTION ver. 01</Text>
   </View>
 );
-
 
 export default function OrganizationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
