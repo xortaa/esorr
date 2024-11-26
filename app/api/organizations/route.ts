@@ -17,6 +17,10 @@ export const GET = async (req: NextRequest) => {
 
     let query = {};
 
+    if (token.role === "AU") {
+      query = { affiliation: token.affiliation };
+    }
+
     const organizations = await Organizations.find(query).populate(
       "annex01 annex02 annexA annexA1 annexB annexC annexC1 annexD annexE annexE1 annexF annexG annexH annexI annexJ annexK annexL"
     );

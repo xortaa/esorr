@@ -6,11 +6,6 @@ import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
-interface Organization {
-  _id: string;
-  name: string;
-}
-
 interface Account {
   _id: string;
   email: string;
@@ -19,77 +14,9 @@ interface Account {
   isArchived: boolean;
 }
 
-interface OrganizationSearchProps {
-  onSelect: (organization: Organization) => void;
-  initialValue?: string;
-}
-
-function OrganizationSearch({ onSelect, initialValue = "" }: OrganizationSearchProps) {
-  const [searchTerm, setSearchTerm] = useState(initialValue);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      try {
-        const response = await axios.get("/api/organizations");
-        if (response.status === 200) {
-          setOrganizations(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching organizations:", error);
-      }
-    };
-
-    fetchOrganizations();
-  }, []);
-
-  const filteredOrganizations = organizations.filter((org) =>
-    org.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setIsDropdownOpen(true);
-  };
-
-  const handleSelectOrganization = (organization: Organization) => {
-    onSelect(organization);
-    setSearchTerm(organization.name);
-    setIsDropdownOpen(false);
-  };
-
-  return (
-    <div className="relative">
-      <div className="relative">
-        <input
-          type="text"
-          className="input input-bordered w-full pr-10"
-          placeholder="Search for organization..."
-          value={searchTerm}
-          onChange={handleInputChange}
-          onFocus={() => setIsDropdownOpen(true)}
-          onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
-        </div>
-      </div>
-      {isDropdownOpen && filteredOrganizations.length > 0 && (
-        <ul className="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-          {filteredOrganizations.map((org) => (
-            <li
-              key={org._id}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleSelectOrganization(org)}
-            >
-              {org.name}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+interface Affiliation {
+  id: string;
+  name: string;
 }
 
 export default function AccountsDashboard() {
@@ -104,13 +31,19 @@ export default function AccountsDashboard() {
   const [newAccount, setNewAccount] = useState({
     email: "",
     role: "",
-    organization: "",
+    affiliation: "",
     isArchived: false,
   });
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
+  const [affiliations, setAffiliations] = useState<Affiliation[]>([]);
+  const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
+  const [isAffiliationDropdownOpen, setIsAffiliationDropdownOpen] = useState(false);
+  const [editAffiliationSearchTerm, setEditAffiliationSearchTerm] = useState("");
+  const [isEditAffiliationDropdownOpen, setIsEditAffiliationDropdownOpen] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
+    fetchAffiliations();
   }, [showArchived]);
 
   const fetchAccounts = async () => {
@@ -128,6 +61,17 @@ export default function AccountsDashboard() {
     }
   };
 
+  const fetchAffiliations = async () => {
+    try {
+      const response = await axios.get("/api/affiliations");
+      if (response.status === 200) {
+        setAffiliations(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching affiliations:", error);
+    }
+  };
+
   const filteredAccounts = useMemo(() => {
     return accounts.filter(
       (account) =>
@@ -136,8 +80,29 @@ export default function AccountsDashboard() {
     );
   }, [accounts, accountSearchTerm, filterRole]);
 
+  const filteredAffiliations = useMemo(() => {
+    return affiliations.filter((affiliation) =>
+      affiliation.name.toLowerCase().includes(affiliationSearchTerm.toLowerCase())
+    );
+  }, [affiliations, affiliationSearchTerm]);
+
   const isCreateButtonDisabled = () => {
     if (!newAccount.email || !newAccount.role) return true;
+    if (newAccount.role === "AU" && !newAccount.affiliation) return true;
+    return false;
+  };
+
+  const handleAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAffiliationSearchTerm(value);
+    setNewAccount((prev) => ({ ...prev, affiliation: value }));
+    setIsAffiliationDropdownOpen(true);
+  };
+
+  const handleSelectAffiliation = (affiliation: Affiliation) => {
+    setNewAccount((prev) => ({ ...prev, affiliation: affiliation.name }));
+    setAffiliationSearchTerm(affiliation.name);
+    setIsAffiliationDropdownOpen(false);
   };
 
   const handleArchiveAccount = async (accountId: string) => {
@@ -173,6 +138,10 @@ export default function AccountsDashboard() {
         requestedBy: session?.user?.email,
       };
 
+      if (newAccount.role === "AU") {
+        accountData.affiliation = newAccount.affiliation;
+      }
+
       const response = await axios.post("/api/users", accountData);
       if (response.status === 201) {
         const newAccountData = response.data;
@@ -180,7 +149,7 @@ export default function AccountsDashboard() {
         setNewAccount({
           email: "",
           role: "",
-          organization: "",
+          affiliation: "",
           isArchived: false,
         });
         setIsCreatingAccount(false);
@@ -218,7 +187,7 @@ export default function AccountsDashboard() {
     setNewAccount({
       email: "",
       role: "",
-      organization: "",
+      affiliation: "",
       isArchived: false,
     });
   };
@@ -232,6 +201,25 @@ export default function AccountsDashboard() {
     const date = new Date(dateString);
     return date.toLocaleString();
   };
+
+  const handleEditAffiliationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEditAffiliationSearchTerm(value);
+    setEditingAccount((prev) => (prev ? { ...prev, affiliation: value } : null));
+    setIsEditAffiliationDropdownOpen(true);
+  };
+
+  const handleSelectEditAffiliation = (affiliation: Affiliation) => {
+    setEditingAccount((prev) => (prev ? { ...prev, affiliation: affiliation.name } : null));
+    setEditAffiliationSearchTerm(affiliation.name);
+    setIsEditAffiliationDropdownOpen(false);
+  };
+
+  const filteredEditAffiliations = useMemo(() => {
+    return affiliations.filter((affiliation) =>
+      affiliation.name.toLowerCase().includes(editAffiliationSearchTerm.toLowerCase())
+    );
+  }, [affiliations, editAffiliationSearchTerm]);
 
   return (
     <PageWrapper>
@@ -364,6 +352,49 @@ export default function AccountsDashboard() {
                   <option value="RSO">RSO</option>
                 </select>
               </div>
+              {newAccount.role === "AU" && (
+                <div>
+                  <label className="label">
+                    <span className="label-text text-gray-700">Affiliation</span>
+                  </label>
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      className="input input-bordered w-full pr-10"
+                      placeholder="Search for affiliation..."
+                      value={affiliationSearchTerm}
+                      onChange={handleAffiliationInputChange}
+                      onFocus={() => setIsAffiliationDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsAffiliationDropdownOpen(false), 200)}
+                    />
+                    {affiliationSearchTerm && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => {
+                          setAffiliationSearchTerm("");
+                          setNewAccount((prev) => ({ ...prev, affiliation: "" }));
+                        }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    {isAffiliationDropdownOpen && filteredAffiliations.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {filteredAffiliations.map((affiliation) => (
+                          <li
+                            key={affiliation.id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectAffiliation(affiliation)}
+                          >
+                            {affiliation.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelCreateAccount}>
                   Cancel
@@ -410,17 +441,49 @@ export default function AccountsDashboard() {
                   <option value="RSO">RSO</option>
                 </select>
               </div>
-              <div>
-                <label className="label">
-                  <span className="label-text text-gray-700">Affiliation</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full"
-                  value={editingAccount.affiliation || ""}
-                  onChange={(e) => setEditingAccount({ ...editingAccount, affiliation: e.target.value })}
-                />
-              </div>
+              {editingAccount.role === "AU" && (
+                <div>
+                  <label className="label">
+                    <span className="label-text text-gray-700">Affiliation</span>
+                  </label>
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      className="input input-bordered w-full pr-10"
+                      placeholder="Search for affiliation..."
+                      value={editAffiliationSearchTerm}
+                      onChange={handleEditAffiliationInputChange}
+                      onFocus={() => setIsEditAffiliationDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsEditAffiliationDropdownOpen(false), 200)}
+                    />
+                    {editAffiliationSearchTerm && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-circle absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => {
+                          setEditAffiliationSearchTerm("");
+                          setEditingAccount((prev) => (prev ? { ...prev, affiliation: "" } : null));
+                        }}
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    {isEditAffiliationDropdownOpen && filteredEditAffiliations.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {filteredEditAffiliations.map((affiliation) => (
+                          <li
+                            key={affiliation.id}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleSelectEditAffiliation(affiliation)}
+                          >
+                            {affiliation.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end space-x-2">
                 <button type="button" className="btn" onClick={handleCancelEditAccount}>
                   Cancel

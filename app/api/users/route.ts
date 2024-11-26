@@ -25,6 +25,7 @@ export const POST = async (req: NextRequest) => {
       role: userInput.role,
       isArchived: false,
       isSetup: false,
+      affiliation: userInput.affiliation,
     };
 
     const user = await Users.create(userData);
