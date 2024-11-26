@@ -78,11 +78,19 @@ const Navbar = () => {
                   </li>
                 </>
               )}
-              <li>
-                <Link href="/organizations" className="hover:text-primary">
-                  Organizations
-                </Link>
-              </li>
+              {session?.user?.role === "RSO" ? (
+                session?.user?.organization ? (
+                  <li>
+                    <Link href={`/organizations/${session?.user?.organization}`}>Annexes</Link>
+                  </li>
+                ) : null
+              ) : (
+                <li>
+                  <Link href="/organizations" className="hover:text-primary">
+                    Organizations
+                  </Link>
+                </li>
+              )}
             </ul>
           )}
         </div>
@@ -98,11 +106,19 @@ const Navbar = () => {
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
-          <li>
-            <Link href="/organizations" className="hover:text-primary">
-              Organizations
-            </Link>
-          </li>
+          {session?.user?.role === "RSO" ? (
+            session?.user?.organization ? (
+              <li>
+                <Link href={`/organizations/${session?.user?.organization}`}>Annexes</Link>
+              </li>
+            ) : null
+          ) : (
+            <li>
+              <Link href="/organizations" className="hover:text-primary">
+                Organizations
+              </Link>
+            </li>
+          )}
 
           {session?.user?.role === "OSA" && (
             <>
