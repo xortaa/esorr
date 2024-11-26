@@ -258,15 +258,22 @@ export default function AnnexE3Form() {
                               </p>
                             </div>
                             <div className="space-y-2">
-                              <input
-                                type="number"
-                                min="0"
-                                max="5"
-                                value={assessmentData[category]?.[subKey]?.rating || ""}
-                                onChange={(e) => handleInputChange(subItem.id, "rating", e.target.value)}
-                                className="input input-bordered w-full"
-                                placeholder="Rating"
-                              />
+                              <label className="font-medium text-sm">Rating:</label>
+                              <div className="flex flex-wrap gap-2">
+                                {[0, 1, 2, 3, 4, 5].map((rating) => (
+                                  <label key={rating} className="flex items-center space-x-2">
+                                    <input
+                                      type="radio"
+                                      name={`rating-${subItem.id}`}
+                                      value={rating}
+                                      checked={assessmentData[category]?.[subKey]?.rating === rating}
+                                      onChange={(e) => handleInputChange(subItem.id, "rating", e.target.value)}
+                                      className="radio radio-primary"
+                                    />
+                                    <span>{rating}</span>
+                                  </label>
+                                ))}
+                              </div>
                               <textarea
                                 value={assessmentData[category]?.[subKey]?.comment || ""}
                                 onChange={(e) => handleInputChange(subItem.id, "comment", e.target.value)}
