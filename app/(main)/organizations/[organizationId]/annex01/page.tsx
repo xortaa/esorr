@@ -243,7 +243,6 @@ const EmphasizedText = ({ children }) => <Text style={{ fontFamily: "Arial Narro
 
 const SignatureSection = ({ printedName, dateSigned, title, signatureImage }) => (
   <View style={styles.signatureSection}>
-    {signatureImage && <Image src={signatureImage} style={styles.signatureImage} />}
     <View style={styles.signatureDetails}>
       <Text style={{ fontFamily: "Arial Narrow Bold", textDecoration: "underline" }}>{printedName}</Text>
       <Text style={{}}>{dateSigned}</Text>

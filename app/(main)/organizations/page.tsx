@@ -864,8 +864,11 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
 
 const Footer = () => (
   <View fixed style={styles.footer}>
-    <Text>Page PAGENUM of TOTALNUM</Text>
-    <Text>RESOLUTION ver. 01</Text>
+    <Text
+      style={{ fontFamily: "Times-Bold", color: "black" }}
+      render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+    />
+    <Text style={{ color: "red" }}>RESOLUTION ver. 01</Text>
   </View>
 );
 
