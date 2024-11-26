@@ -132,7 +132,7 @@ const AnnexGManager: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
   const generatePDF = async (annex: AnnexG) => {
     try {
       setIsLoading(true);
@@ -361,7 +361,6 @@ const AnnexGManager: React.FC = () => {
           ))}
         </div>
       )}
-
     </PageWrapper>
   );
 };
@@ -498,7 +497,7 @@ function AnnexCard({
             </div>
           )}
           <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && (
+            {session?.user?.role === "OSA" && annex.status === "For Review" && (
               <>
                 <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
                   Approve
@@ -512,7 +511,9 @@ function AnnexCard({
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={!submissionsStatus.submissionAllowed}
+                disabled={
+                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                }
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit
