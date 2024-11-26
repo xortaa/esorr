@@ -262,11 +262,14 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
     <Document>
       <Page style={[styles.page, { fontFamily: "Times-Roman" }]} size="LEGAL" orientation="portrait">
         {/* Header */}
-        <Image src="/assets/UST.png" style={{ width: 75, height: 75, marginHorizontal: "auto" }} />
-        <View style={[styles.header, { textAlign: "center", fontFamily: "Times-Bold" }]}>
-          <Text>UNIVERSITY OF SANTO TOMAS</Text>
-          <Text>Office for Student Affairs</Text>
-          <Text>Espana Boulevard, Manila</Text>
+
+        <View fixed>
+          <Image src="/assets/UST.png" style={{ width: 75, height: 75, marginHorizontal: "auto" }} />
+          <View style={[styles.header, { textAlign: "center", fontFamily: "Times-Bold" }]}>
+            <Text>UNIVERSITY OF SANTO TOMAS</Text>
+            <Text>Office for Student Affairs</Text>
+            <Text>Espana Boulevard, Manila</Text>
+          </View>
         </View>
 
         {/* Content */}
@@ -389,12 +392,15 @@ const MyDocument: React.FC<{ organizations: Organization[] }> = ({ organizations
             {"\n"}
           </Text>
           <Text style={{ textAlign: "justify" }}>
-            Before this Office are petitions filed by thirty-one (31) University-wide Organization (USO)and one hundred
-            and twenty-four (124) College-based Student Organizations (CBO) requesting that they be granted recognition
-            pursuant to the provisions of the Rules and Procedures for Recognition of Student Organizations issued by
-            this Office. After considering all the documents submitted and their active participation in the 2024
-            Student Organizations’ Coordinating Council’s Leadership Training Seminar, this Office determined the
-            following Accreditation Status:
+            Before this Office are petitions filed by{" "}
+            <Text style={{ fontFamily: "Times-BoldItalic" }}>
+              thirty-one (31) University-wide Organization (USO)and one hundred and twenty-four (124) College-based
+              Student Organizations (CBO)
+            </Text>{" "}
+            requesting that they be granted recognition pursuant to the provisions of the Rules and Procedures for
+            Recognition of Student Organizations issued by this Office. After considering all the documents submitted
+            and their active participation in the 2024 Student Organizations’ Coordinating Council’s Leadership Training
+            Seminar, this Office determined the following Accreditation Status:
           </Text>
         </View>
 
