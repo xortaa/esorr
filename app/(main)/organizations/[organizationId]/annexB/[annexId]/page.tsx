@@ -22,6 +22,7 @@ type Member = {
   isNewMember: boolean;
   age: number;
   gender: string;
+  affiliation?: string;
 };
 
 const AnnexBMembersDashboard = () => {
@@ -29,19 +30,6 @@ const AnnexBMembersDashboard = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>("");
-  const [newMember, setNewMember] = useState<Omit<Member, "_id" | "status">>({
-    lastName: "",
-    firstName: "",
-    middleName: "",
-    studentNumber: "",
-    program: "",
-    startYear: 0,
-    yearLevel: 1,
-    isOfficer: false,
-    isNewMember: true,
-    age: 0,
-    gender: "",
-  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -117,19 +105,6 @@ const AnnexBMembersDashboard = () => {
       const newMember = await response.json();
       console.log("Received new member:", newMember);
       setMembers([...members, newMember]);
-      setNewMember({
-        lastName: "",
-        firstName: "",
-        middleName: "",
-        studentNumber: "",
-        program: "",
-        startYear: 0,
-        yearLevel: 1,
-        isOfficer: false,
-        isNewMember: true,
-        age: 0,
-        gender: "",
-      });
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error creating member:", error);
@@ -274,7 +249,21 @@ const AnnexBMembersDashboard = () => {
             setIsModalOpen(false);
             setEditingMember(null);
           }}
-          member={editingMember || newMember}
+          member={
+            editingMember || {
+              lastName: "",
+              firstName: "",
+              middleName: "",
+              studentNumber: "",
+              program: "",
+              startYear: new Date().getFullYear(),
+              yearLevel: 1,
+              isOfficer: false,
+              isNewMember: true,
+              age: 0,
+              gender: "",
+            }
+          }
           onSubmit={editingMember ? handleUpdateMember : handleCreateMember}
           isEditing={!!editingMember}
           organizationId={organizationId as string}
@@ -345,9 +334,34 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
   const [selectedProgram, setSelectedProgram] = useState(null);
 
   useEffect(() => {
-    setFormData(member);
-    fetchAffiliations();
-  }, [member]);
+    if (isOpen) {
+      if (isEditing) {
+        setFormData(member);
+        setAffiliationSearchTerm(member.affiliation || "");
+        setProgramSearchTerm(member.program || "");
+      } else {
+        // Reset form data for new member
+        setFormData({
+          lastName: "",
+          firstName: "",
+          middleName: "",
+          studentNumber: "",
+          program: "",
+          startYear: currentYear,
+          yearLevel: 1,
+          isOfficer: false,
+          isNewMember: true,
+          age: 0,
+          gender: "",
+        });
+        setAffiliationSearchTerm("");
+        setProgramSearchTerm("");
+        setSelectedAffiliation(null);
+        setSelectedProgram(null);
+      }
+      fetchAffiliations();
+    }
+  }, [isOpen, isEditing, member, currentYear]);
 
   const fetchAffiliations = async () => {
     setAffiliationOptionsLoading(true);
@@ -404,7 +418,11 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      affiliation: selectedAffiliation ? selectedAffiliation.name : "",
+      program: selectedProgram ? selectedProgram.name : formData.program,
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
