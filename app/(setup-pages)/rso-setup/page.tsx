@@ -270,7 +270,7 @@ const OrganizationSetupStep1 = ({
 
   const pastYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
-    return Array.from({ length: 6 }, (_, i) => currentYear - i);
+    return Array.from({ length: 6 }, (_, i) => currentYear - i - 1);
   }, []);
 
   useEffect(() => {
@@ -833,7 +833,7 @@ const OrganizationSetupStep1 = ({
             <input
               type="text"
               id="level-of-recognition"
-              placeholder="Enter level of recognition"
+              placeholder="RSO-A-24-25-01"
               className="input input-bordered w-full"
               value={formData.levelOfRecognition}
               onChange={handleLevelOfRecognitionChange}
