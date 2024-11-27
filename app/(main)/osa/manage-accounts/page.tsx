@@ -284,7 +284,7 @@ export default function AccountsDashboard() {
                   {filteredAccounts.map((account) => (
                     <tr key={account._id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="py-3 px-4">{account.email}</td>
-                      <td className="py-3 px-4">{account.fullName}</td>
+
                       <td className="py-3 px-4">{account.role}</td>
                       <td className="py-3 px-4">
                         <button

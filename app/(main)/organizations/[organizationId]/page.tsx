@@ -259,6 +259,7 @@ export default function Component() {
           )}
         </div>
       </div>
+
       {(session?.user?.role === "RSO" || session?.user?.role === "OSA") && (
         <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
           Organization Profile

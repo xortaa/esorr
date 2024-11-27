@@ -885,7 +885,6 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
     }
   };
 
-
   const editAnnex = (id: string) => {
     router.push(`${currentPath}/${id}`);
   };
@@ -972,7 +971,6 @@ export default function AnnexE2Manager({ params }: { params: { organizationId: s
           )}
         </div>
       )}
-
     </PageWrapper>
   );
 }
@@ -1120,7 +1118,7 @@ function AnnexCard({
           </div>
         )}
         <div className="flex justify-end space-x-2">
-          {session?.user?.role === "OSA" && (
+          {session?.user?.role === "OSA" && annex.status === "For Review" && (
             <>
               <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
                 Approve
@@ -1130,11 +1128,13 @@ function AnnexCard({
               </button>
             </>
           )}
-          {(session?.user?.role === "RSO" || session?.user?.role === "RSO-SIGNATORY") && (
+          {session?.user?.role === "RSO" && (
             <button
               className="btn btn-primary"
               onClick={() => onSubmit(annex._id)}
-              disabled={!submissionsStatus.submissionAllowed}
+              disabled={
+                !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+              }
             >
               <Send className="h-4 w-4 mr-2" />
               Submit

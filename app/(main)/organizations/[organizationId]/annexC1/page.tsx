@@ -651,10 +651,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
       </Text>
 
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image
-          src={annex.president?.signatureUrl || ""}
-          style={{ width: 200, height: 50, marginHorizontal: "auto" }}
-        />
+        <Image src={annex.president?.signatureUrl || ""} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.president?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>President</Text> {annex.organization.name}{" "}
@@ -1065,13 +1062,15 @@ function AnnexCard({
               Download PDF
             </button>
             {annex.pdf ? (
-              <button
-                className="btn btn-ghost btn-sm text-red-500"
-                onClick={() => handleRemoveArticlesOfAssociation(annex._id)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Remove PDF
-              </button>
+              session?.user?.role === "RSO" && (
+                <button
+                  className="btn btn-ghost btn-sm text-red-500"
+                  onClick={() => handleRemoveArticlesOfAssociation(annex._id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Remove PDF
+                </button>
+              )
             ) : (
               <div className="relative">
                 <input
@@ -1148,7 +1147,7 @@ function AnnexCard({
             </div>
           )}
           <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && (
+            {session?.user?.role === "OSA" && annex.status === "For Review" && (
               <>
                 <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
                   Approve
@@ -1158,13 +1157,13 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {(session?.user?.role === "RSO" ||
-              session?.user?.role === "RSO-SIGNATORY" ||
-              session?.user?.role === "AU") && (
+            {session?.user?.role === "RSO" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={!submissionsStatus.submissionAllowed}
+                disabled={
+                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                }
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit

@@ -835,7 +835,6 @@ export default function AnnexE3Manager({ params }: { params: { organizationId: s
     return response.data;
   };
 
-
   const handleSubmitAnnex = async (annexId: string) => {
     try {
       const response = await axios.post(`/api/annexes/${params.organizationId}/annex-e3/${annexId}/submit`);
@@ -918,7 +917,6 @@ export default function AnnexE3Manager({ params }: { params: { organizationId: s
           )}
         </div>
       )}
-     
     </PageWrapper>
   );
 }
@@ -1039,7 +1037,7 @@ function AnnexCard({
             </div>
           )}
           <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && (
+            {session?.user?.role === "OSA" && annex.status === "For Review" && (
               <>
                 <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
                   Approve
@@ -1049,13 +1047,13 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {(session?.user?.role === "RSO" ||
-              session?.user?.role === "RSO-SIGNATORY" ||
-              session?.user?.role === "AU") && (
+            {session?.user?.role === "RSO" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={!submissionsStatus.submissionAllowed}
+                disabled={
+                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                }
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit

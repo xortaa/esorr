@@ -689,15 +689,19 @@ function AnnexCard({
                 onChange={(e) => setOsaRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "OSA"}
               ></textarea>
-              {session?.user?.role === "OSA" && (
-                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
-                  Update OSA Remarks
-                </button>
-              )}
+              {session?.user?.role === "OSA" ||
+                (annex.status === "For Review" && (
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}
+                  >
+                    Update OSA Remarks
+                  </button>
+                ))}
             </div>
           )}
           <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && (
+            {session?.user?.role === "OSA" && annex.status === "For Review" && (
               <>
                 <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
                   Approve
@@ -711,7 +715,9 @@ function AnnexCard({
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
-                disabled={!submissionsStatus.submissionAllowed}
+                disabled={
+                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                }
               >
                 <Send className="h-4 w-4 mr-2" />
                 Submit
