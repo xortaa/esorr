@@ -362,15 +362,11 @@ export async function POST(req: NextRequest) {
       type: "inflow",
       category: "Organization Fund / Beginning Balance",
       description: "Initial organization balance",
-      payingParticipants: 0,
-      totalMembers: 0,
-      merchandiseSales: 0,
     });
 
-    
     // Recalculate the entire financial report
-    recalculateFinancialReport(newFinancialReport); 
-    
+    recalculateFinancialReport(newFinancialReport);
+
     newFinancialReport.august.startingBalance = startingBalance;
 
     await newFinancialReport.save();
@@ -531,7 +527,6 @@ export async function POST(req: NextRequest) {
     console.log("Saving updated organization");
     await newOrganization.save();
     console.log("Organization saved successfully");
-
 
     console.log("Finding current user");
     const currentUser = await User.findOne({ role: "RSO", email });

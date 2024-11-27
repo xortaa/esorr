@@ -303,14 +303,11 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
       type: "inflow",
       category: "Organization Fund / Beginning Balance",
       description: "Initial organization balance",
-      payingParticipants: 0,
-      totalMembers: 0,
-      merchandiseSales: 0,
     });
 
     // Recalculate the entire financial report
     recalculateFinancialReport(newFinancialReport);
-    
+
     newFinancialReport.august.startingBalance = previousFinancialReport?.endingBalance;
 
     await newFinancialReport.save();
