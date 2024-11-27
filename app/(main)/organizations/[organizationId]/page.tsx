@@ -172,7 +172,12 @@ export default function Component() {
   const completedAnnexes = annexes.filter((annex) => annex.status === "Approved").length;
   const progress = (completedAnnexes / annexes.length) * 100;
 
-  const nextAcademicYear = `${currentYear + 1}-${currentYear + 2}`;
+  
+  let nextAcademicYear = "";
+  if (!isLoading && organization?.academicYear) {
+    const [startYear, endYear] = organization.academicYear.split("-").map(Number);
+    nextAcademicYear = `${startYear + 1}-${endYear + 1}`;
+  }
 
   const handleCreateNewAcademicYear = async () => {
     try {
@@ -187,7 +192,7 @@ export default function Component() {
       if (response.ok) {
         console.log("New academic year created successfully");
         setIsModalOpen(false);
-        // You might want to refresh the page or update the state here
+        window.location.reload();
       } else {
         console.error("Failed to create new academic year");
       }
@@ -253,8 +258,8 @@ export default function Component() {
         <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
         <div>
           {session?.user?.role === "RSO" && (
-            <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)}>
-              Create New Academic Year ({nextAcademicYear})
+            <button className="btn btn-outline mr-2" onClick={() => setIsModalOpen(true)} disabled={isLoading}>
+              Create New Academic Year ({isLoading ? "Loading..." : nextAcademicYear})
             </button>
           )}
         </div>
