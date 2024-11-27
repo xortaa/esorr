@@ -332,7 +332,7 @@ export async function POST(req: NextRequest) {
     // Create new inflow for the organization's starting balance
     const firstYear = parseInt(currentAcademicYear.split("-")[0], 10);
     const startOfAugust = new Date(firstYear, 7, 1);
-    const monthIndex = (startOfAugust.getMonth() + 7) % 12; // Adjust for fiscal year starting in August
+    const monthIndex = 0; // Adjust for fiscal year starting in August
     const monthName = monthNames[monthIndex];
 
     console.log("Creating initial inflow");
@@ -367,8 +367,11 @@ export async function POST(req: NextRequest) {
       merchandiseSales: 0,
     });
 
+    
     // Recalculate the entire financial report
-    recalculateFinancialReport(newFinancialReport);
+    recalculateFinancialReport(newFinancialReport); 
+    
+    newFinancialReport.august.startingBalance = startingBalance;
 
     await newFinancialReport.save();
     console.log("FinancialReport updated");

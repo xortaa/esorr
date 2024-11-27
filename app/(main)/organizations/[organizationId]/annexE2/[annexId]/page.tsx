@@ -493,6 +493,14 @@ export default function AnnexE2FinancialLiquidationReport() {
     setIsEditingInflow(false);
   };
 
+  const isAddItemDisabled =
+    !newItem.category ||
+    !newItem.description ||
+    !newItem.cost ||
+    !newItem.quantity ||
+    !newItem.serialNumber ||
+    !newItem.expenseReportCategory;
+
   return (
     <PageWrapper>
       <BackButton />
@@ -845,7 +853,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               </div>
                             </div>
                             <div className="flex justify-end mt-8">
-                              <button className="btn btn-primary mr-2" onClick={addItem}>
+                              <button className="btn btn-primary mr-2" onClick={addItem} disabled={isAddItemDisabled}>
                                 Add Item
                               </button>
                               <button className="btn btn-ghost" onClick={() => setIsAddingItem(false)}>

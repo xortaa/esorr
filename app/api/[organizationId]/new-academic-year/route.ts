@@ -271,10 +271,10 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     console.log("AnnexE2 created:", newAnnexE2);
 
     // Create new inflow for the organization's starting balance
-     const firstYear = parseInt(currentAcademicYear.split("-")[0], 10);
-     const startOfAugust = new Date(firstYear, 7, 1);
-     const monthIndex = (startOfAugust.getMonth() + 7) % 12; // Adjust for fiscal year starting in August
-     const monthName = monthNames[monthIndex];
+    const firstYear = parseInt(currentAcademicYear.split("-")[0], 10);
+    const startOfAugust = new Date(firstYear, 7, 1);
+    const monthIndex = 0; // Adjust for fiscal year starting in August
+    const monthName = monthNames[monthIndex];
 
     console.log("Creating initial inflow");
     const newInflow = await Inflow.create({
@@ -310,6 +310,8 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
 
     // Recalculate the entire financial report
     recalculateFinancialReport(newFinancialReport);
+    
+    newFinancialReport.august.startingBalance = previousFinancialReport?.endingBalance;
 
     await newFinancialReport.save();
     console.log("FinancialReport updated");
