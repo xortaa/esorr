@@ -66,6 +66,12 @@ export async function middleware(req: NextRequest) {
       }
     }
   }
+  
+  // Restrict AU and SOCC from accessing /organizations/${organizationId}/profile
+  if ((token.role === "AU" || token.role === "SOCC") && pathname.match(/^\/organizations\/[^/]+\/profile$/)) {
+    console.log(`${token.role} attempting to access restricted profile page, redirecting`);
+    return NextResponse.redirect(new URL("/organizations", req.url));
+  }
 
   // Check if the user is trying to access a page not allowed for their role
   const allowedPages = rolePages[token.role as keyof typeof rolePages] || [];

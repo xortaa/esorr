@@ -28,6 +28,9 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  affiliation: {
+    type: String,
+  },
 });
 
 const User = models.User || model("User", UserSchema);

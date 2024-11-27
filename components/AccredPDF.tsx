@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
 type Organization = {
   levelOfRecognition: string;
   academicYear: string;
+  name: string;
 };
 
 // Document Component
@@ -112,7 +113,7 @@ const MyDocument = ({ organization }: { organization: Organization }) => {
         />
         {/* Content */}
         <View style={styles.section}>
-          <Text style={styles.orgname}>Environmental Advocates Reaching Towards Humanity UST</Text>
+          <Text style={styles.orgname}>{organization.name}</Text>
         </View>
 
         <View style={styles.section}>

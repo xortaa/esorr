@@ -15,6 +15,7 @@ declare module "next-auth" {
       role: string;
       isSetup: boolean;
       organization: string;
+      affiliation: string;
     } & DefaultSession["user"];
   }
 
@@ -23,6 +24,7 @@ declare module "next-auth" {
     _id: string;
     isSetup: boolean;
     organization: string;
+    affiliation: string;
   }
 }
 
@@ -32,6 +34,7 @@ declare module "next-auth/jwt" {
     _id: string;
     isSetup: boolean;
     organization: string;
+    affiliation: string;
   }
 }
 
@@ -76,6 +79,7 @@ export const options: NextAuthOptions = {
           account.role = existingUser.role;
           account.isSetup = existingUser.isSetup;
           account.organization = existingUser.organization ? existingUser.organization.toString() : "";
+          account.affiliation = existingUser.affiliation;
           return true;
         }
 
@@ -94,6 +98,7 @@ export const options: NextAuthOptions = {
       session.user.role = token.role;
       session.user.isSetup = token.isSetup;
       session.user.organization = token.organization;
+      session.user.affiliation = token.affiliation;
 
       console.log("Session:", session);
 
@@ -105,6 +110,7 @@ export const options: NextAuthOptions = {
         token._id = account._id;
         token.isSetup = account.isSetup;
         token.organization = account.organization;
+        token.affiliation = account.affiliation;
       } else if (user) {
         const dbUser = await User.findById((user as any)._id);
         if (dbUser) {
@@ -112,6 +118,7 @@ export const options: NextAuthOptions = {
           token._id = dbUser._id.toString();
           token.isSetup = dbUser.isSetup;
           token.organization = dbUser.organization ? dbUser.organization.toString() : "";
+          token.affiliation = dbUser.affiliation;
         }
       }
 

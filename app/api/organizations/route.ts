@@ -11,11 +11,15 @@ export const GET = async (req: NextRequest) => {
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    if (token.role === "RSO") { 
+    if (token.role === "RSO") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     let query = {};
+
+    if (token.role === "AU") {
+      query = { affiliation: token.affiliation };
+    }
 
     const organizations = await Organizations.find(query).populate(
       "annex01 annex02 annexA annexA1 annexB annexC annexC1 annexD annexE annexE1 annexF annexG annexH annexI annexJ annexK annexL"

@@ -23,7 +23,10 @@ type SignatureKeys = "secretary" | "president";
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
   await connectToDatabase();
 
-  const annexC = await AnnexC.findById(params.annexId).populate("organization");
+  const annexC = await AnnexC.findById(params.annexId).populate({
+    path: "organization",
+    select: "name affiliation"
+  });
 
   if (!annexC) {
     return NextResponse.json({ error: "Annex C not found" }, { status: 404 });

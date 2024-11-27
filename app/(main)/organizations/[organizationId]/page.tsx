@@ -5,7 +5,6 @@ import PageWrapper from "@/components/PageWrapper";
 import { Printer, PlusCircle, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useParams, useRouter } from "next/navigation";
-import BackButton from "@/components/BackButton";
 import { useSession } from "next-auth/react";
 import { pdf } from "@react-pdf/renderer";
 import MyDocument from "@/components/AccredPDF";
@@ -250,7 +249,6 @@ export default function Component() {
 
   return (
     <PageWrapper>
-      <BackButton />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Annexes Dashboard</h1>
         <div>
@@ -261,13 +259,13 @@ export default function Component() {
           )}
         </div>
       </div>
-      {session?.user?.role === "OSA" ||
-        session?.user?.role === "SOCC" ||
-        (session?.user?.role === "RSO" && (
-          <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
-            Organization Profile
-          </Link>
-        ))}
+
+      {(session?.user?.role === "RSO" || session?.user?.role === "OSA") && (
+        <Link href={`${currentPath}/profile`} className="btn btn-outline btn-sm">
+          Organization Profile
+        </Link>
+      )}
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg">
