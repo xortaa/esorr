@@ -28,7 +28,6 @@ const RSOSetupPage = () => {
     objectives: [""],
     startingBalance: 0,
     academicYearOfLastRecognition: "",
-    currentAcademicYear: "",
     facebook: "",
     isWithCentralOrganization: false,
     isReligiousOrganization: false,
@@ -123,7 +122,6 @@ const RSOSetupPage = () => {
         description: formData.description,
         objectives: formData.objectives,
         startingBalance: formData.startingBalance,
-        currentAcademicYear: formData.currentAcademicYear,
         academicYearOfLastRecognition: formData.academicYearOfLastRecognition,
         facebook: formData.facebook,
         isWithCentralOrganization: formData.isWithCentralOrganization,
@@ -263,11 +261,6 @@ const OrganizationSetupStep1 = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const futureYears = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return Array.from({ length: 6 }, (_, i) => currentYear + i);
-  }, []);
-
   const pastYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 6 }, (_, i) => currentYear - i - 1);
@@ -395,15 +388,6 @@ const OrganizationSetupStep1 = ({
     setFormData({ ...formData, strategicDirectionalAreas: updatedAreas });
   };
 
-  const handleCurrentAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const startYear = parseInt(e.target.value);
-    const endYear = startYear + 1;
-    setFormData((prevData) => ({
-      ...prevData,
-      currentAcademicYear: `${startYear}-${endYear}`,
-    }));
-  };
-
   const handleAcademicYearOfLastRecognitionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     if (value === "not-recognized") {
@@ -438,7 +422,6 @@ const OrganizationSetupStep1 = ({
       formData.strategicDirectionalAreas.length > 0 &&
       formData.startingBalance >= 0 &&
       formData.academicYearOfLastRecognition.trim() !== "" &&
-      formData.currentAcademicYear.trim() !== "" &&
       formData.facebook.trim() !== "" &&
       (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "")
     );
@@ -448,32 +431,6 @@ const OrganizationSetupStep1 = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">General Information</h2>
       <form className="space-y-4">
-        <div className="form-control">
-          <label className="label" htmlFor="current-academic-year">
-            <span className="label-text">Current Academic Year (Required)</span>
-          </label>
-          <select
-            id="current-academic-year"
-            className="select select-bordered w-full"
-            value={formData.currentAcademicYear.split("-")[0]}
-            onChange={handleCurrentAcademicYearChange}
-            required
-          >
-            <option value="">Select academic year</option>
-            {futureYears.map((year) => (
-              <option key={year} value={year.toString()}>
-                {year}-{year + 1}
-              </option>
-            ))}
-          </select>
-          <label className="label">
-            <span className="label-text-alt text-info flex items-center">
-              <BadgeInfo className="w-4 h-4 mr-1" />
-              Academic year runs from August to May
-            </span>
-          </label>
-        </div>
-
         <div className="form-control">
           <label className="label" htmlFor="logo-upload">
             <span className="label-text">Upload Organization Logo (Required)</span>
@@ -1009,8 +966,6 @@ function OrganizationSetupStep4({
   return (
     <div className="space-y-8">
       <h2 className="text-3xl font-bold text-primary">Confirm Setup</h2>
-
-      {renderField("Current Academic Year", formData.currentAcademicYear)}
 
       <section className="mb-4">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Organization Logo</h3>

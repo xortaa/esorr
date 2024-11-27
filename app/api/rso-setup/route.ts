@@ -71,12 +71,19 @@ export async function POST(req: NextRequest) {
       description,
       objectives,
       startingBalance,
-      currentAcademicYear,
       academicYearOfLastRecognition,
       levelOfRecognition,
       isWithCentralOrganization,
       isReligiousOrganization,
     } = body;
+
+    const getCurrentAcademicYear = () => {
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      return `${currentYear}-${nextYear}`;
+    };
+
+    const currentAcademicYear = getCurrentAcademicYear();
 
     // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
