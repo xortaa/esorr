@@ -1,6 +1,4 @@
 const monthNames = [
-  "june",
-  "july",
   "august",
   "september",
   "october",
@@ -11,6 +9,8 @@ const monthNames = [
   "march",
   "april",
   "may",
+  "june",
+  "july",
 ];
 
 export function recalculateFinancialReport(financialReport) {
@@ -34,7 +34,7 @@ export function recalculateFinancialReport(financialReport) {
   // Process each transaction
   financialReport.transactions.forEach((transaction) => {
     const transactionDate = new Date(transaction.date);
-    const monthIndex = (transactionDate.getMonth() + 7) % 12; // Adjust for fiscal year starting in June
+    const monthIndex = (transactionDate.getMonth() + 5) % 12; // Adjust for fiscal year starting in August
     const monthName = monthNames[monthIndex];
 
     if (transaction.type === "inflow") {
