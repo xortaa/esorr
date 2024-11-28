@@ -861,7 +861,9 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
             <Text>
               Image {index + 1}: {outflow.establishment}
             </Text>
-            {outflow.image && <Image src={outflow.image} style={{height: "70vh", width: "100%"}}/>}
+            {outflow.image && (
+              <Image src={outflow.image} style={{ height: "70vh", width: "100%", objectFit: "contain" }} />
+            )}
           </View>
         ))}
       </Page>
