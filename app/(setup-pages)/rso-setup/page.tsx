@@ -35,6 +35,7 @@ const RSOSetupPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     const fetchAffiliations = async () => {
@@ -166,6 +167,10 @@ const RSOSetupPage = () => {
     return <div>Loading...</div>;
   }
 
+  if (!termsAccepted) {
+    return <TermsAndConditionsModal onAccept={() => setTermsAccepted(true)} onDecline={() => signOut()} />;
+  }
+
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full max-w-4xl mx-auto">
       <div>
@@ -224,6 +229,107 @@ const RSOSetupPage = () => {
               selectedAffiliation={selectedAffiliation}
             />
           )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TermsAndConditionsModal = ({ onAccept, onDecline }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-4xl max-h-[80vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4">Terms and Conditions</h2>
+        <p className="mb-4">
+          The following are the terms and conditions regarding the use of E-SORR. This includes guidelines and
+          restrictions for file submissions:
+        </p>
+        <div>
+          <p className="mt-5 font-bold ">Accounts:</p>
+          <ul className="list-disc pl-5">
+            <li>Accounts are provided to the OSA, SOCC, AUs, and RSOs with their own specific purposes.</li>
+            <li>Strictly no account sharing as accounts may contain personal information of an organization.</li>
+            <li>
+              OSA has the authority to manage accounts (create, hide, edit), open and close submissions, as well as view
+              and give remarks to documents. They are also in-charge of the accreditation of the organization.
+            </li>
+            <li>
+              SOCC has the authority to view and give remarks to annexes. They will be in-charge of double checking
+              mistakes found in the E-SORR.
+            </li>
+            <li>
+              AUs have the authority to view the status of the documents in their respective colleges/faculty/institute.
+            </li>
+            <li>
+              RSOs have the ability to input their general information, edit and submit the SORR, and view their
+              accreditation status once completed.
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="mt-5 font-bold">File Restrictions:</p>
+          <ul className="list-disc pl-5">
+            <li>
+              E-SORR provides an interface for users to accomplish the SORR online. E-SORR will provide RSOs the ability
+              to download it through PDF.
+            </li>
+            <li>For files such as pictures, formats are restricted to JPEG or PNG only.</li>
+          </ul>
+        </div>
+        <div>
+          <p className="mt-5 font-bold">Pre-Submission:</p>
+          <ul className="list-disc pl-5">
+            <li>
+              OSA will open submissions and emails and sms notifications will be sent to organizations to notify them
+              that they can start filling up the E-SORR.
+            </li>
+            <li>
+              Any inquiries regarding this matter, especially in the context of filling up areas in the SORR, can be
+              forwarded to the SOCC.
+            </li>
+            <li>
+              Organization e-mails will also have their google calendars show the start and end dates of submission.
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="mt-5 font-bold">Post-Submission:</p>
+          <ul className="list-disc pl-5">
+            <li>
+              After submission, RSO will wait until their are notified through e-mail of remarks the SOCC has regarding
+              their annexes.
+            </li>
+            <li>For any inquiries or clarifications regarding the remarks, directly e-mail the SOCC.</li>
+            <li>Once approved, SOCC will forward the annexes to OSA for checking.</li>
+            <li>RSOs will also be notified if OSA has added remarks to the documents for editing.</li>
+            <li>
+              Once approved, RSOs are sent an e-mail confirming their accreditation as well as an accreditation
+              certificate along with their accreditation code.
+            </li>
+            <li>The accreditation certificate will be in PDF format, allowing RSOs to print it if needed.</li>
+            <li>Failure to submit on-time may lead to disaccreditation.</li>
+            <li>
+              Failure to revise the SORR in a given amount of time will result in their accreditation code being X-3
+              (A-3, B-3, or C3).
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="mt-5 font-bold">Violations:</p>
+          <ul className="list-disc pl-5">
+            <li>
+              Violation to abide by the terms and conditions of the website will result in appropriate punishment by
+              OSA.
+            </li>
+          </ul>
+        </div>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button className="btn btn-outline" onClick={onDecline}>
+            Decline
+          </button>
+          <button className="btn btn-primary" onClick={onAccept}>
+            Accept
+          </button>
         </div>
       </div>
     </div>
