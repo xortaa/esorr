@@ -651,7 +651,7 @@ const MyDocument: React.FC<{
               <View style={styles.tableRow} key={inflow._id}>
                 <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
                 <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>₱ {inflow.amount}</Text>
+                <Text style={styles.tableLastCell}>{inflow.amount.toFixed(2)}</Text>
               </View>
             ))
           ) : (
@@ -663,19 +663,19 @@ const MyDocument: React.FC<{
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Inflows</Text>
-            <Text style={styles.tableLastCell}>₱ {totalInflow || 0}</Text>
+            <Text style={styles.tableLastCell}>{totalInflow.toFixed(2) || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Outflows</Text>
-            <Text style={styles.tableLastCell}>₱ {totalOutflow || 0}</Text>
+            <Text style={styles.tableLastCell}>{totalOutflow.toFixed(2) || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Net Cash Flow</Text>
-            <Text style={styles.tableLastCell}>₱ {(totalInflow || 0) - (totalOutflow || 0)}</Text>
+            <Text style={styles.tableLastCell}>{((totalInflow || 0) - (totalOutflow || 0)).toFixed(2)}</Text>
           </View>
 
           <View style={styles.tableRow}>
@@ -684,7 +684,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>TOTAL RECEIPTS</Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>₱ {totalInflow || 0}</Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>{totalInflow || 0}</Text>
           </View>
         </View>
 
@@ -731,9 +731,11 @@ const MyDocument: React.FC<{
                       <Text style={styles.tableCellPay}>{item.establishment}</Text>
                       <Text style={styles.tableCellBlank}> </Text>
                       <Text style={styles.tableCellRef}>{item.serialNumber}</Text>
-                      <Text style={styles.tableCellCost}>{item.cost}</Text>
+                      <Text style={styles.tableCellCost}>{item.cost.toFixed(2)}</Text>
                       <Text style={styles.tableCellUnit}>{item.quantity}</Text>
-                      <Text style={styles.tableCellTotalPhP}>{(item.cost || 0) * (item.quantity || 0)}</Text>
+                      <Text style={styles.tableCellTotalPhP}>
+                        {((item.cost || 0) * (item.quantity || 0)).toFixed(2)}
+                      </Text>
                     </View>
                   ))}
                   <View style={styles.tableRow}>
@@ -767,7 +769,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
-              P {(totalInflow || 0) - (totalOutflow || 0)} / P {monthlyReport?.endingBalance || 0}
+              P {(monthlyReport?.endingBalance || 0).toFixed(2)}
             </Text>
           </View>
         </View>
@@ -998,6 +1000,11 @@ function AnnexCard({
 }: AnnexCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const months = [
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
     "January",
     "February",
     "March",
@@ -1005,11 +1012,6 @@ function AnnexCard({
     "May",
     "June",
     "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
   ];
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);

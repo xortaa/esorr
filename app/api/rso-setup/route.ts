@@ -29,8 +29,6 @@ import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 import OfficerInCharge from "@/models/officer-in-charge";
 
 const monthNames = [
-  "june",
-  "july",
   "august",
   "september",
   "october",
@@ -41,6 +39,8 @@ const monthNames = [
   "march",
   "april",
   "may",
+  "june",
+  "july",
 ];
 
 export async function POST(req: NextRequest) {
@@ -71,12 +71,19 @@ export async function POST(req: NextRequest) {
       description,
       objectives,
       startingBalance,
-      currentAcademicYear,
       academicYearOfLastRecognition,
       levelOfRecognition,
       isWithCentralOrganization,
       isReligiousOrganization,
     } = body;
+
+    const getCurrentAcademicYear = () => {
+      const currentYear = new Date().getFullYear();
+      const nextYear = currentYear + 1;
+      return `${currentYear}-${nextYear}`;
+    };
+
+    const currentAcademicYear = getCurrentAcademicYear();
 
     // Validation checks
     if (!name) return NextResponse.json({ error: "Missing organization name" }, { status: 400 });
@@ -323,14 +330,15 @@ export async function POST(req: NextRequest) {
     console.log("AnnexE2 created:", newAnnexE2);
 
     // Create new inflow for the organization's starting balance
-    const currentDate = new Date();
-    const monthIndex = (currentDate.getMonth() + 7) % 12; // Adjust for fiscal year starting in June
+    const firstYear = parseInt(currentAcademicYear.split("-")[0], 10);
+    const startOfAugust = new Date(firstYear, 7, 1);
+    const monthIndex = 0; // Adjust for fiscal year starting in August
     const monthName = monthNames[monthIndex];
 
     console.log("Creating initial inflow");
     const newInflow = await Inflow.create({
       category: "Organization Fund / Beginning Balance",
-      date: currentDate,
+      date: startOfAugust,
       amount: startingBalance,
       payingParticipants: 0,
       totalMembers: 0,
@@ -349,18 +357,17 @@ export async function POST(req: NextRequest) {
     // Update FinancialReport
     console.log("Updating FinancialReport");
     newFinancialReport.transactions.push({
-      date: currentDate,
+      date: startOfAugust,
       amount: startingBalance,
       type: "inflow",
       category: "Organization Fund / Beginning Balance",
       description: "Initial organization balance",
-      payingParticipants: 0,
-      totalMembers: 0,
-      merchandiseSales: 0,
     });
 
     // Recalculate the entire financial report
     recalculateFinancialReport(newFinancialReport);
+
+    newFinancialReport.august.startingBalance = startingBalance;
 
     await newFinancialReport.save();
     console.log("FinancialReport updated");
@@ -520,7 +527,6 @@ export async function POST(req: NextRequest) {
     console.log("Saving updated organization");
     await newOrganization.save();
     console.log("Organization saved successfully");
-
 
     console.log("Finding current user");
     const currentUser = await User.findOne({ role: "RSO", email });

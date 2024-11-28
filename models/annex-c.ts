@@ -25,6 +25,15 @@ const AnnexCSchema = new Schema({
   secretaryRatificationVenue: {
     type: String,
   },
+  signingVenue: { 
+    type: String
+  },
+  signingDate: { 
+    type: Date
+  },
+  assignedSecretary: { 
+    type: String
+  },
   secretary: SignatureSchema,
   president: SignatureSchema,
   swdCoordinator: SignatureSchema,

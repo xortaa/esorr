@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Organization from "@/models/organization";
-import SignatoryRequest from "@/models/signatory-request";
-import User from "@/models/user";
 import Annex01 from "@/models/annex-01";
 import Annex02 from "@/models/annex-02";
 import AnnexA from "@/models/annex-a";
@@ -30,8 +28,6 @@ import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 import OfficerInCharge from "@/models/officer-in-charge";
 
 const monthNames = [
-  "june",
-  "july",
   "august",
   "september",
   "october",
@@ -42,6 +38,8 @@ const monthNames = [
   "march",
   "april",
   "may",
+  "june",
+  "july",
 ];
 
 export async function POST(req: NextRequest, { params }: { params: { organizationId: string } }) {
@@ -234,11 +232,11 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
-      startingBalance: previousFinancialReport?.endingBalance || 0,
+      startingBalance: 0,
       transactions: [],
       totalIncome: 0,
       totalExpenses: 0,
-      endingBalance: previousFinancialReport?.endingBalance || 0,
+      endingBalance: 0,
     };
 
     monthNames.forEach((month) => {
@@ -273,14 +271,15 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     console.log("AnnexE2 created:", newAnnexE2);
 
     // Create new inflow for the organization's starting balance
-    const currentDate = new Date();
-    const monthIndex = (currentDate.getMonth() + 7) % 12; // Adjust for fiscal year starting in June
+    const firstYear = parseInt(currentAcademicYear.split("-")[0], 10);
+    const startOfAugust = new Date(firstYear, 7, 1);
+    const monthIndex = 0; // Adjust for fiscal year starting in August
     const monthName = monthNames[monthIndex];
 
     console.log("Creating initial inflow");
     const newInflow = await Inflow.create({
       category: "Organization Fund / Beginning Balance",
-      date: currentDate,
+      date: startOfAugust,
       amount: previousFinancialReport?.endingBalance || 0,
       payingParticipants: 0,
       totalMembers: 0,
@@ -299,18 +298,17 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     // Update FinancialReport
     console.log("Updating FinancialReport");
     newFinancialReport.transactions.push({
-      date: currentDate,
+      date: startOfAugust,
       amount: previousFinancialReport?.endingBalance || 0,
       type: "inflow",
       category: "Organization Fund / Beginning Balance",
       description: "Initial organization balance",
-      payingParticipants: 0,
-      totalMembers: 0,
-      merchandiseSales: 0,
     });
 
     // Recalculate the entire financial report
     recalculateFinancialReport(newFinancialReport);
+
+    newFinancialReport.august.startingBalance = previousFinancialReport?.endingBalance;
 
     await newFinancialReport.save();
     console.log("FinancialReport updated");

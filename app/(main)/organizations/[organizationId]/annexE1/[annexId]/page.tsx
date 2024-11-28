@@ -59,8 +59,6 @@ interface FinancialReport {
 }
 
 const months = [
-  "june",
-  "july",
   "august",
   "september",
   "october",
@@ -71,6 +69,8 @@ const months = [
   "march",
   "april",
   "may",
+  "june",
+  "july",
 ];
 
 interface MonthSectionProps {
