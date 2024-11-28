@@ -516,7 +516,7 @@ function AnnexCard({
                 onChange={(e) => setSoccRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "SOCC"}
               ></textarea>
-              {session?.user?.role === "SOCC" && (
+              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
                 <button
                   className="btn btn-primary mt-2"
                   onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
@@ -558,7 +558,7 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {session?.user?.role === "RSO" && (
+            {session?.user?.role === "RSO" && annex.status === "For Review" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}

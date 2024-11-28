@@ -653,7 +653,7 @@ function AnnexCard({
             <h2 className="card-title">Organizations Logo and Letterhead Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            {session?.user?.role === "RSO" && (
+            {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
               <button
                 className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
                 onClick={() => editAnnex(annex._id)}
@@ -690,7 +690,7 @@ function AnnexCard({
                 onChange={(e) => setSoccRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "SOCC"}
               ></textarea>
-              {session?.user?.role === "SOCC" && (
+              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
                 <button
                   className="btn btn-primary mt-2"
                   onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
@@ -714,7 +714,7 @@ function AnnexCard({
                 onChange={(e) => setOsaRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "OSA"}
               ></textarea>
-              {session?.user?.role === "OSA" && (
+              {session?.user?.role === "OSA" && annex.status === "For Review" && (
                 <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
                   Update OSA Remarks
                 </button>
