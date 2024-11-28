@@ -13,6 +13,9 @@ type AnnexCUpdateBody = {
   ratificationDate?: string | Date;
   ratificationVenue?: string;
   secretaryRatificationVenue?: string;
+  signingVenue?: string;
+  signingDate?: string | Date;
+  assignedSecretary?: string;
   isSubmitted?: boolean;
   secretary?: SignatureField;
   president?: SignatureField;
@@ -23,10 +26,7 @@ type SignatureKeys = "secretary" | "president";
 export const GET = async (req: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) => {
   await connectToDatabase();
 
-  const annexC = await AnnexC.findById(params.annexId).populate({
-    path: "organization",
-    select: "name affiliation"
-  });
+  const annexC = await AnnexC.findById(params.annexId).populate("organization");
 
   if (!annexC) {
     return NextResponse.json({ error: "Annex C not found" }, { status: 404 });
@@ -40,13 +40,25 @@ export const PATCH = async (req: NextRequest, { params }: { params: { organizati
 
   try {
     const body: AnnexCUpdateBody = await req.json();
-    const { ratificationDate, ratificationVenue, secretaryRatificationVenue, isSubmitted, ...signatureFields } = body;
+    const {
+      ratificationDate,
+      ratificationVenue,
+      secretaryRatificationVenue,
+      signingVenue,
+      signingDate,
+      assignedSecretary,
+      isSubmitted,
+      ...signatureFields
+    } = body;
 
     const updateFields: Partial<AnnexCUpdateBody> = {};
 
     if (ratificationDate) updateFields.ratificationDate = new Date(ratificationDate);
     if (ratificationVenue) updateFields.ratificationVenue = ratificationVenue;
     if (secretaryRatificationVenue) updateFields.secretaryRatificationVenue = secretaryRatificationVenue;
+    if (signingVenue) updateFields.signingVenue = signingVenue;
+    if (signingDate) updateFields.signingDate = new Date(signingDate);
+    if (assignedSecretary) updateFields.assignedSecretary = assignedSecretary;
     if (isSubmitted !== undefined) updateFields.isSubmitted = isSubmitted;
 
     // Handle signature fields

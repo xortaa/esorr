@@ -73,6 +73,9 @@ type AnnexC = {
   soccRemarks: string;
   osaRemarks: string;
   dateSubmitted: string;
+  signingVenue: string;
+  signingDate: Date;
+  assignedSecretary: string;
 };
 
 type UserPosition = {
@@ -210,7 +213,7 @@ const SignatureSection = ({ signature, title }: { signature?: Signature; title: 
 );
 
 const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
-  const secretarySignatureDate = annex.secretary?.dateSigned ? new Date(annex.secretary.dateSigned) : null;
+  const secretarySignatureDate = annex.signingDate ? new Date(annex.signingDate) : null;
   const witnessText = secretarySignatureDate
     ? `this ${secretarySignatureDate.getDate()} day of ${secretarySignatureDate.toLocaleString("default", {
         month: "long",
@@ -266,7 +269,7 @@ const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
         <Text style={[styles.title, { marginTop: 20 }]}>SECRETARY'S CERTIFICATE</Text>
 
         <Text style={styles.text}>
-          I, <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.secretary?.name || "_________________"}</Text>, a
+          I, <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.assignedSecretary || "_________________"}</Text>, a
           duly elected and qualified Secretary of the{" "}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.organization.name}</Text>, of the University of Santo
           Tomas, do hereby certify that:
