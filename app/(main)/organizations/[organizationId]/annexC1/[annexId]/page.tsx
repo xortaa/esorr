@@ -318,6 +318,27 @@ export default function ArticlesOfAssociationCreator() {
     }
   };
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check file size (10 MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB limit.");
+        return;
+      }
+
+      // Check file type
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!validTypes.includes(file.type)) {
+        alert("Invalid file type. Only PNG and JPG/JPEG are allowed.");
+        return;
+      }
+
+      // Proceed with file upload
+      // Your file upload logic here
+    }
+  };
+
   const removeImage = async () => {
     if (currentSection && currentSection.image) {
       try {
@@ -502,12 +523,12 @@ export default function ArticlesOfAssociationCreator() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Section Image</label>
                   {currentSection.image ? (
                     <div className="relative w-48 h-48 mb-2">
-                      <Image
-                        src={currentSection.image}
-                        alt="Section image"
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded"
+                      <input
+                        type="file"
+                        name="image"
+                        accept="image/png, image/jpeg, image/jpg"
+                        onChange={handleImageChange}
+                        className="file-input file-input-bordered w-full"
                       />
                       <button
                         onClick={removeImage}

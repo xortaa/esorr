@@ -651,7 +651,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
       </Text>
 
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image src={annex.president?.signatureUrl || ""} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.president?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>President</Text> {annex.organization.name}{" "}
@@ -659,10 +659,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        <Image
-          src={annex.vicePresident?.signatureUrl || ""}
-          style={{ width: 200, height: 50, marginHorizontal: "auto" }}
-        />
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>
           {annex.vicePresident?.name || "First name M.I. Last Name"}
         </Text>
@@ -672,11 +669,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        {annex.secretary?.signatureUrl ? (
-          <Image src={annex.secretary.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        ) : (
-          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        )}
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.secretary?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>Secretary</Text> {annex.organization.name}{" "}
@@ -684,11 +677,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        {annex.treasurer?.signatureUrl ? (
-          <Image src={annex.treasurer.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        ) : (
-          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        )}
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.treasurer?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>Treasurer</Text> {annex.organization.name}{" "}
@@ -696,11 +685,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        {annex.auditor?.signatureUrl ? (
-          <Image src={annex.auditor.signatureUrl} style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        ) : (
-          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        )}
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.auditor?.name || "First name M.I. Last Name"}</Text>
         <Text style={{}}>
           <Text style={{ fontFamily: "Arial Narrow Italic" }}>Auditor</Text> {annex.organization.name}{" "}
@@ -708,14 +693,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         </Text>
       </View>
       <View style={{ textAlign: "center", flexDirection: "column" }}>
-        {annex.peaceRelationsOfficer?.signatureUrl ? (
-          <Image
-            src={annex.peaceRelationsOfficer.signatureUrl}
-            style={{ width: 200, height: 50, marginHorizontal: "auto" }}
-          />
-        ) : (
-          <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
-        )}
+        <View style={{ width: 200, height: 50, marginHorizontal: "auto" }} />
         <Text style={{ fontFamily: "Arial Narrow Bold" }}>
           {annex.peaceRelationsOfficer?.name || "First name M.I. Last Name"}
         </Text>
@@ -731,11 +709,7 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
 
       <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Attested by:</Text>
 
-      {annex.adviser?.signatureUrl ? (
-        <Image src={annex.adviser.signatureUrl} style={{ width: 200, height: 50 }} />
-      ) : (
-        <View style={{ width: 200, height: 50 }} />
-      )}
+      <View style={{ width: 200, height: 50 }} />
       <Text style={{ fontFamily: "Arial Narrow Bold" }}>
         {annex.adviser?.name || "Complete Name of Organization Adviser"}
       </Text>
@@ -748,11 +722,8 @@ const MyDocument: React.FC<{ annex: AnnexC1 }> = ({ annex }) => (
         {annex.academicYear || "2021-2024"}
       </Text>
       <Text style={{ fontFamily: "Arial Narrow Bold", marginTop: 20 }}>Certified by:</Text>
-      {annex.comelecRepresentative?.signatureUrl ? (
-        <Image src={annex.comelecRepresentative.signatureUrl} style={{ width: 200, height: 50 }} />
-      ) : (
-        <View style={{ width: 200, height: 50 }} />
-      )}
+
+      <View style={{ width: 200, height: 50 }} />
       <Text style={{ fontFamily: "Arial Narrow Bold" }}>
         {annex.comelecRepresentative?.name || "Name of Local COMELEC representative"}
       </Text>

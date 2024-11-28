@@ -162,7 +162,7 @@ export default function OrganizationProfile() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleLogoUpload}
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg"
                 className="file-input file-input-bordered w-full max-w-xs"
               />
             </div>
