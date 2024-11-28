@@ -1035,17 +1035,20 @@ function AnnexCard({
       <div className="card-body p-4">
         <div className="flex items-center justify-between">
           <h2 className="card-title text-lg">Financial Report for AY {annex.academicYear}</h2>
-          <button className="btn btn-ghost btn-sm" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? (
-              <ChevronUp size={20} />
-            ) : (
-              <div className="flex items-center gap-2 justify-center">
-                <span>View Months</span>
-                <ChevronDown size={20} />
-              </div>
-            )}
-          </button>
+          {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+            <button className="btn btn-ghost btn-sm" onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? (
+                <ChevronUp size={20} />
+              ) : (
+                <div className="flex items-center gap-2 justify-center">
+                  <span>View Months</span>
+                  <ChevronDown size={20} />
+                </div>
+              )}
+            </button>
+          )}
         </div>
+
         {isExpanded && (
           <div className="mt-4 space-y-2">
             {months.map((month) => (
@@ -1062,7 +1065,7 @@ function AnnexCard({
         )}
         <div className="card-actions justify-between items-center mt-4">
           <div className="space-x-2">
-            {session?.user?.role === "RSO" && (
+            {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
               <button className="btn btn-primary btn-sm" onClick={() => editAnnex(annex._id)}>
                 <Edit size={14} className="mr-1" />
                 Edit Liquidation Report
@@ -1091,7 +1094,7 @@ function AnnexCard({
               onChange={(e) => setSoccRemarks(e.target.value)}
               readOnly={session?.user?.role !== "SOCC"}
             ></textarea>
-            {session?.user?.role === "SOCC" && (
+            {session?.user?.role === "SOCC" && annex.status === "For Review" && (
               <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}>
                 Update SOCC Remarks
               </button>
@@ -1112,7 +1115,7 @@ function AnnexCard({
               onChange={(e) => setOsaRemarks(e.target.value)}
               readOnly={session?.user?.role !== "OSA"}
             ></textarea>
-            {session?.user?.role === "OSA" && (
+            {session?.user?.role === "OSA" && annex.status === "For Review" && (
               <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
                 Update OSA Remarks
               </button>

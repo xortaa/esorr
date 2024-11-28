@@ -286,9 +286,9 @@ const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
           <Text style={styles.listItemNumber}>2.</Text>
           <Text style={styles.listItemContent}>
             At the General Assembly of the Representatives of Recognized Student Organization duly held and convened on{" "}
-            {new Date(annex.ratificationDate).toLocaleDateString()} at {annex.ratificationVenue} which assembly a quorum was present and
-            acted throughout, the General Assembly approved the proposed {annex.academicYear} {annex.organization.name}{" "}
-            Article of Association by a majority vote of its members.
+            {new Date(annex.ratificationDate).toLocaleDateString()} at {annex.ratificationVenue} which assembly a quorum
+            was present and acted throughout, the General Assembly approved the proposed {annex.academicYear}{" "}
+            {annex.organization.name} Article of Association by a majority vote of its members.
           </Text>
         </View>
 
@@ -551,7 +551,7 @@ function AnnexCard({
             </h2>
           </div>
           <div className="flex items-center space-x-2">
-            {session?.user?.role === "RSO" && (
+            {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
               <button
                 className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
                 onClick={() => editAnnex(annex._id)}
@@ -560,10 +560,12 @@ function AnnexCard({
                 Edit Ratification Details
               </button>
             )}
-            <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">
@@ -588,7 +590,7 @@ function AnnexCard({
                 onChange={(e) => setSoccRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "SOCC"}
               ></textarea>
-              {session?.user?.role === "SOCC" && (
+              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
                 <button
                   className="btn btn-primary mt-2"
                   onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
@@ -612,7 +614,7 @@ function AnnexCard({
                 onChange={(e) => setOsaRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "OSA"}
               ></textarea>
-              {session?.user?.role === "OSA" && (
+              {session?.user?.role === "OSA" && annex.status === "For Review" && (
                 <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
                   Update OSA Remarks
                 </button>

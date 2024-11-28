@@ -474,7 +474,7 @@ const MyDocument: React.FC<{ annex: Annex02 }> = ({ annex }) => (
               {"\u2022"} Report consisting of:
             </Text>
             <View style={[styles.tableLastCell, { marginLeft: 10 }]}>
-              <View style={{ flexDirection: "column" }}>
+              <View style={{ flexDirection: "column", width: "95%" }}>
                 <View style={{ flexDirection: "row" }}>
                   <Text> {"a)"} </Text>
                   <Text> Summary of receipts and disbursements marked as Annex "E-1" </Text>
@@ -1012,10 +1012,12 @@ function AnnexCard({
             <h2 className="card-title">Petition for Recognition Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-ghost btn-sm" onClick={generatePDF}>
-              <Download className="h-4 w-4 mr-2" />
-              Generate PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-ghost btn-sm" onClick={generatePDF}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">
@@ -1040,7 +1042,7 @@ function AnnexCard({
                 onChange={(e) => setSoccRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "SOCC"}
               ></textarea>
-              {session?.user?.role === "SOCC" && (
+              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
                 <button
                   className="btn btn-primary mt-2"
                   onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
@@ -1064,7 +1066,7 @@ function AnnexCard({
                 onChange={(e) => setOsaRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "OSA"}
               ></textarea>
-              {session?.user?.role === "OSA" && (
+              {session?.user?.role === "OSA" && annex.status === "For Review" && (
                 <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
                   Update OSA Remarks
                 </button>

@@ -46,6 +46,24 @@ const AnnexDCreator = () => {
         alert("Failed to upload letterhead. Please try again.");
       }
     }
+
+    if (file) {
+      // Check file size (10 MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB limit.");
+        return;
+      }
+
+      // Check file type
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!validTypes.includes(file.type)) {
+        alert("Invalid file type. Only PNG and JPG/JPEG are allowed.");
+        return;
+      }
+
+      // Proceed with file upload
+      // Your file upload logic here
+    }
   };
 
   const clearLetterhead = () => {
@@ -106,7 +124,7 @@ const AnnexDCreator = () => {
               <div>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={handleLetterheadUpload}
                   className="hidden"
                   id="letterhead-upload"

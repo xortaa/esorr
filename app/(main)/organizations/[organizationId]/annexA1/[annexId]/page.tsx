@@ -86,6 +86,23 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (file) {
+      // Check file size (10 MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size exceeds 10MB limit.");
+        return;
+      }
+
+      // Check file type
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!validTypes.includes(file.type)) {
+        alert("Invalid file type. Only PNG and JPG/JPEG are allowed.");
+        return;
+      }
+    }
+
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedImage(file);
@@ -304,7 +321,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                 <input
                   type="file"
                   name="image"
-                  accept="image/*"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={handleImageChange}
                   className="file-input file-input-bordered w-full"
                 />

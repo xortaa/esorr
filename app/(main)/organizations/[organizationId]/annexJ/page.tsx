@@ -488,10 +488,12 @@ function AnnexCard({
             <h2 className="card-title">COMMITMENT TO ACTIVE PARTICIPATION Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">
@@ -516,7 +518,7 @@ function AnnexCard({
                 onChange={(e) => setSoccRemarks(e.target.value)}
                 readOnly={session?.user?.role !== "SOCC"}
               ></textarea>
-              {session?.user?.role === "SOCC" && (
+              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
                 <button
                   className="btn btn-primary mt-2"
                   onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
@@ -558,7 +560,7 @@ function AnnexCard({
                 </button>
               </>
             )}
-            {session?.user?.role === "RSO" && (
+            {session?.user?.role === "RSO" && annex.status === "For Review" && (
               <button
                 className="btn btn-primary"
                 onClick={() => onSubmit(annex._id)}
