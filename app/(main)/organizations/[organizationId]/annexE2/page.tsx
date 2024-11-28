@@ -1033,17 +1033,20 @@ function AnnexCard({
       <div className="card-body p-4">
         <div className="flex items-center justify-between">
           <h2 className="card-title text-lg">Financial Report for AY {annex.academicYear}</h2>
-          <button className="btn btn-ghost btn-sm" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? (
-              <ChevronUp size={20} />
-            ) : (
-              <div className="flex items-center gap-2 justify-center">
-                <span>View Months</span>
-                <ChevronDown size={20} />
-              </div>
-            )}
-          </button>
+          {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+            <button className="btn btn-ghost btn-sm" onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? (
+                <ChevronUp size={20} />
+              ) : (
+                <div className="flex items-center gap-2 justify-center">
+                  <span>View Months</span>
+                  <ChevronDown size={20} />
+                </div>
+              )}
+            </button>
+          )}
         </div>
+
         {isExpanded && (
           <div className="mt-4 space-y-2">
             {months.map((month) => (

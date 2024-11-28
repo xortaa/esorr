@@ -1028,10 +1028,12 @@ function AnnexCard({
                 Edit Articles
               </button>
             )}
-            <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-ghost btn-sm" onClick={() => downloadPDF(annex._id)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
             {annex.pdf ? (
               session?.user?.role === "RSO" && (
                 <button

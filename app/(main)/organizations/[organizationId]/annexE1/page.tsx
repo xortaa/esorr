@@ -1445,10 +1445,12 @@ function AnnexCard({
                 Edit Financial Report
               </button>
             )}
-            <button className="btn btn-ghost btn-sm" onClick={openPDFInNewTab}>
-              <Download className="h-4 w-4 mr-2" />
-              View PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-ghost btn-sm" onClick={openPDFInNewTab}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">

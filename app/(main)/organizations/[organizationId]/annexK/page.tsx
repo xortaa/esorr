@@ -476,10 +476,12 @@ function AnnexCard({
             <h2 className="card-title">COMMITMENT TO CARE FOR THE ENVIRONMENT Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </button>
+            {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
+              <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
+            )}
           </div>
         </div>
         <div className="mt-4 space-y-4">
