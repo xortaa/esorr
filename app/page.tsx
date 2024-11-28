@@ -16,8 +16,7 @@ const HomePage = () => {
               To access E-SORR, please make sure you meet the following requirements:
             </p>
             <ol className="list-decimal list-inside">
-              <li>UST Google Workspace Personal Account</li>
-              <li>Approved E-SORR account</li>
+              <li>E-SORR account created by OSA</li>
             </ol>
           </div>
           <div className="mt-4 flex flex-col justify-center items-start gap-8">
