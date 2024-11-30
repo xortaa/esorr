@@ -14,41 +14,39 @@ const monthNames = [
 ];
 
 export function recalculateFinancialReport(financialReport) {
-  let currentBalance = financialReport.startingBalance;
+  // Preserve the original starting balance
+  const originalStartingBalance = financialReport.startingBalance;
+
+  let currentBalance = originalStartingBalance;
   let totalIncome = 0;
   let totalExpenses = 0;
 
   // Sort transactions by date
-  financialReport.transactions.sort((a, b) => a.date - b.date);
-
-  // Store August's starting balance
-  const augustStartingBalance = financialReport.august?.startingBalance;
+  financialReport.transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   // Reset all month data
   monthNames.forEach((month) => {
-    if (month === "august") {
-      // Preserve August's data structure but only reset the calculated values
-      financialReport[month] = {
-        startingBalance: augustStartingBalance, // Keep original starting balance
-        endingBalance: 0,
-        totalIncome: 0,
-        totalExpenses: 0,
-      };
-    } else {
-      financialReport[month] = {
-        startingBalance: 0,
-        endingBalance: 0,
-        totalIncome: 0,
-        totalExpenses: 0,
-      };
-    }
+    financialReport[month] = {
+      startingBalance: 0,
+      endingBalance: 0,
+      totalIncome: 0,
+      totalExpenses: 0,
+    };
   });
+
+  // Set August's starting balance
+  financialReport.august.startingBalance = originalStartingBalance;
 
   // Process each transaction
   financialReport.transactions.forEach((transaction) => {
     const transactionDate = new Date(transaction.date);
     const monthIndex = (transactionDate.getMonth() + 5) % 12; // Adjust for fiscal year starting in August
     const monthName = monthNames[monthIndex];
+
+    // Skip the initial balance transaction for August
+    if (transaction.category === "Organization Fund / Beginning Balance") {
+      return;
+    }
 
     if (transaction.type === "inflow") {
       financialReport[monthName].totalIncome += transaction.amount;
@@ -59,24 +57,20 @@ export function recalculateFinancialReport(financialReport) {
       totalExpenses += transaction.amount;
       currentBalance -= transaction.amount;
     }
+
+    // Update the ending balance for the current month
+    financialReport[monthName].endingBalance = currentBalance;
   });
 
   // Calculate balances for each month
-  let previousBalance = augustStartingBalance; // Start with August's preserved balance
+  let previousBalance = originalStartingBalance;
 
   monthNames.forEach((month) => {
-    if (month === "august") {
-      // For August, just calculate the ending balance without modifying starting balance
-      financialReport[month].endingBalance =
-        augustStartingBalance + financialReport[month].totalIncome - financialReport[month].totalExpenses;
-    } else {
-      // For all other months, set starting balance to previous month's ending balance
-      financialReport[month].startingBalance = previousBalance;
-      financialReport[month].endingBalance =
-        financialReport[month].startingBalance +
-        financialReport[month].totalIncome -
-        financialReport[month].totalExpenses;
-    }
+    financialReport[month].startingBalance = previousBalance;
+    financialReport[month].endingBalance =
+      financialReport[month].startingBalance +
+      financialReport[month].totalIncome -
+      financialReport[month].totalExpenses;
     previousBalance = financialReport[month].endingBalance;
   });
 
@@ -87,24 +81,3 @@ export function recalculateFinancialReport(financialReport) {
 
   return financialReport;
 }
-
-// Test the function
-const testReport = {
-  startingBalance: 1000,
-  transactions: [
-    { date: new Date("2023-08-15"), type: "inflow", amount: 500 },
-    { date: new Date("2023-09-01"), type: "outflow", amount: 200 },
-  ],
-  august: {
-    startingBalance: 1000,
-    endingBalance: 0,
-    totalIncome: 0,
-    totalExpenses: 0,
-  },
-};
-
-console.log("Initial August starting balance:", testReport.august.startingBalance);
-const result = recalculateFinancialReport(testReport);
-console.log("Final August starting balance:", result.august.startingBalance);
-console.log("August ending balance:", result.august.endingBalance);
-console.log("September starting balance:", result.september.startingBalance);
