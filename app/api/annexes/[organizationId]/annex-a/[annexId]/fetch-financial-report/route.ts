@@ -10,9 +10,9 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   try {
     const annexA = await AnnexA.findById(params.annexId).select("academicYear");
 
-    const annexE1 = await AnnexE1.findOne({ academicYear: annexA.academicYear, organizationId: params.organizationId });
+    const annexE1 = await AnnexE1.findOne({ academicYear: annexA.academicYear, organization: params.organizationId });
 
-    const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id }).select("endingBalance");
+    const financialReport = await FinancialReport.findOne({ annexE1: annexE1._id });
 
     return NextResponse.json(financialReport);
   } catch (error) {

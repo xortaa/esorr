@@ -886,19 +886,19 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
               <EmphasizedText>E. Total Cash PhP {financialReport.endingBalance ?? ""}</EmphasizedText>
               {"\n"}
             </Text>
-            <Text style={{ paddingLeft: 50, paddingTop: -10 }}>
+            {/* <Text style={{ paddingLeft: 50, paddingTop: -10 }}>
               {"\n"}
               <EmphasizedText>On Hand PhP {financialReport.endingBalance ?? ""}</EmphasizedText>
               {"\n"}
-            </Text>
-            <Text style={{ paddingLeft: 50, paddingTop: -20 }}>
+            </Text> */}
+            {/* <Text style={{ paddingLeft: 50, paddingTop: -20 }}>
               {"\n"}
               <EmphasizedText>On Bank PhP _____________________________</EmphasizedText>
               {"\n"}
-            </Text>
+            </Text> */}
           </View>
 
-          <View>
+          {/* <View>
             <Text style={{ paddingLeft: 30, paddingTop: -20 }}>
               {"\n"}
               <EmphasizedText>o Name of Bank ____________________ Location of Bank ___________________</EmphasizedText>
@@ -915,7 +915,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
               {"\n"}
               {"\n"}
             </Text>
-          </View>
+          </View> */}
 
           <View style={[styles.table, {}]}>
             <View style={[styles.tableRow, {}]}>

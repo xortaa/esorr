@@ -232,11 +232,11 @@ export async function POST(req: NextRequest, { params }: { params: { organizatio
     const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
-      startingBalance: 0,
+      startingBalance: previousFinancialReport?.endingBalance,
       transactions: [],
       totalIncome: 0,
       totalExpenses: 0,
-      endingBalance: 0,
+      endingBalance: previousFinancialReport?.endingBalance,
     };
 
     monthNames.forEach((month) => {

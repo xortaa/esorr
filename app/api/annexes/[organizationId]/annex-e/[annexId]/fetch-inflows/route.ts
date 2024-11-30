@@ -24,7 +24,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   try {
     const annexE = await AnnexE.findById(params.annexId).select("academicYear");
 
-    const annexE2 = await AnnexE2.findOne({ academicYear: annexE.academicYear, organizationId: params.organizationId });
+    const annexE2 = await AnnexE2.findOne({ academicYear: annexE.academicYear, organization: params.organizationId });
 
     const allInflows = [];
     for (const month of monthNames) {

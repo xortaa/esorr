@@ -291,11 +291,11 @@ export async function POST(req: NextRequest) {
     const financialReportData = {
       annexE1: null,
       academicYear: currentAcademicYear,
-      startingBalance: 0,
+      startingBalance: startingBalance, // Set the starting balance here
       transactions: [],
       totalIncome: 0,
       totalExpenses: 0,
-      endingBalance: 0,
+      endingBalance: startingBalance, // Set the initial ending balance
     };
 
     monthNames.forEach((month) => {
