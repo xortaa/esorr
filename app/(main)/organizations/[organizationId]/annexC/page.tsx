@@ -269,8 +269,8 @@ const MyDocument: React.FC<{ annex: AnnexC }> = ({ annex }) => {
         <Text style={[styles.title, { marginTop: 20 }]}>SECRETARY'S CERTIFICATE</Text>
 
         <Text style={styles.text}>
-          I, <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.assignedSecretary || "_________________"}</Text>, a
-          duly elected and qualified Secretary of the{" "}
+          I, <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.assignedSecretary || "_________________"}</Text>,
+          a duly elected and qualified Secretary of the{" "}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>{annex.organization.name}</Text>, of the University of Santo
           Tomas, do hereby certify that:
         </Text>
@@ -351,16 +351,27 @@ export default function AnnexCManager() {
   const [secretaryRatificationVenue, setSecretaryRatificationVenue] = useState<string>("");
   const currentPath = usePathname();
   const router = useRouter();
+  const [currentAcademicYear, setCurrentAcademicYear] = useState<string>("");
 
   useEffect(() => {
     fetchAnnexes();
+    fetchOrganizationCurrentAcademicYear();
   }, [organizationId]);
+
+  const fetchOrganizationCurrentAcademicYear = async () => {
+    try {
+      const response = await axios.get(`/api/${organizationId}/get-current-academic-year`);
+      setCurrentAcademicYear(response.data.academicYear);
+    } catch (error) {
+      console.error("Error fetching current academic year:", error);
+    }
+  };
 
   const fetchAnnexes = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`/api/annexes/${organizationId}/annex-c`);
-      setAnnexList(response.data);
+      setAnnexList(response.data.reverse());
     } catch (error) {
       console.error("Error fetching annexes:", error);
     } finally {
@@ -488,6 +499,7 @@ export default function AnnexCManager() {
               onApprove={handleApprove}
               onDisapprove={handleDisapprove}
               session={session}
+              currentAcademicYear={currentAcademicYear}
             />
           ))}
           {annexList.length === 0 && (
@@ -511,6 +523,7 @@ interface AnnexCardProps {
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
   session: any;
+  currentAcademicYear: string;
 }
 
 function AnnexCard({
@@ -522,6 +535,7 @@ function AnnexCard({
   onApprove,
   onDisapprove,
   session,
+  currentAcademicYear,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -551,14 +565,18 @@ function AnnexCard({
             </h2>
           </div>
           <div className="flex items-center space-x-2">
-            {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
-              <button
-                className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
-                onClick={() => editAnnex(annex._id)}
-              >
-                <PenTool className="h-4 w-4 mr-2" />
-                Edit Ratification Details
-              </button>
+            {currentAcademicYear === annex.academicYear && (
+              <>
+                {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
+                  <button
+                    className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
+                    onClick={() => editAnnex(annex._id)}
+                  >
+                    <PenTool className="h-4 w-4 mr-2" />
+                    Edit Ratification Details
+                  </button>
+                )}
+              </>
             )}
             {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
               <button className="btn btn-outline btn-sm" onClick={() => generatePDF(annex)}>
@@ -568,84 +586,89 @@ function AnnexCard({
             )}
           </div>
         </div>
-        <div className="mt-4 space-y-4">
-          <div>
-            <p className="font-semibold">Status: {annex.status}</p>
-            {annex.dateSubmitted && (
-              <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
-            )}
-          </div>
-          {(session?.user?.role === "OSA" ||
-            session?.user?.role === "RSO" ||
-            session?.user?.role === "RSO-SIGNATORY" ||
-            session?.user?.role === "AU" ||
-            session?.user?.role === "SOCC") && (
+        {currentAcademicYear === annex.academicYear && (
+          <div className="mt-4 space-y-4">
             <div>
-              <label className="label">
-                <span className="label-text font-semibold">SOCC Remarks</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={soccRemarks}
-                onChange={(e) => setSoccRemarks(e.target.value)}
-                readOnly={session?.user?.role !== "SOCC"}
-              ></textarea>
-              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
-                <button
-                  className="btn btn-primary mt-2"
-                  onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
-                >
-                  Update SOCC Remarks
-                </button>
+              <p className="font-semibold">Status: {annex.status}</p>
+              {annex.dateSubmitted && (
+                <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
               )}
             </div>
-          )}
-          {(session?.user?.role === "OSA" ||
-            session?.user?.role === "RSO" ||
-            session?.user?.role === "RSO-SIGNATORY" ||
-            session?.user?.role === "AU") && (
-            <div>
-              <label className="label">
-                <span className="label-text font-semibold">OSA Remarks</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={osaRemarks}
-                onChange={(e) => setOsaRemarks(e.target.value)}
-                readOnly={session?.user?.role !== "OSA"}
-              ></textarea>
+            {(session?.user?.role === "OSA" ||
+              session?.user?.role === "RSO" ||
+              session?.user?.role === "RSO-SIGNATORY" ||
+              session?.user?.role === "AU" ||
+              session?.user?.role === "SOCC") && (
+              <div>
+                <label className="label">
+                  <span className="label-text font-semibold">SOCC Remarks</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={soccRemarks}
+                  onChange={(e) => setSoccRemarks(e.target.value)}
+                  readOnly={session?.user?.role !== "SOCC"}
+                ></textarea>
+                {session?.user?.role === "SOCC" && annex.status === "For Review" && (
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
+                  >
+                    Update SOCC Remarks
+                  </button>
+                )}
+              </div>
+            )}
+            {(session?.user?.role === "OSA" ||
+              session?.user?.role === "RSO" ||
+              session?.user?.role === "RSO-SIGNATORY" ||
+              session?.user?.role === "AU") && (
+              <div>
+                <label className="label">
+                  <span className="label-text font-semibold">OSA Remarks</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={osaRemarks}
+                  onChange={(e) => setOsaRemarks(e.target.value)}
+                  readOnly={session?.user?.role !== "OSA"}
+                ></textarea>
+                {session?.user?.role === "OSA" && annex.status === "For Review" && (
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}
+                  >
+                    Update OSA Remarks
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="flex justify-end space-x-2">
               {session?.user?.role === "OSA" && annex.status === "For Review" && (
-                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
-                  Update OSA Remarks
+                <>
+                  <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+                    Approve
+                  </button>
+                  <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+                    Disapprove
+                  </button>
+                </>
+              )}
+              {session?.user?.role === "RSO" && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onSubmit(annex._id)}
+                  disabled={
+                    !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                  }
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit
                 </button>
               )}
             </div>
-          )}
-          <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && annex.status === "For Review" && (
-              <>
-                <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
-                  Approve
-                </button>
-                <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
-                  Disapprove
-                </button>
-              </>
-            )}
-            {session?.user?.role === "RSO" && (
-              <button
-                className="btn btn-primary"
-                onClick={() => onSubmit(annex._id)}
-                disabled={
-                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
-                }
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Submit
-              </button>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

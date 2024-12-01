@@ -584,16 +584,27 @@ export default function EnhancedAnnex01Manager() {
   const signatureRef = useRef<SignatureCanvas>(null);
   const { organizationId } = useParams();
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
+  const [currentAcademicYear, setCurrentAcademicYear] = useState<string>("");
 
   useEffect(() => {
     fetchAnnexes();
+    fetchOrganizationCurrentAcademicYear();
   }, [organizationId]);
+
+  const fetchOrganizationCurrentAcademicYear = async () => {
+    try {
+      const response = await axios.get(`/api/${organizationId}/get-current-academic-year`);
+      setCurrentAcademicYear(response.data.academicYear);
+    } catch (error) {
+      console.error("Error fetching current academic year:", error);
+    }
+  };
 
   const fetchAnnexes = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`/api/annexes/${organizationId}/annex-01`);
-      setAnnexList(response.data);
+      setAnnexList(response.data.reverse());
     } catch (error) {
       console.error("Error fetching annexes:", error);
     } finally {
@@ -709,6 +720,7 @@ export default function EnhancedAnnex01Manager() {
               onApprove={handleApprove}
               onDisapprove={handleDisapprove}
               session={session}
+              currentAcademicYear={currentAcademicYear}
             />
           ))}
           {annexList.length === 0 && (
@@ -719,111 +731,6 @@ export default function EnhancedAnnex01Manager() {
           )}
         </div>
       )}
-
-      {/* {isModalOpen && selectedAnnex && pdfBlob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
-          <div className="relative w-auto max-w-7xl mx-auto my-6">
-            <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none">
-              <div className="flex items-start justify-between p-5 border-b border-solid rounded-t">
-                <h3 className="text-2xl font-semibold">Add Signature to Annex 01</h3>
-                <button
-                  className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <span className="bg-transparent text-black h-6 w-6 text-2xl block outline-none focus:outline-none">
-                    ×
-                  </span>
-                </button>
-              </div>
-              <div className="relative p-6 flex-auto">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-[600px] overflow-auto">
-                    <PDFViewer width="100%" height="100%">
-                      <MyDocument annex={selectedAnnex} />
-                    </PDFViewer>
-                  </div>
-                  <div className="flex flex-col space-y-4">
-                    <select
-                      className="select select-bordered w-full"
-                      value={
-                        selectedUserPosition
-                          ? `${selectedUserPosition.role}-${selectedUserPosition.organizationName}`
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const [role, organizationName] = e.target.value.split("-");
-                        setSelectedUserPosition({ role, organizationName });
-                      }}
-                    >
-                      <option value="">Select your role</option>
-                      {session?.user?.positions?.map((userPosition: Positions, index: number) => {
-                        const name = userPosition.organization?.name || userPosition.affiliation;
-                        return (
-                          <option key={index} value={`${userPosition.position}-${name}`}>
-                            {userPosition.position} - {name}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <select
-                      className="select select-bordered w-full"
-                      value={selectedSignaturePosition}
-                      onChange={(e) => setSelectedSignaturePosition(e.target.value as SignaturePosition)}
-                    >
-                      <option value="">Select signature position</option>
-                      <option value="president">President</option>
-                    </select>
-                    <div className="border p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold mb-2">Draw Your Signature</h4>
-                      <div className="border p-2 mb-2">
-                        <SignatureCanvas
-                          ref={signatureRef}
-                          canvasProps={{ width: 500, height: 200, className: "signature-canvas" }}
-                        />
-                      </div>
-                      <button className="btn btn-outline w-full" onClick={() => signatureRef.current?.clear()}>
-                        Clear Signature
-                      </button>
-                    </div>
-                    <div className="text-center text-lg font-semibold">OR</div>
-                    <div className="border p-4 rounded-lg">
-                      <h4 className="text-lg font-semibold mb-2">Upload Your Signature</h4>
-                      {signaturePreview ? (
-                        <div className="relative">
-                          <img src={signaturePreview} alt="Signature Preview" className="max-w-full h-auto" />
-                          <button
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                            onClick={clearUploadedSignature}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleSignatureUpload}
-                            className="hidden"
-                            id="signature-upload"
-                          />
-                          <label htmlFor="signature-upload" className="btn btn-outline btn-primary w-full">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Signature
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                    <button className="btn btn-primary" onClick={handleSubmitSignature}>
-                      Submit Signature
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </PageWrapper>
   );
 }
@@ -836,6 +743,7 @@ interface AnnexCardProps {
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
   session: any;
+  currentAcademicYear: string;
 }
 
 function AnnexCard({
@@ -846,6 +754,7 @@ function AnnexCard({
   onApprove,
   onDisapprove,
   session,
+  currentAcademicYear,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -881,80 +790,85 @@ function AnnexCard({
             )}
           </div>
         </div>
-        <div className="mt-4 space-y-4">
-          <div>
-            <p className="font-semibold">Status: {annex.status}</p>
-            {annex.dateSubmitted && (
-              <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
-            )}
-          </div>
-          {(session?.user?.role === "OSA" ||
-            session?.user?.role === "RSO" ||
-            session?.user?.role === "AU" ||
-            session?.user?.role === "SOCC") && (
+        {annex.academicYear === currentAcademicYear && (
+          <div className="mt-4 space-y-4">
             <div>
-              <label className="label">
-                <span className="label-text font-semibold">SOCC Remarks</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={soccRemarks}
-                onChange={(e) => setSoccRemarks(e.target.value)}
-                readOnly={session?.user?.role !== "SOCC"}
-              ></textarea>
-              {session?.user?.role === "SOCC" && annex.status === "For Review" && (
-                <button
-                  className="btn btn-primary mt-2"
-                  onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
-                >
-                  Update SOCC Remarks
-                </button>
+              <p className="font-semibold">Status: {annex.status}</p>
+              {annex.dateSubmitted && (
+                <p className="text-sm text-gray-500">Submitted on: {new Date(annex.dateSubmitted).toLocaleString()}</p>
               )}
             </div>
-          )}
-          {(session?.user?.role === "OSA" || session?.user?.role === "RSO" || session?.user?.role === "AU") && (
-            <div>
-              <label className="label">
-                <span className="label-text font-semibold">OSA Remarks</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered w-full"
-                value={osaRemarks}
-                onChange={(e) => setOsaRemarks(e.target.value)}
-                readOnly={session?.user?.role !== "OSA"}
-              ></textarea>
+            {(session?.user?.role === "OSA" ||
+              session?.user?.role === "RSO" ||
+              session?.user?.role === "AU" ||
+              session?.user?.role === "SOCC") && (
+              <div>
+                <label className="label">
+                  <span className="label-text font-semibold">SOCC Remarks</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={soccRemarks}
+                  onChange={(e) => setSoccRemarks(e.target.value)}
+                  readOnly={session?.user?.role !== "SOCC"}
+                ></textarea>
+                {session?.user?.role === "SOCC" && annex.status === "For Review" && (
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => onUpdateRemarks(annex._id, "socc", soccRemarks)}
+                  >
+                    Update SOCC Remarks
+                  </button>
+                )}
+              </div>
+            )}
+            {(session?.user?.role === "OSA" || session?.user?.role === "RSO" || session?.user?.role === "AU") && (
+              <div>
+                <label className="label">
+                  <span className="label-text font-semibold">OSA Remarks</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered w-full"
+                  value={osaRemarks}
+                  onChange={(e) => setOsaRemarks(e.target.value)}
+                  readOnly={session?.user?.role !== "OSA"}
+                ></textarea>
+                {session?.user?.role === "OSA" && annex.status === "For Review" && (
+                  <button
+                    className="btn btn-primary mt-2"
+                    onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}
+                  >
+                    Update OSA Remarks
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="flex justify-end space-x-2">
               {session?.user?.role === "OSA" && annex.status === "For Review" && (
-                <button className="btn btn-primary mt-2" onClick={() => onUpdateRemarks(annex._id, "osa", osaRemarks)}>
-                  Update OSA Remarks
+                <>
+                  <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
+                    Approve
+                  </button>
+                  <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
+                    Disapprove
+                  </button>
+                </>
+              )}
+              {session?.user?.role === "RSO" && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => onSubmit(annex._id)}
+                  disabled={
+                    !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
+                  }
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit
                 </button>
               )}
             </div>
-          )}
-          <div className="flex justify-end space-x-2">
-            {session?.user?.role === "OSA" && annex.status === "For Review" && (
-              <>
-                <button className="btn btn-success" onClick={() => onApprove(annex._id)}>
-                  Approve
-                </button>
-                <button className="btn btn-error" onClick={() => onDisapprove(annex._id)}>
-                  Disapprove
-                </button>
-              </>
-            )}
-            {session?.user?.role === "RSO" && (
-              <button
-                className="btn btn-primary"
-                onClick={() => onSubmit(annex._id)}
-                disabled={
-                  !submissionsStatus.submissionAllowed || annex.status === "For Review" || annex.status === "Approved"
-                }
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Submit
-              </button>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
