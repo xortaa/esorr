@@ -149,6 +149,7 @@ interface AnnexE {
   incomingSecretary: Signature;
   incomingPresident: Signature;
   adviser: Signature;
+  dateSubmitted: Date;
 }
 
 interface Signature {
@@ -611,7 +612,7 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
           <View style={styles.signatureDetails}>
             <Text>Name of Organization: {annex.organization.name}</Text>
             <Text>Department: {annex.organization.affiliation}</Text>
-            <Text>Date Submitted: ___________________________________</Text>
+            <Text>Date Submitted: {new Date(annex.dateSubmitted).toLocaleDateString()}</Text>
           </View>
         </View>
 
@@ -621,7 +622,6 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
             <View key={index} style={{ flexDirection: "row", width: "50%", textAlign: "left", fontSize: 9 }}>
               <View style={styles.signatureDetails}>
                 <Text>Source of Funds: {inflow.category}</Text>
-                <Text>___________________________________</Text>
               </View>
             </View>
           ))
@@ -858,9 +858,8 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
         {/* map trough all the outflow iamge and display it */}
         {event.outflows.map((outflow, index) => (
           <View break key={outflow._id}>
-            <Text>
-              Image {index + 1}: {outflow.establishment}
-            </Text>
+            <Text>Event: {event.title}</Text>
+            <Text>Establishment: {outflow.establishment}</Text>
             {outflow.image && (
               <Image src={outflow.image} style={{ height: "70vh", width: "100%", objectFit: "contain" }} />
             )}
