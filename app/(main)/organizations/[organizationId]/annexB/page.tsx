@@ -706,10 +706,21 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
   const signatureRef = useRef<SignatureCanvas>(null);
   const [selectedSignaturePosition, setSelectedSignaturePosition] = useState<SignaturePosition | "">("");
   const [selectedUserPosition, setSelectedUserPosition] = useState<UserPosition | null>(null);
+  const [currentAcademicYear, setCurrentAcademicYear] = useState<string>("");
 
   useEffect(() => {
     fetchAnnexes();
+    fetchOrganizationCurrentAcademicYear();
   }, []);
+
+  const fetchOrganizationCurrentAcademicYear = async () => {
+    try {
+      const response = await axios.get(`/api/${params.organizationId}/get-current-academic-year`);
+      setCurrentAcademicYear(response.data.academicYear);
+    } catch (error) {
+      console.error("Error fetching current academic year:", error);
+    }
+  };
 
   const fetchAnnexes = async () => {
     setIsLoading(true);
@@ -845,6 +856,7 @@ export default function AnnexBManager({ params }: { params: { organizationId: st
               onApprove={handleApprove}
               onDisapprove={handleDisapprove}
               session={session}
+              currentAcademicYear={currentAcademicYear}
             />
           ))}
           {annexList.length === 0 && (
@@ -868,6 +880,7 @@ interface AnnexCardProps {
   onApprove: (annexId: string) => void;
   onDisapprove: (annexId: string) => void;
   session: any;
+  currentAcademicYear: string;
 }
 
 function AnnexCard({
@@ -879,6 +892,7 @@ function AnnexCard({
   onApprove,
   onDisapprove,
   session,
+  currentAcademicYear,
 }: AnnexCardProps) {
   const [soccRemarks, setSoccRemarks] = useState(annex.soccRemarks);
   const [osaRemarks, setOsaRemarks] = useState(annex.osaRemarks);
@@ -905,14 +919,18 @@ function AnnexCard({
             <h2 className="card-title">List of Members Annex for AY {annex.academicYear}</h2>
           </div>
           <div className="flex items-center space-x-2">
-            {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
-              <button
-                className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
-                onClick={() => editAnnex(annex._id)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Member List
-              </button>
+            {currentAcademicYear === annex.academicYear && (
+              <>
+                {session?.user?.role === "RSO" && annex.status !== "Approved" && annex.status !== "For Review" && (
+                  <button
+                    className="btn bg-blue-100 text-blue-800 btn-sm hover:bg-blue-200"
+                    onClick={() => editAnnex(annex._id)}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Member List
+                  </button>
+                )}
+              </>
             )}
             {(session?.user?.role === "RSO" || annex.status === "For Review" || annex.status === "Approved") && (
               <button className="btn btn-ghost btn-sm" onClick={() => generatePDF(annex)}>
@@ -922,6 +940,8 @@ function AnnexCard({
             )}
           </div>
         </div>
+        {currentAcademicYear === annex.academicYear && (
+
         <div className="mt-4 space-y-4">
           <div>
             <p className="font-semibold">Status: {annex.status}</p>
@@ -1000,6 +1020,7 @@ function AnnexCard({
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
