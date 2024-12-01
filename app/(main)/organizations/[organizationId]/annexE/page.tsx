@@ -1659,7 +1659,7 @@ const AnnexEManager: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`/api/annexes/${organizationId}/annex-e`);
-      setAnnexList(response.data);
+      setAnnexList(response.data.reverse());
     } catch (error) {
       console.error("Error fetching annexes:", error);
     } finally {
