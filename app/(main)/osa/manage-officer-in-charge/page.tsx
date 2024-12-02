@@ -25,7 +25,7 @@ export default function Component() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
@@ -38,16 +38,18 @@ export default function Component() {
       });
       if (response.ok) {
         console.log("Officer-In-Charge updated successfully");
+        alert("Officer-In-Charge updated successfully");
       } else {
         console.error("Failed to update Officer-In-Charge");
+        alert("Failed to update Officer-In-Charge");
       }
     } catch (error) {
       console.error("Error updating Officer-In-Charge:", error);
+      alert("Error updating Officer-In-Charge");
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <PageWrapper>
       <div className="flex items-center justify-center page_wrapper_height">
@@ -57,7 +59,7 @@ export default function Component() {
             <form onSubmit={handleSubmit}>
               <div className="form-control w-full max-w-xs">
                 <label htmlFor="officer-name" className="label">
-                  <span className="label-text">Officer-In-Charge</span>
+                  <span className="label-text">Director</span>
                 </label>
                 <input
                   type="text"
