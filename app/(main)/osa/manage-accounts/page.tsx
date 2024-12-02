@@ -21,7 +21,7 @@ interface Affiliation {
 
 export default function AccountsDashboard() {
   const { data: session } = useSession();
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountSearchTerm, setAccountSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("All");
   const [showArchived, setShowArchived] = useState(false);
@@ -44,13 +44,12 @@ export default function AccountsDashboard() {
   useEffect(() => {
     fetchAccounts();
     fetchAffiliations();
-  }, [showArchived]);
+  }, []);
 
   const fetchAccounts = async () => {
     setIsLoadingAccounts(true);
     try {
-      const endpoint = showArchived ? "/api/users/get-archived" : "/api/users";
-      const response = await axios.get(endpoint);
+      const response = await axios.get("/api/users");
       if (response.status === 200) {
         setAccounts(response.data);
       }
@@ -76,9 +75,10 @@ export default function AccountsDashboard() {
     return accounts.filter(
       (account) =>
         account.email.toLowerCase().includes(accountSearchTerm.toLowerCase()) &&
-        (filterRole === "All" || account.role === filterRole)
+        (filterRole === "All" || account.role === filterRole) &&
+        account.isArchived === showArchived
     );
-  }, [accounts, accountSearchTerm, filterRole]);
+  }, [accounts, accountSearchTerm, filterRole, showArchived]);
 
   const filteredAffiliations = useMemo(() => {
     return affiliations.filter((affiliation) =>
@@ -109,7 +109,9 @@ export default function AccountsDashboard() {
     try {
       const response = await axios.delete(`/api/users/${accountId}`);
       if (response.status === 200) {
-        setAccounts((prevAccounts) => prevAccounts.filter((account) => account._id !== accountId));
+        setAccounts((prevAccounts) =>
+          prevAccounts.map((account) => (account._id === accountId ? { ...account, isArchived: true } : account))
+        );
       }
     } catch (error) {
       console.error("Error archiving account:", error);
@@ -120,7 +122,9 @@ export default function AccountsDashboard() {
     try {
       const response = await axios.patch(`/api/users/${accountId}`);
       if (response.status === 200) {
-        setAccounts((prevAccounts) => prevAccounts.filter((account) => account._id !== accountId));
+        setAccounts((prevAccounts) =>
+          prevAccounts.map((account) => (account._id === accountId ? { ...account, isArchived: false } : account))
+        );
       }
     } catch (error) {
       console.error("Error unarchiving account:", error);
@@ -284,7 +288,6 @@ export default function AccountsDashboard() {
                   {filteredAccounts.map((account) => (
                     <tr key={account._id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="py-3 px-4">{account.email}</td>
-
                       <td className="py-3 px-4">{account.role}</td>
                       <td className="py-3 px-4">
                         <button
@@ -296,7 +299,7 @@ export default function AccountsDashboard() {
                         >
                           <Edit className="h-4 w-4" />
                         </button>
-                        {showArchived ? (
+                        {account.isArchived ? (
                           <button
                             className="btn btn-success btn-xs"
                             onClick={() => handleUnarchiveAccount(account._id)}
