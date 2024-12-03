@@ -9,7 +9,7 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
 
     const updatedAnnex = await AnnexH.findOneAndUpdate(
       { _id: annexId, organization: organizationId },
-      { $set: { status: "Approved" } },
+      { $set: { status: "Approved", soccRemarks: "", osaRemarks: "" } },
       { new: true, runValidators: true }
     ).populate("organization");
 
@@ -23,3 +23,4 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
