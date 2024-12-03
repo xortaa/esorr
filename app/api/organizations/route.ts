@@ -25,6 +25,8 @@ export const GET = async (req: NextRequest) => {
       "annex01 annex02 annexA annexA1 annexB annexC annexC1 annexD annexE annexE1 annexF annexG annexH annexI annexJ annexK annexL"
     );
 
+    organizations.sort((a, b) => a.name.localeCompare(b.name));
+
     const processedOrganizations = organizations.map((org) => {
       const annexes = [
         "annex01",
