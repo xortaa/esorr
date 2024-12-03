@@ -6,8 +6,19 @@ export const GET = async (req: NextRequest) => {
   await connectToDatabase();
 
   try {
-    const organizations = await Organizations.find().select("name").lean();
-    return NextResponse.json(organizations, { status: 200 });
+    const organizations = await Organizations.find().select("name affiliation").lean();
+
+    const sortedOrganizations = organizations.sort((a, b) => {
+      if (a.affiliation === "University Wide" && b.affiliation !== "University Wide") {
+        return -1;
+      }
+      if (a.affiliation !== "University Wide" && b.affiliation === "University Wide") {
+        return 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    return NextResponse.json(sortedOrganizations, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
