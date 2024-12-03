@@ -141,8 +141,7 @@ export default function Component() {
 
   useEffect(() => {
     if (yearOfAccreditation && grade && organizations.length > 0) {
-      const sortedOrganizations = [...organizations].sort((a, b) => a.name.localeCompare(b.name));
-      const index = sortedOrganizations.findIndex((org) => org._id === organizationId);
+      const index = organizations.findIndex((org) => org._id === organizationId);
       const paddedIndex = (index + 1).toString().padStart(2, "0");
       const newAccreditationCode = `RSO-${grade}-${yearOfAccreditation.slice(2, 4)}-${yearOfAccreditation.slice(
         7,
@@ -172,7 +171,6 @@ export default function Component() {
   const completedAnnexes = annexes.filter((annex) => annex.status === "Approved").length;
   const progress = (completedAnnexes / annexes.length) * 100;
 
-  
   let nextAcademicYear = "";
   if (!isLoading && organization?.academicYear) {
     const [startYear, endYear] = organization.academicYear.split("-").map(Number);
