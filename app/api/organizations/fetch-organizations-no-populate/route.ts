@@ -15,6 +15,13 @@ export const GET = async (req: NextRequest) => {
       if (a.affiliation !== "University Wide" && b.affiliation === "University Wide") {
         return 1;
       }
+      if (a.affiliation !== b.affiliation) {
+        const getThirdWord = (affiliation) => {
+          const words = affiliation.split(" ");
+          return words.length >= 3 ? words[2] : affiliation;
+        };
+        return getThirdWord(a.affiliation).localeCompare(getThirdWord(b.affiliation));
+      }
       return a.name.localeCompare(b.name);
     });
 

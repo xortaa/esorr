@@ -25,15 +25,22 @@ export const GET = async (req: NextRequest) => {
       "annex01 annex02 annexA annexA1 annexB annexC annexC1 annexD annexE annexE1 annexF annexG annexH annexI annexJ annexK annexL"
     );
 
-    organizations.sort((a, b) => {
-      if (a.affiliation === "University Wide" && b.affiliation !== "University Wide") {
-        return -1;
-      }
-      if (a.affiliation !== "University Wide" && b.affiliation === "University Wide") {
-        return 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
+  organizations.sort((a, b) => {
+    if (a.affiliation === "University Wide" && b.affiliation !== "University Wide") {
+      return -1;
+    }
+    if (a.affiliation !== "University Wide" && b.affiliation === "University Wide") {
+      return 1;
+    }
+    if (a.affiliation !== b.affiliation) {
+      const getThirdWord = (affiliation) => {
+        const words = affiliation.split(" ");
+        return words.length >= 3 ? words[2] : affiliation;
+      };
+      return getThirdWord(a.affiliation).localeCompare(getThirdWord(b.affiliation));
+    }
+    return a.name.localeCompare(b.name);
+  });
 
     const processedOrganizations = organizations.map((org) => {
       const annexes = [
