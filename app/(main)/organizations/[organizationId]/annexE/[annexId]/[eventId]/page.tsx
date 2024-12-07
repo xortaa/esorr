@@ -343,7 +343,7 @@ const EventDetails = () => {
           updateEvent={updateEvent}
         />
         <div className="flex justify-between">
-          <Link href={`/organizations/${organizationId}/annex-e/${annexId}`} className="btn btn-secondary">
+          <Link href={`/organizations/${organizationId}/annexE/${annexId}`} className="btn btn-secondary">
             Back to List
           </Link>
           <button className="btn btn-primary" onClick={handleSave}>
