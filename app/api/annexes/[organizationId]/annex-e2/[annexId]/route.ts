@@ -22,6 +22,11 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
 
     // Ensure all months have at least an empty array for inflows and outflows
     const months = [
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
       "january",
       "february",
       "march",
@@ -29,11 +34,6 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
       "may",
       "june",
       "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
     ];
     months.forEach((month) => {
       if (!annexE2[month]) {

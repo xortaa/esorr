@@ -7,11 +7,6 @@ import FinancialReport from "@/models/financial-report";
 import { recalculateFinancialReport } from "@/utils/recalculateFinancialReport";
 
 const monthNames = [
-  "august",
-  "september",
-  "october",
-  "november",
-  "december",
   "january",
   "february",
   "march",
@@ -19,6 +14,11 @@ const monthNames = [
   "may",
   "june",
   "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
 ];
 
 export async function GET(request: Request, { params }: { params: { organizationId: string; annexId: string } }) {
