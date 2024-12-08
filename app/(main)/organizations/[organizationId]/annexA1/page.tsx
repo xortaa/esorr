@@ -400,13 +400,9 @@ const OfficerPage: React.FC<{ officer: Officer; annex: AnnexA1; pageNumber: numb
       herein will be subject to UST's policies on Privacy and Disclosure of Information.
     </Text>
 
-    <View style={styles.signatureSection}>
-      {officer.signature ? (
-        <Image src={officer.signature} style={{ width: 100, height: 50 }} />
-      ) : (
-        <Text style={{ textDecoration: "underline", width: 200 }}>{"                              "}</Text>
-      )}
-      <Text>SIGNATURE OF OFFICER</Text>
+    <View style={{ textAlign: "center", marginTop: 30, alignItems: "center" }}>
+      <Text style={{}}>___________________________________________</Text>
+      <Text style={{}}>SIGNATURE OF OFFICER</Text>
     </View>
 
     <View fixed style={styles.footer}>

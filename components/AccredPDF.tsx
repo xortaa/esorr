@@ -28,10 +28,10 @@ Font.register({
 const styles = StyleSheet.create({
   page: {
     position: "relative",
-    paddingTop: 40,
-    paddingBottom: 80,
-    paddingRight: 80,
-    paddingLeft: 80,
+    // paddingTop: 40,
+    // paddingBottom: 40, // Adjusted padding
+    // paddingRight: 80,
+    // paddingLeft: 80,
     fontSize: 11,
     fontFamily: "Arial Narrow",
   },
@@ -41,31 +41,42 @@ const styles = StyleSheet.create({
     left: 0,
     width: "100%",
     height: "100%",
-    //objectFit: "cover", // Ensures the image covers the entire page without stretching
+    // objectFit: "cover", // Ensures the image covers the entire page without stretching
     zIndex: -1, // Keeps the image in the background
   },
   section: {
     marginBottom: 15,
   },
   orgname: {
+    position: "absolute",
+    top: 450,
+    // in the middle
+    left: 0,
+    right: 0,
     fontSize: 25,
     fontFamily: "Arial Narrow Bold",
     textAlign: "center",
-    paddingTop: 380,
+    // paddingTop: 380,
   },
   accred: {
+    position: "absolute",
+    top: 550,
+    right: 160,
     fontSize: 16,
     fontFamily: "Arial Narrow Bold",
     textAlign: "right",
-    paddingTop: 5,
-    paddingRight: 95,
+    // paddingTop: 5,
+    // paddingRight: 95,
   },
   year: {
+    position: "absolute",
+    top: 760,
+    right: 170,
     fontSize: 16,
     fontFamily: "Arial Narrow Bold",
     textAlign: "right",
-    paddingTop: 165,
-    paddingRight: 92,
+    // paddingTop: 165,
+    // paddingRight: 92,
   },
   signature: {
     fontSize: 16,
@@ -116,8 +127,10 @@ const MyDocument = ({ organization }: { organization: Organization }) => {
           <Text style={styles.orgname}>{organization.name}</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.accred}>{organization.levelOfRecognition}</Text>
+               <View style={styles.section}>
+          <Text style={styles.accred}>
+            {organization.levelOfRecognition.split('-').slice(1).join('-')}
+          </Text>
         </View>
 
         <View style={styles.section}>
