@@ -652,10 +652,10 @@ const MyDocument: React.FC<{ annex: AnnexB }> = ({ annex }) => {
               </Text>
               <View style={{ width: "25%", flexDirection: "row" }}>
                 <View style={{ width: "50%", borderRightWidth: 1 }}>
-                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "0" : "O"}</Text>
+                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "O" : "0"}</Text>
                 </View>
                 <View style={{ width: "50%" }}>
-                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "O" : "0"}</Text>
+                  <Text style={{ fontFamily: "Boxed" }}>{member.isNewMember ? "0" : "O"}</Text>
                 </View>
               </View>
             </View>
