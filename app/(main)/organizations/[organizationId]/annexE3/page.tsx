@@ -435,7 +435,7 @@ const MyDocument: React.FC<{ annex: AnnexE3 }> = ({ annex }) => (
         </Text>
         <Text style={{ fontSize: 9, textAlign: "center", borderRightWidth: 1, width: "10%" }}>
           {" "}
-          Current {"\n"} Officer{" "}
+         Rating
         </Text>
         <Text style={{ fontSize: 9, textAlign: "center", width: "30%" }}>Remarks/Comments</Text>
       </View>
