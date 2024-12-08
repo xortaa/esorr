@@ -6,7 +6,7 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
   await connectToDatabase();
 
   try {
-    const annexI = await AnnexI.findById(params.annexId).lean();
+    const annexI = await AnnexI.findById(params.annexId).populate("organization");
     if (!annexI) {
       return NextResponse.json({ error: "Annex I not found" }, { status: 404 });
     }
