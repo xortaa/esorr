@@ -3,5 +3,12 @@
     "app/api/**/*.(js|ts)": {
       "maxDuration": 60
     }
-  }
+  },
+    "crons": [
+    {
+      "path": "/api/schedule-emails",
+      "schedule": "0 5 * * *"
+    }
+  ]
+  
 }

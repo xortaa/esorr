@@ -538,6 +538,7 @@ export async function POST(req: NextRequest) {
 
     console.log("adding organization to user");
     currentUser.organization = newOrganization._id;
+    currentUser.affiliation = finalAffiliation;
 
     currentUser.isSetup = true;
 
