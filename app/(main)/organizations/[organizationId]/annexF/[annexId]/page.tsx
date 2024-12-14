@@ -175,6 +175,17 @@ export default function ActivitiesFormCreator() {
     }
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    } else {
+      // Handle form submission
+    }
+    form.classList.add("was-validated");
+  };
+
   if (isLoading) {
     return (
       <PageWrapper>
@@ -190,7 +201,7 @@ export default function ActivitiesFormCreator() {
     <PageWrapper>
       <BackButton />
       <h1 className="text-2xl font-bold mb-4">Activities Monitoring Form Creator</h1>
-      <form className="space-y-8">
+      <form className="space-y-8 needs-validation" noValidate onSubmit={handleSubmit}>
         {terms.map((term, termIndex) => (
           <div key={term.name} className="card bg-base-100 shadow-md">
             <div className="card-body">
@@ -235,7 +246,9 @@ export default function ActivitiesFormCreator() {
                             onChange={(e) =>
                               updateActivity(termIndex, activityIndex, "keyUnitActivity", e.target.value)
                             }
+                            required
                           />
+                          <div className="invalid-feedback">Key Unit Activity is required.</div>
                         </div>
                         <div className="form-control">
                           <label className="label" htmlFor={`targetDateRange-${activity.id}`}>
@@ -250,7 +263,9 @@ export default function ActivitiesFormCreator() {
                               updateActivity(termIndex, activityIndex, "targetDateRange", e.target.value)
                             }
                             placeholder="e.g., August 2023 - October 2024"
+                            required
                           />
+                          <div className="invalid-feedback">Target Date Range is required.</div>
                         </div>
                         <div className="form-control">
                           <label className="label" htmlFor={`actualDateAccomplished-${activity.id}`}>
@@ -264,7 +279,9 @@ export default function ActivitiesFormCreator() {
                             onChange={(e) =>
                               updateActivity(termIndex, activityIndex, "actualDateAccomplished", e.target.value)
                             }
+                            required
                           />
+                          <div className="invalid-feedback">Actual Date Accomplished is required.</div>
                         </div>
                         <div className="form-control">
                           <label className="label" htmlFor={`postEventEvaluation-${activity.id}`}>
@@ -287,7 +304,11 @@ export default function ActivitiesFormCreator() {
                             min="0"
                             max="5"
                             step="0.001"
+                            required
                           />
+                          <div className="invalid-feedback">
+                            Post Event Evaluation is required and must be between 0 and 5.
+                          </div>
                         </div>
                         <div className="form-control">
                           <label className="label" htmlFor={`interpretation-${activity.id}`}>

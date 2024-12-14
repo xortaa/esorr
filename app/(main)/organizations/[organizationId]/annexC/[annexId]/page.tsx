@@ -6,6 +6,8 @@ import axios from "axios";
 import PageWrapper from "@/components/PageWrapper";
 import BackButton from "@/components/BackButton";
 
+const containsDigits = (str: string) => /\d/.test(str);
+
 const RatificationForm = () => {
   const { organizationId, annexId } = useParams();
   const router = useRouter();
@@ -37,6 +39,20 @@ const RatificationForm = () => {
 
     fetchData();
   }, [annexId, organizationId]);
+
+  const handleSigningVenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!containsDigits(value)) {
+      setSigningVenue(value);
+    }
+  };
+
+  const handleAssignedSecretaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!containsDigits(value)) {
+      setAssignedSecretary(value);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +102,7 @@ const RatificationForm = () => {
                 className="input input-bordered w-full"
                 required
                 value={ratificationDate}
+                max={new Date().toISOString().split("T")[0]} // Set max to current date
                 onChange={(e) => setRatificationDate(e.target.value)}
               />
             </div>
@@ -98,6 +115,8 @@ const RatificationForm = () => {
                 id="ratificationVenue"
                 className="input input-bordered w-full"
                 required
+                minLength={3}
+                maxLength={100}
                 value={ratificationVenue}
                 onChange={(e) => setRatificationVenue(e.target.value)}
               />
@@ -112,6 +131,7 @@ const RatificationForm = () => {
                 className="input input-bordered w-full"
                 required
                 value={signingDate}
+                max={new Date().toISOString().split("T")[0]} // Set max to current date
                 onChange={(e) => setSigningDate(e.target.value)}
               />
             </div>
@@ -124,8 +144,10 @@ const RatificationForm = () => {
                 id="signingVenue"
                 className="input input-bordered w-full"
                 required
+                minLength={3}
+                maxLength={100}
                 value={signingVenue}
-                onChange={(e) => setSigningVenue(e.target.value)}
+                onChange={handleSigningVenueChange}
               />
             </div>
             <div className="form-control">
@@ -137,8 +159,10 @@ const RatificationForm = () => {
                 id="assignedSecretary"
                 className="input input-bordered w-full"
                 required
+                minLength={1}
+                maxLength={200}
                 value={assignedSecretary}
-                onChange={(e) => setAssignedSecretary(e.target.value)}
+                onChange={handleAssignedSecretaryChange}
               />
             </div>
             <div className="form-control mt-6">

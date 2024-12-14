@@ -241,74 +241,74 @@ const EventDetails = () => {
     }));
   };
 
- const handleSave = async () => {
-   try {
-     // Upload files
-     const uploadedFiles = await Promise.all(
-       filesToUpload.map(async (fileToUpload) => {
-         const formData = new FormData();
-         formData.append("file", fileToUpload.file);
-         formData.append("fileType", fileToUpload.fileType);
+  const handleSave = async () => {
+    try {
+      // Upload files
+      const uploadedFiles = await Promise.all(
+        filesToUpload.map(async (fileToUpload) => {
+          const formData = new FormData();
+          formData.append("file", fileToUpload.file);
+          formData.append("fileType", fileToUpload.fileType);
 
-         const response = await fetch("/api/upload-image", {
-           method: "POST",
-           body: formData,
-         });
+          const response = await fetch("/api/upload-image", {
+            method: "POST",
+            body: formData,
+          });
 
-         if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(`Upload failed: ${errorData.message || "Unknown error"}`);
-         }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Upload failed: ${errorData.message || "Unknown error"}`);
+          }
 
-         const data = await response.json();
-         return { url: data.url, fileType: fileToUpload.fileType };
-       })
-     );
+          const data = await response.json();
+          return { url: data.url, fileType: fileToUpload.fileType };
+        })
+      );
 
-     // Update event with new file URLs
-     const updatedEvent = {
-       ...event,
-       projectProposalForm: [
-         ...event.projectProposalForm,
-         ...uploadedFiles.filter((file) => file.fileType === "projectProposalForm").map((file) => file.url),
-       ],
-       actualAnsweredEvaluationForms: [
-         ...event.actualAnsweredEvaluationForms,
-         ...uploadedFiles.filter((file) => file.fileType === "actualAnsweredEvaluationForms").map((file) => file.url),
-       ],
-       shortWriteUp: [
-         ...event.shortWriteUp,
-         ...uploadedFiles.filter((file) => file.fileType === "shortWriteUp").map((file) => file.url),
-       ],
-       picturesOfEvent: [
-         ...event.picturesOfEvent,
-         ...uploadedFiles.filter((file) => file.fileType === "picturesOfEvent").map((file) => file.url),
-       ],
-     };
+      // Update event with new file URLs
+      const updatedEvent = {
+        ...event,
+        projectProposalForm: [
+          ...event.projectProposalForm,
+          ...uploadedFiles.filter((file) => file.fileType === "projectProposalForm").map((file) => file.url),
+        ],
+        actualAnsweredEvaluationForms: [
+          ...event.actualAnsweredEvaluationForms,
+          ...uploadedFiles.filter((file) => file.fileType === "actualAnsweredEvaluationForms").map((file) => file.url),
+        ],
+        shortWriteUp: [
+          ...event.shortWriteUp,
+          ...uploadedFiles.filter((file) => file.fileType === "shortWriteUp").map((file) => file.url),
+        ],
+        picturesOfEvent: [
+          ...event.picturesOfEvent,
+          ...uploadedFiles.filter((file) => file.fileType === "picturesOfEvent").map((file) => file.url),
+        ],
+      };
 
-     // Save event data
-     const saveResponse = await axios.put(
-       `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
-       updatedEvent
-     );
+      // Save event data
+      const saveResponse = await axios.put(
+        `/api/annexes/${organizationId}/annex-e/${annexId}/operational-assessment/${annexId}/event/${eventId}`,
+        updatedEvent
+      );
 
-     if (saveResponse.status !== 200) {
-       throw new Error("Failed to save event data");
-     }
+      if (saveResponse.status !== 200) {
+        throw new Error("Failed to save event data");
+      }
 
-     // Clear filesToUpload after successful save
-     setFilesToUpload([]);
+      // Clear filesToUpload after successful save
+      setFilesToUpload([]);
 
-     // Update local state
-     setEvent(updatedEvent);
+      // Update local state
+      setEvent(updatedEvent);
 
-     console.log("Event saved successfully:", updatedEvent);
-     alert("Event saved successfully!");
-   } catch (error) {
-     console.error("Error updating event:", error);
-     alert(`Error saving event: ${error.message}`);
-   }
- };
+      console.log("Event saved successfully:", updatedEvent);
+      alert("Event saved successfully!");
+    } catch (error) {
+      console.error("Error updating event:", error);
+      alert(`Error saving event: ${error.message}`);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -381,6 +381,8 @@ const EventEvaluationForm: React.FC<{
             type="text"
             className="input input-bordered"
             value={event.venue}
+            minLength={1}
+            maxLength={200}
             onChange={(e) => updateEvent("venue", e.target.value)}
           />
         </div>
@@ -392,7 +394,18 @@ const EventEvaluationForm: React.FC<{
             type="number"
             className="input input-bordered"
             value={event.totalParticipants}
-            onChange={(e) => updateEvent("totalParticipants", parseInt(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                updateEvent("totalParticipants", parseInt(value));
+              }
+            }}
+            onKeyDown={(e) => {
+              const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight"];
+              if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
         <div className="form-control">
@@ -403,7 +416,18 @@ const EventEvaluationForm: React.FC<{
             type="number"
             className="input input-bordered"
             value={event.totalRespondents}
-            onChange={(e) => updateEvent("totalRespondents", parseInt(e.target.value))}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*$/.test(value)) {
+                updateEvent("totalParticipants", parseInt(value));
+              }
+            }}
+            onKeyDown={(e) => {
+              const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight"];
+              if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
           />
         </div>
       </div>
@@ -452,6 +476,8 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerName}
               onChange={(e) => updateEvent("speakerName", e.target.value)}
+              required
+              maxLength={100}
             />
           </div>
           <div className="form-control">
@@ -463,6 +489,8 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerTopic}
               onChange={(e) => updateEvent("speakerTopic", e.target.value)}
+              required
+              maxLength={100}
             />
           </div>
           <div className="form-control">
@@ -474,6 +502,8 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerAffiliation}
               onChange={(e) => updateEvent("speakerAffiliation", e.target.value)}
+              required
+              maxLength={100}
             />
           </div>
           <div className="form-control">
@@ -485,6 +515,8 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerPosition}
               onChange={(e) => updateEvent("speakerPosition", e.target.value)}
+              required
+              maxLength={100}
             />
           </div>
         </div>

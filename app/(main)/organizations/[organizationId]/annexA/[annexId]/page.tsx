@@ -285,7 +285,15 @@ export default function AnnexAEditor() {
                   <textarea
                     className="textarea textarea-bordered w-full"
                     value={objective}
-                    onChange={(e) => updateObjective(index, e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length <= 500) {
+                        updateObjective(index, value);
+                      } else {
+                        // Optionally, you can provide feedback to the user
+                        alert("Character limit exceeded. Maximum 500 characters allowed.");
+                      }
+                    }}
                     placeholder={`Objective ${index + 1}`}
                   />
                   <button onClick={() => removeObjective(index)} className="btn btn-ghost btn-sm">

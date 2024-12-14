@@ -641,7 +641,16 @@ export default function AnnexE2FinancialLiquidationReport() {
                                       type="text"
                                       name="description"
                                       value={editingItem.description}
-                                      onChange={handleItemChange}
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.length >= 4 && value.length <= 400) {
+                                          handleItemChange(e);
+                                        } else if (value.length < 4) {
+                                          alert("Description must be at least 4 characters long.");
+                                        } else {
+                                          alert("Description cannot exceed 400 characters.");
+                                        }
+                                      }}
                                       className="input input-bordered w-full"
                                       required
                                     />
@@ -821,14 +830,25 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <div className="form-control">
                                 <label className="label">
                                   <span className="label-text flex items-center">
-                                    <Hash className="mr-1" size={16} /> Serial No.
+                                    <Hash className="mr-1" size={16} /> Transaction No.
                                   </span>
                                 </label>
                                 <input
                                   type="text"
                                   name="serialNumber"
                                   value={newItem.serialNumber}
-                                  onChange={handleItemChange}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (/^\d*$/.test(value)) {
+                                      handleItemChange(e);
+                                    }
+                                  }}
+                                  onKeyDown={(e) => {
+                                    const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight"];
+                                    if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                                      e.preventDefault();
+                                    }
+                                  }}
                                   className="input input-bordered w-full"
                                 />
                               </div>

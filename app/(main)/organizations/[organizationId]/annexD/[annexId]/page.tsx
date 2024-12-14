@@ -106,7 +106,15 @@ const AnnexDCreator = () => {
               className="textarea textarea-bordered h-24"
               placeholder="Input detailed description of the logo"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 2000) {
+                  setDescription(value);
+                } else {
+                  // Optionally, you can provide feedback to the user
+                  alert("Character limit exceeded. Maximum 2000 characters allowed.");
+                }
+              }}
             ></textarea>
           </div>
           <div className="form-control mb-4">

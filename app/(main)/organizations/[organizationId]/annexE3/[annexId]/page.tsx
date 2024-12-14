@@ -294,7 +294,15 @@ export default function AnnexE3Form() {
             <h2 className="text-2xl font-bold mb-4 text-primary">Further Comments</h2>
             <textarea
               value={furtherComments}
-              onChange={(e) => setFurtherComments(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 500) {
+                  setFurtherComments(value);
+                } else {
+                  // Optionally, you can provide feedback to the user
+                  alert("Character limit exceeded. Maximum 500 characters allowed.");
+                }
+              }}
               className="textarea textarea-bordered w-full h-32"
               placeholder="Add any additional comments here..."
             />

@@ -365,6 +365,8 @@ const OrganizationOperationalAssessmentForm = () => {
               value={newEvent.title}
               onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
               placeholder="Event title"
+              required
+              maxLength={100}
             />
             <input
               type="text"
@@ -372,6 +374,8 @@ const OrganizationOperationalAssessmentForm = () => {
               value={newEvent.eReserveNo}
               onChange={(e) => setNewEvent({ ...newEvent, eReserveNo: e.target.value })}
               placeholder="e-ReSERVe No."
+              required
+              maxLength={50}
             />
             <div className="mb-4">
               <h3 className="font-bold mb-2">Select Categories:</h3>
