@@ -24,6 +24,7 @@ export default function OrganizationProfile() {
   const [newLevelOfRecognition, setNewLevelOfRecognition] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{ email?: string; facebook?: string }>({}); // Add state for validation errors
   const [isUniversityWide, setIsUniversityWide] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
@@ -113,6 +114,28 @@ export default function OrganizationProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newValidationErrors: { email?: string; facebook?: string } = {};
+
+    // Validate email domain
+    const emailDomain = organization?.officialEmail.split("@")[1];
+    if (emailDomain !== "ust.edu.ph") {
+      newValidationErrors.email = "Only @ust.edu.ph emails are allowed.";
+    }
+
+    // Validate Facebook URL
+    const facebookRegex = /^(https?:\/\/)?(www\.)?facebook.com\/[a-zA-Z0-9(\.\?)?]/;
+    if (!facebookRegex.test(organization?.facebook || "")) {
+      newValidationErrors.facebook = "Invalid Facebook URL.";
+    }
+
+    if (Object.keys(newValidationErrors).length > 0) {
+      setValidationErrors(newValidationErrors);
+      return;
+    } else {
+      setValidationErrors({});
+    }
+
     try {
       const updatedOrganization = {
         ...organization,
@@ -245,7 +268,9 @@ export default function OrganizationProfile() {
                       value={organization.officialEmail}
                       onChange={handleInputChange}
                       className="input input-bordered w-full"
+                      required
                     />
+                    {validationErrors.email && <p style={{ color: "red" }}>{validationErrors.email}</p>}
                   </div>
                   <div className="form-control">
                     <label className="label">
@@ -257,7 +282,9 @@ export default function OrganizationProfile() {
                       value={organization.facebook}
                       onChange={handleInputChange}
                       className="input input-bordered w-full"
+                      placeholder="https://www.facebook.com/yourpage"
                     />
+                    {validationErrors.facebook && <p style={{ color: "red" }}>{validationErrors.facebook}</p>}
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between gap-4">
                     <div className="form-control">

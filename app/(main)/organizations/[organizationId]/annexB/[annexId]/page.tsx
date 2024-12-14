@@ -318,6 +318,8 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
   isEditing,
   organizationId,
 }) => {
+  const [validationMessage, setValidationMessage] = useState("");
+  const [isInvalid, setIsInvalid] = useState(false);
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => currentYear - i);
   const [formData, setFormData] = useState(member);
@@ -418,11 +420,48 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validateFormData(formData);
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
+    }
     onSubmit({
       ...formData,
       affiliation: selectedAffiliation ? selectedAffiliation.name : "",
       program: selectedProgram ? selectedProgram.name : formData.program,
     });
+  };
+
+  const validateFormData = (data: Partial<Member>): string[] => {
+    const errors: string[] = [];
+    const nameRegex = /^[a-zA-Z\s]+$/;
+
+    if (!data.lastName || typeof data.lastName !== "string" || !nameRegex.test(data.lastName))
+      errors.push("Last Name is required and must be a string without numbers.");
+    if (!data.firstName || typeof data.firstName !== "string" || !nameRegex.test(data.firstName))
+      errors.push("First Name is required and must be a string without numbers.");
+    if (data.middleName && (typeof data.middleName !== "string" || !nameRegex.test(data.middleName)))
+      errors.push("Middle Name must be a string without numbers.");
+    if (!data.studentNumber || !/^\d{10}$/.test(data.studentNumber))
+      errors.push("Student Number is required and must be a 10-digit number.");
+    if (
+      !data.startYear ||
+      isNaN(Number(data.startYear)) ||
+      data.startYear < 1900 ||
+      data.startYear > new Date().getFullYear()
+    )
+      errors.push("Start Year is required and must be a valid year.");
+    if (!data.yearLevel || isNaN(Number(data.yearLevel)) || data.yearLevel < 1 || data.yearLevel > 5)
+      errors.push("Year Level is required and must be between 1 and 5.");
+    if (data.affiliation && typeof data.affiliation !== "string") errors.push("Affiliation must be a string.");
+    if (!data.program || typeof data.program !== "string") errors.push("Program is required and must be a string.");
+    if (!data.age || isNaN(Number(data.age)) || data.age < 0 || data.age > 120)
+      errors.push("Age is required and must be between 0 and 120.");
+    if (!data.gender || (data.gender !== "Male" && data.gender !== "Female"))
+      errors.push("Gender is required and must be either 'Male' or 'Female'.");
+    if (typeof data.isOfficer !== "boolean") errors.push("Officer Status is required and must be a boolean.");
+    if (typeof data.isNewMember !== "boolean") errors.push("Membership Status is required and must be a boolean.");
+    return errors;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -465,7 +504,12 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
               className="input input-bordered w-full"
               placeholder="DELA CRUZ"
               value={formData.lastName}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 50) {
+                  setFormData({ ...formData, lastName: value });
+                }
+              }}
             />
           </div>
           <div className="form-control">
@@ -477,7 +521,12 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
               className="input input-bordered w-full"
               placeholder="JUAN MIGUEL"
               value={formData.firstName}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 50) {
+                  setFormData({ ...formData, firstName: value });
+                }
+              }}
             />
           </div>
           <div className="form-control">
@@ -489,7 +538,12 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
               className="input input-bordered w-full"
               placeholder="GONZALEZ"
               value={formData.middleName}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 50) {
+                  setFormData({ ...formData, middleName: value });
+                }
+              }}
             />
           </div>
           <div className="form-control">
@@ -498,11 +552,34 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
             </label>
             <input
               name="studentNumber"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${isInvalid ? "border-red-500" : ""}`}
               placeholder="2021148086"
               value={formData.studentNumber}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,9}$/.test(value)) {
+                  setFormData({ ...formData, studentNumber: value });
+                  setValidationMessage(""); // Clear validation message on valid input
+                  setIsInvalid(false); // Reset invalid state on valid input
+                }
+              }}
+              onKeyDown={(e) => {
+                const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight"];
+                if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              onBlur={() => {
+                if (formData.studentNumber.length !== 9) {
+                  setValidationMessage("Student number must be exactly 9 digits long.");
+                  setIsInvalid(true);
+                  alert("Student number must be exactly 9 digits long.");
+                } else {
+                  setIsInvalid(false);
+                }
+              }}
             />
+            {validationMessage && <p className="text-red-500 text-sm mt-1">{validationMessage}</p>}
           </div>
           <div className="form-control">
             <label className="label">

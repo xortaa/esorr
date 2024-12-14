@@ -59,6 +59,8 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
   const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState(null);
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({}); // Add state for validation errors
+
   const signatureRef = useRef<SignatureCanvas>(null);
 
   const isFormValid = useMemo(() => {
@@ -154,6 +156,11 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
     });
   };
 
+  const validateStudentNumber = (studentNumber: string) => {
+    const studentNumberRegex = /^\d{9}$/;
+    return studentNumberRegex.test(studentNumber);
+  };
+
   const handleEducationChange = (index: number, field: any, value: string) => {
     const updatedEducation = [...editedOfficer.educationalBackground];
     updatedEducation[index] = { ...updatedEducation[index], [field]: value };
@@ -234,8 +241,54 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
     }
   };
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Validate email domain
+    const emailDomain = editedOfficer.email.split("@")[1];
+    if (emailDomain !== "ust.edu.ph") {
+      newErrors.email = "Only @ust.edu.ph emails are allowed.";
+    }
+
+    // Validate Facebook URL
+    const facebookRegex = /^(https?:\/\/)?(www\.)?facebook.com\/[a-zA-Z0-9(\.\?)?]/;
+    if (!facebookRegex.test(editedOfficer.facebook)) {
+      newErrors.facebook = "Invalid Facebook URL.";
+    }
+
+    // Validate GWA
+    if (editedOfficer.gwa && (editedOfficer.gwa < 1.0 || editedOfficer.gwa > 5.0)) {
+      newErrors.gwa = "GWA must be between 1.0 and 5.0.";
+    }
+
+    // Validate Mobile Number
+    const mobileNumberRegex = /^\+63 \d{3} \d{3} \d{4}$/;
+    if (!mobileNumberRegex.test(editedOfficer.mobileNumber)) {
+      newErrors.mobileNumber = "Invalid mobile number format. Use +63 XXX XXX XXXX.";
+    }
+
+    // Validate required fields
+    if (!editedOfficer.firstName.trim()) {
+      newErrors.firstName = "First name is required.";
+    }
+    if (!editedOfficer.lastName.trim()) {
+      newErrors.lastName = "Last name is required.";
+    }
+    if (!editedOfficer.position.trim()) {
+      newErrors.position = "Position is required.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       let imageUrl = editedOfficer.image;
       if (selectedImage) {
@@ -529,6 +582,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   value={editedOfficer.mobileNumber}
                   onChange={handleInputChange}
                 />
+                {errors.mobileNumber && <p className="text-red-500 text-sm">{errors.mobileNumber}</p>}
               </div>
               <div className="w-full">
                 <label className="label mb-1">RESIDENCE</label>
@@ -550,6 +604,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   value={editedOfficer.email}
                   onChange={handleInputChange}
                 />
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
               <div className="w-full">
                 <label className="label mb-1">FACEBOOK</label>
@@ -560,16 +615,34 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   value={editedOfficer.facebook}
                   onChange={handleInputChange}
                 />
+                {errors.facebook && <p className="text-red-500 text-sm">{errors.facebook}</p>}
               </div>
               <div className="w-full">
                 <label className="label mb-1">STUDENT NUMBER</label>
                 <input
                   name="studentNumber"
-                  className="input input-bordered w-full uppercase"
-                  placeholder="2023-12345"
+                  className={`input input-bordered w-full uppercase ${errors.studentNumber ? "input-error" : ""}`}
+                  placeholder="202312345"
                   value={editedOfficer.studentNumber}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    if (/^\d{0,9}$/.test(value)) {
+                      handleInputChange(e);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const { value } = e.target;
+                    if (!/^\d{9}$/.test(value)) {
+                      setErrors((prevErrors) => ({
+                        ...prevErrors,
+                        studentNumber: "Student number must be exactly 9 digits long.",
+                      }));
+                    } else {
+                      setErrors((prevErrors) => ({ ...prevErrors, studentNumber: "" }));
+                    }
+                  }}
                 />
+                {errors.studentNumber && <p className="text-red-500 text-sm">{errors.studentNumber}</p>}
               </div>
               <div className="w-full">
                 <label className="label mb-1">GWA</label>
@@ -584,6 +657,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   value={editedOfficer.gwa}
                   onChange={handleInputChange}
                 />
+                {errors.gwa && <p className="text-red-500 text-sm">{errors.gwa}</p>}
               </div>
             </div>
 
@@ -604,10 +678,31 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                     <div>
                       <label className="label mb-1">Year of Graduation</label>
                       <input
-                        className="input input-bordered w-full"
+                        className={`input input-bordered w-full ${
+                          errors[`yearOfGraduation${index}`] ? "input-error" : ""
+                        }`}
                         value={edu.yearOfGraduation}
-                        onChange={(e) => handleEducationChange(index, "yearOfGraduation", e.target.value)}
+                        onChange={(e) => {
+                          const { value } = e.target;
+                          if (/^\d{0,4}$/.test(value)) {
+                            handleEducationChange(index, "yearOfGraduation", value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const { value } = e.target;
+                          if (!/^\d{4}$/.test(value)) {
+                            setErrors((prevErrors) => ({
+                              ...prevErrors,
+                              [`yearOfGraduation${index}`]: "Year of graduation must be exactly 4 digits long.",
+                            }));
+                          } else {
+                            setErrors((prevErrors) => ({ ...prevErrors, [`yearOfGraduation${index}`]: "" }));
+                          }
+                        }}
                       />
+                      {errors[`yearOfGraduation${index}`] && (
+                        <p className="text-red-500 text-sm">{errors[`yearOfGraduation${index}`]}</p>
+                      )}
                     </div>
                     <div>
                       <label className="label mb-1">Organization/Club/Society</label>
@@ -657,7 +752,27 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                         className="input input-bordered w-full"
                         placeholder="e.g. 2022-2023"
                         value={activity.inclusiveDates}
-                        onChange={(e) => handleExtraCurricularChange(index, "inclusiveDates", e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const regex = /^\d{4}-\d{4}$/;
+                          if (value.length === 9) {
+                            if (regex.test(value)) {
+                              handleExtraCurricularChange(index, "inclusiveDates", value);
+                            } else {
+                              // Optionally, you can provide feedback to the user
+                              alert("Invalid date format. Please use YYYY-YYYY.");
+                              handleExtraCurricularChange(index, "inclusiveDates", "");
+                            }
+                          } else {
+                            handleExtraCurricularChange(index, "inclusiveDates", value);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "-"];
+                          if (!allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
                       />
                     </div>
                   </div>

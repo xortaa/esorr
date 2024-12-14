@@ -353,6 +353,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "name", e.target.value)}
                     required
                   />
+                  <div className="invalid-feedback">Name is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`faculty-${index}`}>
@@ -414,6 +415,7 @@ export default function Component() {
                       <span className="loading loading-dots loading-md"></span>
                     </div>
                   )}
+                  <div className="invalid-feedback">Faculty is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`email-${index}`}>
@@ -427,6 +429,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "email", e.target.value)}
                     required
                   />
+                  <div className="invalid-feedback">Valid email is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`landline-${index}`}>
@@ -438,7 +441,9 @@ export default function Component() {
                     className="input input-bordered w-full"
                     value={nominee.landline}
                     onChange={(e) => handleInputChange(index, "landline", e.target.value)}
+                    pattern="^\d{10}$"
                   />
+                  <div className="invalid-feedback">Valid 10-digit landline number is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`mobile-${index}`}>
@@ -450,8 +455,10 @@ export default function Component() {
                     className="input input-bordered w-full"
                     value={nominee.mobile}
                     onChange={(e) => handleInputChange(index, "mobile", e.target.value)}
+                    pattern="^\d{10}$"
                     required
                   />
+                  <div className="invalid-feedback">Valid 10-digit mobile number is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`officeAddress1-${index}`}>
@@ -465,6 +472,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "officeAddress1", e.target.value)}
                     required
                   />
+                  <div className="invalid-feedback">Office Address Line 1 is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`officeAddress2-${index}`}>

@@ -131,9 +131,20 @@ export default function AccountsDashboard() {
     }
   };
 
+  const [emailWarning, setEmailWarning] = useState(false);
+
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isCreateButtonDisabled()) return;
+
+    const emailDomain = newAccount.email.split("@")[1];
+    if (emailDomain !== "ust.edu.ph") {
+      setEmailWarning(true);
+      console.warn("Invalid email domain. Only @ust.edu.ph emails are allowed.");
+      return;
+    } else {
+      setEmailWarning(false);
+    }
 
     try {
       const accountData: any = {
@@ -187,6 +198,7 @@ export default function AccountsDashboard() {
   };
 
   const handleCancelCreateAccount = () => {
+    setEmailWarning(false);
     setIsCreatingAccount(false);
     setNewAccount({
       email: "",
@@ -326,6 +338,7 @@ export default function AccountsDashboard() {
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4 text-gray-800">Create Account</h2>
             <form onSubmit={handleCreateAccount} className="space-y-4">
+              {emailWarning && <p style={{ color: "red" }}>Only @ust.edu.ph emails are allowed.</p>}
               <div>
                 <label className="label">
                   <span className="label-text text-gray-700">Email</span>
