@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -580,8 +581,16 @@ const MyDocument: React.FC<{
     { numeral: "XVI", name: "Miscellaneous Expense" },
   ];
 
-  const inflows = monthlyReport?.inflows ?? [];
-  const outflows = monthlyReport?.outflows ?? [];
+  const inflows =
+    monthlyReport?.inflows.map((inflow) => ({
+      ...inflow,
+      amount: formatMoney(inflow.amount).toString(),
+    })) ?? [];
+  const outflows =
+    monthlyReport?.outflows.map((outflow) => ({
+      ...outflow,
+      totalCost: formatMoney(outflow.totalCost).toString(),
+    })) ?? [];
   const totalInflow = monthlyReport?.totalInflow ?? 0;
   const totalOutflow = monthlyReport?.totalOutflow ?? 0;
 
@@ -651,7 +660,7 @@ const MyDocument: React.FC<{
               <View style={styles.tableRow} key={inflow._id}>
                 <Text style={styles.tableCellDate}>{new Date(inflow.date).toLocaleDateString()}</Text>
                 <Text style={styles.tableCellSOF}>{inflow.category}</Text>
-                <Text style={styles.tableLastCell}>{inflow.amount.toFixed(2)}</Text>
+                <Text style={styles.tableLastCell}>{inflow.amount}</Text>
               </View>
             ))
           ) : (
@@ -663,19 +672,19 @@ const MyDocument: React.FC<{
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Inflows</Text>
-            <Text style={styles.tableLastCell}>{totalInflow.toFixed(2) || 0}</Text>
+            <Text style={styles.tableLastCell}>{formatMoney(totalInflow).toString().toString() || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Outflows</Text>
-            <Text style={styles.tableLastCell}>{totalOutflow.toFixed(2) || 0}</Text>
+            <Text style={styles.tableLastCell}>{formatMoney(totalOutflow).toString() || 0}</Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Net Cash Flow</Text>
-            <Text style={styles.tableLastCell}>{((totalInflow || 0) - (totalOutflow || 0)).toFixed(2)}</Text>
+            <Text style={styles.tableLastCell}>{formatMoney((totalInflow || 0) - (totalOutflow || 0)).toString()}</Text>
           </View>
 
           <View style={styles.tableRow}>
@@ -684,7 +693,9 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>TOTAL RECEIPTS</Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>{totalInflow || 0}</Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
+              {formatMoney(totalInflow).toString() || 0}
+            </Text>
           </View>
         </View>
 
@@ -731,15 +742,13 @@ const MyDocument: React.FC<{
                       <Text style={styles.tableCellPay}>{item.establishment}</Text>
                       <Text style={styles.tableCellBlank}> </Text>
                       <Text style={styles.tableCellRef}>{item.serialNumber}</Text>
-                      <Text style={styles.tableCellCost}>{item.cost.toFixed(2)}</Text>
+                      <Text style={styles.tableCellCost}>{item.cost}</Text>
                       <Text style={styles.tableCellUnit}>{item.quantity}</Text>
-                      <Text style={styles.tableCellTotalPhP}>
-                        {((item.cost || 0) * (item.quantity || 0)).toFixed(2)}
-                      </Text>
+                      <Text style={styles.tableCellTotalPhP}>{(item.cost || 0) * (item.quantity || 0)}</Text>
                     </View>
                   ))}
                   <View style={styles.tableRow}>
-                    <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P {totalCost.toFixed(2)}</Text>
+                    <Text style={[styles.tableCellTotal, { textAlign: "right" }]}>P {totalCost}</Text>
                   </View>
                 </React.Fragment>
               ) : null;
@@ -758,7 +767,10 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={styles.tableCellTotalExp}> </Text>
-            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>P {(totalOutflow || 0).toFixed(2)}</Text>
+            <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
+              {" "}
+              {formatMoney(totalOutflow).toString() || 0}
+            </Text>
           </View>
           <View style={styles.tableRow}>
             <Text style={[styles.tableCellDate2, { flex: 0.65 }]}> </Text>
@@ -769,7 +781,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
-              P {(monthlyReport?.endingBalance || 0).toFixed(2)}
+              {formatMoney(monthlyReport?.endingBalance).toString() || 0}
             </Text>
           </View>
         </View>

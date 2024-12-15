@@ -924,7 +924,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                       <h3 className="text-xl font-semibold mb-2 text-neutral">{outflow.establishment}</h3>
                       <p className="text-neutral-content mb-1">Date: {outflow.date}</p>
                       <p className="text-neutral-content mb-1">Items: {outflow.items.length}</p>
-                      <p className="text-lg font-semibold text-primary">Total: ₱{outflow.totalCost.toFixed(2)}</p>
+                      <p className="text-lg font-semibold text-primary">
+                        Total: ₱ {outflow.totalCost.toLocaleString()}
+                      </p>
                       <button
                         className="btn btn-sm btn-error mt-2"
                         onClick={(e) => {
@@ -1085,7 +1087,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <tr key={inflow._id}>
                           <td>{inflow.category}</td>
                           <td>{formatDate(inflow.date)}</td>
-                          <td>₱{inflow.amount.toFixed(2)}</td>
+                          <td>₱ {inflow.amount.toLocaleString()}</td>
                           <td>
                             {inflow.category === "Registration Fee" &&
                               `Paying Participants: ${inflow.payingParticipants}`}
