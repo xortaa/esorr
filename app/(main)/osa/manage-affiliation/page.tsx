@@ -29,12 +29,16 @@ export default function AffiliationManagement() {
   const [expandedAffiliationId, setExpandedAffiliationId] = useState<string | null>(null);
   const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const [editProgramName, setEditProgramName] = useState("");
+  const [activeTab, setActiveTab] = useState("active");
 
   useEffect(() => {
     const fetchAffiliations = async () => {
       try {
-        const { data } = await axios.get("/api/affiliations");
-        setAffiliations(data);
+        const [activeData, archivedData] = await Promise.all([
+          axios.get("/api/affiliations"),
+          axios.get("/api/affiliations/get-archived"),
+        ]);
+        setAffiliations([...activeData.data, ...archivedData.data]);
         setAffiliationsResponseLoading(false);
       } catch (error) {
         console.error("Error fetching affiliations:", error);
@@ -46,8 +50,12 @@ export default function AffiliationManagement() {
   }, []);
 
   const filteredAffiliations = useMemo(() => {
-    return affiliations.filter((affiliation) => affiliation.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [affiliations, searchTerm]);
+    return affiliations.filter(
+      (affiliation) =>
+        affiliation.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (activeTab === "active" ? !affiliation.isArchived : affiliation.isArchived)
+    );
+  }, [affiliations, searchTerm, activeTab]);
 
   const addAffiliation = async () => {
     if (newAffiliationName.trim() === "") {
@@ -72,14 +80,38 @@ export default function AffiliationManagement() {
   };
 
   const removeAffiliation = async (id: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to archive this affiliation?");
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       await axios.patch(`/api/affiliations/${id}`, {
         isArchived: true,
       });
-      setAffiliations(affiliations.filter((affiliation) => affiliation._id !== id));
+      setAffiliations(affiliations.map((aff) => (aff._id === id ? { ...aff, isArchived: true } : aff)));
+      window.alert("Affiliation has been archived successfully.");
     } catch (error) {
       console.error("Error deleting affiliation:", error);
       setError("Failed to delete affiliation. Please try again.");
+    }
+  };
+
+  const unarchiveAffiliation = async (id: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to unarchive this affiliation?");
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      await axios.patch(`/api/affiliations/${id}`, {
+        isArchived: false,
+      });
+      setAffiliations(affiliations.map((aff) => (aff._id === id ? { ...aff, isArchived: false } : aff)));
+      window.alert("Affiliation has been unarchived successfully.");
+    } catch (error) {
+      console.error("Error unarchiving affiliation:", error);
+      setError("Failed to unarchive affiliation. Please try again.");
     }
   };
 
@@ -139,7 +171,16 @@ export default function AffiliationManagement() {
       const { data: updatedAffiliation } = await axios.post(`/api/affiliations/${affiliationId}/programs`, {
         name: newProgramName.trim(),
       });
-      setAffiliations(affiliations.map((aff) => (aff._id === affiliationId ? updatedAffiliation : aff)));
+      setAffiliations(
+        affiliations.map((aff) =>
+          aff._id === affiliationId
+            ? {
+                ...aff,
+                programs: [...aff.programs, updatedAffiliation.programs[updatedAffiliation.programs.length - 1]],
+              }
+            : aff
+        )
+      );
       setNewProgramName("");
       setError("");
     } catch (error) {
@@ -184,14 +225,59 @@ export default function AffiliationManagement() {
   };
 
   const deleteProgram = async (affiliationId: string, programId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to archive this program?");
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       const { data: updatedAffiliation } = await axios.delete(
         `/api/affiliations/${affiliationId}/programs/${programId}`
       );
-      setAffiliations(affiliations.map((aff) => (aff._id === affiliationId ? updatedAffiliation : aff)));
+      setAffiliations((prevAffiliations) =>
+        prevAffiliations.map((aff) =>
+          aff._id === affiliationId
+            ? {
+                ...updatedAffiliation,
+                programs: updatedAffiliation.programs.filter((program) => !program.isArchived),
+              }
+            : aff
+        )
+      );
+      window.alert("Program has been archived successfully.");
     } catch (error) {
       console.error("Error deleting program:", error);
       setError("Failed to delete program. Please try again.");
+    }
+  };
+
+  const unarchiveProgram = async (affiliationId: string, programId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to unarchive this program?");
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const { data: updatedAffiliation } = await axios.patch(
+        `/api/affiliations/${affiliationId}/programs/${programId}`,
+        {
+          isArchived: false,
+        }
+      );
+      setAffiliations((prevAffiliations) =>
+        prevAffiliations.map((aff) =>
+          aff._id === affiliationId
+            ? {
+                ...updatedAffiliation,
+                programs: updatedAffiliation.programs.filter((program) => !program.isArchived),
+              }
+            : aff
+        )
+      );
+      window.alert("Program has been unarchived successfully.");
+    } catch (error) {
+      console.error("Error unarchiving program:", error);
+      setError("Failed to unarchive program. Please try again.");
     }
   };
 
@@ -242,6 +328,21 @@ export default function AffiliationManagement() {
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           </div>
+        </div>
+
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === "active" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("active")}
+          >
+            Active Affiliations
+          </button>
+          <button
+            className={`tab ${activeTab === "archived" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("archived")}
+          >
+            Archived Affiliations
+          </button>
         </div>
 
         {affiliationsResponseLoading ? (
@@ -296,13 +397,23 @@ export default function AffiliationManagement() {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => removeAffiliation(affiliation._id)}
-                          className="btn bg-red-100 text-red-800"
-                          aria-label={`Remove ${affiliation.name}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {activeTab === "active" ? (
+                          <button
+                            onClick={() => removeAffiliation(affiliation._id)}
+                            className="btn bg-red-100 text-red-800"
+                            aria-label={`Archive ${affiliation.name}`}
+                          >
+                            Archive
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => unarchiveAffiliation(affiliation._id)}
+                            className="btn bg-green-100 text-green-800"
+                            aria-label={`Unarchive ${affiliation.name}`}
+                          >
+                            Unarchive
+                          </button>
+                        )}
                         <button
                           onClick={() => toggleExpand(affiliation._id)}
                           className="btn btn-ghost"
@@ -362,33 +473,45 @@ export default function AffiliationManagement() {
                                 >
                                   <Edit className="w-4 h-4" />
                                 </button>
-                                <button
-                                  onClick={() => deleteProgram(affiliation._id, program._id)}
-                                  className="btn bg-red-100 text-red-800"
-                                  aria-label={`Delete ${program.name}`}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                                {program.isArchived ? (
+                                  <button
+                                    onClick={() => unarchiveProgram(affiliation._id, program._id)}
+                                    className="btn bg-green-100 text-green-800"
+                                    aria-label={`Unarchive ${program.name}`}
+                                  >
+                                    Unarchive
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => deleteProgram(affiliation._id, program._id)}
+                                    className="btn bg-red-100 text-red-800"
+                                    aria-label={`Archive ${program.name}`}
+                                  >
+                                    Archive
+                                  </button>
+                                )}
                               </>
                             )}
                           </div>
                         </li>
                       ))}
                     </ul>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={newProgramName}
-                        onChange={(e) => setNewProgramName(e.target.value)}
-                        placeholder="Enter program name"
-                        className="input input-bordered flex-grow"
-                        aria-label="New program name"
-                      />
-                      <button onClick={() => addProgram(affiliation._id)} className="btn bg-blue-100 text-blue-800">
-                        <PlusCircle className="w-5 h-5 mr-2" />
-                        Add
-                      </button>
-                    </div>
+                    {activeTab === "active" && (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={newProgramName}
+                          onChange={(e) => setNewProgramName(e.target.value)}
+                          placeholder="Enter program name"
+                          className="input input-bordered flex-grow"
+                          aria-label="New program name"
+                        />
+                        <button onClick={() => addProgram(affiliation._id)} className="btn bg-blue-100 text-blue-800">
+                          <PlusCircle className="w-5 h-5 mr-2" />
+                          Add
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </li>

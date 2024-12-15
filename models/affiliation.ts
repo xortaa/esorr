@@ -4,6 +4,11 @@ const ProgramSchema = new Schema({
   name: {
     type: String,
   },
+  isArchived: { 
+    type: Boolean,
+    default: false,
+    index: true,
+  }
 });
 
 const AffiliationSchema = new Schema({

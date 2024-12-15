@@ -1,31 +1,34 @@
-import Affiliations from "@/models/affiliation";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
+import Affiliations from "@/models/affiliation";
 
-export const GET = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
+export const PATCH = async (req: NextRequest, { params }: { params: { affiliationId: string; programId?: string } }) => {
   await connectToDatabase();
 
+  const { isArchived } = await req.json();
+
   try {
-    const affiliation = await Affiliations.findById(params.affiliationId);
-    if (!affiliation) {
-      return NextResponse.json({ error: "Affiliation not found" }, { status: 404 });
+    let updatedAffiliation;
+    if (params.programId) {
+      // Update program
+      updatedAffiliation = await Affiliations.findOneAndUpdate(
+        { _id: params.affiliationId, "programs._id": params.programId },
+        { $set: { "programs.$.isArchived": isArchived } },
+        { new: true }
+      );
+    } else {
+      // Update affiliation
+      updatedAffiliation = await Affiliations.findOneAndUpdate(
+        { _id: params.affiliationId },
+        { $set: { isArchived } },
+        { new: true }
+      );
     }
-    return NextResponse.json(affiliation, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
-  }
-};
 
-export const PATCH = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
-  await connectToDatabase();
+    if (!updatedAffiliation) {
+      return NextResponse.json({ error: "Affiliation or program not found" }, { status: 404 });
+    }
 
-  const affiliationInput = await req.json();
-
-  try {
-    const updatedAffiliation = await Affiliations.findByIdAndUpdate(params.affiliationId, affiliationInput, {
-      new: true,
-    });
     return NextResponse.json(updatedAffiliation, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -33,17 +36,26 @@ export const PATCH = async (req: NextRequest, { params }: { params: { affiliatio
   }
 };
 
-export const DELETE = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: { affiliationId: string; programId: string } }
+) => {
   await connectToDatabase();
 
   try {
-    const affiliation = await Affiliations.findByIdAndDelete(params.affiliationId);
-    if (!affiliation) {
-      return NextResponse.json({ error: "Affiliation not found" }, { status: 404 });
+    const updatedAffiliation = await Affiliations.findOneAndUpdate(
+      { _id: params.affiliationId, "programs._id": params.programId },
+      { $set: { "programs.$.isArchived": true } },
+      { new: true }
+    );
+
+    if (!updatedAffiliation) {
+      return NextResponse.json({ error: "Affiliation or program not found" }, { status: 404 });
     }
-    return NextResponse.json(affiliation, { status: 200 });
+
+    return NextResponse.json(updatedAffiliation, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 };
