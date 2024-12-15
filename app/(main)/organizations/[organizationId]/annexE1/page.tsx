@@ -11,6 +11,7 @@ import { pdf } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -517,8 +518,9 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
         </View>
 
         <View style={{ flexDirection: "column" }}>
+          {/* FORMAT MONEY EXAMPLE */}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>
-            BEGINNING BALANCE/STARTIING FUND: {annex.financialReport?.june?.startingBalance}
+            BEGINNING BALANCE/STARTIING FUND: {formatMoney(annex.financialReport?.june?.startingBalance).toString()}
           </Text>
         </View>
 
