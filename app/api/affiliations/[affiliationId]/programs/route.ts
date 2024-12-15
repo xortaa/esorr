@@ -6,7 +6,7 @@ import Affiliations from "@/models/affiliation";
 export const GET = async (req: NextRequest, { params }: { params: { affiliationId: string } }) => {
   await connectToDatabase(); 
 
-  const programs = await Affiliations.findById(params.affiliationId, "programs");
+  const programs = await Affiliations.findOne({ _id: params.affiliationId }, { programs: { $elemMatch: { isArchived: false } } });
   
   return NextResponse.json(programs, {status: 200});
 }
