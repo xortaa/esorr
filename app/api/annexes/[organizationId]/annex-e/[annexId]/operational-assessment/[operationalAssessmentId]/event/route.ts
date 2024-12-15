@@ -5,6 +5,7 @@ import connectToDatabase from "@/utils/mongodb";
 import OperationalAssessment from "@/models/operational-assessment";
 import Event from "@/models/event";
 import AnnexE from "@/models/annex-e";
+import Organization from "@/models/organization";
 
 export const POST = async (
   req: NextRequest,
@@ -21,7 +22,10 @@ export const POST = async (
       "organization academicYear"
     );
 
-    const newEventData = { ...eventData, academicYear: annexE.academicYear };
+    const organization = await Organization.findOne({ _id: params.organizationId }).select("academicYear");
+    const organizationCurrentAcademicYear = organization.academicYear;
+
+    const newEventData = { ...eventData, academicYear: organizationCurrentAcademicYear };
 
     const operationalAssessment = await OperationalAssessment.findById(operationalAssessmentId);
 

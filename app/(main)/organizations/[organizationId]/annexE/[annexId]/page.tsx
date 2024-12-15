@@ -359,6 +359,7 @@ const OrganizationOperationalAssessmentForm = () => {
                 <X size={20} />
               </button>
             </div>
+            <span className="text-xs text-primary">(required)</span>
             <input
               type="text"
               className="input input-bordered w-full mb-2"
@@ -368,6 +369,8 @@ const OrganizationOperationalAssessmentForm = () => {
               required
               maxLength={100}
             />
+            <span className="text-xs text-primary">(required)</span>
+
             <input
               type="text"
               className="input input-bordered w-full mb-4"
@@ -378,7 +381,9 @@ const OrganizationOperationalAssessmentForm = () => {
               maxLength={50}
             />
             <div className="mb-4">
+              <span className="text-xs text-primary">(required)</span>
               <h3 className="font-bold mb-2">Select Categories:</h3>
+
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {allCategories.map((category) => (
                   <label key={category.id} className="flex items-center space-x-2">
