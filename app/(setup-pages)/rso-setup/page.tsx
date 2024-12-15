@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { CircleFadingPlus, XCircle, CornerDownLeft, BadgeInfo, Check, Search, X, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { uploadImage } from "@/utils/storage";
 import { signOut } from "next-auth/react";
+
+const validateWebsite = (url: string) => {
+  const regex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+  return regex.test(url);
+};
+
+const truncateText = (text: string, maxLength: number) => {
+  return text.length > maxLength ? text.slice(0, maxLength) : text;
+};
 
 const RSOSetupPage = () => {
   const { data: session, status } = useSession();
@@ -365,6 +374,7 @@ const OrganizationSetupStep1 = ({
   const [logoError, setLogoError] = useState<string | null>(null);
   const [affiliationSearchTerm, setAffiliationSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Update 1: Added error state
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pastYears = useMemo(() => {
@@ -444,6 +454,11 @@ const OrganizationSetupStep1 = ({
     const newSocials = [...formData.socials];
     newSocials[index] = value;
     setFormData({ ...formData, socials: newSocials });
+    if (value && !validateWebsite(value)) {
+      setError("Please enter a valid social media URL");
+    } else {
+      setError(null);
+    }
   };
 
   const handleFacebookInputChange = (value: string) => {
@@ -460,8 +475,8 @@ const OrganizationSetupStep1 = ({
         return;
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        setLogoError("Logo file size must not exceed 10MB.");
+      if (file.size > 5 * 1024 * 1024) {
+        setLogoError("Logo file size must not exceed 5MB.");
         return;
       }
 
@@ -582,11 +597,10 @@ const OrganizationSetupStep1 = ({
           <label className="label">
             <span className="label-text-alt text-info flex items-center">
               <BadgeInfo className="w-4 h-4 mr-1" />
-              Logo must be a PNG, JPG, or JPEG file, max 10MB in size
+              Logo must be a PNG, JPG, or JPEG file, max 5MB in size
             </span>
           </label>
         </div>
-
         <div className="form-control">
           <label className="label" htmlFor="org-name">
             <span className="label-text">Organization Name (Required)</span>
@@ -597,11 +611,11 @@ const OrganizationSetupStep1 = ({
             placeholder="Society of Information Technology Enthusiasts"
             className="input input-bordered w-full"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, name: truncateText(e.target.value, 100) })}
+            maxLength={100}
             required
           />
         </div>
-
         <div className="form-control">
           <label className="label">
             <span className="label-text">Organization Type (Required)</span>
@@ -631,7 +645,6 @@ const OrganizationSetupStep1 = ({
             </label>
           </div>
         </div>
-
         <div className="form-control">
           <label className="label">
             <span className="label-text">Additional Organization Type(s) (Optional)</span>
@@ -663,7 +676,6 @@ const OrganizationSetupStep1 = ({
             </span>
           </label>
         </div>
-
         {isNotUniversityWide && (
           <div className="form-control w-full" ref={dropdownRef}>
             <label className="label" htmlFor="affiliation-search">
@@ -714,7 +726,6 @@ const OrganizationSetupStep1 = ({
             )}
           </div>
         )}
-
         <div className="form-control">
           <label className="label" htmlFor="org-website">
             <span className="label-text">Official Organization Website</span>
@@ -725,11 +736,18 @@ const OrganizationSetupStep1 = ({
             placeholder="https://www.example.com"
             className="input input-bordered w-full"
             value={formData.website}
-            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData({ ...formData, website: value });
+              if (value && !validateWebsite(value)) {
+                setError("Please enter a valid website URL");
+              } else {
+                setError(null);
+              }
+            }}
             required
           />
         </div>
-
         <div className="form-control">
           <label className="label" htmlFor="org-category">
             <span className="label-text">Student Organization Category (Required)</span>
@@ -749,7 +767,6 @@ const OrganizationSetupStep1 = ({
             ))}
           </select>
         </div>
-
         <div className="form-control">
           <label className="label">
             <span className="label-text">Strategic Directional Areas (Required)</span>
@@ -793,7 +810,6 @@ const OrganizationSetupStep1 = ({
             </div>
           )}
         </div>
-
         <div className="form-control">
           <label className="label" htmlFor="facebook">
             <span className="label-text">Facebook Page Name</span>
@@ -801,14 +817,21 @@ const OrganizationSetupStep1 = ({
           <input
             type="url"
             id="facebook"
-            placeholder=""
+            placeholder="https://www.facebook.com/yourpage"
             className="input input-bordered w-full"
             value={formData.facebook}
-            onChange={(e) => handleFacebookInputChange(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              handleFacebookInputChange(value);
+              if (value && !validateWebsite(value)) {
+                setError("Please enter a valid Facebook page URL");
+              } else {
+                setError(null);
+              }
+            }}
             required
           />
         </div>
-
         <div className="form-control">
           <label className="label">
             <span className="label-text">Additional Social Media Links (Optional)</span>
@@ -836,7 +859,6 @@ const OrganizationSetupStep1 = ({
             <Plus className="ml-2" />
           </button>
         </div>
-
         <div className="form-control">
           <label className="label" htmlFor="starting-balance">
             <span className="label-text">Starting Balance (Required)</span>
@@ -856,7 +878,6 @@ const OrganizationSetupStep1 = ({
             />
           </div>
         </div>
-
         <div className="form-control">
           <label className="label" htmlFor="academic-year-of-last-recognition">
             <span className="label-text">Academic Year of Last Recognition (Required)</span>
@@ -887,7 +908,6 @@ const OrganizationSetupStep1 = ({
             </span>
           </label>
         </div>
-
         {formData.academicYearOfLastRecognition !== "Not yet recognized" && (
           <div className="form-control">
             <label className="label" htmlFor="level-of-recognition">
@@ -904,7 +924,25 @@ const OrganizationSetupStep1 = ({
             />
           </div>
         )}
-
+        {error && (
+          <div className="alert alert-error">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}{" "}
+        {/* Update 2: Added error message display */}
         <div className="flex flex-col justify-center mt-6 items-end gap-2">
           <button className="btn btn-primary" type="button" onClick={nextStep} disabled={!isFormValid()}>
             Next Step
@@ -931,7 +969,7 @@ const OrganizationSetupStep2 = ({
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives];
-    newObjectives[index] = value;
+    newObjectives[index] = truncateText(value, 200);
     setObjectives(newObjectives);
     setFormData({ ...formData, objectives: newObjectives });
   };
@@ -964,7 +1002,8 @@ const OrganizationSetupStep2 = ({
             className="textarea textarea-bordered h-24"
             placeholder="Enter your organization's mission"
             value={formData.mission}
-            onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, mission: truncateText(e.target.value, 500) })}
+            maxLength={1000}
             required
           />
         </div>
@@ -978,7 +1017,8 @@ const OrganizationSetupStep2 = ({
             className="textarea textarea-bordered h-24"
             placeholder="Enter your organization's vision"
             value={formData.vision}
-            onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, vision: truncateText(e.target.value, 500) })}
+            maxLength={1000}
             required
           />
         </div>
@@ -992,7 +1032,8 @@ const OrganizationSetupStep2 = ({
             className="textarea textarea-bordered h-24"
             placeholder="Provide a brief description of your organization"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, description: truncateText(e.target.value, 1000) })}
+            maxLength={1000}
             required
           />
         </div>
@@ -1070,7 +1111,7 @@ function OrganizationSetupStep4({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-scroll">
       <h2 className="text-3xl font-bold text-primary">Confirm Setup</h2>
 
       <section className="mb-4">

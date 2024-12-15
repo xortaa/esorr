@@ -252,7 +252,7 @@ export default function AnnexAEditor() {
           </div>
         </div>
       </div>
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-base-100 shadow-xl overflow-scroll">
         <div className="card-body">
           <h2 className="card-title">Statement of Mission, Vision, and Objectives</h2>
           <div className="space-y-6">
