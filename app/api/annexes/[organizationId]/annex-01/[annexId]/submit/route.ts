@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
-import AnnexH from "@/models/annex-01";
+import Annex01 from "@/models/annex-01";
+import Notification from "@/models/notification";
 
 export async function POST(request: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
     await connectToDatabase();
     const { organizationId, annexId } = params;
 
-    const updatedAnnex = await AnnexH.findOneAndUpdate(
+    const updatedAnnex = await Annex01.findOneAndUpdate(
       { _id: annexId, organization: organizationId },
       {
         $set: {
@@ -22,6 +23,16 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
     if (!updatedAnnex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
+
+    // create notification
+
+    await Notification.create({
+      text: `${updatedAnnex.organization.name} has submitted Annex 01 for review`,
+      date: new Date(),
+      link: `/organizations/${organizationId}/annex01`,
+      organization: organizationId,
+      annex: annexId,
+    });
 
     return NextResponse.json(updatedAnnex);
   } catch (error) {
