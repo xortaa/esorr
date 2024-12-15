@@ -140,6 +140,9 @@ export default function AnnexE2FinancialLiquidationReport() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [academicYear, setAcademicYear] = useState<string>("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const isReceiptSaveDisabled =
     !currentOutflow?.establishment || !currentOutflow?.date || currentOutflow?.items.length === 0;
 
@@ -147,7 +150,19 @@ export default function AnnexE2FinancialLiquidationReport() {
     fetchOutflows();
     fetchInflows();
     fetchEvents();
+    fetchAcademicYear();
   }, []);
+
+  useEffect(() => {
+    if (academicYear) {
+      const [startYear, endYear] = academicYear.split("-").map(Number);
+      const start = new Date(startYear, 7, 1); // August 1st of the start year
+      const end = new Date(endYear, 6, 31); // July 31st of the end year
+
+      setStartDate(start.toISOString().split("T")[0]);
+      setEndDate(end.toISOString().split("T")[0]);
+    }
+  }, [academicYear]);
 
   const fetchEvents = async () => {
     try {
@@ -159,6 +174,15 @@ export default function AnnexE2FinancialLiquidationReport() {
       console.error("Error fetching events:", error);
     } finally {
       setEventsLoading(false);
+    }
+  };
+
+  const fetchAcademicYear = async () => {
+    try {
+      const response = await axios.get(`/api/${organizationId}/get-current-academic-year`);
+      setAcademicYear(response.data.academicYear);
+    } catch (error) {
+      console.error("Error fetching academic year:", error);
     }
   };
 
@@ -551,6 +575,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <span className="label-text flex items-center">
                                 <Building2 className="mr-2" /> Establishment
                               </span>
+                              <span className="text-xs text-primary">(required)</span>
                             </label>
                             <input
                               type="text"
@@ -566,6 +591,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <span className="label-text flex items-center">
                                 <Calendar className="mr-2" /> Date
                               </span>
+                              <span className="text-xs text-primary">(required)</span>
                             </label>
                             <input
                               type="date"
@@ -574,6 +600,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                               onChange={handleOutflowDescriptionChange}
                               className="input input-bordered w-full"
                               required
+                              min={startDate}
+                              max={endDate}
                             />
                           </div>
                           <div className="form-control">
@@ -582,6 +610,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                 <CalendarDays className="mr-2" /> Event (Create an event under annex E to be able to
                                 make an outflow)
                               </span>
+                              <span className="text-xs text-primary">(required)</span>
                             </label>
                             {eventsLoading ? (
                               <div className="flex items-center justify-center h-10">
@@ -617,6 +646,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <div className="form-control">
                                     <label className="label">
                                       <span className="label-text">Category</span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <select
                                       name="category"
@@ -636,6 +666,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <div className="form-control">
                                     <label className="label">
                                       <span className="label-text">Description</span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <input
                                       type="text"
@@ -660,6 +691,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                       <span className="label-text flex items-center">
                                         <PhilippinePeso className="mr-1" size={16} /> Cost
                                       </span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <input
                                       type="number"
@@ -673,6 +705,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <div className="form-control">
                                     <label className="label">
                                       <span className="label-text">Quantity</span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <input
                                       type="number"
@@ -686,8 +719,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <div className="form-control">
                                     <label className="label">
                                       <span className="label-text flex items-center">
-                                        <Hash className="mr-1" size={16} /> Serial No.
+                                        <Hash className="mr-1" size={16} /> Transaction No.
                                       </span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <input
                                       type="text"
@@ -700,6 +734,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <div className="form-control">
                                     <label className="label">
                                       <span className="label-text">Expense Report Category</span>
+                                      <span className="text-xs text-primary">(required)</span>
                                     </label>
                                     <select
                                       name="expenseReportCategory"
@@ -770,6 +805,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <div className="form-control">
                                 <label className="label">
                                   <span className="label-text">Category</span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <select
                                   name="category"
@@ -789,6 +825,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <div className="form-control">
                                 <label className="label">
                                   <span className="label-text">Description</span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <input
                                   type="text"
@@ -804,6 +841,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <span className="label-text flex items-center">
                                     <PhilippinePeso className="mr-1" size={16} /> Cost
                                   </span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <input
                                   type="number"
@@ -817,6 +855,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <div className="form-control">
                                 <label className="label">
                                   <span className="label-text">Quantity</span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <input
                                   type="number"
@@ -832,6 +871,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                                   <span className="label-text flex items-center">
                                     <Hash className="mr-1" size={16} /> Transaction No.
                                   </span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <input
                                   type="text"
@@ -855,6 +895,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                               <div className="form-control">
                                 <label className="label">
                                   <span className="label-text">Expense Report Category</span>
+                                  <span className="text-xs text-primary">(required)</span>
                                 </label>
                                 <select
                                   name="expenseReportCategory"
@@ -959,6 +1000,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Category</span>
+                    <span className="text-xs text-primary">(required)</span>
                   </label>
                   <select
                     name="category"
@@ -980,6 +1022,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                     <span className="label-text flex items-center">
                       <Calendar className="mr-2" /> Date
                     </span>
+                    <span className="text-xs text-primary">(required)</span>
                   </label>
                   <input
                     type="date"
@@ -988,6 +1031,8 @@ export default function AnnexE2FinancialLiquidationReport() {
                     onChange={handleInflowChange}
                     className="input input-bordered w-full"
                     required
+                    min={startDate}
+                    max={endDate}
                   />
                 </div>
                 <div className="form-control">
@@ -995,6 +1040,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                     <span className="label-text flex items-center">
                       <PhilippinePeso className="mr-2" /> Amount
                     </span>
+                    <span className="text-xs text-primary">(required)</span>
                   </label>
                   <input
                     type="number"

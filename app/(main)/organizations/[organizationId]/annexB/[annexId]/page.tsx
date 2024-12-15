@@ -498,6 +498,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">LASTNAME</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <input
               name="lastName"
@@ -515,6 +516,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">FIRST NAME</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <input
               name="firstName"
@@ -549,6 +551,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">STUDENT NUMBER</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <input
               name="studentNumber"
@@ -584,6 +587,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">START YEAR</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <select
               name="startYear"
@@ -604,6 +608,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">YEAR LEVEL</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <select
               name="yearLevel"
@@ -719,6 +724,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">AGE</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <input
               name="age"
@@ -732,6 +738,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">GENDER</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <select
               name="gender"

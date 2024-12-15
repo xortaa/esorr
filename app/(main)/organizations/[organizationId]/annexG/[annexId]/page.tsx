@@ -37,6 +37,16 @@ const INITIAL_NOMINEE: Nominee = {
   signature: "",
 };
 
+const isFormValid = (nominee: Nominee) => {
+  return (
+    nominee.name.trim() !== "" &&
+    nominee.faculty.trim() !== "" &&
+    nominee.email.trim() !== "" &&
+    nominee.mobile.trim() !== "" &&
+    nominee.officeAddress1.trim() !== ""
+  );
+};
+
 export default function Component() {
   const { organizationId, annexId } = useParams();
   const [nominees, setNominees] = useState<Nominee[]>([
@@ -353,8 +363,8 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "name", e.target.value)}
                     required
                   />
-                  <div className="invalid-feedback">Name is required.</div>
                 </div>
+                <div className="invalid-feedback text-xs text-primary">Name is required.</div>
                 <div className="form-control">
                   <label className="label" htmlFor={`faculty-${index}`}>
                     <span className="label-text">Faculty/College/Institute/School</span>
@@ -415,7 +425,7 @@ export default function Component() {
                       <span className="loading loading-dots loading-md"></span>
                     </div>
                   )}
-                  <div className="invalid-feedback">Faculty is required.</div>
+                  <div className="invalid-feedback text-xs text-primary">Faculty is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`email-${index}`}>
@@ -429,7 +439,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "email", e.target.value)}
                     required
                   />
-                  <div className="invalid-feedback">Valid email is required.</div>
+                  <div className="invalid-feedback text-xs text-primary">Valid email is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`landline-${index}`}>
@@ -443,7 +453,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "landline", e.target.value)}
                     pattern="^\d{10}$"
                   />
-                  <div className="invalid-feedback">Valid 10-digit landline number is required.</div>
+                  <div className="invalid-feedback text-xs text-primary">Valid 10-digit landline number is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`mobile-${index}`}>
@@ -458,7 +468,7 @@ export default function Component() {
                     pattern="^\d{10}$"
                     required
                   />
-                  <div className="invalid-feedback">Valid 10-digit mobile number is required.</div>
+                  <div className="invalid-feedback text-xs text-primary">Valid 10-digit mobile number is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`officeAddress1-${index}`}>
@@ -472,7 +482,7 @@ export default function Component() {
                     onChange={(e) => handleInputChange(index, "officeAddress1", e.target.value)}
                     required
                   />
-                  <div className="invalid-feedback">Office Address Line 1 is required.</div>
+                  <div className="invalid-feedback text-xs text-primary">Office Address Line 1 is required.</div>
                 </div>
                 <div className="form-control">
                   <label className="label" htmlFor={`officeAddress2-${index}`}>
@@ -561,12 +571,11 @@ export default function Component() {
                     />
                   )}
                 </div>
-
                 <button
                   type="button"
                   className="btn btn-primary mt-4"
                   onClick={() => saveNominee(index)}
-                  disabled={savingStates[index]}
+                  disabled={savingStates[index] || !isFormValid(nominee)}
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {savingStates[index] ? "Saving..." : "Save Nominee"}
