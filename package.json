@@ -20,6 +20,7 @@
     "date-fns": "^4.1.0",
     "express": "^4.21.0",
     "file-saver": "^2.0.5",
+    "format-money-js": "^1.6.3",
     "formidable": "^3.5.2",
     "framer-motion": "^11.9.0",
     "lucide-react": "^0.424.0",

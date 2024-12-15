@@ -12,6 +12,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -455,7 +456,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
                 },
               ]}
             >
-              {annex.startingBalance.toFixed(2)}
+              {formatMoney(annex.startingBalance).toString()}
             </Text>
           </View>
 
@@ -774,7 +775,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
           </Text>
           <Text style={{ paddingLeft: 70 }}>
             {"\n"}
-            <EmphasizedText>PhP {annex.startingBalance}</EmphasizedText>
+            <EmphasizedText> {formatMoney(annex.startingBalance).toString()}</EmphasizedText>
             {"\n"}
           </Text>
         </View>
@@ -805,7 +806,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
           </Text>
           <Text style={{ paddingLeft: 70 }}>
             {"\n"}
-            <EmphasizedText>FROM THE MEMBERSHIP FEE: PhP {membershipFeeAmount.toFixed(2)}</EmphasizedText>
+            <EmphasizedText>FROM THE MEMBERSHIP FEE: {formatMoney(membershipFeeAmount).toString()}</EmphasizedText>
             {"\n"}
           </Text>
 
@@ -831,7 +832,7 @@ const MyDocument: React.FC<{ annex: AnnexA; inflows: Inflow[]; financialReport: 
                     {inflow.category}
                   </Text>
                   <Text style={[styles.tableCell, { flex: 1, fontSize: 8, textAlign: "center" }]}>
-                    {inflow.amount.toFixed(2)}
+                    {formatMoney(inflow.amount).toString()}
                   </Text>
                 </View>
               ))}

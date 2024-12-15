@@ -11,6 +11,7 @@ import { pdf } from "@react-pdf/renderer";
 import SignatureCanvas from "react-signature-canvas";
 import { useSession } from "next-auth/react";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 const PDFViewer = dynamic(() => import("@react-pdf/renderer").then((mod) => mod.PDFViewer), {
   ssr: false,
@@ -517,10 +518,13 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
         </View>
 
         <View style={{ flexDirection: "column" }}>
+          {/* FORMAT MONEY EXAMPLE */}
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>
-            BEGINNING BALANCE/STARTIING FUND: {annex.financialReport?.june?.startingBalance}
+            BEGINNING BALANCE/STARTIING FUND: {formatMoney(annex.financialReport?.june?.startingBalance).toString()}
           </Text>
         </View>
+
+        {/* {formatMoney().toString()} */}
 
         <View style={{ flexDirection: "column" }}>
           <Text style={{ fontFamily: "Arial Narrow Bold" }}>COLLECTIONS </Text>
@@ -550,7 +554,9 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {formatMoney(inflow.amount).toString() || 0}
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
@@ -594,7 +600,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {" "}
+                        {formatMoney(inflow.amount).toString() || 0}
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
@@ -637,7 +646,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        {" "}
+                        {formatMoney(inflow.amount).toString() || 0}
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>Total Paying Members</Text>
@@ -666,7 +678,9 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "40%" }}></Text>
               <Text style={{ width: "25%", textAlign: "right" }}>TOTAL COLLECTIONS</Text>
-              <Text style={{ width: "18%", textAlign: "right", paddingRight: 1 }}>{totalCollections}</Text>
+              <Text style={{ width: "18%", textAlign: "right", paddingRight: 1 }}>
+                {formatMoney(totalCollections).toString()}
+              </Text>
               <Text style={{ width: "17%" }}></Text>
             </View>
           </View>
@@ -697,7 +711,9 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                   <View key={index}>
                     <View style={{ flexDirection: "row" }}>
                       <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>₱ {inflow.amount || 0}</Text>
+                      <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                        ₱ {formatMoney(inflow.amount).toString() || 0}
+                      </Text>
                       <Text style={{ width: "25%" }}> </Text>
                       <Text style={{ width: "10%" }}> </Text>
                     </View>
@@ -734,7 +750,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyCSF.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                      {" "}
+                      {formatMoney(inflow.amount).toString() || 0}
+                    </Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -771,7 +790,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyUSOF.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                      {" "}
+                      {formatMoney(inflow.amount).toString()}
+                    </Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -807,7 +829,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyCSCSOCC.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}> {inflow.category}</Text>
-                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                      {" "}
+                      {formatMoney(inflow.amount).toString() || 0}
+                    </Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -843,7 +868,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {subsidyLSC.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}> {inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                      {" "}
+                      {formatMoney(inflow.amount).toString() || 0}
+                    </Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -866,7 +894,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
             <View style={{ flexDirection: "row" }}>
               <Text style={{ width: "40%" }}></Text>
               <Text style={{ width: "25%", textAlign: "right" }}>TOTAL SUBSIDIES</Text>
-              <Text style={{ width: "18%", border: 1, textAlign: "right", paddingRight: 1 }}> {totalSubsidies}</Text>
+              <Text style={{ width: "18%", border: 1, textAlign: "right", paddingRight: 1 }}>
+                {" "}
+                {formatMoney(totalSubsidies).toString()}
+              </Text>
               <Text style={{ width: "17%" }}></Text>
             </View>
           </View>
@@ -891,7 +922,9 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
                 {cashSponsorships.map((inflow: Inflow, index) => (
                   <View style={{ flexDirection: "row" }} key={index}>
                     <Text style={{ width: "40%" }}>{inflow.category}</Text>
-                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>{inflow.amount || 0}</Text>
+                    <Text style={{ width: "25%", textAlign: "right", paddingRight: 1 }}>
+                      {formatMoney(inflow.amount).toString() || 0}
+                    </Text>
                     <Text style={{ width: "25%" }}> </Text>
                     <Text style={{ width: "10%" }}> </Text>
                   </View>
@@ -912,7 +945,10 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
           <View style={{ width: "70%", textAlign: "right" }}>
             <Text style={{ fontFamily: "Arial Narrow Bold" }}> TOTAL AMOUNT OF CASH SPONSORSHIP</Text>
           </View>
-          <Text style={{ width: "12.50%", border: 1, textAlign: "right", paddingRight: 1 }}> {totalSponsorships}</Text>
+          <Text style={{ width: "12.50%", border: 1, textAlign: "right", paddingRight: 1 }}>
+            {" "}
+            {formatMoney(totalSponsorships).toString()}
+          </Text>
           <Text style={{}}> </Text>
         </View>
         <View style={{ flexDirection: "row" }}>
@@ -961,7 +997,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
           </View>
           <Text style={{ width: "12.50%", border: 2, textAlign: "right", paddingRight: 1, paddingTop: 1 }}>
             {" "}
-            {totalOutflows}
+            {formatMoney(totalOutflows).toString()}
           </Text>
           <Text style={{}}> </Text>
         </View>
@@ -975,7 +1011,7 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
               <Text style={{ width: "18%", textAlign: "right" }}>Net CASH FLOW </Text>
               <Text style={{ width: "17%", border: 2, textAlign: "right", paddingRight: 1, paddingTop: 1 }}>
                 {" "}
-                {totalInflows}
+                {formatMoney(totalInflows).toString()}
               </Text>
             </View>
           </View>
@@ -1046,63 +1082,63 @@ const MyDocument: React.FC<{ annex: AnnexE1; annexE2: AnnexE2 }> = ({ annex, ann
             <View style={{ fontSize: 10 }}>
               <LiquidationReport
                 month="AUGUST"
-                beginningBalance={annex.financialReport?.august?.startingBalance}
-                endingBalance={annex.financialReport?.august?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.august?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.august?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="SEPTEMBER"
-                beginningBalance={annex.financialReport?.september?.startingBalance}
-                endingBalance={annex.financialReport?.september?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.september?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.september?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="OCTOBER"
-                beginningBalance={annex.financialReport?.october?.startingBalance}
-                endingBalance={annex.financialReport?.october?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.october?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.october?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="NOVEMBER"
-                beginningBalance={annex.financialReport?.november?.startingBalance}
-                endingBalance={annex.financialReport?.november?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.november?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.november?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="DECEMBER"
-                beginningBalance={annex.financialReport?.december?.startingBalance}
-                endingBalance={annex.financialReport?.december?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.december?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.december?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="JANUARY"
-                beginningBalance={annex.financialReport?.january?.startingBalance}
-                endingBalance={annex.financialReport?.january?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.january?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.january?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="FEBRUARY"
-                beginningBalance={annex.financialReport?.february?.startingBalance}
-                endingBalance={annex.financialReport?.february?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.february?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.february?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="MARCH"
-                beginningBalance={annex.financialReport?.march?.startingBalance}
-                endingBalance={annex.financialReport?.march?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.march?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.march?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="APRIL"
-                beginningBalance={annex.financialReport?.april?.startingBalance}
-                endingBalance={annex.financialReport?.april?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.april?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.april?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="MAY"
-                beginningBalance={annex.financialReport?.may?.startingBalance}
-                endingBalance={annex.financialReport?.may?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.may?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.may?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="JUNE"
-                beginningBalance={annex.financialReport?.june?.startingBalance}
-                endingBalance={annex.financialReport?.june?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.june?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.june?.endingBalance).toString()}
               />
               <LiquidationReport
                 month="JULY"
-                beginningBalance={annex.financialReport?.july?.startingBalance}
-                endingBalance={annex.financialReport?.july?.endingBalance}
+                beginningBalance={formatMoney(annex.financialReport?.july?.startingBalance).toString()}
+                endingBalance={formatMoney(annex.financialReport?.july?.endingBalance).toString()}
               />
             </View>
           </View>
@@ -1213,7 +1249,7 @@ const Expenses = ({ month, expenses }) => (
     <View style={{ width: "50%" }}></View>
     <View style={{ width: "50%", flexDirection: "row" }}>
       <Text style={{ width: "40%", textAlign: "right" }}>{month} EXPENSES </Text>
-      <Text style={{ width: "25%", textAlign: "right" }}> {expenses} </Text>
+      <Text style={{ width: "25%", textAlign: "right" }}> {formatMoney(expenses).toString()} </Text>
       <Text style={{ width: "25%" }}> </Text>
       <Text style={{ width: "10%" }}> </Text>
     </View>

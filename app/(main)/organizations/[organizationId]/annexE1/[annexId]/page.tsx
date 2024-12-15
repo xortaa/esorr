@@ -6,6 +6,7 @@ import PageWrapper from "@/components/PageWrapper";
 import axios from "axios";
 import { PhilippinePeso, ArrowUpRight, ArrowDownRight, ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 interface OutflowItem {
   category: string;
@@ -87,7 +88,7 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
       <div className="p-4 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <h3 className="text-lg font-bold capitalize">{month}</h3>
         <div className="flex items-center">
-          <span className="mr-2">Balance: ₱{data.endingBalance.toLocaleString()}</span>
+          <span className="mr-2">Balance: {formatMoney(data.endingBalance).toString()}</span>
           {isExpanded ? <ChevronUp /> : <ChevronDown />}
         </div>
       </div>
@@ -110,7 +111,7 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
                   <tr key={index} className="text-green-600">
                     <td>{new Date(transaction.date).toLocaleDateString()}</td>
                     <td>{transaction.category}</td>
-                    <td className="text-right">₱{transaction.amount.toLocaleString()}</td>
+                    <td className="text-right">{formatMoney(transaction.amount).toString()}</td>
                     <td className="text-right">
                       {transaction.payingParticipants && `Participants: ${transaction.payingParticipants}`}
                       {transaction.totalMembers && `Members: ${transaction.totalMembers}`}
@@ -144,7 +145,7 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
                       <td>{item.category}</td>
                       <td>{item.description}</td>
                       <td className="text-right">{item.quantity}</td>
-                      <td className="text-right">₱{(item.cost * item.quantity).toLocaleString()}</td>
+                      <td className="text-right">{formatMoney(item.cost * item.quantity).toString()}</td>
                     </tr>
                   ))
                 )}
@@ -152,9 +153,9 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
           </table>
 
           <div className="font-bold">
-            <p>Total Income: ₱{data.totalIncome.toLocaleString()}</p>
-            <p>Total Expenses: ₱{data.totalExpenses.toLocaleString()}</p>
-            <p>Balance: ₱{data.endingBalance.toLocaleString()}</p>
+            <p>Total Income: {formatMoney(data.totalIncome).toString()}</p>
+            <p>Total Expenses: {formatMoney(data.totalExpenses).toString()}</p>
+            <p>Balance: {formatMoney(data.endingBalance).toString()}</p>
           </div>
         </div>
       )}

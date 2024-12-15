@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, pdf, Font, Image } from "@react-pdf/renderer";
+import formatMoney from "@/utils/formatMoney";
 
 // const inflowCategories = [
 //   "Organization Fund / Beginning Balance",
@@ -679,10 +680,10 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
                   <Text style={styles.tableCellDesc}>{item.description}</Text>
                   {categories.map((category) => (
                     <Text key={category} style={styles.tableCell}>
-                      {item.expenseReportCategory === category ? formatCurrency(item.cost) : ""}
+                      {item.expenseReportCategory === category ? formatMoney(item.cost).toString() : ""}
                     </Text>
                   ))}
-                  <Text style={styles.tableCell}>{formatCurrency(item.cost)}</Text>
+                  <Text style={styles.tableCell}>{formatMoney(item.cost).toString()}</Text>
                 </View>
               ))}
             </React.Fragment>
@@ -695,7 +696,7 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
             <Text style={[styles.tableCellDesc, { borderWidth: 0, flex: 2.04 }]}> </Text>
             {categories.map((category) => (
               <Text key={category} style={[styles.tableCell, { borderWidth: 0, borderLeft: 1, borderBottom: 1 }]}>
-                {formatCurrency(totals[category])}
+                {formatMoney(totals[category]).toString()}
               </Text>
             ))}
             <Text
@@ -727,7 +728,7 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
             <Text style={[styles.tableCell, { borderWidth: 0 }]}> </Text>
             <Text style={[styles.tableCell, { borderWidth: 0, textAlign: "right" }]}> Subtotal </Text>
             <Text style={[styles.tableCell, { borderWidth: 0, borderLeft: 1, borderRight: 1, borderBottom: 1 }]}>
-              {formatCurrency(totals.Total)}
+              {formatMoney(totals.Total).toString()}
             </Text>
           </View>
 
@@ -767,7 +768,7 @@ const MyDocument = ({ event, inflows, annex }: { event: Event; inflows: Inflow[]
               Refund (Reimbursement)
             </Text>
             <Text style={[styles.tableCell, { borderWidth: 0, borderLeft: 1, borderRight: 1, borderBottom: 1 }]}>
-              {formatCurrency(totals.Total)}
+              {formatMoney(totals.Total).toString()}
             </Text>
           </View>
         </View>

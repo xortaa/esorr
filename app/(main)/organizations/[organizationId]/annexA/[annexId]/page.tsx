@@ -7,6 +7,7 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import PageWrapper from "@/components/PageWrapper";
 import Link from "next/link";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 type Organization = {
   _id: string;
@@ -236,7 +237,7 @@ export default function AnnexAEditor() {
               <label className="label">
                 <span className="label-text">Starting Fund</span>
               </label>
-              <p className="text-lg font-medium">₱{annexA.startingBalance}</p>
+              <p className="text-lg font-medium">{formatMoney(annexA.startingBalance).toString()}</p>
             </div>
           </div>
         </div>
@@ -246,7 +247,7 @@ export default function AnnexAEditor() {
           <h2 className="card-title">Starting Fund</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="form-control">
-              <p className="text-lg font-medium">₱{annexA.startingBalance}</p>
+              <p className="text-lg font-medium">{formatMoney(annexA.startingBalance).toString()}</p>
             </div>
           </div>
         </div>
