@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexC1 from "@/models/annex-c1";
+import Notification from "@/models/notification";
 
 export async function POST(request: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
@@ -16,6 +17,13 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
     if (!updatedAnnex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
+
+    // delete notification
+
+    await Notification.findOneAndDelete({
+      organization: organizationId,
+      annex: annexId,
+    });
 
     return NextResponse.json(updatedAnnex);
   } catch (error) {

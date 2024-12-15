@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexG from "@/models/annex-g";
+import Notification from "@/models/notification";
 
 export async function POST(request: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
@@ -22,6 +23,16 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
     if (!updatedAnnex) {
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
+
+    // create notification
+
+    await Notification.create({
+      text: `${updatedAnnex.organization.name} has submitted Annex G for review`,
+      date: new Date(),
+      link: `/organizations/${organizationId}/annexG`,
+      organization: organizationId,
+      annex: annexId,
+    });
 
     return NextResponse.json(updatedAnnex);
   } catch (error) {

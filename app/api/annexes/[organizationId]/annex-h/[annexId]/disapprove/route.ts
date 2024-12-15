@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import AnnexH from "@/models/annex-h";
+import Notification from "@/models/notification";
+
 
 export async function POST(request: NextRequest, { params }: { params: { organizationId: string; annexId: string } }) {
   try {
@@ -17,6 +19,13 @@ export async function POST(request: NextRequest, { params }: { params: { organiz
       return NextResponse.json({ error: "Annex not found" }, { status: 404 });
     }
 
+    // delete notification
+
+    await Notification.findOneAndDelete({
+      organization: organizationId,
+      annex: annexId,
+    });
+    
     return NextResponse.json(updatedAnnex);
   } catch (error) {
     console.error("Error disapproving Annex L:", error);

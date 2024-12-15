@@ -1,18 +1,43 @@
 "use client";
 
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Menu, X, Bell, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+
+interface Notification {
+  _id: string;
+  text: string;
+  date: Date;
+  link: string;
+  organization: string;
+}
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const { data } = await axios.get("/api/notifications");
+      setNotifications(data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -29,12 +54,19 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
+
   const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsDropdownOpen(false);
     }
     if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
       setIsMenuOpen(false);
+    }
+    if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+      setIsNotificationsOpen(false);
     }
   };
 
@@ -148,35 +180,81 @@ const Navbar = () => {
       </div>
       <div className="navbar-end">
         {session && (
-          <div className="dropdown dropdown-end" ref={dropdownRef}>
-            <div tabIndex={0} className="btn flex items-center justify-center" onClick={toggleDropdown}>
-              <span className="text-xs">{session?.user.email}</span>
-              <label className="btn btn-ghost btn-circle avatar">
-                <div className="w-10 rounded-full">
-                  <img src={session?.user.image ?? "/assets/user-placeholder.png"} alt="User avatar" />
+          <>
+            {session.user?.role === "OSA" && (
+              <div className="dropdown dropdown-end mr-2" ref={notificationsRef}>
+                <div tabIndex={0} className="btn btn-ghost btn-circle" onClick={toggleNotifications}>
+                  <div className="indicator">
+                    <Bell className="h-5 w-5" />
+                    <span className="badge badge-sm badge-primary indicator-item">{notifications.length}</span>
+                  </div>
                 </div>
-              </label>
-            </div>
-            {isDropdownOpen && (
-              <ul
-                tabIndex={0}
-                className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-black"
-              >
-                <span className="text-slate-600 text-right">{session?.user.role}</span>
-                <li>
-                  <a
-                    onClick={() => {
-                      signOut({ redirect: false }).then(() => {
-                        router.push("/");
-                      });
-                    }}
+                {isNotificationsOpen && (
+                  <ul
+                    tabIndex={0}
+                    className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-80 text-black"
                   >
-                    Logout
-                  </a>
-                </li>
-              </ul>
+                    <li className="flex justify-end p-2">
+                      <button onClick={fetchNotifications} className="btn btn-ghost btn-xs">
+                        <RefreshCw className="h-4 w-4" />
+                        Refresh
+                      </button>
+                    </li>
+                    {notifications.map((notification) => {
+                      const notificationDate = new Date(notification.date);
+                      const formattedDate = notificationDate.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+                      const formattedTime = notificationDate.toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                      });
+                      return (
+                        <li key={notification._id}>
+                          <Link href={notification.link} className="flex flex-col items-center justify-center border-b">
+                            <a className="text-sm py-2">{notification.text}</a>
+                            <p className="text-right text-xs text-slate-600">{`${formattedDate}, ${formattedTime}`}</p>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             )}
-          </div>
+            <div className="dropdown dropdown-end" ref={dropdownRef}>
+              <div tabIndex={0} className="btn flex items-center justify-center" onClick={toggleDropdown}>
+                <span className="text-xs">{session?.user.email}</span>
+                <label className="btn btn-ghost btn-circle avatar">
+                  <div className="w-10 rounded-full">
+                    <img src={session?.user.image ?? "/assets/user-placeholder.png"} alt="User avatar" />
+                  </div>
+                </label>
+              </div>
+              {isDropdownOpen && (
+                <ul
+                  tabIndex={0}
+                  className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 text-black"
+                >
+                  <span className="text-slate-600 text-right">{session?.user.role}</span>
+                  <li>
+                    <a
+                      onClick={() => {
+                        signOut({ redirect: false }).then(() => {
+                          router.push("/");
+                        });
+                      }}
+                    >
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
