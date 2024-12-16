@@ -544,6 +544,7 @@ const OrganizationSetupStep1 = ({
       formData.startingBalance >= 0 &&
       formData.academicYearOfLastRecognition.trim() !== "" &&
       formData.facebook.trim() !== "" &&
+      validateWebsite(formData.facebook) &&
       (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "")
     );
   };
@@ -554,7 +555,8 @@ const OrganizationSetupStep1 = ({
       <form className="space-y-4">
         <div className="form-control">
           <label className="label" htmlFor="logo-upload">
-            <span className="label-text">Upload Organization Logo (Required)</span>
+            <span className="label-text">Upload Organization Logo *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           {formData.logo ? (
             <div className="flex items-center space-x-4">
@@ -603,7 +605,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="org-name">
-            <span className="label-text">Organization Name (Required)</span>
+            <span className="label-text">Organization Name *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <input
             type="text"
@@ -618,7 +621,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Organization Type (Required)</span>
+            <span className="label-text">Organization Type *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <div className="flex space-x-2">
             <label className="label cursor-pointer justify-start space-x-2">
@@ -679,7 +683,8 @@ const OrganizationSetupStep1 = ({
         {isNotUniversityWide && (
           <div className="form-control w-full" ref={dropdownRef}>
             <label className="label" htmlFor="affiliation-search">
-              <span className="label-text">Search for your affiliation (Required)</span>
+              <span className="label-text">Search for your affiliation *</span>
+              <span className="text-xs text-primary">(Required)</span>
             </label>
             <div className="relative">
               <input
@@ -750,7 +755,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="org-category">
-            <span className="label-text">Student Organization Category (Required)</span>
+            <span className="label-text">Student Organization Category *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <select
             id="org-category"
@@ -769,7 +775,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Strategic Directional Areas (Required)</span>
+            <span className="label-text">Strategic Directional Areas *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <div className="dropdown">
             <label tabIndex={0} className="btn m-1" onClick={() => setIsSDAreaDropdownOpen(!isSDAreaDropdownOpen)}>
@@ -812,7 +819,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="facebook">
-            <span className="label-text">Facebook Page URL</span>
+            <span className="label-text">Facebook Page URL *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <input
             type="url"
@@ -861,7 +869,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="starting-balance">
-            <span className="label-text">Starting Balance (Required)</span>
+            <span className="label-text">Starting Balance *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
@@ -880,7 +889,8 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="academic-year-of-last-recognition">
-            <span className="label-text">Academic Year of Last Recognition (Required)</span>
+            <span className="label-text">Academic Year of Last Recognition *</span>
+            <span className="text-xs text-primary">(Required)</span>
           </label>
           <select
             id="academic-year-of-last-recognition"
@@ -911,7 +921,8 @@ const OrganizationSetupStep1 = ({
         {formData.academicYearOfLastRecognition !== "Not yet recognized" && (
           <div className="form-control">
             <label className="label" htmlFor="level-of-recognition">
-              <span className="label-text">Level of Recognition (Required)</span>
+              <span className="label-text">Level of Recognition *</span>
+              <span className="text-xs text-primary">(Required)</span>
             </label>
             <input
               type="text"
