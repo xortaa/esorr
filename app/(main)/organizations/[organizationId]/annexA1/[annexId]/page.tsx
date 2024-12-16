@@ -388,7 +388,9 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="w-full">
-                <label className="label mb-1">FIRST NAME <span className="text-primary text-xs">(required)</span></label>
+                <label className="label mb-1">
+                  FIRST NAME <span className="text-primary text-xs">(required)</span>
+                </label>
                 <input
                   name="firstName"
                   className="input input-bordered w-full uppercase"
@@ -409,7 +411,9 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                 />
               </div>
               <div className="w-full">
-                <label className="label mb-1">LAST NAME <span className="text-primary text-xs">(required)</span></label>
+                <label className="label mb-1">
+                  LAST NAME <span className="text-primary text-xs">(required)</span>
+                </label>
                 <input
                   name="lastName"
                   className="input input-bordered w-full uppercase"
@@ -469,7 +473,9 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="w-full">
-                <label className="label mb-1">POSITION <span className="text-primary text-xs">(required)</span></label>
+                <label className="label mb-1">
+                  POSITION <span className="text-primary text-xs">(required)</span>
+                </label>
                 <input
                   name="position"
                   className="input input-bordered w-full uppercase"
