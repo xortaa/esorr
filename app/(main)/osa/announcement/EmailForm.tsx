@@ -28,6 +28,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
   const [status, setStatus] = useState("");
   const [affiliations, setAffiliations] = useState<{ _id: string; name: string }[]>([]);
   const [allRecipients, setAllRecipients] = useState<{ email: string; affiliation: string }[]>([]);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +58,11 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setEmailData((prev) => ({ ...prev, [name]: value }));
+    if (name === "scheduledDate") {
+      setEmailData((prev) => ({ ...prev, [name]: value ? new Date(value).toISOString() : "" }));
+    } else {
+      setEmailData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleRecipientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -65,7 +70,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
     setEmailData((prev) => ({ ...prev, specificRecipients: selectedEmails }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, sendImmediately = false) => {
     e.preventDefault();
 
     // Word count validations
@@ -82,6 +87,8 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       return;
     }
 
+    setIsSending(true);
+
     try {
       const formData = new FormData();
       Object.entries(emailData).forEach(([key, value]) => {
@@ -94,6 +101,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       if (file) {
         formData.append("attachment", file);
       }
+      formData.append("sendImmediately", sendImmediately.toString());
 
       const response = await fetch("/api/emails", {
         method: emailData._id ? "PUT" : "POST",
@@ -103,7 +111,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       const result = await response.json();
 
       if (result.success) {
-        setStatus("Email saved successfully!");
+        setStatus(sendImmediately ? "Email sent successfully!" : "Email saved successfully!");
         router.push("/osa/announcement");
       } else {
         setStatus(`Error: ${result.error}`);
@@ -114,11 +122,13 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       } else {
         setStatus("An unknown error occurred.");
       }
+    } finally {
+      setIsSending(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-sm">
+    <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6 bg-white p-8 rounded-lg shadow-sm">
       <div>
         <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
           Subject (max 10 words)
@@ -151,13 +161,14 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
           Schedule Send Date (optional)
         </label>
         <input
-          type="datetime-local"
+          type="date"
           id="scheduledDate"
           name="scheduledDate"
-          value={emailData.scheduledDate}
+          value={emailData.scheduledDate ? new Date(emailData.scheduledDate).toISOString().split("T")[0] : ""}
           onChange={handleInputChange}
           className="input input-bordered w-full"
         />
+        <p className="text-sm text-gray-500 mt-1">Scheduled emails will be sent at 6:00 AM on the scheduled day.</p>
       </div>
       <div>
         <label htmlFor="recipientType" className="block text-sm font-medium text-gray-700 mb-1">
@@ -231,9 +242,19 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
           className="file-input file-input-bordered w-full"
         />
       </div>
-      <button type="submit" className="btn btn-primary w-full">
-        {emailData._id ? "Update" : "Save"} Email
-      </button>
+      <div className="flex flex-col gap-4">
+        <button type="submit" className="btn btn-primary w-full">
+          {emailData._id ? "Update" : "Schedule"} Email
+        </button>
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, true)}
+          className="btn btn-secondary w-full"
+          disabled={isSending}
+        >
+          Send Now
+        </button>
+      </div>
       {status && (
         <p className={`text-center mt-4 ${status.includes("Error") ? "text-red-600" : "text-green-600"}`}>{status}</p>
       )}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/mongodb";
 import Email from "@/models/email";
+import { sendEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -18,12 +19,12 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const emailData = Object.fromEntries(formData);
 
-    const newEmail = new Email({
+    const newEmail: any = new Email({
       subject: emailData.subject,
       text: emailData.text,
-      scheduledDate: emailData.scheduledDate || null,
+      scheduledDate: emailData.scheduledDate ? new Date(emailData.scheduledDate as string).toISOString() : null,
       recipientType: emailData.recipientType,
-      affiliation: emailData.affiliation || null,
+      affiliation: formData.get("affiliation") || null,
       specificRecipients: JSON.parse(emailData.specificRecipients as string),
       status: emailData.scheduledDate ? "scheduled" : "draft",
     });
@@ -38,6 +39,12 @@ export async function POST(request: Request) {
     }
 
     await newEmail.save();
+
+    if (formData.get("sendImmediately") === "true") {
+      await sendEmail(newEmail);
+      newEmail.status = "sent";
+      await newEmail.save();
+    }
 
     return NextResponse.json({ success: true, message: "Email saved successfully" });
   } catch (error: any) {
@@ -54,9 +61,9 @@ export async function PUT(request: Request) {
     const updatedEmail: any = {
       subject: emailData.subject,
       text: emailData.text,
-      scheduledDate: emailData.scheduledDate || null,
+      scheduledDate: emailData.scheduledDate ? new Date(emailData.scheduledDate as string).toISOString() : null,
       recipientType: emailData.recipientType,
-      affiliation: emailData.affiliation || null,
+      affiliation: formData.get("affiliation") || null,
       specificRecipients: JSON.parse(emailData.specificRecipients as string),
       status: emailData.scheduledDate ? "scheduled" : "draft",
     };
@@ -70,11 +77,16 @@ export async function PUT(request: Request) {
       };
     }
 
-    await Email.findByIdAndUpdate(emailData.id, updatedEmail);
+    const email = await Email.findByIdAndUpdate(emailData.id, updatedEmail, { new: true });
+
+    if (formData.get("sendImmediately") === "true") {
+      await sendEmail(email);
+      email.status = "sent";
+      await email.save();
+    }
 
     return NextResponse.json({ success: true, message: "Email updated successfully" });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-
