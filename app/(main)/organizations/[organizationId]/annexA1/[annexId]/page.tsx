@@ -244,27 +244,35 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    // Validate email domain
-    const emailDomain = editedOfficer.email.split("@")[1];
-    if (emailDomain !== "ust.edu.ph") {
-      newErrors.email = "Only @ust.edu.ph emails are allowed.";
+    // Validate email domain if email is not empty
+    if (editedOfficer.email.trim()) {
+      const emailDomain = editedOfficer.email.split("@")[1];
+      if (emailDomain !== "ust.edu.ph") {
+        newErrors.email = "Only @ust.edu.ph emails are allowed.";
+      }
     }
 
-    // Validate Facebook URL
-    const facebookRegex = /^(https?:\/\/)?(www\.)?facebook.com\/[a-zA-Z0-9(\.\?)?]/;
-    if (!facebookRegex.test(editedOfficer.facebook)) {
-      newErrors.facebook = "Invalid Facebook URL.";
+    // Validate Facebook URL if Facebook is not empty
+    if (editedOfficer.facebook.trim()) {
+      const facebookRegex = /^(https?:\/\/)?(www\.)?facebook.com\/[a-zA-Z0-9(\.\?)?]+$/;
+      if (!facebookRegex.test(editedOfficer.facebook)) {
+        newErrors.facebook = "Invalid Facebook URL.";
+      }
     }
 
-    // Validate GWA
-    if (editedOfficer.gwa && (editedOfficer.gwa < 1.0 || editedOfficer.gwa > 5.0)) {
-      newErrors.gwa = "GWA must be between 1.0 and 5.0.";
+    // Validate GWA if GWA is not empty
+    if (editedOfficer.gwa !== undefined && editedOfficer.gwa !== null && editedOfficer.gwa !== "") {
+      if (editedOfficer.gwa < 1.0 || editedOfficer.gwa > 5.0) {
+        newErrors.gwa = "GWA must be between 1.0 and 5.0.";
+      }
     }
 
-    // Validate Mobile Number
-    const mobileNumberRegex = /^\+63 \d{3} \d{3} \d{4}$/;
-    if (!mobileNumberRegex.test(editedOfficer.mobileNumber)) {
-      newErrors.mobileNumber = "Invalid mobile number format. Use +63 XXX XXX XXXX.";
+    // Validate Mobile Number if mobile number is not empty
+    if (editedOfficer.mobileNumber.trim()) {
+      const mobileNumberRegex = /^\+63 \d{3} \d{3} \d{4}$/;
+      if (!mobileNumberRegex.test(editedOfficer.mobileNumber)) {
+        newErrors.mobileNumber = "Invalid mobile number format. Use +63 XXX XXX XXXX.";
+      }
     }
 
     // Validate required fields
@@ -281,7 +289,6 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -389,7 +396,8 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="w-full">
                 <label className="label mb-1">
-                  FIRST NAME <span className="text-primary text-xs">(required)</span>
+                  FIRST NAME
+                  <span className="text-primary text-xs">(required)</span>
                 </label>
                 <input
                   name="firstName"
@@ -412,7 +420,8 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
               </div>
               <div className="w-full">
                 <label className="label mb-1">
-                  LAST NAME <span className="text-primary text-xs">(required)</span>
+                  LAST NAME
+                  <span className="text-primary text-xs">(required)</span>
                 </label>
                 <input
                   name="lastName"
@@ -474,7 +483,8 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="w-full">
                 <label className="label mb-1">
-                  POSITION <span className="text-primary text-xs">(required)</span>
+                  POSITION
+                  <span className="text-primary text-xs">(required)</span>
                 </label>
                 <input
                   name="position"
@@ -674,7 +684,7 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                   <h4 className="font-semibold mb-2">{edu.level}</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="label mb-1">Name and Location of Institution</label>
+                      <label className="label mb-1">Name and Location of Institution </label>
                       <input
                         className="input input-bordered w-full"
                         value={edu.nameAndLocation}
@@ -785,60 +795,6 @@ function OfficerModal({ officer, organizationId, annexId, onClose, onSave }) {
                 </div>
               ))}
             </div>
-
-            {/* <div className="mb-6">
-              <label className="label mb-1">Officer's Signature</label>
-              {editedOfficer.signature && !isChangingSignature ? (
-                <div>
-                  <img src={editedOfficer.signature} alt="Officer's Signature" className="mb-2" />
-                  <button type="button" className="btn btn-sm btn-outline" onClick={handleChangeSignature}>
-                    Change Signature
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold mb-2">Draw Signature</h4>
-                      <div className="border-2 border-gray-300 rounded-md p-2 flex justify-center">
-                        <SignatureCanvas
-                          ref={signatureRef}
-                          canvasProps={{
-                            className: "signature-canvas",
-                            width: 300,
-                            height: 150,
-                          }}
-                          backgroundColor="white"
-                        />
-                      </div>
-                      <div className="mt-2 flex justify-center">
-                        <button type="button" className="btn btn-sm btn-outline" onClick={handleClearSignature}>
-                          Clear Signature
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-center">
-                      <span className="text-lg font-bold">OR</span>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold mb-2">Upload Signature</h4>
-                      <input
-                        type="file"
-                        name="signature"
-                        accept="image/*"
-                        onChange={handleSignatureChange}
-                        className="file-input file-input-bordered w-full"
-                      />
-                      {previewSignature && (
-                        <div className="mt-2">
-                          <img src={previewSignature} alt="Uploaded Signature" className="max-w-full h-auto" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div> */}
 
             <button
               type="submit"
