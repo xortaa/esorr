@@ -760,7 +760,7 @@ const OrganizationSetupStep1 = ({
             required
           >
             <option value="">Select a category</option>
-            {["Religous", "Socio-Civic", "Arts & Culture", "Sports and Wellness, Academic"].map((category) => (
+            {["Religous", "Socio-Civic", "Arts & Culture", "Sports and Wellness", "Academic"].map((category) => (
               <option key={category} value={category}>
                 {category}
               </option>
@@ -812,7 +812,7 @@ const OrganizationSetupStep1 = ({
         </div>
         <div className="form-control">
           <label className="label" htmlFor="facebook">
-            <span className="label-text">Facebook Page Name</span>
+            <span className="label-text">Facebook Page URL</span>
           </label>
           <input
             type="url"
