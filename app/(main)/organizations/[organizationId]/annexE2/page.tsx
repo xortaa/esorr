@@ -584,12 +584,13 @@ const MyDocument: React.FC<{
   const inflows =
     monthlyReport?.inflows.map((inflow) => ({
       ...inflow,
-      amount: formatMoney(inflow.amount).toString(),
+      amount: inflow.amount !== undefined && inflow.amount !== null ? formatMoney(inflow.amount).toString() : "",
     })) ?? [];
   const outflows =
     monthlyReport?.outflows.map((outflow) => ({
       ...outflow,
-      totalCost: formatMoney(outflow.totalCost).toString(),
+      totalCost:
+        outflow.totalCost !== undefined && outflow.totalCost !== null ? formatMoney(outflow.totalCost).toString() : "",
     })) ?? [];
   const totalInflow = monthlyReport?.totalInflow ?? 0;
   const totalOutflow = monthlyReport?.totalOutflow ?? 0;
@@ -672,19 +673,27 @@ const MyDocument: React.FC<{
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Inflows</Text>
-            <Text style={styles.tableLastCell}>{formatMoney(totalInflow).toString().toString() || 0}</Text>
+            <Text style={styles.tableLastCell}>
+              {totalInflow !== undefined && totalInflow !== null ? formatMoney(totalInflow).toString() : "0"}
+            </Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Total Outflows</Text>
-            <Text style={styles.tableLastCell}>{formatMoney(totalOutflow).toString() || 0}</Text>
+            <Text style={styles.tableLastCell}>
+              {totalOutflow !== undefined && totalOutflow !== null ? formatMoney(totalOutflow).toString() : "0"}
+            </Text>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellDate}> </Text>
             <Text style={styles.tableCellSOF}>Net Cash Flow</Text>
-            <Text style={styles.tableLastCell}>{formatMoney((totalInflow || 0) - (totalOutflow || 0)).toString()}</Text>
+            <Text style={styles.tableLastCell}>
+              {totalInflow !== undefined && totalInflow !== null && totalOutflow !== undefined && totalOutflow !== null
+                ? formatMoney(totalInflow - totalOutflow).toString()
+                : "0"}
+            </Text>
           </View>
 
           <View style={styles.tableRow}>
@@ -694,7 +703,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>TOTAL RECEIPTS</Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
-              {formatMoney(totalInflow).toString() || 0}
+              {totalInflow !== undefined && totalInflow !== null ? formatMoney(totalInflow).toString() : "0"}
             </Text>
           </View>
         </View>
@@ -769,7 +778,7 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalExp}> </Text>
             <Text style={[styles.tableCellTotalExp, { textAlign: "right" }]}>
               {" "}
-              {formatMoney(totalOutflow).toString() || 0}
+              {totalOutflow !== undefined && totalOutflow !== null ? formatMoney(totalOutflow).toString() : "0"}
             </Text>
           </View>
           <View style={styles.tableRow}>
@@ -781,7 +790,9 @@ const MyDocument: React.FC<{
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={styles.tableCellTotalNet}> </Text>
             <Text style={[styles.tableCellTotalNet, { textAlign: "right" }]}>
-              {formatMoney(monthlyReport?.endingBalance).toString() || 0}
+              {monthlyReport?.endingBalance !== undefined && monthlyReport?.endingBalance !== null
+                ? formatMoney(monthlyReport.endingBalance).toString()
+                : "0"}
             </Text>
           </View>
         </View>

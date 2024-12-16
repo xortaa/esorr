@@ -88,7 +88,12 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
       <div className="p-4 flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <h3 className="text-lg font-bold capitalize">{month}</h3>
         <div className="flex items-center">
-          <span className="mr-2">Balance: {formatMoney(data.endingBalance).toString()}</span>
+          <span className="mr-2">
+            Balance:{" "}
+            {data.endingBalance !== undefined && data.endingBalance !== null
+              ? formatMoney(data.endingBalance).toString()
+              : ""}
+          </span>
           {isExpanded ? <ChevronUp /> : <ChevronDown />}
         </div>
       </div>
@@ -111,7 +116,11 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
                   <tr key={index} className="text-green-600">
                     <td>{new Date(transaction.date).toLocaleDateString()}</td>
                     <td>{transaction.category}</td>
-                    <td className="text-right">{formatMoney(transaction.amount).toString()}</td>
+                    <td className="text-right">
+                      {transaction.amount !== undefined && transaction.amount !== null
+                        ? formatMoney(transaction.amount).toString()
+                        : ""}
+                    </td>
                     <td className="text-right">
                       {transaction.payingParticipants && `Participants: ${transaction.payingParticipants}`}
                       {transaction.totalMembers && `Members: ${transaction.totalMembers}`}
@@ -145,7 +154,14 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
                       <td>{item.category}</td>
                       <td>{item.description}</td>
                       <td className="text-right">{item.quantity}</td>
-                      <td className="text-right">{formatMoney(item.cost * item.quantity).toString()}</td>
+                      <td className="text-right">
+                        {item.cost !== undefined &&
+                        item.quantity !== undefined &&
+                        item.cost !== null &&
+                        item.quantity !== null
+                          ? formatMoney(item.cost * item.quantity).toString()
+                          : ""}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -153,9 +169,24 @@ const MonthSection: React.FC<MonthSectionProps> = ({ month, data, transactions }
           </table>
 
           <div className="font-bold">
-            <p>Total Income: {formatMoney(data.totalIncome).toString()}</p>
-            <p>Total Expenses: {formatMoney(data.totalExpenses).toString()}</p>
-            <p>Balance: {formatMoney(data.endingBalance).toString()}</p>
+            <p>
+              Total Income:{" "}
+              {data.totalIncome !== undefined && data.totalIncome !== null
+                ? formatMoney(data.totalIncome).toString()
+                : ""}
+            </p>
+            <p>
+              Total Expenses:{" "}
+              {data.totalExpenses !== undefined && data.totalExpenses !== null
+                ? formatMoney(data.totalExpenses).toString()
+                : ""}
+            </p>
+            <p>
+              Balance:{" "}
+              {data.endingBalance !== undefined && data.endingBalance !== null
+                ? formatMoney(data.endingBalance).toString()
+                : ""}
+            </p>
           </div>
         </div>
       )}
@@ -199,12 +230,13 @@ export default function AnnexE1FinancialSummary() {
         <div className="grid gap-4 md:grid-cols-3 mb-8">
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-sm">
-                Total Income
-                <PhilippinePeso className="h-4 w-4 text-base-content opacity-70" />
-              </h2>
-              <p className="text-2xl font-bold">₱{financialReport.totalIncome.toLocaleString()}</p>
-              <p className="text-xs text-base-content opacity-70">
+              <h2 className="card-title text-sm">Total Income</h2>
+              <p className="text-2xl font-bold">
+                {financialReport.totalIncome !== undefined && financialReport.totalIncome !== null
+                  ? formatMoney(financialReport.totalIncome).toString()
+                  : ""}
+              </p>
+              <p className="text-xs text-black opacity-100">
                 <ArrowUpRight className="inline mr-1" />
                 Total funds received
               </p>
@@ -212,12 +244,13 @@ export default function AnnexE1FinancialSummary() {
           </div>
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-sm">
-                Total Expenses
-                <PhilippinePeso className="h-4 w-4 text-base-content opacity-70" />
-              </h2>
-              <p className="text-2xl font-bold">₱{financialReport.totalExpenses.toLocaleString()}</p>
-              <p className="text-xs text-base-content opacity-70">
+              <h2 className="card-title text-sm">Total Expenses</h2>
+              <p className="text-2xl font-bold">
+                {financialReport.totalExpenses !== undefined && financialReport.totalExpenses !== null
+                  ? formatMoney(financialReport.totalExpenses).toString()
+                  : ""}
+              </p>
+              <p className="text-xs text-black opacity-100">
                 <ArrowDownRight className="inline mr-1" />
                 Total expenditures
               </p>
@@ -225,12 +258,13 @@ export default function AnnexE1FinancialSummary() {
           </div>
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-sm">
-                Balance
-                <PhilippinePeso className="h-4 w-4 text-base-content opacity-70" />
-              </h2>
-              <p className="text-2xl font-bold">₱{financialReport.endingBalance.toLocaleString()}</p>
-              <p className="text-xs text-base-content opacity-70">
+              <h2 className="card-title text-sm">Balance</h2>
+              <p className="text-2xl font-bold">
+                {financialReport.endingBalance !== undefined && financialReport.endingBalance !== null
+                  ? formatMoney(financialReport.endingBalance).toString()
+                  : ""}
+              </p>
+              <p className="text-xs text-black opacity-100">
                 <Calendar className="inline mr-1" />
                 Academic Year Total
               </p>

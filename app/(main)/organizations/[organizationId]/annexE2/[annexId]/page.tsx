@@ -23,6 +23,7 @@ import axios from "axios";
 import { uploadImage } from "@/utils/storage";
 import { parseISO, isValid, format } from "date-fns";
 import BackButton from "@/components/BackButton";
+import formatMoney from "@/utils/formatMoney";
 
 interface Event {
   _id: string;
@@ -80,7 +81,6 @@ const outflowCategories = [
 ];
 
 const inflowCategories = [
-  "Organization Fund / Beginning Balance",
   "Membership Fee",
   "Registration Fee",
   "Merchandise Selling",
@@ -474,6 +474,9 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const deleteInflow = async (inflowId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this inflow?");
+    if (!isConfirmed) return;
+
     try {
       await axios.delete(`/api/annexes/${organizationId}/annex-e2/${annexId}/inflow/${inflowId}`);
       setInflows(inflows.filter((inflow) => inflow._id !== inflowId));
@@ -483,6 +486,9 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const deleteOutflow = async (outflowId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this outflow?");
+    if (!isConfirmed) return;
+
     try {
       await axios.delete(`/api/annexes/${organizationId}/annex-e2/${annexId}/outflow/${outflowId}`);
       setOutflows(outflows.filter((outflow) => outflow._id !== outflowId));
@@ -550,6 +556,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                   </h2>
                   <input
                     type="file"
+                    accept=".png, .jpg, .jpeg"
                     onChange={handleFileChange}
                     className="file-input file-input-bordered file w-full"
                   />
@@ -756,7 +763,9 @@ export default function AnnexE2FinancialLiquidationReport() {
                                 <>
                                   <h4 className="font-semibold text-lg text-neutral">{item.description}</h4>
                                   <p className="text-sm text-neutral-content">Category: {item.category}</p>
-                                  <p className="text-sm text-neutral-content">Cost: ₱{item.cost}</p>
+                                  <p className="text-sm text-neutral-content">
+                                    Cost: {formatMoney(item.cost).toString()}
+                                  </p>
                                   <p className="text-sm text-neutral-content">Quantity: {item.quantity}</p>
                                   <p className="text-sm text-neutral-content">Serial No: {item.serialNumber}</p>
                                   <p className="text-sm text-neutral-content">
@@ -963,10 +972,10 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <img src={outflow.image} alt="Receipt" className="w-full h-40 object-cover rounded-lg mb-4" />
                       )}
                       <h3 className="text-xl font-semibold mb-2 text-neutral">{outflow.establishment}</h3>
-                      <p className="text-neutral-content mb-1">Date: {outflow.date}</p>
+                      <p className="text-neutral-content mb-1">Date: {new Date(outflow.date).toLocaleDateString()}</p>
                       <p className="text-neutral-content mb-1">Items: {outflow.items.length}</p>
                       <p className="text-lg font-semibold text-primary">
-                        Total: ₱ {outflow.totalCost.toLocaleString()}
+                        Total: {formatMoney(outflow.totalCost).toString()}
                       </p>
                       <button
                         className="btn btn-sm btn-error mt-2"
@@ -1133,7 +1142,7 @@ export default function AnnexE2FinancialLiquidationReport() {
                         <tr key={inflow._id}>
                           <td>{inflow.category}</td>
                           <td>{formatDate(inflow.date)}</td>
-                          <td>₱ {inflow.amount.toLocaleString()}</td>
+                          <td> {formatMoney(inflow.amount).toString()}</td>
                           <td>
                             {inflow.category === "Registration Fee" &&
                               `Paying Participants: ${inflow.payingParticipants}`}
