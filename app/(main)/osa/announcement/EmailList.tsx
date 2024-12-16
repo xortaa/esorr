@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { CalendarIcon, ArchiveIcon, EditIcon } from "lucide-react";
+import PageWrapper from "@/components/PageWrapper";
 
 interface Email {
   _id: string;
@@ -49,35 +51,61 @@ export default function EmailList() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Not scheduled";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "draft":
+        return "bg-gray-200 text-gray-800";
+      case "scheduled":
+        return "bg-blue-200 text-blue-800";
+      case "sent":
+        return "bg-green-200 text-green-800";
+      default:
+        return "bg-gray-200 text-gray-800";
+    }
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <table className="table w-full">
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Scheduled Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {emails.map((email) => (
-            <tr key={email._id}>
-              <td>{email.subject}</td>
-              <td>{email.scheduledDate || "Not scheduled"}</td>
-              <td>{email.status}</td>
-              <td>
-                <button className="btn btn-sm btn-info mr-2" onClick={() => handleEdit(email._id)}>
-                  Edit
-                </button>
-                <button className="btn btn-sm btn-warning" onClick={() => handleArchive(email._id)}>
-                  Archive
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <PageWrapper>
+      {emails.map((email) => (
+        <div key={email._id} className="bg-white shadow-sm rounded-lg mb-4 overflow-hidden">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">{email.subject}</h2>
+            <div className="flex items-center text-sm text-gray-600 mb-2">
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              {formatDate(email.scheduledDate)}
+            </div>
+            <div
+              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(email.status)}`}
+            >
+              {email.status}
+            </div>
+          </div>
+          <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse gap-2">
+            <button
+              type="button"
+              onClick={() => handleEdit(email._id)}
+              className="btn btn-outline"
+            >
+              <EditIcon className="w-4 h-4 mr-2" />
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => handleArchive(email._id)}
+              className="btn btn-neutral"
+            >
+              <ArchiveIcon className="w-4 h-4 mr-2" />
+              Archive
+            </button>
+          </div>
+        </div>
+      ))}
+    </PageWrapper>
   );
 }
