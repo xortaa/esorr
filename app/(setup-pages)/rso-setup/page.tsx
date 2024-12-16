@@ -7,6 +7,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { uploadImage } from "@/utils/storage";
 import { signOut } from "next-auth/react";
+import formatMoney from "@/utils/formatMoney";
 
 const validateWebsite = (url: string) => {
   const regex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
@@ -1166,7 +1167,7 @@ function OrganizationSetupStep4({
       {renderField("Mission", formData.mission)}
       {renderField("Vision", formData.vision)}
       {renderField("Brief Description", formData.description)}
-      {renderField("Starting Balance", `₱${formData.startingBalance.toFixed(2)}`)}
+      {renderField("Starting Balance", `${formatMoney(formData.startingBalance).toString}`)}
       {renderField("Academic Year of Last Recognition", formData.academicYearOfLastRecognition)}
       {formData.academicYearOfLastRecognition !== "Not yet recognized" &&
         renderField("Level of Recognition", formData.levelOfRecognition)}
