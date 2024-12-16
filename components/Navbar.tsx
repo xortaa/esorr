@@ -32,7 +32,8 @@ const Navbar = () => {
 
   const fetchNotifications = async () => {
     try {
-      const { data } = await axios.get("/api/notifications");
+      const timestamp = new Date().getTime();
+      const { data } = await axios.get(`/api/notifications?t=${timestamp}`);
       setNotifications(data);
     } catch (error) {
       console.error("Error fetching notifications:", error);
