@@ -545,7 +545,9 @@ const OrganizationSetupStep1 = ({
       formData.academicYearOfLastRecognition.trim() !== "" &&
       formData.facebook.trim() !== "" &&
       validateWebsite(formData.facebook) &&
-      (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "")
+      (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "") &&
+      // valid if error is empty or null
+      error === null
     );
   };
 
