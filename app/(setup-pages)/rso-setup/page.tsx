@@ -377,6 +377,7 @@ const OrganizationSetupStep1 = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [error, setError] = useState<string | null>(null); // Update 1: Added error state
   const dropdownRef = useRef<HTMLDivElement>(null);
+   const [errors, setErrors] = useState<string[]>([]);
 
   const pastYears = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -456,15 +457,43 @@ const OrganizationSetupStep1 = ({
     newSocials[index] = value;
     setFormData({ ...formData, socials: newSocials });
     if (value && !validateWebsite(value)) {
-      setError("Please enter a valid social media URL");
+      setErrors((prev) => [
+        ...prev.filter((e) => !e.includes(`Social media URL ${index + 1}`)),
+        `Social media URL ${index + 1} is invalid`,
+      ]);
     } else {
-      setError(null);
+      setErrors((prev) => prev.filter((e) => !e.includes(`Social media URL ${index + 1}`)));
     }
   };
 
-  const handleFacebookInputChange = (value: string) => {
-    setFormData({ ...formData, facebook: value });
-  };
+   const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const value = e.target.value;
+     setFormData({ ...formData, website: value });
+     if (value && !validateWebsite(value)) {
+       setErrors((prev) => [...prev.filter((e) => !e.includes("website")), "Please enter a valid website URL"]);
+     } else {
+       setErrors((prev) => prev.filter((e) => !e.includes("website")));
+     }
+   };
+
+ const handleFacebookInputChange = (value: string) => {
+   setFormData({ ...formData, facebook: value });
+   if (value && !validateWebsite(value)) {
+     setErrors((prev) => [...prev.filter((e) => !e.includes("Facebook")), "Please enter a valid Facebook page URL"]);
+   } else {
+     setErrors((prev) => prev.filter((e) => !e.includes("Facebook")));
+   }
+ };
+
+ const handleFacebookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const value = e.target.value;
+   setFormData({ ...formData, facebook: value });
+   if (value && !validateWebsite(value)) {
+     setErrors((prev) => [...prev.filter((e) => !e.includes("Facebook")), "Please enter a valid Facebook page URL"]);
+   } else {
+     setErrors((prev) => prev.filter((e) => !e.includes("Facebook")));
+   }
+ };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -535,22 +564,21 @@ const OrganizationSetupStep1 = ({
     }));
   };
 
-  const isFormValid = () => {
-    return (
-      formData.name.trim() !== "" &&
-      formData.logo !== null &&
-      (!isNotUniversityWide || selectedAffiliation !== null) &&
-      formData.category.trim() !== "" &&
-      formData.strategicDirectionalAreas.length > 0 &&
-      formData.startingBalance >= 0 &&
-      formData.academicYearOfLastRecognition.trim() !== "" &&
-      formData.facebook.trim() !== "" &&
-      validateWebsite(formData.facebook) &&
-      (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "") &&
-      // valid if error is empty or null
-      error === null
-    );
-  };
+   const isFormValid = () => {
+     return (
+       formData.name.trim() !== "" &&
+       formData.logo !== null &&
+       (!formData.isNotUniversityWide || formData.selectedAffiliation !== null) &&
+       formData.category.trim() !== "" &&
+       formData.strategicDirectionalAreas.length > 0 &&
+       formData.startingBalance >= 0 &&
+       formData.academicYearOfLastRecognition.trim() !== "" &&
+       formData.facebook.trim() !== "" &&
+       validateWebsite(formData.facebook) &&
+       (formData.academicYearOfLastRecognition === "Not yet recognized" || formData.levelOfRecognition.trim() !== "") &&
+       errors.length === 0
+     );
+   };
 
   return (
     <div className="space-y-6">
@@ -744,15 +772,7 @@ const OrganizationSetupStep1 = ({
             placeholder="https://www.example.com"
             className="input input-bordered w-full"
             value={formData.website}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFormData({ ...formData, website: value });
-              if (value && !validateWebsite(value)) {
-                setError("Please enter a valid website URL");
-              } else {
-                setError(null);
-              }
-            }}
+            onChange={handleWebsiteChange}
             required
           />
         </div>
@@ -835,9 +855,12 @@ const OrganizationSetupStep1 = ({
               const value = e.target.value;
               handleFacebookInputChange(value);
               if (value && !validateWebsite(value)) {
-                setError("Please enter a valid Facebook page URL");
+                setErrors((prev) => [
+                  ...prev.filter((e) => !e.includes("Facebook")),
+                  "Please enter a valid Facebook page URL",
+                ]);
               } else {
-                setError(null);
+                setErrors((prev) => prev.filter((e) => !e.includes("Facebook")));
               }
             }}
             required
@@ -1167,7 +1190,7 @@ function OrganizationSetupStep4({
       {renderField("Mission", formData.mission)}
       {renderField("Vision", formData.vision)}
       {renderField("Brief Description", formData.description)}
-      {renderField("Starting Balance", `${formatMoney(formData.startingBalance).toString}`)}
+      {renderField("Starting Balance", `${formatMoney(formData.startingBalance).toString()}`)}
       {renderField("Academic Year of Last Recognition", formData.academicYearOfLastRecognition)}
       {formData.academicYearOfLastRecognition !== "Not yet recognized" &&
         renderField("Level of Recognition", formData.levelOfRecognition)}
