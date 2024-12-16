@@ -396,7 +396,7 @@ const EventEvaluationForm: React.FC<{
             value={event.totalParticipants}
             onChange={(e) => {
               const value = e.target.value;
-              if (/^\d*$/.test(value)) {
+              if (/^\d*$/.test(value) && parseInt(value) <= 10000) {
                 updateEvent("totalParticipants", parseInt(value));
               }
             }}
@@ -418,8 +418,8 @@ const EventEvaluationForm: React.FC<{
             value={event.totalRespondents}
             onChange={(e) => {
               const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                updateEvent("totalParticipants", parseInt(value));
+              if (/^\d*$/.test(value) && parseInt(value) <= 10000) {
+                updateEvent("totalRespondents", parseInt(value));
               }
             }}
             onKeyDown={(e) => {
@@ -442,6 +442,7 @@ const EventEvaluationForm: React.FC<{
               type="text"
               className="input input-bordered"
               value={event.adviser}
+              maxLength={100}
               onChange={(e) => updateEvent("adviser", e.target.value)}
             />
           </div>
@@ -476,7 +477,6 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerName}
               onChange={(e) => updateEvent("speakerName", e.target.value)}
-              required
               maxLength={100}
             />
           </div>
@@ -489,7 +489,6 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerTopic}
               onChange={(e) => updateEvent("speakerTopic", e.target.value)}
-              required
               maxLength={100}
             />
           </div>
@@ -502,7 +501,6 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerAffiliation}
               onChange={(e) => updateEvent("speakerAffiliation", e.target.value)}
-              required
               maxLength={100}
             />
           </div>
@@ -515,7 +513,6 @@ const EventEvaluationForm: React.FC<{
               className="input input-bordered"
               value={event.speakerPosition}
               onChange={(e) => updateEvent("speakerPosition", e.target.value)}
-              required
               maxLength={100}
             />
           </div>
@@ -817,7 +814,7 @@ const FileUploadForm: React.FC<{
   return (
     <div className="card bg-base-100 border-2">
       <div className="card-body">
-        <h2 className="card-title text-primary">Required Attachments</h2>
+        <h2 className="card-title text-primary"> Attachments</h2>
         <div className="space-y-4">
           <p className="text-lg font-medium">Please attach the following:</p>
           <ul className="list-disc list-inside space-y-2">
