@@ -629,6 +629,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">COLLEGE / AFFILIATION</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <div className="relative w-full">
               <input
@@ -676,6 +677,7 @@ const CreateMemberModal: React.FC<CreateMemberModalProps> = ({
           <div className="form-control">
             <label className="label">
               <span className="label-text">PROGRAM / MAJOR</span>
+              <span className="text-primary text-xs">(required)</span>
             </label>
             <div className="relative w-full">
               <input
