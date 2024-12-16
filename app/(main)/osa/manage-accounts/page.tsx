@@ -106,6 +106,11 @@ export default function AccountsDashboard() {
   };
 
   const handleArchiveAccount = async (accountId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to archive this account?");
+    if (!isConfirmed) {
+      return;
+    }
+  
     try {
       const response = await axios.delete(`/api/users/${accountId}`);
       if (response.status === 200) {
@@ -119,6 +124,11 @@ export default function AccountsDashboard() {
   };
 
   const handleUnarchiveAccount = async (accountId: string) => {
+    const isConfirmed = window.confirm("Are you sure you want to unarchive this account?");
+    if (!isConfirmed) {
+      return;
+    }
+  
     try {
       const response = await axios.patch(`/api/users/${accountId}`);
       if (response.status === 200) {
@@ -309,18 +319,18 @@ export default function AccountsDashboard() {
                             setIsEditingAccount(true);
                           }}
                         >
-                          <Edit className="h-4 w-4" />
+                          Edit
                         </button>
                         {account.isArchived ? (
                           <button
-                            className="btn btn-success btn-xs"
+                            className="btn btn-xs"
                             onClick={() => handleUnarchiveAccount(account._id)}
                           >
-                            <RefreshCw className="h-4 w-4" />
+                            Unarchive
                           </button>
                         ) : (
-                          <button className="btn btn-error btn-xs" onClick={() => handleArchiveAccount(account._id)}>
-                            <Trash2 className="h-4 w-4" />
+                          <button className="btn btn-neutral btn-xs" onClick={() => handleArchiveAccount(account._id)}>
+                           Archive
                           </button>
                         )}
                       </td>
