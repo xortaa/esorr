@@ -733,7 +733,7 @@ const OrganizationSetupStep1 = ({
         )}
         <div className="form-control">
           <label className="label" htmlFor="org-website">
-            <span className="label-text">Official Organization Website</span>
+            <span className="label-text">Official Organization Website (Optional)</span>
           </label>
           <input
             type="url"
