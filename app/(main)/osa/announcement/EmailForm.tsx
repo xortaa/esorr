@@ -94,12 +94,14 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       Object.entries(emailData).forEach(([key, value]) => {
         if (Array.isArray(value)) {
           formData.append(key, JSON.stringify(value));
-        } else {
+        } else if (value !== null && value !== undefined) {
           formData.append(key, value.toString());
         }
       });
       if (file) {
         formData.append("attachment", file);
+      } else {
+        formData.append("attachment", "null");
       }
       formData.append("sendImmediately", sendImmediately.toString());
 
