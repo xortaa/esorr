@@ -35,7 +35,8 @@ export async function GET(request: Request, { params }: { params: { organization
     for (const month of monthNames) {
       if (annex[month] && annex[month].outflows && annex[month].outflows.length > 0) {
         await annex.populate(`${month}.outflows`);
-        allOutflows.push(...annex[month].outflows);
+        const nonArchivedOutflows = annex[month].outflows.filter(outflow => !outflow.archived);
+        allOutflows.push(...nonArchivedOutflows);
       }
     }
 

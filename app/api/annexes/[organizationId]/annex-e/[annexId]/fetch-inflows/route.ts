@@ -30,7 +30,8 @@ export const GET = async (req: NextRequest, { params }: { params: { organization
     for (const month of monthNames) {
       if (annexE2[month] && annexE2[month].inflows && annexE2[month].inflows.length > 0) {
         await annexE2.populate(`${month}.inflows`);
-        allInflows.push(...annexE2[month].inflows);
+        const nonArchivedInflows = annexE2[month].inflows.filter((inflow) => !inflow.archived);
+        allInflows.push(...nonArchivedInflows);
       }
     }
 

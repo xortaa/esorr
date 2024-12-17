@@ -151,7 +151,7 @@ export async function DELETE(
     }
 
     // Delete the inflow
-    const deletedInflow = await Inflow.findByIdAndDelete(params.inflowId);
+    const deletedInflow = await Inflow.findByIdAndUpdate(params.inflowId, {isArchived: true}, { new: true });
     if (!deletedInflow) {
       return NextResponse.json({ error: "Inflow not found" }, { status: 404 });
     }

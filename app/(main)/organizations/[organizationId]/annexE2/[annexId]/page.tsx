@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import PageWrapper from "@/components/PageWrapper";
 import {
   Plus,
-  Trash,
   Receipt,
   Calendar,
   Hash,
@@ -14,7 +13,6 @@ import {
   Building2,
   Users,
   ShoppingBag,
-  Edit,
   X,
   CalendarDays,
   PhilippinePeso,
@@ -81,6 +79,7 @@ const outflowCategories = [
 ];
 
 const inflowCategories = [
+  "Organization Fund / Beginning Balance",
   "Membership Fee",
   "Registration Fee",
   "Merchandise Selling",
@@ -474,7 +473,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const deleteInflow = async (inflowId: string) => {
-    const isConfirmed = window.confirm("Are you sure you want to delete this inflow?");
+    const isConfirmed = window.confirm("Are you sure you want to archive this inflow?");
     if (!isConfirmed) return;
 
     try {
@@ -486,7 +485,7 @@ export default function AnnexE2FinancialLiquidationReport() {
   };
 
   const deleteOutflow = async (outflowId: string) => {
-    const isConfirmed = window.confirm("Are you sure you want to delete this outflow?");
+    const isConfirmed = window.confirm("Are you sure you want to archive this outflow?");
     if (!isConfirmed) return;
 
     try {
@@ -789,10 +788,10 @@ export default function AnnexE2FinancialLiquidationReport() {
                                       className="btn btn-primary btn-sm mr-2"
                                       onClick={() => setEditingItem(item)}
                                     >
-                                      <Edit size={16} className="mr-1" /> Edit
+                                      Edit
                                     </button>
-                                    <button className="btn btn-error btn-sm" onClick={() => deleteItem(item._id)}>
-                                      <Trash size={16} className="mr-1" /> Delete
+                                    <button className="btn btn-neutral btn-sm" onClick={() => deleteItem(item._id)}>
+                                      Remove Item
                                     </button>
                                   </>
                                 )}
@@ -978,13 +977,13 @@ export default function AnnexE2FinancialLiquidationReport() {
                         Total: {formatMoney(outflow.totalCost).toString()}
                       </p>
                       <button
-                        className="btn btn-sm btn-error mt-2"
+                        className="btn btn-sm btn-neutral mt-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteOutflow(outflow._id);
                         }}
                       >
-                        <Trash size={16} className="mr-1" /> Delete
+                        Archive
                       </button>
                     </div>
                   ))}
@@ -1151,10 +1150,10 @@ export default function AnnexE2FinancialLiquidationReport() {
                           </td>
                           <td>
                             <button className="btn btn-sm btn-primary mr-2" onClick={() => editInflow(inflow)}>
-                              <Edit size={16} className="mr-1" /> Edit
+                              Edit
                             </button>
-                            <button className="btn btn-sm btn-error" onClick={() => deleteInflow(inflow._id)}>
-                              <Trash size={16} className="mr-1" /> Delete
+                            <button className="btn btn-sm btn-neutral" onClick={() => deleteInflow(inflow._id)}>
+                              Archive
                             </button>
                           </td>
                         </tr>

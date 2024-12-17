@@ -6,7 +6,11 @@ const OutflowItemSchema = new Schema({
   cost: Number,
   quantity: Number,
   serialNumber: String,
-  expenseReportCategory: String
+  expenseReportCategory: String,
+  isArchived: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const OutflowSchema = new Schema({
@@ -16,6 +20,10 @@ const OutflowSchema = new Schema({
   totalCost: Number,
   image: String,
   event: { type: Schema.Types.ObjectId, ref: "Event" },
+  isArchived: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Outflow = models.Outflow || model("Outflow", OutflowSchema);
