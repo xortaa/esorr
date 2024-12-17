@@ -22,18 +22,21 @@ export async function POST(request: Request) {
     const newEmail = new Email({
       subject: emailData.subject,
       text: emailData.text,
-      scheduledDate: emailData.scheduledDate ? new Date(emailData.scheduledDate as string) : null,
+      scheduledDate:
+        emailData.scheduledDate && typeof emailData.scheduledDate === "string"
+          ? new Date(emailData.scheduledDate)
+          : null,
       recipientType: emailData.recipientType,
       affiliation: formData.get("affiliation") || null,
-      specificRecipients: JSON.parse(emailData.specificRecipients as string),
+      specificRecipients: JSON.parse((emailData.specificRecipients as string) || "[]"),
       status: emailData.scheduledDate ? "scheduled" : "draft",
     });
 
-    if (formData.get("attachment")) {
-      const file = formData.get("attachment") as File;
-      const buffer = await file.arrayBuffer();
+    const attachmentFile = formData.get("attachment");
+    if (attachmentFile instanceof File && attachmentFile.size > 0) {
+      const buffer = await attachmentFile.arrayBuffer();
       newEmail.attachment = {
-        filename: file.name,
+        filename: attachmentFile.name,
         content: Buffer.from(buffer),
       };
     }
@@ -48,6 +51,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: "Email saved successfully" });
   } catch (error: any) {
+    console.error("Error processing email:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -61,22 +65,25 @@ export async function PUT(request: Request) {
     const updatedEmail: any = {
       subject: emailData.subject,
       text: emailData.text,
-      scheduledDate: emailData.scheduledDate ? new Date(emailData.scheduledDate as string) : null,
+      scheduledDate:
+        emailData.scheduledDate && typeof emailData.scheduledDate === "string"
+          ? new Date(emailData.scheduledDate)
+          : null,
       recipientType: emailData.recipientType,
       affiliation: formData.get("affiliation") || null,
       specificRecipients: JSON.parse((emailData.specificRecipients as string) || "[]"),
       status: emailData.scheduledDate ? "scheduled" : "draft",
     };
 
-    const attachmentFile = formData.get("attachment") as File | null;
-    if (attachmentFile && attachmentFile.size > 0) {
+    const attachmentFile = formData.get("attachment");
+    if (attachmentFile instanceof File && attachmentFile.size > 0) {
       const buffer = await attachmentFile.arrayBuffer();
       updatedEmail.attachment = {
         filename: attachmentFile.name,
         content: Buffer.from(buffer),
       };
-    } else if (emailData.attachment === "null") {
-      updatedEmail.attachment = null;
+    } else if (attachmentFile === "null") {
+      updatedEmail.attachment = { filename: null, content: null };
     }
 
     const email = await Email.findByIdAndUpdate(emailData._id, updatedEmail, { new: true });
@@ -93,7 +100,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true, message: "Email updated successfully" });
   } catch (error: any) {
-    console.error("Error updating email:", error);
+    console.error("Error processing email:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

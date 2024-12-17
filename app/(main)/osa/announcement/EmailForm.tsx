@@ -70,6 +70,11 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
     setEmailData((prev) => ({ ...prev, specificRecipients: selectedEmails }));
   };
 
+  const handleSendNowClick = (e: React.MouseEvent) => {
+    setEmailData((prev) => ({ ...prev, scheduledDate: "" }));
+    handleSubmit(e, true);
+  };
+
   const handleSubmit = async (e: React.FormEvent, sendImmediately = false) => {
     e.preventDefault();
 
@@ -133,7 +138,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
     <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6 bg-white p-8 rounded-lg shadow-sm">
       <div>
         <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-          Subject (max 10 words)
+          Subject (max 100 characters)
         </label>
         <input
           type="text"
@@ -143,11 +148,12 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
           onChange={handleInputChange}
           className="input input-bordered w-full"
           required
+          maxLength={100} // Approximately 10-15 words
         />
       </div>
       <div>
         <label htmlFor="text" className="block text-sm font-medium text-gray-700 mb-1">
-          Message (max 500 words)
+          Message (max 1000 characters)
         </label>
         <textarea
           id="text"
@@ -156,6 +162,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
           onChange={handleInputChange}
           className="textarea textarea-bordered w-full h-40"
           required
+          maxLength={1000} // Approximately 500 words
         ></textarea>
       </div>
       <div>
@@ -170,7 +177,7 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
           onChange={handleInputChange}
           className="input input-bordered w-full"
         />
-        <p className="text-sm text-gray-500 mt-1">Scheduled emails will be sent at 6:00 AM on the scheduled day.</p>
+        <p className="text-sm text-gray-500 mt-1">Scheduled emails will be sent around 6:00 AM on the scheduled day.</p>
       </div>
       <div>
         <label htmlFor="recipientType" className="block text-sm font-medium text-gray-700 mb-1">
@@ -250,12 +257,15 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
         </button>
         <button
           type="button"
-          onClick={(e) => handleSubmit(e, true)}
+          onClick={handleSendNowClick}
           className="btn btn-secondary w-full"
-          disabled={isSending}
+          disabled={isSending || !!emailData.scheduledDate}
         >
           Send Now
         </button>
+        {emailData.scheduledDate && (
+          <p className="text-sm text-gray-500 mt-1">Cannot send immediately when a schedule date is set.</p>
+        )}
       </div>
       {status && (
         <p className={`text-center mt-4 ${status.includes("Error") ? "text-red-600" : "text-green-600"}`}>{status}</p>

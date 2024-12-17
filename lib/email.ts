@@ -20,7 +20,7 @@ export async function sendEmail(email: any) {
     text: email.text,
   };
 
-  if (email.attachment) {
+  if (email.attachment && email.attachment.filename && email.attachment.content) {
     mailOptions.attachments = [
       {
         filename: email.attachment.filename,

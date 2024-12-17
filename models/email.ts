@@ -32,8 +32,14 @@ const EmailSchema = new Schema(
       default: "draft",
     },
     attachment: {
-      filename: String,
-      content: Buffer,
+      filename: {
+        type: String,
+        default: null,
+      },
+      content: {
+        type: Buffer,
+        default: null,
+      },
     },
     archived: {
       type: Boolean,
