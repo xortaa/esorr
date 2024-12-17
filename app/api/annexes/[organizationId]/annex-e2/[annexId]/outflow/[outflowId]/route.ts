@@ -161,31 +161,31 @@ export async function DELETE(
     }
 
     // Delete image if exists
-    if (deletedOutflow.image) {
-      const fileName = deletedOutflow.image.split("/").pop();
-      if (fileName) {
-        try {
-          const deleteResponse = await fetch("/api/delete-file", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ fileName }),
-          });
+    // if (deletedOutflow.image) {
+    //   const fileName = deletedOutflow.image.split("/").pop();
+    //   if (fileName) {
+    //     try {
+    //       const deleteResponse = await fetch("/api/delete-file", {
+    //         method: "POST",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({ fileName }),
+    //       });
 
-          if (!deleteResponse.ok) {
-            console.error("Failed to delete file:", await deleteResponse.text());
-          }
-        } catch (error) {
-          console.error("Error deleting file:", error);
-        }
-      }
-    }
+    //       if (!deleteResponse.ok) {
+    //         console.error("Failed to delete file:", await deleteResponse.text());
+    //       }
+    //     } catch (error) {
+    //       console.error("Error deleting file:", error);
+    //     }
+    //   }
+    // }
 
     // Remove the outflow from the associated event
     await Event.findByIdAndUpdate(deletedOutflow.event, { $pull: { outflows: deletedOutflow._id } });
 
-    await Outflow.findByIdAndDelete(params.outflowId);
+    await Outflow.findByIdAndUpdate(params.outflowId, {isArchived: true}, { new: true });
 
     // Update AnnexE2
     const annexE2 = await AnnexE2.findById(params.annexId);

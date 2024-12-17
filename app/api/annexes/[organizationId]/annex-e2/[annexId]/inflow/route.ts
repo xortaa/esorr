@@ -33,7 +33,8 @@ export async function GET(request: Request, { params }: { params: { organization
     for (const month of monthNames) {
       if (annex[month] && annex[month].inflows && annex[month].inflows.length > 0) {
         await annex.populate(`${month}.inflows`);
-        allInflows.push(...annex[month].inflows);
+        const nonArchivedInflows = annex[month].inflows.filter(inflow => !inflow.archived);
+        allInflows.push(...nonArchivedInflows);
       }
     }
 

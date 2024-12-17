@@ -7,6 +7,10 @@ const InflowSchema = new Schema({
   payingParticipants: Number,
   totalMembers: Number,
   merchandiseSales: Number,
+  isArchived: { 
+    type: Boolean,
+    default: false
+  }
 });
 
 const Inflow = models.Inflow || model("Inflow", InflowSchema);
