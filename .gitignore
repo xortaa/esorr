@@ -34,3 +34,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 public/assets/signature.png
+
+/config/key-file.json
