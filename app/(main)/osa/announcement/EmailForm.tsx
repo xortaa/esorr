@@ -120,6 +120,15 @@ export default function EmailForm({ emailToEdit = null }: { emailToEdit: EmailTo
       if (result.success) {
         setStatus(sendImmediately ? "Email sent successfully!" : "Email saved successfully!");
         router.push("/osa/announcement");
+        setEmailData({
+          _id: "",
+          subject: "",
+          text: "",
+          scheduledDate: "",
+          recipientType: "allRSO",
+          affiliation: "",
+          specificRecipients: [],
+        });
       } else {
         setStatus(`Error: ${result.error}`);
       }
